@@ -7,14 +7,18 @@ import '../../styles/StylesNav/NavUsuarios.css';
 
 export const NavInesis = () => {
   return (
-    <div className='colorNav'>
+    <div style={{background: 'var(--color-gris2)', borderRadius: '12px'}} className='m-4'>
       <Navbar expand="lg" 
-        style={{ backgroundColor: 'var(--color-morado1)', color: 'white' }}
+        style={{ backgroundColor: '', color: 'white' }}
       >
-        <Container>
-          <Navbar.Brand href="/PrincipalAdmin" className='size-font-title-nav fs-1'>
-            U Z A C H I
-          </Navbar.Brand>
+        <div className='w-100 d-flex justify-content-end'>
+        <div className='d-flex align-items-center' style={{ marginRight: 'auto' }}>
+            <Navbar.Brand href="/PrincipalAdmin" className='fs-1'>
+              <h1 style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>
+                INESIS
+              </h1>
+            </Navbar.Brand>
+          </div>
           <Navbar.Toggle aria-controls="basic-navbar-nav" style={{ backgroundColor: 'white' }} />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
@@ -44,7 +48,7 @@ export const NavInesis = () => {
 
             </Nav>
           </Navbar.Collapse>
-        </Container>
+        </div>
       </Navbar>
     </div>
   );
