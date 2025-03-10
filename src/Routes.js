@@ -5,6 +5,7 @@ import { NavInesis } from './components/NavInesis/NavInesis';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MigasRecorrido from './components/MigasDePan/MigasRecorrido';
 import FooterInesis from './components/FooterInesis/FooterInesis';
+import { LIneamientos } from './pages/Lineamientos/LIneamientos';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
 
 const AppRoutes = () => {
@@ -17,6 +18,7 @@ const AppRoutes = () => {
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
 
 
+        <Route path="/Lineamientos" element={<LIneamientos />} />
     </Routes>
   )
 }
