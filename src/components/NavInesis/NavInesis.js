@@ -4,51 +4,54 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import '../../styles/StylesNav/NavUsuarios.css';
+import { NavItem } from 'react-bootstrap';
+
+// Importando imagenes
+import perfilIcon from '../../assets/perfilIcon.png'
 
 export const NavInesis = () => {
   return (
-    <div style={{background: 'var(--color-gris2)', borderRadius: '12px'}} className='m-4'>
-      <Navbar expand="lg" 
-        style={{ backgroundColor: '', color: 'white' }}
-      >
-        <div className='w-100 d-flex justify-content-end'>
-        <div className='d-flex align-items-center' style={{ marginRight: 'auto' }}>
-            <Navbar.Brand href="/PrincipalAdmin" className='fs-1'>
-              <h1 style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>
-                INESIS
-              </h1>
-            </Navbar.Brand>
-          </div>
+    <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
+      <Navbar expand="lg" style={{ backgroundColor: '', color: 'black' }}>
+        <Container fluid>
+          {/* INESIS completamente a la izquierda */}
+          <Navbar.Brand
+            href="/PrincipalAdmin"
+            className='fs-1 me-auto d-flex align-items-center'
+          >
+            <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
+              INESIS
+            </h1>
+          </Navbar.Brand>
+
+          {/* Toggle para dispositivos móviles */}
           <Navbar.Toggle aria-controls="basic-navbar-nav" style={{ backgroundColor: 'white' }} />
+
+          {/* Menú completamente a la derecha y centrado verticalmente */}
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
+            <Nav className="ms-auto d-flex align-items-center">
 
-              <NavDropdown 
-                className='size-font-subtitle' 
-                title={<span style={{ color: 'white' }}>Catálogos</span>}
-              >
-                <NavDropdown.Item href="/GestionTransporte">Transportes</NavDropdown.Item>
-                <NavDropdown.Item href="/AgregarComunidades">Comunidades</NavDropdown.Item>
-                <NavDropdown.Item href="/ClientesFrecuentes">Clientes frecuentes</NavDropdown.Item>
-                <NavDropdown.Item href="/titulares">Titulares</NavDropdown.Item>
-                <NavDropdown.Item href="/remitentes">Remitentes</NavDropdown.Item>
-              </NavDropdown>
+              <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
+                <p className='mb-0'>Beca colegiatura</p>
+              </NavItem>
 
-              <NavDropdown 
-                className='ms-3 no-caret custom-dropdown' 
-                title={<img src="/ruta-de-tu-imagen.png" style={{ width: '40px' }} />}
+              {/* Opción 2: Lineamientos */}
+              <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
+                <p className='mb-0'>Lineamientos</p>
+              </NavItem>
+
+              {/* Dropdown del usuario */}
+              <NavDropdown
+                className='me-5 no-caret custom-dropdown'
+                title={<img src={perfilIcon} style={{ width: '40px' }} alt="Perfil" />}
               >
                 <NavDropdown.Item href="#">Mi cuenta</NavDropdown.Item>
                 <NavDropdown.Item href="#">Cambiar contraseña</NavDropdown.Item>
-                <NavDropdown.Item 
-                >
-                  Cerrar sesión
-                </NavDropdown.Item>
+                <NavDropdown.Item>Cerrar sesión</NavDropdown.Item>
               </NavDropdown>
-
             </Nav>
           </Navbar.Collapse>
-        </div>
+        </Container>
       </Navbar>
     </div>
   );
