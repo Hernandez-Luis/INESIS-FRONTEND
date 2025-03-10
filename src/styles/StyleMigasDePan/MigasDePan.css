@@ -1,6 +1,14 @@
-/* ESTILO PARA BREADCRUMB */
+/* Contenedor del breadcrumb */
+.breadcrumb-container {
+    background-color: var(--color-gris2);
+    border-radius: 14px;
+    display: inline-block; /* Ajustar al contenido */
+    max-width: 100%; /* Evitar que ocupe más del ancho disponible */
+}
+
+/* Estilos del breadcrumb */
 .breadcrumb {
-    padding: 10px; /* Espaciado interno */
+    padding: 0; /* Espaciado interno */
     border-radius: 10px; /* Bordes redondeados */
     background: var(--color-gris2); /* Color de fondo */
     display: inline-flex; /* Ajustar al contenido */
@@ -29,7 +37,7 @@
 }
 
 .breadcrumb-item:hover a {
-    color: white !important; /* Color del texto al pasar el mouse */
+    color: var(--color-morado1) !important; /* Color del texto al pasar el mouse */
 }
 
 .breadcrumb-item:hover {
@@ -45,10 +53,9 @@
     border-radius: 10px; /* Bordes redondeados */
     padding: 8px; /* Espaciado interno */
     font-weight: bold; /* Texto en negrita */
-    color: white; /* Color del texto */
+    color: white !important; /* Color del texto */
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
     content: none !important; /* Elimina el divisor */
 }
-/* FIN DE ESTILOS DE BREADCRUMB */
