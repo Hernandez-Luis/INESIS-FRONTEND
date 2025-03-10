@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+
+/*----------------------------------- ESTILOS GLOBALES --------------------------------------*/
+:root {
+  --color-morado1: #4F46E5;
+  --color-morado2: #6366F1;
+  --color-morado3: #818CF8;
+}
+
