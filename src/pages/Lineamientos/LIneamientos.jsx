@@ -1,15 +1,16 @@
 import React from 'react'
 import NavInesis from '../../components/NavInesis/NavInesis'
 import imagenLineamientos  from '../../assets/LineamientosIMG.png'
+import FooterInesis from '../../components/FooterInesis/FooterInesis'
 
 export const LIneamientos = () => {
   return (
     <div className='d-flex flex-column min-vh-100'>
         <NavInesis />
-        <section>
+        <section className="flex-grow-1 mb-3 p-2">
             <div className="container">
                 <h1 className="fs-1 text-center mb-5" style={{color: 'var(--color-morado1)'}}>
-                    Antes de solicitar tu beca ten en cuenta lo siguiente:
+                    Toma en cuenta lo siguiente antes de solicitar tu beca:
                 </h1>
                 <div className="mt-5">
                     <div className="row w-100">
@@ -24,7 +25,7 @@ export const LIneamientos = () => {
                                 </li>
                                 <br />
                                 <li>
-                                    <strong>3.</strong> El reporte de Ingresos familiares deberá incluir TODAS las fuentes de ingreso familiar, y deberá acompañarse de comprobantes oficiales de Ingresos. En caso de no depender económicamente de otras personas, deberá presentarse comprobante oficial de Ingresos del alumno. Se deberán reportar el ingreso bruto, así como el ingreso neto.
+                                    <strong>3.</strong> El reporte de Ingresos familiares deberá incluir <b>TODAS</b> las fuentes de ingreso familiar, y deberá acompañarse de comprobantes oficiales de Ingresos. En caso de no depender económicamente de otras personas, deberá presentarse comprobante oficial de Ingresos del alumno. Se deberán reportar el ingreso bruto, así como el ingreso neto.
                                 </li>
                                 <br />
                                 <li>
@@ -51,6 +52,7 @@ export const LIneamientos = () => {
                 </div>
             </div>
         </section>
+        <FooterInesis></FooterInesis>
     </div>
   )
 }
