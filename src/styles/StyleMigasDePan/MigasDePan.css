@@ -1,69 +1,54 @@
 /* ESTILO PARA BREADCRUMB */
-
 .breadcrumb {
-    background-color: #f8f9fa;
-    /* Color de fondo */
-    padding: 10px;
-    /* Espaciado */
-    border-radius: 10px;
-    /* Bordes redondeados */
-    display: inline-block;
-    /* Permitir que el fondo se ajuste al contenido */
-  }
-  
-  .breadcrumb ul {
-    list-style-type: none;
-    /* Eliminar viñetas */
-    padding: 0;
-    /* Sin padding */
-    margin: 0;
-    /* Sin margen */
-    display: flex;
-    /* Flexbox para alinear en línea */
-  }
-  
-  .breadcrumb-item {
-    padding: 5px 10px;
-    /* Espaciado dentro de cada enlace */
-    border: 1px solid var(--color-gris-opaco);
-    /* Borde alrededor de cada enlace */
-    border-radius: 5px;
-    /* Bordes redondeados para los enlaces */
-    transition: background-color 0.4s;
-    /* Efecto de transición */
-  }
-  
-  .breadcrumb-item a {
-    text-decoration: none;
-    /* Sin subrayado en el enlace */
-    color: var(--color-gris);
-  }
-  
-  .breadcrumb-item:hover a {
-    color: white !important;
-  }
-  
-  .breadcrumb-item:hover {
-    background-color: var(--color-verde);
-    /* Color de fondo al pasar el mouse */
-  }
-  
-  .breadcrumb-item:last-child {
-    border-bottom: none;
-    /* Quita el borde inferior */
-  }
-  
-  .breadcrumb-item:last-child a {
-    background-color: var(--color-morado1);
-    border-radius: 10px;
-    padding: 8px;
-    font-weight: bold;
-    color: white;
-  }
+    padding: 10px; /* Espaciado interno */
+    border-radius: 10px; /* Bordes redondeados */
+    background: var(--color-gris2); /* Color de fondo */
+    display: inline-flex; /* Ajustar al contenido */
+}
 
-  .breadcrumb-item + .breadcrumb-item::before {
-    content: none  !important; /* Elimina el divisor */
-  }
-  
-  
-  /* FIN DE ESTILOS DE BREADCRUMB */
+.breadcrumb ul {
+    list-style-type: none; /* Eliminar viñetas */
+    padding: 0; /* Sin padding */
+    margin: 0; /* Sin margen */
+    display: flex; /* Flexbox para alinear en línea */
+    align-items: center; /* Centrar verticalmente */
+    flex-wrap: wrap; /* Permitir que los elementos se envuelvan */
+}
+
+.breadcrumb-item {
+    padding: 5px 10px; /* Espaciado dentro de cada enlace */
+    border: 1px solid var(--color-gris-opaco); /* Borde alrededor de cada enlace */
+    border-radius: 5px; /* Bordes redondeados para los enlaces */
+    transition: background-color 0.4s; /* Efecto de transición */
+    margin: 2px; /* Espaciado entre elementos */
+}
+
+.breadcrumb-item a {
+    text-decoration: none; /* Sin subrayado en el enlace */
+    color: var(--color-gris); /* Color del texto */
+}
+
+.breadcrumb-item:hover a {
+    color: white !important; /* Color del texto al pasar el mouse */
+}
+
+.breadcrumb-item:hover {
+    background-color: var(--color-verde); /* Color de fondo al pasar el mouse */
+}
+
+.breadcrumb-item:last-child {
+    border-bottom: none; /* Quita el borde inferior */
+}
+
+.breadcrumb-item:last-child a {
+    background-color: var(--color-morado1); /* Color de fondo del último enlace */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 8px; /* Espaciado interno */
+    font-weight: bold; /* Texto en negrita */
+    color: white; /* Color del texto */
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: none !important; /* Elimina el divisor */
+}
+/* FIN DE ESTILOS DE BREADCRUMB */
