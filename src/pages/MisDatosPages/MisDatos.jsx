@@ -71,7 +71,6 @@ export const MisDatos = () => {
                         placeholder="Selecciona una opción" // Placeholder
                       />
                     </div>
-
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Sexo:</label>
@@ -82,9 +81,7 @@ export const MisDatos = () => {
                         placeholder="Selecciona una opción" // Placeholder
                       />
                     </div>
-
                   </div>
-
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Estado civil:</label>
                     <RadioSelect options={['Soltero', 'Casado']} onChange={handleSelectionEstadoCivil} />
@@ -104,7 +101,6 @@ export const MisDatos = () => {
                     <RadioSelect gris={true} options={['Rento cuarto', 'Rento casa', 'Vivo con familiares']} onChange={handleSelectionVivienda} />
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
-
                   <div className='row'>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
@@ -115,7 +111,6 @@ export const MisDatos = () => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
-
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
@@ -126,7 +121,6 @@ export const MisDatos = () => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
-
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
@@ -137,7 +131,6 @@ export const MisDatos = () => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
-
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
@@ -153,7 +146,6 @@ export const MisDatos = () => {
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                       <input className='form-control' type="text" />
                     </div>
-
                     <div className="col-3">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
                       <input className='form-control' type="text" />
@@ -167,11 +159,13 @@ export const MisDatos = () => {
                       <input className='form-control' type="text" />
                     </div>
                   </div>
-                  
                 </div>
-                
+              </div>
+              <div className='ms-5 px-5 mt-4 tarjeta-border'>
+                <p className='fs-2'>Gatos e ingresos</p>
               </div>
             </div>
+
           </form>
         </div>
         <FooterInesis></FooterInesis>
