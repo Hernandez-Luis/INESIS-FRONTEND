@@ -65,12 +65,14 @@ export const MisDatos = () => {
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Semestre:</label>
+                    <div>
+                      <SeleccionarCombo
+                        options={['Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto', 'Septimo', 'Octavo', 'Noveno', 'Decimo']} // Opciones disponibles
+                        onChange={handleSelection} // Función para manejar la selección
+                        placeholder="Selecciona una opción" // Placeholder
+                      />
+                    </div>
 
-                    <SeleccionarCombo
-                      options={['Uno', 'os']} // Opciones disponibles
-                      onChange={handleSelection} // Función para manejar la selección
-                      placeholder="Selecciona una opción" // Placeholder
-                    />
                   </div>
 
                   <div className='mt-4 d-flex align-items-center'>
@@ -93,40 +95,52 @@ export const MisDatos = () => {
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
 
-                 <div className='row'>
-                 <div className='col-6 mt-2'>
-                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                    <SeleccionarCombo
-                      options={['Oaxaca', 'Veracruz', 'Chiapas']} // Opciones disponibles
-                      onChange={handleSelection} // Función para manejar la selección
-                      placeholder="Selecciona una opción" // Placeholder
-                    />
+                  <div className='row'>
+                    <div className='col-6 mt-2'>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                      <div>
+                        <SeleccionarCombo
+                          options={['Oaxaca', 'Veracruz', 'Chiapas']} // Opciones disponibles
+                          onChange={handleSelection} // Función para manejar la selección
+                          placeholder="Selecciona una opción" // Placeholder
+                        />
+                      </div>
+
+                    </div>
+                    <div className='col-6 mt-2'>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                      <div>
+                        <SeleccionarCombo
+                          options={['Ixtlan', 'Xiacui']} // Opciones disponibles
+                          onChange={handleSelection} // Función para manejar la selección
+                          placeholder="Selecciona una opción" // Placeholder
+                        />
+                      </div>
+
+                    </div>
+                    <div className='col-6 mt-2'>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                      <div>
+                        <SeleccionarCombo
+                          options={['Capulalpam', 'Guelatao']} // Opciones disponibles
+                          onChange={handleSelection} // Función para manejar la selección
+                          placeholder="Selecciona una opción" // Placeholder
+                        />
+                      </div>
+
+                    </div>
+                    <div className='col-6 mt-2'>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                      <div>
+                        <SeleccionarCombo
+                          options={['Soledad', 'Asuncion']} // Opciones disponibles
+                          onChange={handleSelection} // Función para manejar la selección
+                          placeholder="Selecciona una opción" // Placeholder
+                        />
+                      </div>
+
+                    </div>
                   </div>
-                  <div className='col-6 mt-2'>
-                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                    <SeleccionarCombo
-                      options={['Ixtlan', 'Xiacui']} // Opciones disponibles
-                      onChange={handleSelection} // Función para manejar la selección
-                      placeholder="Selecciona una opción" // Placeholder
-                    />
-                  </div>
-                  <div className='col-6 mt-2'>
-                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                    <SeleccionarCombo
-                      options={['Capulalpam', 'Guelatao']} // Opciones disponibles
-                      onChange={handleSelection} // Función para manejar la selección
-                      placeholder="Selecciona una opción" // Placeholder
-                    />
-                  </div>
-                  <div className='col-6 mt-2'>
-                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                    <SeleccionarCombo
-                      options={['Soledad', 'Asuncion']} // Opciones disponibles
-                      onChange={handleSelection} // Función para manejar la selección
-                      placeholder="Selecciona una opción" // Placeholder
-                    />
-                  </div>
-                 </div>
                 </div>
               </div>
             </div>
