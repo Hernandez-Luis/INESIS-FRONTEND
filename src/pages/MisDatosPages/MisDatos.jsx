@@ -46,16 +46,15 @@ export const MisDatos = () => {
     <div>
       <NavInesis></NavInesis>
       <MigasRecorrido items={links}></MigasRecorrido>
-      <div className='d-flex flex-column min-vh-100 mt-5'>
+      <div className='d-flex flex-column min-vh-100 mt-5 mx-5 px-5'>
         <div className='flex-grow-1'>
           <form action="">
             <div className=' row mw-100'>
-              <div className='col tarjeta-border ms-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
+              <div className='col tarjeta-border ms-5 px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
                   <div className='d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Nombre:</label>
-                    {/* <input className='form-control' type="text" /> */}
                     <label>Luis Alberto Hernandez Ramirez</label>
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
@@ -74,6 +73,17 @@ export const MisDatos = () => {
                     </div>
 
                   </div>
+                  <div className='mt-4 d-flex align-items-center'>
+                    <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Sexo:</label>
+                    <div>
+                      <SeleccionarCombo
+                        options={['Hombre', 'Mujer']} // Opciones disponibles
+                        onChange={handleSelection} // Función para manejar la selección
+                        placeholder="Selecciona una opción" // Placeholder
+                      />
+                    </div>
+
+                  </div>
 
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Estado civil:</label>
@@ -86,7 +96,7 @@ export const MisDatos = () => {
                   </div>
                 </div>
               </div>
-              <div className='col tarjeta-border d-flex justify-content-start ms-3'>
+              <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                   <div className='mt-2'>
@@ -138,10 +148,28 @@ export const MisDatos = () => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
+                    </div>
+                    <div className='col-6 mt-2'>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                      <input className='form-control' type="text" />
+                    </div>
 
+                    <div className="col-3">
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                      <input className='form-control' type="text" />
+                    </div>
+                    <div className="col-3">
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                      <input className='form-control' type="text" />
+                    </div>
+                    <div className="col-12">
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
+                      <input className='form-control' type="text" />
                     </div>
                   </div>
+                  
                 </div>
+                
               </div>
             </div>
           </form>
