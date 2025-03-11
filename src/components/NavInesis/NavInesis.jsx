@@ -5,6 +5,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import '../../styles/StylesNav/NavUsuarios.css';
 import { NavItem } from 'react-bootstrap';
+import { Link } from 'react-router-dom'; // Importa Link desde react-router-dom
 
 // Importando imagenes
 import perfilIcon from '../../assets/perfilIcon.png'
@@ -36,8 +37,10 @@ export const NavInesis = () => {
               </NavItem>
 
               {/* Opción 2: Lineamientos */}
-              <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
-                <p className='mb-0' style={{fontWeight: 'lighter'}}>Lineamientos</p>
+              <NavItem className='me-5 fs-5 opciones nav-item-op'>
+                <Link to="/lineamientos" className="text-decoration-none text-dark">
+                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Lineamientos</p>
+                </Link>
               </NavItem>
 
               {/* Dropdown del usuario */}
