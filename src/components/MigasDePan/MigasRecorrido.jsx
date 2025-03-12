@@ -3,7 +3,7 @@ import '../../styles/StyleMigasDePan/MigasDePan.css'; // Archivo CSS para los es
 
 const MigasRecorrido = ({ items }) => {
     return (
-        <div className="breadcrumb-container pt-2 ms-4">
+        <div className="breadcrumb-container pt-2 ms-5">
             <nav className="breadcrumb">
                 <ul>
                     {items.map((link, index) => (

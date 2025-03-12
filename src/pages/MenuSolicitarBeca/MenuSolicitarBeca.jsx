@@ -14,7 +14,8 @@ import misDocumentosImg from '../../assets/misDocumentos.jpg'
 export const MenuSolicitarBeca = () => {
 
   const links = [
-    { url: '/menuAlumno', label: 'Menú alumno ' },
+    { url: '/', label: 'Inicio' },
+    { url: '/menuAlumno', label: 'Estudio socioeconómico' },
   ];
 
   return (
