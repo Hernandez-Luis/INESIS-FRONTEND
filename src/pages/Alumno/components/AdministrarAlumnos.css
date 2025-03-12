@@ -1,0 +1,27 @@
+/* Estilos para el botón "Agregar alumnos" */
+.btn-agregar-alumnos {
+    position: fixed;
+    top: 70px; /* Ajuste para separar el botón de la parte superior */
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 1000; /* Asegura que el botón esté por encima de otros elementos */
+}
+
+.btn-agregar-alumnos i {
+    margin-right: 8px;
+}
+
+/* Estilo de hover para el botón */
+.btn-agregar-alumnos:hover {
+    background-color: #0056b3;
+}
