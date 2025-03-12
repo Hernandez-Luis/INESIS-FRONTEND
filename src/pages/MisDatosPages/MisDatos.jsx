@@ -5,6 +5,7 @@ import "../../styles/TarjetaEstilo/TarjetaEstilo.css"
 import FooterInesis from '../../components/FooterInesis/FooterInesis'
 import RadioSelect from '../../components/RadioSelect/RadioSelect'
 import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo'
+import '../../styles/MisDatos/MisDatos.css'
 
 export const MisDatos = () => {
 
@@ -49,8 +50,9 @@ export const MisDatos = () => {
       <div className='d-flex flex-column min-vh-100 mt-5 mx-5 px-5'>
         <div className='flex-grow-1'>
           <form action="">
-            <div className=' row mw-100'>
-              <div className='col tarjeta-border ms-5 px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
+            <div className='row ms-5 mt-4  mw-100'>
+              {/* INICIO MODULO INFORMACION GENERA */}
+              <div className='col tarjeta-border px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
                   <div className='d-flex align-items-center'>
@@ -93,6 +95,9 @@ export const MisDatos = () => {
                   </div>
                 </div>
               </div>
+              {/* FIN MODULO INFORMACION GENERA */}
+
+              {/* INICIO MODULO DOMICILIO */}
               <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
@@ -146,11 +151,11 @@ export const MisDatos = () => {
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                       <input className='form-control' type="text" />
                     </div>
-                    <div className="col-3">
+                    <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
                       <input className='form-control' type="text" />
                     </div>
-                    <div className="col-3">
+                    <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                       <input className='form-control' type="text" />
                     </div>
@@ -161,11 +166,34 @@ export const MisDatos = () => {
                   </div>
                 </div>
               </div>
-              <div className='ms-5 px-5 mt-4 tarjeta-border'>
-                <p className='fs-2'>Gatos e ingresos</p>
-              </div>
+              {/* FIN MODULO DOMICILIO */}
             </div>
 
+
+            {/* MODULO GASTOS E INGRESOS  */}
+            <div className='ms-5 mt-4'>
+              <div className='tarjeta-border px-5'>
+                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
+                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto hacienden tus gastos mensuales de manutención?</p>
+                <div className="row">
+                  <div className="col">
+                    <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
+                    <input className='form-control w-25' type="number" />
+                  </div>
+                  <div className='col d-flex flex-column align-items-center text-center'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
+                      ¿Dependes económicamente?
+                    </p>
+                    <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                  </div>
+                </div>
+                <div class="line mx-auto mt-5 mb-4"></div>
+                <div className="row">
+                  <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
+                  <input className='form-control w-25' type="text" />
+                </div>
+              </div>
+            </div>
           </form>
         </div>
         <FooterInesis></FooterInesis>
