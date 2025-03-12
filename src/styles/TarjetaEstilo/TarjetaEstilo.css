@@ -1,0 +1,14 @@
+.tarjeta-border {
+  background-color: var(--color-gris2); /* Color de fondo */
+  display: inline-block; /* Ajustar al contenido */
+  max-width: 100%; /* Limitar el ancho al contenido */
+  border-style: solid; /* Estilo del borde */
+  border-radius: 26px; /* Bordes redondeados */
+  border-color: transparent; /* Color del borde */
+  border-width: 1px; /* Grosor del borde */
+  padding-top: 1.5em; /* Espaciado superior */
+  padding-bottom: 1.5em; /* Espaciado inferior */
+  padding-left: 10px; /* Espaciado izquierdo */
+  padding-right: 10px; /* Espaciado derecho */
+  box-shadow: 0 4px 8px rgba(0, 0, 1, 0.4); /* Sombra */
+}

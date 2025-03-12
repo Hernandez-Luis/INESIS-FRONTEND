@@ -1,3 +1,36 @@
-.colorNav {
-    background-color: 'black';
-  }
+:root {
+  --color-morado1: #4F46E5;
+  --color-morado2: #6366F1;
+  --color-morado3: #818CF8;
+  --color-gris1: #6C757D;
+  --color-gris2: #F5F5F5;
+}
+
+.no-caret .dropdown-toggle::after {
+  display: none; /* Oculta la flecha del dropdown */
+}
+
+.opciones:hover {
+  font-weight: bold;
+}
+
+/* Estilo para la línea morada debajo de las opciones de navegación */
+.nav-item-op {
+  position: relative;
+  cursor: pointer;
+}
+
+.nav-item-op:hover::after, .nav-item-op.selected::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 2px;
+  background-color: var(--color-morado1); /* Usa el color morado definido en :root */
+}
+
+/* Estilos adicionales para el dropdown (si es necesario) */
+.custom-dropdown {
+  /* Aquí puedes agregar estilos específicos para el dropdown si lo necesitas */
+}
