@@ -10,6 +10,7 @@ import miFamiliaImg from '../../assets/miFamilia.jpg'
 import gastosFamiliaresImg from '../../assets/gastosFamiliares.jpg'
 import misDocumentosImg from '../../assets/misDocumentos.jpg'
 
+import '../../App.css';
 
 export const MenuSolicitarBeca = () => {
 
@@ -60,7 +61,7 @@ export const MenuSolicitarBeca = () => {
             </div>
           </div>
           <div className='text-center'>
-            <button>Enviar</button>
+            <button className='btn btn-primary btn-lg'>Enviar</button>
           </div>
           {/*fin contenido*/}
         </div>
