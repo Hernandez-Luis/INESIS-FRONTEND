@@ -5,6 +5,7 @@ import "../../styles/TarjetaEstilo/TarjetaEstilo.css"
 import FooterInesis from '../../components/FooterInesis/FooterInesis'
 import RadioSelect from '../../components/RadioSelect/RadioSelect'
 import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo'
+import { CheckBox } from '../../components/CheckBox/CheckBox'
 import '../../styles/MisDatos/MisDatos.css'
 
 export const MisDatos = () => {
@@ -171,7 +172,7 @@ export const MisDatos = () => {
 
 
             {/* MODULO GASTOS E INGRESOS  */}
-            <div className='ms-5 mt-4'>
+            <div className='row ms-5 mt-4'>
               <div className='tarjeta-border px-5'>
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto hacienden tus gastos mensuales de manutención?</p>
@@ -192,6 +193,90 @@ export const MisDatos = () => {
                   <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                   <input className='form-control w-25' type="text" />
                 </div>
+                <div className="row mt-3">
+                  <div className="col">
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
+                    <RadioSelect gris={true} options={['Temporal', 'Permanente']} onChange={handleSelectionRecursos} />
+                  </div>
+                  <div className="col">
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
+                    <SeleccionarCombo
+                      options={['Jornalero', 'Chambeador']} // Opciones disponibles
+                      onChange={handleSelection} // Función para manejar la selección
+                      placeholder="Selecciona una opción" // Placeholder
+                    />
+                  </div>
+                  <div className="col">
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                    <input className='form-control w-50' type="text" />
+                  </div>
+                </div>
+                <div class="line mx-auto mt-5 mb-4"></div>
+                <div className="row">
+                  <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
+                  <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                </div>
+              </div>
+            </div>
+            {/* FIN MODULO GASTOS E INGRESOS  */}
+
+
+            <div className="row ms-5 mt-4">
+              {/* MODULO TRANSPORTE */}
+              <div className="col tarjeta-border me-4 px-4">
+                <p className='fs-2 ' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil o motocicleta cotidianamente a la universidad?</label>
+                <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
+                <div className='w-25'>
+                  <SeleccionarCombo
+                    options={['Terrestre', 'Aereo', 'Acuatico']} // Opciones disponibles
+                    onChange={handleSelection} // Función para manejar la selección
+                    placeholder="Selecciona una opción" // Placeholder
+                  />
+                </div>
+
+                <div className="row mt-4">
+                  <div className="col">
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
+                    <input className='form-control w-75' type="text" />
+                  </div>
+                  <div className="col">
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
+                    <input className='form-control w-75' type="text" />
+                  </div>
+                  <div className="col">
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
+                    <input className='form-control w-75' type="text" />
+                  </div>
+                </div>
+                <div className="row mt-4">
+                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
+                  <div className="col">
+                    <CheckBox opcion="Microbús" id='micro'></CheckBox>
+                    <br />
+                    <CheckBox opcion="Automóvil de amigos" id='autoamigos'></CheckBox>
+                    <br />
+                    <CheckBox opcion="Bicicleta" id='bicicleta'></CheckBox>
+                  </div>
+                  <div className="col">
+                    <CheckBox opcion="Mototaxi" id='mototaxi'></CheckBox>
+                    <br />
+                    <CheckBox opcion="Caminando" id='caminando'></CheckBox>
+                    <br />
+                    <CheckBox opcion="Automovil familiar" id='autofamiliar'></CheckBox>
+                  </div>
+                  <div className="col">
+
+                  </div>
+                </div>
+
+              </div>
+              {/* FIN MODULO TRANSPORTE */}
+
+              <div className="col tarjeta-border px-4">
+                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
               </div>
             </div>
           </form>
