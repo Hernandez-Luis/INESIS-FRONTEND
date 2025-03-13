@@ -1,27 +1,48 @@
-/* Estilos para el botón "Agregar alumnos" */
-.btn-agregar-alumnos {
-    position: fixed;
-    top: 70px; /* Ajuste para separar el botón de la parte superior */
-    right: 20px;
+.admin-alumnos-container {
+    min-height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    z-index: 1000; /* Asegura que el botón esté por encima de otros elementos */
+    flex-direction: column;
 }
 
-.btn-agregar-alumnos i {
-    margin-right: 8px;
+.custom-table-container {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-/* Estilo de hover para el botón */
-.btn-agregar-alumnos:hover {
-    background-color: #0056b3;
+.custom-table {
+    margin-bottom: 0;
 }
+
+.custom-table thead {
+    background-color: #f8f9fa;
+}
+
+.custom-table th {
+    padding: 1rem;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.custom-table td {
+    padding: 1rem;
+    color: #6c757d;
+    border-top: 1px solid #dee2e6;
+}
+
+.custom-table tr:last-child td {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn-agregar {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.table-footer {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
