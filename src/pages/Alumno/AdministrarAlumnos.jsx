@@ -3,6 +3,9 @@ import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import '../Alumno/components/AdministrarAlumnos.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import TablaRegistros from './components/TablaRegistros';
+
 
 const AdministrarAlumnos = () => {
     const links = [
@@ -22,46 +25,24 @@ const AdministrarAlumnos = () => {
         { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
     ];
 
+    const titulos = ["Matrícula", "Nombre Completo", "Carrera", "Semestre", "Grupo"];
+
     return (
-        <div >
-            <NavInesis></NavInesis>
-            <MigasRecorrido items={links}></MigasRecorrido>
+        <div>
+            <NavInesis />
+            <MigasRecorrido items={links} />
 
             <div className="container my-4">
-                <div className="mb-4 text-center">
+                <div className="mb-5 text-center">
                     <h2 className="size-font-title cardMenu-title">Administrar alumnos</h2>
                 </div>
 
                 <button className="btn btn-primary btn-agregar">
-                    <i className="bi bi-alarm"></i>
-
+                    <i className="bi bi-person-add me-2"></i>
                     Agregar alumno
                 </button>
 
-                <div className="table-responsive custom-table-container">
-                    <table className="table align-middle custom-table">
-                        <thead>
-                            <tr className="table-header">
-                                <th>Matrícula</th>
-                                <th>Nombre Completo</th>
-                                <th>Carrera</th>
-                                <th>Semestre</th>
-                                <th>Grupo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {alumnos.map((alumno, index) => (
-                                <tr key={index}>
-                                    <td className="fw-semibold">{alumno.matricula}</td>
-                                    <td>{alumno.nombre}</td>
-                                    <td>{alumno.carrera}</td>
-                                    <td>{alumno.semestre}</td>
-                                    <td>{alumno.grupo}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                <TablaRegistros data={alumnos} titulos={titulos} />
 
                 <div className="mt-3 text-end text-muted table-footer">
                     Mostrando 8 de 20 solicitudes
