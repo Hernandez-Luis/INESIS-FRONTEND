@@ -9,7 +9,8 @@ const AgregarAlumno = () => {
     const links = [
         { url: '/PrincipalAdmin', label: 'Inicio' },
         { url: '/PrincipalAdmin', label: 'Administrar' },
-        { url: '/PrincipalAdmin', label: 'Alumnos' }
+        { url: '/AdministrarAlumnos', label: 'Alumnos' },
+        { url: '/AgregarAlumno', label: 'Agregar alumno' }
     ];
 
     return (

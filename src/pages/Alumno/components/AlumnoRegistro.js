@@ -7,9 +7,9 @@ const AlumnoRegistro = () => {
             
             {/* Sección Datos Personales */}
             <section className="formulario-seccion formulario-seccion--datos-personales mb-5">
-                <h2 className="texto-morado2Normal mb-4">Datos personales</h2>
+                <h2 className="texto-morado2 mb-4">Datos personales</h2>
                 <div className="row g-4">
-                    <div className="col-md-6">
+                    <div >
                         <label className="formulario-etiqueta">Nombre</label>
                         <input
                             type="text"
@@ -17,7 +17,7 @@ const AlumnoRegistro = () => {
                             placeholder="Ingrese el nombre"
                         />
                     </div>
-                    <div className="col-md-6">
+                    <div >
                         <label className="formulario-etiqueta">Apellido</label>
                         <input
                             type="text"
@@ -25,7 +25,7 @@ const AlumnoRegistro = () => {
                             placeholder="Ingrese el apellido"
                         />
                     </div>
-                    <div className="col-md-6">
+                    <div >
                         <label className="formulario-etiqueta">CURP</label>
                         <input
                             type="text"
@@ -33,7 +33,7 @@ const AlumnoRegistro = () => {
                             placeholder="Ingrese la CURP"
                         />
                     </div>
-                    <div className="col-md-6">
+                    <div >
                         <label className="formulario-etiqueta">Matrícula</label>
                         <input
                             type="text"
@@ -73,14 +73,7 @@ const AlumnoRegistro = () => {
                             <option>Lic. Biología</option>
                         </select>
                     </div>
-                    <div className="col-md-6">
-                        <label className="formulario-etiqueta">Grupo</label>
-                        <input
-                            type="text"
-                            className="formulario-entrada"
-                            placeholder="Ingrese el grupo"
-                        />
-                    </div>
+                  
                     <div className="col-md-6">
                         <label className="formulario-etiqueta">Semestre</label>
                         <select className="formulario-entrada formulario-seleccion">
@@ -89,6 +82,14 @@ const AlumnoRegistro = () => {
                             <option>Segundo</option>
                             <option>Tercero</option>
                         </select>
+                    </div>
+                    <div className="col-md-6">
+                        <label className="formulario-etiqueta">Grupo</label>
+                        <input
+                            type="text"
+                            className="formulario-entrada"
+                            placeholder="Ingrese el grupo"
+                        />
                     </div>
                     <div className="col-md-6">
                         <label className="formulario-etiqueta">Matrícula</label>
@@ -102,11 +103,11 @@ const AlumnoRegistro = () => {
             </section>
 
             {/* Botón Agregar */}
-            <div className="d-flex justify-content-end">
+           {/* <div className="d-flex justify-content-end">
                 <button className="btn-agregar">
                     Agregar
                 </button>
-            </div>
+            </div>*/}
         </div>
     );
 };

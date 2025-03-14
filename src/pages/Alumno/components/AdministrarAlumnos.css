@@ -52,8 +52,8 @@
 
 .custom-table td {
     padding: 1rem;
-    color: #6c757d;
-    border-top: 1.5px solid var(--color-morado1);
+    color: var(--color-gris1);
+    border-bottom: 1.5px solid var(--color-morado1);
     border-left: none;
     border-right: none;
     text-align: center;
@@ -107,26 +107,33 @@
 }
 
 
-/* Contenedor principal para alinear las secciones verticalmente */
+/* Contenedor principal para alinear horizontalmente las secciones */
 .agregar-alumno-container {
-    display: block; 
-    padding: 10px;
-    max-width: 900px;
+    display: flex;
+    flex-wrap: wrap; /* Permite el salto de línea si no cabe */
+    gap: 50px;
+    padding: 20px;
+    align-items: flex-start; /* Alinea al inicio para evitar estiramiento vertical */
+    max-width: 1600px;
     margin: 0 auto;
 }
 
-/* Sección con datos personales */
+/* Secciones alineadas */
 .formulario-seccion--datos-personales,
 .formulario-seccion--datos-academicos {
+    flex: 1; /* Ocupan espacio disponible */
+    min-width: 500px; /* Ancho mínimo para responsividad */
     background-color: var(--color-gris2);
     padding: 40px;
-    border-radius: 10px;
-    border: 2px ;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    height: auto; /* Altura según contenido */
 }
 
 /* Etiquetas */
 .formulario-etiqueta {
-    font-weight: bold;
+    
     color: var(--color-morado2);
 }
 
@@ -136,8 +143,8 @@
     padding: 0.75rem;
     margin-top: 0.5rem;
     border-radius: 6px;
-    border: 1px solid var(--color-morado2);
-    transition: border-color 0.3s;
+    border: 0.5px solid var(--color-morado2);
+    transition: border-color 0.s;
 }
 
 .formulario-entrada:focus {
@@ -158,3 +165,5 @@
 .btn-agregar:hover {
     background-color: var(--color-morado2);
 }
+
+
