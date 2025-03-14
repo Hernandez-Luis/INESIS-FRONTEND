@@ -19,7 +19,9 @@ const LoginForm = () => {
       console.log("Usuario encontrado");
       if (password === "admin123") {
         console.log("Contraseña correcta");
-        navigate("/MisDatos");
+        navigate("/GastosIngresos");
+        
+        //navigate("/MisDatos");
       } else {
         console.log("Contraseña incorrecta");
         Swal.fire({
@@ -46,9 +48,9 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100" >
       <div className="container-fluid d-flex align-items-center justify-content-center bg-light flex-grow-1">
-        <div className="col-md-6 d-flex align-items-center justify-content-center">
+        <div className="col-md-5 d-flex align-items-center justify-content-center">
           <img src={logoLogin} alt="Login" className="img-fluid" />
         </div>
 

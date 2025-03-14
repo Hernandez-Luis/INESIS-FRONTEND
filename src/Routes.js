@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import MigasRecorrido from './components/MigasDePan/MigasRecorrido';
 import FooterInesis from './components/FooterInesis/FooterInesis';
 import { Login } from './pages/Login';
+import  GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
+
 
 const AppRoutes = () => {
   return (
@@ -17,6 +19,7 @@ const AppRoutes = () => {
         <Route path="/NavInesis" element={<NavInesis />} />
         <Route path="/Migas" element={<MigasRecorrido />} />
         <Route path="/FooterInesis" element={<FooterInesis />} />
+        <Route path="/GastosIngresos" element={<GastosIngresos />} />
 
     </Routes>
   )
