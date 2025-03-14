@@ -1,0 +1,37 @@
+/* Contenedor de la tarjeta */
+.cardMenu-container {
+    padding-right: 1em;
+    padding-left: 1em;
+  }
+  
+  /* Tarjeta clickeable */
+  .clickable-cardMenu {
+    cursor: pointer; /* Cambia el cursor a mano */
+    transition: transform 0.2s, box-shadow 0.2s; /* Transición suave */
+    border: 1px solid var(--color-morado1);
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .clickable-cardMenu:hover {
+    transform: scale(1.05); /* Efecto de escala al pasar el cursor */
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Imagen de la tarjeta */
+  .cardMenu-img-top {
+    width: 100%;
+    width: 80%;
+    margin: auto;
+  }
+  
+  /* Título de la tarjeta */
+  .cardMenu-title {
+    color: var(--color-morado1);
+    font-weight: bold;
+  }
+  
+  /* Descripción de la tarjeta */
+  .cardMenu-text {
+    color: #555;
+  }

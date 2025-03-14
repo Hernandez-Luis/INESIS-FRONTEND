@@ -48,3 +48,14 @@
   --color-gris2: #F5F5F5;
 }
 
+.btn-primary {
+  background-color: var(--color-morado1) !important;
+  border-color: var(--color-morado1) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-morado2) !important;
+  border-color: var(--color-morado2) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
