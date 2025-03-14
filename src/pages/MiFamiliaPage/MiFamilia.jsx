@@ -19,7 +19,7 @@ export const MiFamilia = () => {
     const [servicioVivienda, setServicioVivienda] = useState('');
     const [casaFamilia, setCasaFamilia] = useState('');
     const [accesoInternet, setAccesoIntenet] = useState('');
-
+    const [formData, setFormData] = useState('');
 
     const handleSelectionCoincideDomicilio = (option) => setVivienda(option);
     const handleAccesoInternet = (option) => setAccesoIntenet(option);
@@ -183,7 +183,7 @@ export const MiFamilia = () => {
                                                         <input className="form-check-input" type="checkbox" id="servicioAgua" onChange={handleCasaFamilia} />
                                                         <label className="form-check-label" htmlFor="servicioAgua">Agua</label>
                                                     </div>
-        
+
                                                 </div>
 
                                                 {/* Segunda columna */}
@@ -192,7 +192,7 @@ export const MiFamilia = () => {
                                                         <input className="form-check-input" type="checkbox" id="servicioLuz" onChange={handleCasaFamilia} />
                                                         <label className="form-check-label" htmlFor="servicioLuz">Luz</label>
                                                     </div>
-                                                    
+
                                                 </div>
 
                                                 {/* Tercera columna */}
@@ -302,7 +302,7 @@ export const MiFamilia = () => {
                                                 ¿Cuántas personas habitan en la vivienda?
                                             </label>
                                             <input
-                                                type="tel"
+                                                type="number"
                                                 className="form-control"
                                                 placeholder=""
                                                 value={contacto}
@@ -375,6 +375,160 @@ export const MiFamilia = () => {
                                         <div className="ms-4">
                                             <RadioSelect gris={true} options={['Si', 'No']} onChange={handleAccesoInternet} />
                                         </div>
+                                    </div>
+                                </div>
+                                <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                        Hermanos
+                                    </p>
+                                    <div className="row">
+                                        {/* Escolaridad de padre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos hermanos tienes?
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                            />
+                                        </div>
+
+                                        {/* Escolaridad de madre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos están estudiando?                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos dejaron de estudiar?                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos tienen licenciatura?                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <hr style={{ borderTop: '2px solid #ccc', margin: '10px 0' }} />
+                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                        Personas dependientes
+                                    </p>
+                                    <div className="col-12 col-md-8 mb-3">
+                                        <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                            Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar ?
+                                        </label>
+                                        <div className="col-md-4 mt-2"
+                                        >
+                                            <input
+                                                type="number"
+                                                className="form-control col-md-4"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                        Personas que dependen económicamente:                                            
+                                        </label>
+                                        <div className="col-md-4 mt-2 mb-4"
+                                        >
+                                            <input
+                                                type="number"
+                                                className="form-control col-md-4"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+                                    <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                    <div className="row">
+                                        {/* Escolaridad de padre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                            Nombre completo:
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={formData}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+
+                                        {/* Escolaridad de madre */}
+                                        <div className="col-12 col-md-2 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                Edad:                                           
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={formData}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-2 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                            Parentesco:
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={formData}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-2 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                            Grado de estudios:
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={formData}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                            Nombre de su institución:
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={formData}
+                                                onChange={(e) => setFormData(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
