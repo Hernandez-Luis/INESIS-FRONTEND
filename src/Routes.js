@@ -9,6 +9,8 @@ import { LIneamientos } from './pages/Lineamientos/LIneamientos';
 import { MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
 import AdministrarAlumnos from './pages/Alumno/AdministrarAlumnos';
+import AgregarAlumno from './pages/Alumno/AgregarAlumno';
+import AdministrarFechas from './pages/Fechas/AdministrarFechas';
 
 const AppRoutes = () => {
   return (
@@ -21,6 +23,8 @@ const AppRoutes = () => {
         <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/AdministrarAlumnos" element={<AdministrarAlumnos />} />
+        <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
+        <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
     </Routes>
   )
 }

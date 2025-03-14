@@ -4,7 +4,8 @@ import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import '../Alumno/components/AdministrarAlumnos.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import TablaRegistros from './components/TablaRegistros';
+import TablaRegistros from '../../components/Tablas/TablaRegistros';
+import { useNavigate } from "react-router-dom";
 
 
 const AdministrarAlumnos = () => {
@@ -27,26 +28,24 @@ const AdministrarAlumnos = () => {
 
     const titulos = ["Matrícula", "Nombre Completo", "Carrera", "Semestre", "Grupo"];
 
+    const navigate = useNavigate();
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
 
-            <div className="container my-4">
+            <div className="container my-1 w-75 mx-auto">
                 <div className="mb-5 text-center">
                     <h2 className="size-font-title cardMenu-title">Administrar alumnos</h2>
                 </div>
 
-                <button className="btn btn-primary btn-agregar">
-                    <i className="bi bi-person-add me-2"></i>
+                <button className="btn btn-primary btn-agregar" onClick={() => navigate("/AgregarAlumno")}>
+                    <i className="bi bi-person-add me-2" ></i>
                     Agregar alumno
                 </button>
 
                 <TablaRegistros data={alumnos} titulos={titulos} />
-
-                <div className="mt-3 text-end text-muted table-footer">
-                    Mostrando 8 de 20 solicitudes
-                </div>
             </div>
 
             <FooterInesis />

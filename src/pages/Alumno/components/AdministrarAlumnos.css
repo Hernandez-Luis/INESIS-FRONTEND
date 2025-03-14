@@ -3,6 +3,11 @@
     font-weight: bold;
 }
 
+.texto-morado2Normal {
+    color: var(--color-morado2);
+   
+}
+
 .admin-alumnos-container {
     min-height: 100vh;
     display: flex;
@@ -10,7 +15,7 @@
 }
 
 .custom-table-container {
-    border: 1px solid #dee2e6;
+    border: 10px solid #ffffff;
     border-radius: 8px;
     overflow: hidden;
 }
@@ -27,22 +32,35 @@
     padding: 1rem;
     font-weight: 600;
     color: var(--color-morado2);
-    font-weight: bold;
-    border-bottom: 2px solid #dee2e6;
+    position: relative; 
     text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #ffffff; 
+}
+
+/* Línea decorativa bajo cada título */
+.custom-table th::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 10px; /* Ajusta la posición vertical */
+    width: 52%; /* Ancho de la línea respecto al texto */
+    height: 2px;
+    background: var(--color-morado2);
+    transform: translateX(-50%); /* Centra horizontalmente */
 }
 
 .custom-table td {
     padding: 1rem;
     color: #6c757d;
-    border-top: 1px solid #dee2e6;
+    border-top: 1.5px solid var(--color-morado1);
     border-left: none;
     border-right: none;
     text-align: center;
 }
 
 .custom-table tr:last-child td {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1.5px solid var(--color-morado1);
 }
 
 .btn-agregar {
@@ -86,4 +104,57 @@
 
 .icono-editar, .icono-basura {
     font-size: 25px;
+}
+
+
+/* Contenedor principal para alinear las secciones verticalmente */
+.agregar-alumno-container {
+    display: block; 
+    padding: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Sección con datos personales */
+.formulario-seccion--datos-personales,
+.formulario-seccion--datos-academicos {
+    background-color: var(--color-gris2);
+    padding: 40px;
+    border-radius: 10px;
+    border: 2px ;
+}
+
+/* Etiquetas */
+.formulario-etiqueta {
+    font-weight: bold;
+    color: var(--color-morado2);
+}
+
+/* Estilo de las entradas de texto */
+.formulario-entrada {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-morado2);
+    transition: border-color 0.3s;
+}
+
+.formulario-entrada:focus {
+    border-color: var(--color-morado1);
+    outline: none;
+}
+
+/* Botón de agregar */
+.btn-agregar {
+    background-color: var(--color-morado1);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-agregar:hover {
+    background-color: var(--color-morado2);
 }
