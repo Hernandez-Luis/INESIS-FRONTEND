@@ -16,10 +16,23 @@ export const MiFamilia = () => {
     const [vivienda, setVivienda] = useState(null);
     const [selectedOption, setSelectedOption] = useState('');
     const [contacto, setContacto] = useState('');
-
+    const [servicioVivienda, setServicioVivienda] = useState('');
+    const [casaFamilia, setCasaFamilia] = useState('');
 
     const handleSelectionCoincideDomicilio = (option) => setVivienda(option);
     const handleSelection = (option) => setSelectedOption(option);
+
+
+    const handleCasaFamilia = (option) => {
+        setCasaFamilia(option); // Actualizar el estado en el componente padre
+        console.log(option); // Mostrar en consola
+    };
+
+    const handleServicioVivienda = (option) => {
+        setServicioVivienda(option); // Actualizar el estado en el componente padre
+        console.log(option); // Mostrar en consola
+    };
+
 
     // Datos de los selects organizados en un array para evitar repeticiones
     const selectData = [
@@ -68,9 +81,9 @@ export const MiFamilia = () => {
                             </div>
                             <div className="row mt-4 mx-0">
                                 {/* Tarjeta para Contacto */}
-                                <div className="col-12 col-md-4 tarjeta-border d-flex flex-column p-4 mb-4 ms-2 ">
+                                <div className="col-12 col-md-4 tarjeta-border d-flex flex-column p-4 mb-4">
                                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
-                                        Domicilio
+                                        Contacto
                                     </p>
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Telefono
@@ -85,7 +98,7 @@ export const MiFamilia = () => {
                                 </div>
 
                                 {/* Tarjeta para Grados de Escolaridad */}
-                                <div className="col-12 col-md-7 tarjeta-border d-flex flex-column p-4 mb-4 ms-2">
+                                <div className="col-12 col-md-8 tarjeta-border d-flex flex-column p-4 mb-4">
                                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                         Escolaridad
                                     </p>
@@ -116,6 +129,98 @@ export const MiFamilia = () => {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                        Vivienda
+                                    </p>
+                                    {/* Fila para los campos de escolaridad */}
+                                    <div className="row">
+                                        {/* Escolaridad de padre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                La cada donde tu Familia es:
+                                            </label>
+                                            <SeleccionarCombo
+                                                options={['Propia', 'Renta', 'Alquilada']}
+                                                onChange={handleSelection}
+                                                placeholder="Selecciona una opción"
+                                            />
+                                        </div>
+
+                                        {/* Escolaridad de madre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                Tipo vivienda
+                                            </label>
+                                            <SeleccionarCombo
+                                                options={['Casa sola', 'Condominio', 'Otra']}
+                                                onChange={handleSelection}
+                                                placeholder="Selecciona una opción"
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                Material de predominante construcion
+                                            </label>
+                                            <SeleccionarCombo
+                                                options={['Mamposteria', 'Madera', 'Lamina', 'Concreto', 'Otros']}
+                                                onChange={handleSelection}
+                                                placeholder="Selecciona una opción"
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5 mb-2" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Con qué servicios cuenta la vivienda?
+                                            </label>
+                                            <div className="mb-3">
+                                                <RadioSelect
+                                                    options={['Agua', 'Luz', 'Teléfono', 'Drenaje', 'Otro']}
+                                                    onChange={handleServicioVivienda}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='row gab-3'>
+                                    <div className="col-12 col-md-8"> {/* Usa más espacio si hay muchos elementos */}
+                                        <label className="fs-5 mb-3 d-block" style={{ color: 'var(--color-morado3)' }}>
+                                            ¿En la casa donde vive tu familia hay?
+                                        </label>
+
+                                        <div className="d-flex flex-wrap gap-3">
+                                            <div className="w-100 mb-2">
+                                                <RadioSelect
+                                                    options={[
+                                                        'Agua Caliente', 'Refrigerador', 'Estufa de gas', 'TV por cable', 'Televisor'
+                                                    ]}
+                                                    onChange={handleCasaFamilia}
+                                                />
+                                            </div>
+
+                                            <div className="w-10 mb-2">
+                                                <RadioSelect
+                                                    options={[
+                                                        'Lavadora de ropa', 'Aire acondicionado', 'Automóvil propio'
+                                                    ]}
+                                                    onChange={handleCasaFamilia}
+                                                />
+                                            </div>
+
+                                            <div className="w-100 mb-2">
+                                                <RadioSelect
+                                                    options={[
+                                                        'Equipo de sonido/Grabadora', 'Horno de microondas',
+                                                        'Videocasetera o DVD', 'Espacio privado para estudiar'
+                                                    ]}
+                                                    onChange={handleCasaFamilia}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    
+
+                                </div>
+
                             </div>
                         </div>
 
