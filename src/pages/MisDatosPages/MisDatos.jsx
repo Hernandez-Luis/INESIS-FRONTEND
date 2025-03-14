@@ -51,7 +51,7 @@ export const MisDatos = () => {
       <div className='d-flex flex-column min-vh-100 mt-5 mx-5 px-5'>
         <div className='flex-grow-1'>
           <form action="">
-            <div className='row ms-5 mt-4  mw-100'>
+            <div className='row mx-5 mt-4  mw-100'>
               {/* INICIO MODULO INFORMACION GENERA */}
               <div className='col tarjeta-border px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                 <div className='row'>
@@ -172,8 +172,8 @@ export const MisDatos = () => {
 
 
             {/* MODULO GASTOS E INGRESOS  */}
-            <div className='row ms-5 mt-4'>
-              <div className='tarjeta-border px-5'>
+            <div className='row mx-5 mt-4'>
+              <div className='tarjeta-border p-5'>
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto hacienden tus gastos mensuales de manutención?</p>
                 <div className="row">
@@ -221,13 +221,12 @@ export const MisDatos = () => {
             {/* FIN MODULO GASTOS E INGRESOS  */}
 
 
-            <div className="row ms-5 mt-4">
+            <div className="row mx-5 mt-4 mb-5">
               {/* MODULO TRANSPORTE */}
-              <div className="col tarjeta-border me-4 px-4">
+              <div className="col tarjeta-border me-4 p-5">
                 <p className='fs-2 ' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
                 <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil o motocicleta cotidianamente a la universidad?</label>
                 <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
-
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
                 <div className='w-25'>
                   <SeleccionarCombo
@@ -236,7 +235,6 @@ export const MisDatos = () => {
                     placeholder="Selecciona una opción" // Placeholder
                   />
                 </div>
-
                 <div className="row mt-4">
                   <div className="col">
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
@@ -268,16 +266,33 @@ export const MisDatos = () => {
                     <CheckBox opcion="Automovil familiar" id='autofamiliar'></CheckBox>
                   </div>
                   <div className="col">
-
+                    <CheckBox opcion="Colectivo" id='colectivo'></CheckBox>
+                    <br />
+                    <CheckBox opcion="Taxi" id='taxi'></CheckBox>
                   </div>
                 </div>
-
               </div>
               {/* FIN MODULO TRANSPORTE */}
 
-              <div className="col tarjeta-border px-4">
+              {/* INFORMACION COMPLEMENTARIA */}
+              <div className="col tarjeta-border p-5">
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Eres hijo o nieto de comunero de Ixtlán de Juárez?</label>
+                <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                <br />
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
+                <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                <br />
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
+                <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                <br />
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
+                <input className='form-control w-75' type="text" />
               </div>
+              {/* FIN INFORMACION COMPLEMENTARIA */}
+            </div>
+            <div className='d-flex justify-content-center mb-5'>
+              <button className='btn btn-midDatos'>Guardar</button>
             </div>
           </form>
         </div>

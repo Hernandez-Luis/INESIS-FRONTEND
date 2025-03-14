@@ -3,3 +3,14 @@
     border-bottom: 2px solid var(--color-morado4);
     margin: auto;
   }
+
+.btn-midDatos{
+  background-color: var(--color-morado1);
+  color: white;
+}
+
+.btn-midDatos:hover{
+  background-color: white;
+  border-color: var(--color-morado1);
+  color: var(--color-morado1);
+}
