@@ -48,8 +48,8 @@ export const MisDatos = () => {
     <div>
       <NavInesis></NavInesis>
       <MigasRecorrido items={links}></MigasRecorrido>
-      <div className='d-flex flex-column min-vh-100 mt-5 mx-5 px-5'>
-        <div className='flex-grow-1'>
+      <div className='d-flex flex-column min-vh-100'>
+        <div className='flex-grow-1 mt-5 mx-5 px-5'>
           <form action="">
             <div className='row mx-5 mt-4  mw-100'>
               {/* INICIO MODULO INFORMACION GENERA */}

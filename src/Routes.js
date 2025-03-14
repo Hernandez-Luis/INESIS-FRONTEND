@@ -8,6 +8,7 @@ import FooterInesis from './components/FooterInesis/FooterInesis';
 import { LIneamientos } from './pages/Lineamientos/LIneamientos';
 import { MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
+import { MenuPrincipalRevisor } from './pages/MenuPrincipalRevisor/MenuPrincipalRevisor';
 
 const AppRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
         <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
+        <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
     </Routes>
   )
 }
