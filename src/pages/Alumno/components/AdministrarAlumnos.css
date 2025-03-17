@@ -1,0 +1,169 @@
+.texto-morado2 {
+    color: var(--color-morado2);
+    font-weight: bold;
+}
+
+.texto-morado2Normal {
+    color: var(--color-morado2);
+   
+}
+
+.admin-alumnos-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-table-container {
+    border: 10px solid #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.custom-table {
+    margin-bottom: 0;
+}
+
+.custom-table thead {
+    background-color: #f8f9fa;
+}
+
+.custom-table th {
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--color-morado2);
+    position: relative; 
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #ffffff; 
+}
+
+/* Línea decorativa bajo cada título */
+.custom-table th::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 10px; /* Ajusta la posición vertical */
+    width: 52%; /* Ancho de la línea respecto al texto */
+    height: 2px;
+    background: var(--color-morado2);
+    transform: translateX(-50%); /* Centra horizontalmente */
+}
+
+.custom-table td {
+    padding: 1rem;
+    color: var(--color-gris1);
+    border-bottom: 1.5px solid var(--color-morado1);
+    border-left: none;
+    border-right: none;
+    text-align: center;
+}
+
+.custom-table tr:last-child td {
+    border-bottom: 1.5px solid var(--color-morado1);
+}
+
+.btn-agregar {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    border-radius: 8px;
+    background-color: var(--color-morado1);
+    transition: background-color 0.3s ease-in-out;
+    margin-bottom: 55px;
+}
+
+.btn-agregar:hover {
+    background-color: var(--color-morado2);
+}
+
+.table-footer {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.icono-accion {
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin: 0 5px;
+    color: var(--color-morado2);
+}
+
+.boton-icono {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;   
+}
+
+.icono-basura {
+    color: red; 
+}
+
+.icono-editar {
+    color: rgb(91, 162, 202);  
+}
+
+.icono-editar, .icono-basura {
+    font-size: 25px;
+}
+
+
+/* Contenedor principal para alinear horizontalmente las secciones */
+.agregar-alumno-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite el salto de línea si no cabe */
+    gap: 50px;
+    padding: 20px;
+    align-items: flex-start; /* Alinea al inicio para evitar estiramiento vertical */
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Secciones alineadas */
+.formulario-seccion--datos-personales,
+.formulario-seccion--datos-academicos {
+    flex: 1; /* Ocupan espacio disponible */
+    min-width: 500px; /* Ancho mínimo para responsividad */
+    background-color: var(--color-gris2);
+    padding: 40px;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    height: auto; /* Altura según contenido */
+}
+
+/* Etiquetas */
+.formulario-etiqueta {
+    
+    color: var(--color-morado2);
+}
+
+/* Estilo de las entradas de texto */
+.formulario-entrada {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border-radius: 6px;
+    border: 0.5px solid var(--color-morado2);
+    transition: border-color 0.s;
+}
+
+.formulario-entrada:focus {
+    border-color: var(--color-morado1);
+    outline: none;
+}
+
+/* Botón de agregar */
+.btn-agregar {
+    background-color: var(--color-morado1);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-agregar:hover {
+    background-color: var(--color-morado2);
+}
+
+
