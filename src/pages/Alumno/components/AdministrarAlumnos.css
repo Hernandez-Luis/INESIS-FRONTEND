@@ -166,4 +166,9 @@
     background-color: var(--color-morado2);
 }
 
-
+.boton-contenedor {
+    display: flex;
+    justify-content: center; 
+    margin-top: 5px; 
+    width: 100%; 
+}

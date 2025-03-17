@@ -11,7 +11,9 @@ import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
 import AdministrarAlumnos from './pages/Alumno/AdministrarAlumnos';
 import AgregarAlumno from './pages/Alumno/AgregarAlumno';
 import AdministrarFechas from './pages/Fechas/AdministrarFechas';
-
+import { MiFamilia } from './pages/MiFamiliaPage/MiFamilia';
+import AdministrarRevisor from './pages/Revisor/AdministrarRevisor'
+import AgregarRevisor from './pages/Revisor/AgregarRevisor'
 const AppRoutes = () => {
   return (
     <Routes>
@@ -26,7 +28,8 @@ const AppRoutes = () => {
         <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
         <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
         <Route path="/MiFamilia" element={<MiFamilia/>} />
-
+        <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
+        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>
     </Routes>
   )
 }
