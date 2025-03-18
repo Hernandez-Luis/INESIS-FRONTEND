@@ -43,7 +43,19 @@
   --color-morado1: #4F46E5;
   --color-morado2: #6366F1;
   --color-morado3: #818CF8;
+  --color-morado4: #A5B4FC;
   --color-gris1: #6C757D;
   --color-gris2: #F5F5F5;
 }
 
+.btn-primary {
+  background-color: var(--color-morado1) !important;
+  border-color: var(--color-morado1) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-morado2) !important;
+  border-color: var(--color-morado2) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
