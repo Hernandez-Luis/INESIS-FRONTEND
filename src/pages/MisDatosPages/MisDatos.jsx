@@ -100,6 +100,7 @@ export const MisDatos = () => {
 
               {/* INICIO MODULO DOMICILIO */}
               <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
+                
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                   <div className='mt-2'>

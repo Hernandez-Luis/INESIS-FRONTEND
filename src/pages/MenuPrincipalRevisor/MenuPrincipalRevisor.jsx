@@ -5,30 +5,24 @@ import FooterInesis from '../../components/FooterInesis/FooterInesis'
 import imagenMenu from '../../assets/imagenMenu.png'
 
 export const MenuPrincipalRevisor = () => {
+  const mandarAFormularios = () => {
+    console.log('mandar a formularios');
+  }
 
-    const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' }
-    ];
-
-    const mandarAFormularios = () => {
-        console.log('mandar a formularios');
-    } 
-
-    return (
-        <div>
+  return (
+    <div>
       <NavInesis></NavInesis>
-      <MigasRecorrido items={links}></MigasRecorrido>
       <div className='d-flex flex-column min-vh-100'>
-        <div className='flex-grow-1 m-5 px-5 d-flex justify-content-center' style={{color:'var(--color-morado2)'}}>
-            <h1>Bienvenido Luis David Jimenez Santos</h1>
+        <div className='flex-grow-1 m-5 px-5 d-flex justify-content-center' style={{ color: 'var(--color-morado2)' }}>
+          <h1>Bienvenido Luis David Jimenez Santos</h1>
         </div>
         <div className="row mb-5">
           <div className="col d-flex justify-content-center" >
             <img src={imagenMenu} alt="" />
           </div>
           <div className="col d-flex align-items-center justify-content-start ">
-            <button onClick={mandarAFormularios} className=' w-75 p-4 text-start' style={{background:'var(--color-morado2)', color:'white', borderRadius:'12px'}}>
-              <span className='fs-5' style={{fontWeight: 'bold'}}>Registros de informacion socioeconomica</span>
+            <button onClick={mandarAFormularios} className=' w-75 p-4 text-start' style={{ background: 'var(--color-morado2)', color: 'white', borderRadius: '12px' }}>
+              <span className='fs-5' style={{ fontWeight: 'bold' }}>Registros de informacion socioeconomica</span>
               <br />
               <br />
               Dentro encontraras todos los formularios que han enviado los alumnos listos para ser revisados.
@@ -38,5 +32,5 @@ export const MenuPrincipalRevisor = () => {
         <FooterInesis></FooterInesis>
       </div>
     </div>
-    )
+  )
 }
