@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import '../../pages/Alumno/components/AdministrarAlumnos.css';
 import noDatosIcon from '../../assets/sin-datos.png';
+import ModalRegistrarFecha from '../../pages/Fechas/components/ModalRegistrarFechas';
 
-const TablaRegistros = ({ data, titulos, nombreData }) => {
+
+const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina, setElementosPorPagina] = useState(8);
     const [datosFiltrados, setDatosFiltrados] = useState([]);
+    const [mostrarModal, setMostrarModal] = useState(false);
     const navigate = useNavigate();
+
+    const handleAbrirModal = () => setMostrarModal(true);
+    const handleCerrarModal = () => setMostrarModal(false);
 
     useEffect(() => {
         let filtrados = data;
@@ -33,15 +39,23 @@ const TablaRegistros = ({ data, titulos, nombreData }) => {
     };
 
     return (
-        <div className="container my-1 w-75 mx-auto">
-            <div className="mb-5 text-center">
+        <div className="container my-1 w-75 mx-auto mb-5">
+            <div className="mb-4 text-center">
                 <h2 className="size-font-title cardMenu-title">{`Administrar ${nombreData}`}</h2>
             </div>
 
-            <button className="btn btn-primary btn-agregar" onClick={() => navigate("/AgregarAlumno")}>
+            <div className="mb-5 text-center">
+                <h5 className="size-font-subtitle texto-morado2Normal">{`${subTitulo}`}</h5>
+            </div>
+
+            <button
+                className="btn btn-primary btn-agregar"
+                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate(`${rutaBoton}`)}
+            >
                 <i className="bi bi-person-add me-2"></i>
                 Agregar {nombreData}
             </button>
+
 
             {/* Filtros y búsqueda */}
             <div className="row mb-5 align-items-center">
@@ -150,8 +164,20 @@ const TablaRegistros = ({ data, titulos, nombreData }) => {
                     </button>
                 </div>
             )}
+            {nombreData === "fechas" && (
+                <ModalRegistrarFecha
+                    show={mostrarModal}
+                    handleClose={handleCerrarModal}
+                    carreras={["Ingeniería en Software", "Administración", "Contaduría"]}
+                    onSubmit={(datos) => console.log("Datos registrados:", datos)}
+                />
+            )}
+
         </div>
+
     );
+
+
 };
 
 export default TablaRegistros;
