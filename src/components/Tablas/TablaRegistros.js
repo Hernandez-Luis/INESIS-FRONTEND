@@ -14,10 +14,9 @@ const TablaRegistros = ({ data, titulos, nombreData }) => {
         let filtrados = data;
         if (busqueda) {
             filtrados = data.filter(item => {
-                // Buscamos en los campos que queremos, por ejemplo 'matricula' y 'grupo'
-                return (
-                    String(item.matricula).includes(busqueda) || // Buscamos por matrícula
-                    String(item.grupo).includes(busqueda) // Buscamos por grupo
+                // Convertimos cada valor del item a string para hacer la comparación
+                return Object.values(item).some(valor =>
+                    String(valor).toLowerCase().includes(busqueda.toLowerCase())
                 );
             });
         }
