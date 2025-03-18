@@ -11,7 +11,7 @@ const RegistroRevisor = () => {
                 <div className="row g-4">
                     <div >
                         <label className="formulario-etiqueta">Nombre</label>
-                        <input
+                        <inpuimport t
                             type="text"
                             className="formulario-entrada"
                             placeholder="Ingrese el nombre"
