@@ -43,7 +43,7 @@ const PdfVisor = ({ archivoUrl }) => {
     }
 
     return (
-        <div style={{ height: "80vh", width: "80%", margin: "auto", border: "1px solid #ddd", padding: "10px" }}>
+        <div style={{ height: "80vh", width: "50%", margin: "auto", border: "1px solid #ddd", padding: "10px" }}>
             <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.worker.min.js">
                 <Viewer fileUrl={archivoUrl} plugins={[pluginDeDiseño]} />
             </Worker>
