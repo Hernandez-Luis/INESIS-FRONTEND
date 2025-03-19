@@ -1,32 +1,38 @@
-/* En tu archivo CSS */
-.modal-dialog-enhanced .modal-content {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  }
-  
-  .modal-dialog-enhanced .form-control:focus,
-  .modal-dialog-enhanced .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-  }
-  
-  .modal-dialog-enhanced .btn {
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  
-  .modal-dialog-enhanced .btn-primary {
-    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-    border: none;
-  }
-  
-  .modal-dialog-enhanced .btn-outline-secondary {
-    border: 2px solid #dee2e6;
-  }
-  
-  .modal-dialog-enhanced .btn-outline-secondary:hover {
-    background-color: #f8f9fa;
-  }
+.modal-dialog-enhanced .btn {
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.close-white .btn-close {
+  filter: invert(1); 
+}
+
+.modal-dialog-enhanced .btn-primary {
+  background: linear-gradient(135deg, #ffffff, var(--color-gris2));
+  border: none;
+}
+
+.modal-dialog-enhanced .btn-outline-secondary {
+  border: 2px solid var(--color-gris2);
+}
+
+.modal-dialog-enhanced .btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+}
+
+/* Estilos personalizados para el modal morado */
+.bg-purple {
+  background-color: var(--color-morado1);
+}
+
+
+
+.bg-purple .form-control,
+.bg-purple .form-select {
+  background-color: #fff !important;
+  /* Fondo blanco para los inputs */
+  color: var(--color-morado1) !important;
+  /* Texto negro para mejor contraste */
+}

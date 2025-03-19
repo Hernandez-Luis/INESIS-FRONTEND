@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import '../../Fechas/components/AdministrarFechas.css';
 import PropTypes from 'prop-types';
 
 const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
@@ -20,7 +21,7 @@ const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
-    
+
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
@@ -35,24 +36,26 @@ const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
   };
 
   return (
-    <Modal 
-      show={show} 
-      onHide={handleClose} 
+    <Modal
+      show={show}
+      onHide={handleClose}
       centered
       backdrop="static"
       dialogClassName="modal-dialog-enhanced"
-    >
-      <Modal.Header closeButton className="border-bottom-0">
-        <Modal.Title as="h5" className="text-primary fw-bold">
-          Registrar Nuevo Período Académico
+      contentClassName="bg-purple text-white">
+
+      <Modal.Header closeButton className="border-bottom-0 text-center close-white">
+        <Modal.Title as="h3" className="text-white fw-bold w-100">
+          Registrar fecha
         </Modal.Title>
       </Modal.Header>
-      
+
+
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
         <Modal.Body className="pt-0">
           <Form.Group className="mb-4">
-            <Form.Label className="text-secondary small mb-2">
-              Carrera Universitaria
+            <Form.Label className="text-white  fw-bold mb-2">
+              Carrera:
             </Form.Label>
             <Form.Select
               required
@@ -74,7 +77,7 @@ const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
 
           <div className="row g-3">
             <Form.Group className="col-md-6 mb-4">
-              <Form.Label className="text-secondary small mb-2">
+              <Form.Label className="text-white  fw-bold mb-2">
                 Fecha de Inicio
               </Form.Label>
               <Form.Control
@@ -90,7 +93,7 @@ const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
             </Form.Group>
 
             <Form.Group className="col-md-6 mb-4">
-              <Form.Label className="text-secondary small mb-2">
+              <Form.Label className="text-white  fw-bold mb-2">
                 Fecha de Cierre
               </Form.Label>
               <Form.Control
@@ -108,20 +111,13 @@ const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
           </div>
         </Modal.Body>
 
-        <Modal.Footer className="border-top-0 justify-content-between">
-          <Button 
-            variant="outline-secondary" 
-            onClick={handleClose}
-            className="px-4 rounded-3"
-          >
-            Cancelar
-          </Button>
-          <Button 
-            variant="primary" 
+        <Modal.Footer className="border-top-0 justify-content-center">
+          <Button
+            variant="primary"
             type="submit"
-            className="px-4 rounded-3"
+            className="px-4 rounded-5"
           >
-            Guardar Período
+            Guardar
           </Button>
         </Modal.Footer>
       </Form>
