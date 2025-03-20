@@ -111,13 +111,9 @@ const ModalRegistrarFecha = ({ show, handleClose, carreras, onSubmit }) => {
           </div>
         </Modal.Body>
 
-        <Modal.Footer className="border-top-0 justify-content-center">
-          <Button
-            variant="primary"
-            type="submit"
-            className="px-4 rounded-5"
-          >
-            Guardar
+        <Modal.Footer className="border-top-0 justify-content-center mt-0">
+          <Button type="submit" className="boton-blanco-morado">
+            Aceptar
           </Button>
         </Modal.Footer>
       </Form>
