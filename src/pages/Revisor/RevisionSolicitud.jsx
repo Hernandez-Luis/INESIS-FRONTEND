@@ -37,7 +37,8 @@ export default function RevisionSolicitud() {
                         <div className="row d-flex justify-content-center gap-4">
                             {/* Sección del PDF */}
                             <div className="col-12 col-md-5 d-flex justify-content-center">
-                                <PdfVisor archivoUrl="/BECA-COLEGIATURApdf.pdf" />
+                                <PdfVisor archivosUrl={["/BECA-COLEGIATURApdf.pdf", "/Impresion3.1.pdf"]} />
+
                             </div>
 
                             {/* Sección de Comentarios */}
