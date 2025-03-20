@@ -8,23 +8,36 @@ import FooterInesis from './components/FooterInesis/FooterInesis';
 import { LIneamientos } from './pages/Lineamientos/LIneamientos';
 import { MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
+import { MenuPrincipalRevisor } from './pages/MenuPrincipalRevisor/MenuPrincipalRevisor';
+import { MenuAdministrador } from './pages/MenuAdministrador/MenuAdministrador';
+import { MiTutor } from './pages/MiTutor/MiTutor';
 import AdministrarAlumnos from './pages/Alumno/AdministrarAlumnos';
 import AgregarAlumno from './pages/Alumno/AgregarAlumno';
 import AdministrarFechas from './pages/Fechas/AdministrarFechas';
+import RevisionSolicitud from './pages/Revisor/RevisionSolicitud';
 
+import MiFamilia from './pages/MiFamiliaPage/MiFamilia';
+import AdministrarRevisor from './pages/Revisor/AdministrarRevisor'
+import AgregarRevisor from './pages/Revisor/AgregarRevisor'
 const AppRoutes = () => {
   return (
     <Routes>
         <Route path="/MisDatos" element={<MisDatos />} />
         <Route path="/NavInesis" element={<NavInesis />} />
         <Route path="/Migas" element={<MigasRecorrido />} />
-        <Route path="/FooterInesis" element={<FooterInesis />} />
+        <Route path="/Revision" element={<RevisionSolicitud />} />
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
         <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
+        <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
+        <Route path="/MenuAdministrador" element={<MenuAdministrador />} />
+        <Route path="/MiTutor" element={<MiTutor />} />
         <Route path="/AdministrarAlumnos" element={<AdministrarAlumnos />} />
         <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
         <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
+        <Route path="/MiFamilia" element={<MiFamilia/>} />
+        <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
+        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>
     </Routes>
   )
 }

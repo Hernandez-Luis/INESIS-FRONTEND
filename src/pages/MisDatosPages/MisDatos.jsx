@@ -48,8 +48,8 @@ export const MisDatos = () => {
     <div>
       <NavInesis></NavInesis>
       <MigasRecorrido items={links}></MigasRecorrido>
-      <div className='d-flex flex-column min-vh-100 mt-5 mx-5 px-5'>
-        <div className='flex-grow-1'>
+      <div className='d-flex flex-column min-vh-100'>
+        <div className='flex-grow-1 mt-5 mx-5 px-5'>
           <form action="">
             <div className='row mx-5 mt-4  mw-100'>
               {/* INICIO MODULO INFORMACION GENERA */}
@@ -100,6 +100,7 @@ export const MisDatos = () => {
 
               {/* INICIO MODULO DOMICILIO */}
               <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
+                
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                   <div className='mt-2'>
