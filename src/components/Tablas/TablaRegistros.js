@@ -1,27 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import '../../pages/Alumno/components/AdministrarAlumnos.css';
+import noDatosIcon from '../../assets/sin-datos.png';
 
-const TablaRegistros = ({ data, titulos }) => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(8);
-    const totalItems = 20;
+const TablaRegistros = ({ data, titulos, nombreData }) => {
+    const [busqueda, setBusqueda] = useState('');
+    const [paginaActual, setPaginaActual] = useState(1);
+    const [elementosPorPagina, setElementosPorPagina] = useState(8);
+    const [datosFiltrados, setDatosFiltrados] = useState([]);
+    const navigate = useNavigate();
 
-    const startIndex = (currentPage - 1) * itemsPerPage + 1;
-    const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+    useEffect(() => {
+        let filtrados = data;
+        if (busqueda) {
+            filtrados = data.filter(item => {
+                // Convertimos cada valor del item a string para hacer la comparación
+                return Object.values(item).some(valor =>
+                    String(valor).toLowerCase().includes(busqueda.toLowerCase())
+                );
+            });
+        }
+        setDatosFiltrados(filtrados);
+        setPaginaActual(1); // Reiniciar a la primera página al filtrar
+    }, [busqueda, data]);
+
+    const totalPaginas = Math.ceil(datosFiltrados.length / elementosPorPagina);
+    const datosPaginados = datosFiltrados.slice((paginaActual - 1) * elementosPorPagina, paginaActual * elementosPorPagina);
+
+    const handleChangeElementos = (e) => {
+        setElementosPorPagina(Number(e.target.value));
+        setPaginaActual(1); // Reiniciar a la primera página cuando se cambie la cantidad de registros
+    };
 
     return (
-        <div>
+        <div className="container my-1 w-75 mx-auto">
+            <div className="mb-5 text-center">
+                <h2 className="size-font-title cardMenu-title">{`Administrar ${nombreData}`}</h2>
+            </div>
+
+            <button className="btn btn-primary btn-agregar" onClick={() => navigate("/AgregarAlumno")}>
+                <i className="bi bi-person-add me-2"></i>
+                Agregar {nombreData}
+            </button>
+
             {/* Filtros y búsqueda */}
             <div className="row mb-5 align-items-center">
                 <div className="col-md-6 d-flex align-items-center">
                     <div className="d-flex align-items-center filtro-container">
                         <span className="me-2 texto-morado2">Mostrar</span>
-                        <select className="form-select form-select-sm select-mostrar texto-morado2">
-                            <option >8</option>
-                            <option>15</option>
-                            <option>30</option>
+                        <select
+                            className="form-select form-select-sm select-mostrar texto-morado2"
+                            onChange={handleChangeElementos}
+                            value={elementosPorPagina}>
+                            <option value={8}>8</option>
+                            <option value={12}>12</option>
+                            <option value={20}>20</option>
                         </select>
-                        <span className="ms-2 texto-morado2">Alumnos</span>
+                        <span className="ms-2 texto-morado2">{`${nombreData}`}</span>
                     </div>
                 </div>
 
@@ -32,12 +67,13 @@ const TablaRegistros = ({ data, titulos }) => {
                             type="text"
                             className="form-control form-control-sm input-buscar"
                             placeholder="Buscar..."
+                            value={busqueda}
+                            onChange={(e) => setBusqueda(e.target.value)}
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Tabla */}
             <div className="table-responsive custom-table-container">
                 <table className="table align-middle custom-table">
                     <thead>
@@ -49,49 +85,71 @@ const TablaRegistros = ({ data, titulos }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((registro, index) => (
-                            <tr key={index} className="fila-tabla">
-                                <td className="celda-icono">
-                                <button className="boton-icono me-5"title="Eliminar">
-                                        <i className="bi bi-trash3 icono-basura"></i>
-                                    </button>
-                                    <button className="boton-icono "  title="Editar">
-                                        <i className="bi bi-pencil-square icono-editar"></i>
-                                    </button>
-
+                        {datosPaginados.length === 0 ? (
+                            <tr>
+                                <td colSpan={titulos.length + 1} className="text-center py-3">
+                                    <span className="fs-5 texto-gris2 d-block mt-2 mb-3">No existen registros</span>
+                                    <img src={noDatosIcon} alt="No hay datos" className="img-fluid" style={{ width: '80px' }} />
                                 </td>
-                                {Object.values(registro).map((valor, i) => (
-                                    <td key={i + 2} className={i === 0 ? "fw-semibold matricula" : ""}>{valor}</td>
-                                ))}
                             </tr>
-                        ))}
+                        ) : (
+                            datosPaginados.map((registro, index) => (
+                                <tr key={index} className="fila-tabla">
+                                    <td className="celda-icono">
+                                        <button className="boton-icono me-5" title="Eliminar">
+                                            <i className="bi bi-trash3 icono-basura"></i>
+                                        </button>
+                                        <button className="boton-icono" title="Editar">
+                                            <i className="bi bi-pencil-square icono-editar"></i>
+                                        </button>
+                                    </td>
+                                    {Object.values(registro).map((valor, i) => (
+                                        <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>{valor}</td>
+                                    ))}
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
-            {/* Pie de tabla */}
-            <div className="d-flex justify-content-between align-items-center mt-3 px-2">
-                <span className="texto-morado2">
-                    Mostrando {startIndex} a {endIndex} de {totalItems} solicitudes
-                </span>
-                
-                <div className="d-flex align-items-center">
-                    <button 
-                        className="btn btn-sm texto-morado2 pagination-btn"
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(p => p - 1)}
-                    >
-                        <i className="bi bi-chevron-left"></i>
-                    </button>
-                    <span className="mx-3 texto-morado2">Página {currentPage}</span>
-                    <button 
-                        className="btn btn-sm texto-morado2 pagination-btn"
-                        disabled={endIndex >= totalItems}
-                        onClick={() => setCurrentPage(p => p + 1)}
-                    >
-                        <i className="bi bi-chevron-right"></i>
-                    </button>
+
+            {/* Mostrar el total de registros debajo de la tabla */}
+            <div className="row mb-3">
+                <div className="col-md-12 text-center">
+                    <span className="texto-gris2">
+                        Total de registros: {datosFiltrados.length}
+                    </span>
                 </div>
             </div>
+
+            {/* Paginación (se muestra solo si hay más de 8 registros) */}
+            {datosFiltrados.length > elementosPorPagina && (
+                <div className="pagination-container mb-4">
+                    <button
+                        className="pagination-btn"
+                        onClick={() => setPaginaActual(p => Math.max(p - 1, 1))}
+                        disabled={paginaActual === 1}
+                    >
+                        &#60;
+                    </button>
+                    {Array.from({ length: totalPaginas }, (_, index) => (
+                        <button
+                            key={index}
+                            className={`pagination-button ${paginaActual === index + 1 ? 'active' : ''}`}
+                            onClick={() => setPaginaActual(index + 1)}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                    <button
+                        className="pagination-btn"
+                        onClick={() => setPaginaActual(p => Math.min(p + 1, totalPaginas))}
+                        disabled={paginaActual === totalPaginas}
+                    >
+                        &#62;
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

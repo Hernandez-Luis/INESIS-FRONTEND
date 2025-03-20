@@ -3,6 +3,11 @@
     font-weight: bold;
 }
 
+.texto-gris2 {
+    color: var(--color-gris1);
+    font-weight: bold;
+}
+
 .texto-morado2Normal {
     color: var(--color-morado2);
    
@@ -166,9 +171,55 @@
     background-color: var(--color-morado2);
 }
 
-.boton-contenedor {
+
+/* Paginación */
+.pagination-container {
     display: flex;
-    justify-content: center; 
-    margin-top: 5px; 
-    width: 100%; 
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
 }
+
+.pagination-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    color:  var(--color-morado2);
+    transition: 0.3s;
+}
+
+.pagination-btn:disabled {
+    color: gray;
+    cursor: not-allowed;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--color-morado2);
+    color: white;
+    border-radius: 5px;
+}
+
+/* Páginas numeradas */
+.pagination-button {
+    background-color: white;
+    border: 1px solid var(--color-morado2);
+    color: var(--color-morado2);
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+.pagination-button.active {
+    background-color: var(--color-morado2);
+    color: white;
+}
+
+.pagination-button:hover {
+    background-color: var(--color-morado2);
+    color: white;
+}
+

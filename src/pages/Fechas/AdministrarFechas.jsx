@@ -19,20 +19,13 @@ const AdministrarFechas = () => {
 
     const titulos = ["Carrera", "Fecha inicial", "Fecha final"];
 
+    const nombreData = "fechas";
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-
-            <div className="container my-1 w-75 mx-auto">
-                <div className="mb-5 text-center">
-                    <h2 className="size-font-title cardMenu-title">Administrar fechas</h2>
-                </div>
-
-                
-                <TablaRegistros data={data} titulos={titulos} />
-            </div>
-
+            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData}  />
             <FooterInesis />
         </div>
     );

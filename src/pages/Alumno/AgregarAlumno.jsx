@@ -17,12 +17,7 @@ const AgregarAlumno = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <div className="mb-5 text-center">
-                <h2 className="size-font-title cardMenu-title">Agregar alumno</h2>
-            </div>
-            <div className="admin-alumnos-container">
-                <AlumnoRegistro />
-            </div>
+            <AlumnoRegistro />
             <FooterInesis />
         </div>
     );

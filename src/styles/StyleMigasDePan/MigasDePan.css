@@ -24,7 +24,7 @@
 }
 
 .breadcrumb-item {
-    padding: 5px 10px; /* Espaciado dentro de cada enlace */
+    padding: 0px 10px; /* Espaciado dentro de cada enlace */
     border: 1px solid var(--color-gris-opaco); /* Borde alrededor de cada enlace */
     border-radius: 5px; /* Bordes redondeados para los enlaces */
     transition: background-color 0.4s; /* Efecto de transición */
