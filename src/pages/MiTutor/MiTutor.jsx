@@ -61,47 +61,7 @@ export const MiTutor = () => {
                                 <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente?</label>
                                 <RadioSelect gris={true} options={['Si', 'No']} />
                                 <div className='row'>
-                                    <div className='col-6 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                                        <div>
-                                            <SeleccionarCombo
-                                                options={['Oaxaca', 'Veracruz', 'Chiapas']} // Opciones disponibles
-                                                onChange={handleSelection} // Función para manejar la selección
-                                                placeholder="Selecciona una opción" // Placeholder
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='col-6 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                                        <div>
-                                            <SeleccionarCombo
-                                                options={['Ixtlan', 'Xiacui']} // Opciones disponibles
-                                                onChange={handleSelection} // Función para manejar la selección
-                                                placeholder="Selecciona una opción" // Placeholder
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='col-6 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                                        <div>
-                                            <SeleccionarCombo
-                                                options={['Capulalpam', 'Guelatao']} // Opciones disponibles
-                                                onChange={handleSelection} // Función para manejar la selección
-                                                placeholder="Selecciona una opción" // Placeholder
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='col-6 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                                        <div>
-                                            <SeleccionarCombo
-                                                options={['Soledad', 'Asuncion']} // Opciones disponibles
-                                                onChange={handleSelection} // Función para manejar la selección
-                                                placeholder="Selecciona una opción" // Placeholder
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='col-6 mt-2'>
+                                <div className='col-6 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                                         <input className='form-control' type="text" />
                                     </div>
@@ -113,6 +73,44 @@ export const MiTutor = () => {
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                                         <input className='form-control' type="text" />
                                     </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                                        <div>
+                                            <SeleccionarCombo
+                                                options={['Oaxaca', 'Veracruz', 'Chiapas']} // Opciones disponibles
+                                                onChange={handleSelection} // Función para manejar la selección
+                                                placeholder="Selecciona una opción" // Placeholder
+                                                disabled = {true}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                                        <div>
+                                            <SeleccionarCombo
+                                                options={['Ixtlan', 'Xiacui']} // Opciones disponibles
+                                                onChange={handleSelection} // Función para manejar la selección
+                                                placeholder="Selecciona una opción" // Placeholder
+                                                disabled = {true}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                        <div>
+                                            <SeleccionarCombo
+                                                options={['Capulalpam', 'Guelatao']} // Opciones disponibles
+                                                onChange={handleSelection} // Función para manejar la selección
+                                                placeholder="Selecciona una opción" // Placeholder
+                                                disabled = {true}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                                        <input className='form-control' type="text" />
+                                    </div>
+                                    
                                 </div>
                             </div>
                             {/* FIN DOMICILIO */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SeleccionarCombo = ({ options, onChange, placeholder }) => {
+const SeleccionarCombo = ({ options, onChange, placeholder, disabled = false }) => {
     const [selectedValue, setSelectedValue] = useState('');
 
     // Manejar la selección del usuario
@@ -16,6 +16,7 @@ const SeleccionarCombo = ({ options, onChange, placeholder }) => {
             value={selectedValue}
             onChange={handleChange}
             className='form-select'
+            disabled = {disabled}
         >
             {placeholder && <option value="">{placeholder}</option>}
             {options.map((option, index) => (
