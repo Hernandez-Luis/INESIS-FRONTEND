@@ -16,13 +16,8 @@ const AgregarRevisor = () => {
     return (
         <div>
             <NavInesis />
-            <MigasRecorrido items={links} />
-            <div className="mb-2 text-center">
-                <h2 className="size-font-title cardMenu-title">Agregar revisor</h2>
-            </div>
-            <div className="admin-alumnos-container">
-                <RegistroRevisor/>
-            </div>
+            <MigasRecorrido items={links}/>
+            <RegistroRevisor/>
             <FooterInesis />
         </div>
     );

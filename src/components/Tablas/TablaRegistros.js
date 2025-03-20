@@ -38,7 +38,7 @@ const TablaRegistros = ({ data, titulos, nombreData }) => {
                 <h2 className="size-font-title cardMenu-title">{`Administrar ${nombreData}`}</h2>
             </div>
 
-            <button className="btn btn-primary btn-agregar" onClick={() => navigate("/AgregarAlumno")}>
+            <button className="btn btn-primary btn-agregar" onClick={() => navigate("/AgregarRevisor")}>
                 <i className="bi bi-person-add me-2"></i>
                 Agregar {nombreData}
             </button>
