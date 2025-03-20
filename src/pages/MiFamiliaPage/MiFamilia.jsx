@@ -5,6 +5,8 @@ import '../../styles/TarjetaEstilo/TarjetaEstilo.css';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import RadioSelect from '../../components/RadioSelect/RadioSelect';
 import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo';
+import { CheckBox } from '../../components//CheckBox/CheckBox'
+
 
 export const MiFamilia = () => {
     const links = [
@@ -25,7 +27,6 @@ export const MiFamilia = () => {
     const handleAccesoInternet = (option) => setAccesoIntenet(option);
 
     const handleSelection = (option) => setSelectedOption(option);
-
 
     const handleCasaFamilia = (option) => {
         setCasaFamilia(option); // Actualizar el estado en el componente padre
@@ -48,17 +49,18 @@ export const MiFamilia = () => {
         { label: "Colonia o barrio", options: ["Soledad", "Asuncion"] },
     ];
 
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <div className='d-flex flex-column min-vh-100 mt-5 mb-4'>
+            <div className='d-flex flex-column min-vh-100 mt-5 mb-4 ms-4 me-4'>
                 <div className='flex-grow-1'>
                     <form>
                         <div className='ms-2 me-4 row mw-100 mb-4'>
                             <div className='col tarjeta-border d-flex justify-content-start ms-3 p-4'>
                                 <div className='row'>
-                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Mi Familia</p>
+                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                                     <div className='mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                                             ¿El domicilio de tu tutor coincide con el que te encuentras actualmente?
@@ -177,43 +179,19 @@ export const MiFamilia = () => {
                                                 ¿Con qué servicios cuenta la vivienda?
                                             </label>
                                             <div className="row">
+
                                                 {/* Primera columna */}
                                                 <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="servicioAgua" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="servicioAgua">Agua</label>
-                                                    </div>
-
+                                                    <CheckBox opcion="Agua" id='agua'></CheckBox>
+                                                    <CheckBox opcion="luz" id='luz'></CheckBox>
                                                 </div>
-
                                                 {/* Segunda columna */}
                                                 <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="servicioLuz" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="servicioLuz">Luz</label>
-                                                    </div>
-
-                                                </div>
-
-                                                {/* Tercera columna */}
-                                                <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="servicioDrenaje" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="servicioDrenaje">Drenaje</label>
-                                                    </div>
-                                                </div>
-                                                {/* Cuarta columna */}
-                                                <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="servicioTelefono" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="servicioTelefono">Telefono</label>
-                                                    </div>
+                                                    <CheckBox opcion="Drenaje" id='drenaje'></CheckBox>
+                                                    <CheckBox opcion="Telefono" id='telefono'></CheckBox>
                                                 </div>
                                                 <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="equipoSonido" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="equipoSonido">Otro</label>
-                                                    </div>
+                                                    <CheckBox opcion="Otro" id='espacioTrabajos'></CheckBox>
                                                 </div>
                                             </div>
                                         </div>
@@ -223,67 +201,29 @@ export const MiFamilia = () => {
                                             <label className="fs-5 mb-3 d-block" style={{ color: 'var(--color-morado3)' }}>
                                                 ¿En la casa donde vive tu familia hay?
                                             </label>
-
                                             <div className="row">
                                                 {/* Primera columna */}
-                                                <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="aguaCaliente" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="aguaCaliente">Agua Caliente</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="refrigerador" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="refrigerador">Refrigerador</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="estufaGas" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="estufaGas">Estufa de gas</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="tvCable" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="tvCable">TV por cable</label>
-                                                    </div>
-
+                                                <div className="col-md-3">
+                                                    <CheckBox opcion="Agua Caliente" id='aguaCaliente'></CheckBox>
+                                                    <CheckBox opcion="Refrigerador" id='refrigerador'></CheckBox>
+                                                    <CheckBox opcion="Estufa de gas" id='estufaDeGas'></CheckBox>
+                                                    <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa'></CheckBox>
                                                 </div>
 
                                                 {/* Segunda columna */}
-                                                <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="lavadora" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="lavadora">Lavadora de ropa</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="aireAcondicionado" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="aireAcondicionado">Aire acondicionado</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="automovil" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="automovil">Automóvil propio</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="televisor" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="televisor">Televisor</label>
-                                                    </div>
+                                                <div className="col-md-3">
+                                                    <CheckBox opcion="Aire acondicionado" id='aireAcondicionado'></CheckBox>
+                                                    <CheckBox opcion="Automóvil propio" id='automovilPropio'></CheckBox>
+                                                    <CheckBox opcion="Televisor" id='televisor'></CheckBox>
+                                                    <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa'></CheckBox>
                                                 </div>
 
                                                 {/* Tercera columna */}
                                                 <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="equipoSonido" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="equipoSonido">Equipo de sonido/Grabadora</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="hornoMicroondas" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="hornoMicroondas">Horno de microondas</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="videocasetera" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="videocasetera">Videocasetera o DVD</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="espacioEstudio" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="espacioEstudio">Espacio privado para estudiar</label>
-                                                    </div>
+                                                    <CheckBox opcion="Equipo de sonido/Grabadora" id='equipoSonido'></CheckBox>
+                                                    <CheckBox opcion="Horno de microondas" id='hornoMicroondas'></CheckBox>
+                                                    <CheckBox opcion="Videocasetera o DVD" id='videocasatera'></CheckBox>
+                                                    <CheckBox opcion="Espacio privado para estudiar" id='espacioTrabajos'></CheckBox>
                                                 </div>
                                             </div>
                                         </div>
@@ -315,55 +255,16 @@ export const MiFamilia = () => {
                                             </label>
                                             <div className='row'>
                                                 <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioComputadora" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioComputadora">Computadora</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioImpresora" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioImpresora">Impresora</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioFaxModem" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioFaxModem">Fax Modem</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioDvd" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioDvd">DVD- CDWR</label>
-                                                    </div>
+                                                    <CheckBox opcion="Computadora" id='computadora'></CheckBox>
+                                                    <CheckBox opcion="Impresora" id='impresora'></CheckBox>
+                                                    <CheckBox opcion="Librero" id='librero'></CheckBox>
+                                                    <CheckBox opcion="Escritorio/ mesa de trabajo" id='escritorio'></CheckBox>
                                                 </div>
                                                 <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioLibrero" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioLibrero">Librero</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioMaquina" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioMaquina">Máquina se escribir</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioEscritorio" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioEscritorio">Escritorio/ mesa de trabajo</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioLibros" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioLibros">Libros especializados </label>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-4">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioDiccionarios" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioDiccionarios">Diccionarios</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioEnciclopedia" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioEnciclopedia">Enciclopedias</label>
-                                                    </div>
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" id="medioCalculadora" onChange={handleCasaFamilia} />
-                                                        <label className="form-check-label" htmlFor="medioCalculadora">Calculadora</label>
-                                                    </div>
-
+                                                    <CheckBox opcion="Libros especializados" id='librosEspecializados'></CheckBox>
+                                                    <CheckBox opcion="Diccionarios" id='diccionarios'></CheckBox>
+                                                    <CheckBox opcion="Enciclopedias" id='enciclopedias'></CheckBox>
+                                                    <CheckBox opcion="Calculadora" id='calculadora'></CheckBox>
                                                 </div>
                                             </div>
                                         </div>
@@ -373,9 +274,9 @@ export const MiFamilia = () => {
                                             ¿Cuenta con acceso a internet?
                                         </label>
                                         <div className="ms-4">
-                                            <RadioSelect gris={true} 
-                                            options={['Si', 'No']} 
-                                            onChange={handleAccesoInternet} />
+                                            <RadioSelect gris={true}
+                                                options={['Si', 'No']}
+                                                onChange={handleAccesoInternet} />
                                         </div>
                                     </div>
                                 </div>
@@ -397,11 +298,11 @@ export const MiFamilia = () => {
                                                 onChange={(e) => setContacto(e.target.value)}
                                             />
                                         </div>
-
                                         {/* Escolaridad de madre */}
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos están estudiando?                                            </label>
+                                                ¿Cuántos están estudiando?
+                                            </label>
                                             <input
                                                 type="number"
                                                 className="form-control"
@@ -412,7 +313,8 @@ export const MiFamilia = () => {
                                         </div>
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos dejaron de estudiar?                                            </label>
+                                                ¿Cuántos dejaron de estudiar?
+                                            </label>
                                             <input
                                                 type="number"
                                                 className="form-control"
@@ -423,7 +325,8 @@ export const MiFamilia = () => {
                                         </div>
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos tienen licenciatura?                                            </label>
+                                                ¿Cuántos tienen licenciatura?
+                                            </label>
                                             <input
                                                 type="number"
                                                 className="form-control"
@@ -453,84 +356,84 @@ export const MiFamilia = () => {
                                         </div>
                                     </div>
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        Personas que dependen económicamente:                                            
-                                        </label>
-                                        <div className="col-md-4 mt-2 mb-4"
-                                        >
-                                            <input
-                                                type="number"
-                                                className="form-control col-md-4"
-                                                placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
-                                    <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                    <div className="row">
-                                        {/* Escolaridad de padre */}
-                                        <div className="col-12 col-md-3 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Nombre completo:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={formData}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
-
-                                        {/* Escolaridad de madre */}
-                                        <div className="col-12 col-md-2 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Edad:                                           
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={formData}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="col-12 col-md-2 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Parentesco:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={formData}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="col-12 col-md-2 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Grado de estudios:
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={formData}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="col-12 col-md-3 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Nombre de su institución:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={formData}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
+                                        Personas que dependen económicamente:
+                                    </label>
+                                    <div className="col-md-4 mt-2 mb-4"
+                                    >
+                                        <input
+                                            type="number"
+                                            className="form-control col-md-4"
+                                            placeholder=""
+                                            value={contacto}
+                                            onChange={(e) => setFormData(e.target.value)}
+                                        />
                                     </div>
+                                    <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                        <div className="row">
+                                            {/* Escolaridad de padre */}
+                                            <div className="col-12 col-md-3 mb-3">
+                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                    Nombre completo:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder=""
+                                                    value={formData}
+                                                    onChange={(e) => setFormData(e.target.value)}
+                                                />
+                                            </div>
+
+                                            {/* Escolaridad de madre */}
+                                            <div className="col-12 col-md-2 mb-3">
+                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                    Edad:
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    placeholder=""
+                                                    value={formData}
+                                                    onChange={(e) => setFormData(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-12 col-md-2 mb-3">
+                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                    Parentesco:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder=""
+                                                    value={formData}
+                                                    onChange={(e) => setFormData(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-12 col-md-2 mb-3">
+                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                    Grado de estudios:
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    placeholder=""
+                                                    value={formData}
+                                                    onChange={(e) => setFormData(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-12 col-md-3 mb-3">
+                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                    Nombre de su institución:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder=""
+                                                    value={formData}
+                                                    onChange={(e) => setFormData(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -544,3 +447,6 @@ export const MiFamilia = () => {
         </div>
     );
 };
+
+
+export default MiFamilia; 
