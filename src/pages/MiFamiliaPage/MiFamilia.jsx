@@ -15,6 +15,7 @@ export const MiFamilia = () => {
         { url: '/PrincipalAdmin', label: 'Inicio' }
     ];
 
+
     const [vivienda, setVivienda] = useState(null);
     const [selectedOption, setSelectedOption] = useState('');
     const [contacto, setContacto] = useState('');
@@ -22,6 +23,33 @@ export const MiFamilia = () => {
     const [casaFamilia, setCasaFamilia] = useState('');
     const [accesoInternet, setAccesoIntenet] = useState('');
     const [formData, setFormData] = useState('');
+
+    const [numDependientes, setNumDependientes] = useState('');
+    const [dependientes, setDependientes] = useState([]);
+
+    // Función para manejar el cambio en el input de personas dependientes
+    const handleNumDependientesChange = (e) => {
+        const cantidad = parseInt(e.target.value, 10) || 0;
+        setNumDependientes(cantidad);
+
+        // Crear un array con la cantidad de dependientes indicada
+        const nuevosDependientes = Array.from({ length: cantidad }, (_, index) => ({
+            id: index,
+            nombre: "",
+            edad: "",
+            parentesco: "",
+            gradoEstudios: "",
+            institucion: "",
+        }));
+
+        setDependientes(nuevosDependientes);
+    };
+    // Función para manejar el cambio en los campos de cada dependiente
+    const handleDependienteChange = (index, field, value) => {
+        const nuevosDependientes = [...dependientes];
+        nuevosDependientes[index][field] = value;
+        setDependientes(nuevosDependientes);
+    };
 
     const handleSelectionCoincideDomicilio = (option) => setVivienda(option);
     const handleAccesoInternet = (option) => setAccesoIntenet(option);
@@ -280,160 +308,83 @@ export const MiFamilia = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
-                                        Hermanos
-                                    </p>
-                                    <div className="row">
-                                        {/* Escolaridad de padre */}
-                                        <div className="col-12 col-md-3 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos hermanos tienes?
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
-                                            />
-                                        </div>
-                                        {/* Escolaridad de madre */}
-                                        <div className="col-12 col-md-3 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos están estudiando?
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="col-12 col-md-3 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos dejaron de estudiar?
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="col-12 col-md-3 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                ¿Cuántos tienen licenciatura?
-                                            </label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                    <hr style={{ borderTop: '2px solid #ccc', margin: '10px 0' }} />
-                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
-                                        Personas dependientes
-                                    </p>
-                                    <div className="col-12 col-md-8 mb-3">
-                                        <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar ?
-                                        </label>
-                                        <div className="col-md-4 mt-2"
-                                        >
-                                            <input
-                                                type="number"
-                                                className="form-control col-md-4"
-                                                placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setFormData(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                    <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        Personas que dependen económicamente:
-                                    </label>
-                                    <div className="col-md-4 mt-2 mb-4"
-                                    >
-                                        <input
-                                            type="number"
-                                            className="form-control col-md-4"
-                                            placeholder=""
-                                            value={contacto}
-                                            onChange={(e) => setFormData(e.target.value)}
-                                        />
-                                    </div>
+                                <div className="container">
                                     <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                        <div className="row">
-                                            {/* Escolaridad de padre */}
-                                            <div className="col-12 col-md-3 mb-3">
-                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                    Nombre completo:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder=""
-                                                    value={formData}
-                                                    onChange={(e) => setFormData(e.target.value)}
-                                                />
-                                            </div>
-
-                                            {/* Escolaridad de madre */}
-                                            <div className="col-12 col-md-2 mb-3">
-                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                    Edad:
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    placeholder=""
-                                                    value={formData}
-                                                    onChange={(e) => setFormData(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="col-12 col-md-2 mb-3">
-                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                    Parentesco:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder=""
-                                                    value={formData}
-                                                    onChange={(e) => setFormData(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="col-12 col-md-2 mb-3">
-                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                    Grado de estudios:
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    placeholder=""
-                                                    value={formData}
-                                                    onChange={(e) => setFormData(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="col-12 col-md-3 mb-3">
-                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                    Nombre de su institución:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder=""
-                                                    value={formData}
-                                                    onChange={(e) => setFormData(e.target.value)}
-                                                />
-                                            </div>
+                                        <p className="fs-2" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
+                                            Personas dependientes
+                                        </p>
+                                        <div className="col-12 col-md-8 mb-3">
+                                            <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
+                                                Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control col-md-4 mt-2"
+                                                placeholder="Ingrese el numero de hermanos dependientes economicamente"
+                                                value={numDependientes}
+                                                onChange={handleNumDependientesChange}
+                                                min="0"
+                                            />
                                         </div>
+                                        <label className="fs-5 mb-4" style={{ color: "var(--color-morado3)" }}>
+                                        Personas que dependen económicamente:                                           
+                                        </label>
+                                        {/* Renderizar dinámicamente los formularios según el número de dependientes */}
+                                        {dependientes.map((dep, index) => (
+                                            <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                                <div className="row">
+                                                    <div className="col-12 col-md-3 mb-3">
+                                                        <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Nombre completo:</label>
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            value={dep.nombre}
+                                                            onChange={(e) => handleDependienteChange(index, "nombre", e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    <div className="col-12 col-md-2 mb-3">
+                                                        <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Edad:</label>
+                                                        <input
+                                                            type="number"
+                                                            className="form-control"
+                                                            value={dep.edad}
+                                                            onChange={(e) => handleDependienteChange(index, "edad", e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    <div className="col-12 col-md-2 mb-3">
+                                                        <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Parentesco:</label>
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            value={dep.parentesco}
+                                                            onChange={(e) => handleDependienteChange(index, "parentesco", e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    <div className="col-12 col-md-2 mb-3">
+                                                        <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Grado de estudios:</label>
+                                                        <input
+                                                            type="number"
+                                                            className="form-control"
+                                                            value={dep.gradoEstudios}
+                                                            onChange={(e) => handleDependienteChange(index, "gradoEstudios", e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    <div className="col-12 col-md-3 mb-3">
+                                                        <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Nombre de su institución:</label>
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            value={dep.institucion}
+                                                            onChange={(e) => handleDependienteChange(index, "institucion", e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
