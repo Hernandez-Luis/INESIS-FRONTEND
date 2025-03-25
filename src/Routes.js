@@ -19,6 +19,10 @@ import RevisionSolicitud from './pages/Revisor/RevisionSolicitud';
 import MiFamilia from './pages/MiFamiliaPage/MiFamilia';
 import AdministrarRevisor from './pages/Revisor/AdministrarRevisor'
 import AgregarRevisor from './pages/Revisor/AgregarRevisor'
+import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud';
+import MenuAlumnos from './pages/MenuAlumno/MenuAlumno';
+import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -27,7 +31,9 @@ const AppRoutes = () => {
         <Route path="/Migas" element={<MigasRecorrido />} />
         <Route path="/Revision" element={<RevisionSolicitud />} />
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
-        <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
+        <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
+        <Route path="/ListadoEstudioSocioeconomico" element={<ListadoEstudioSocioeconomico />}/>
+        <Route path="/MenuAlumnos" element={<MenuAlumnos />} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
         <Route path="/MenuAdministrador" element={<MenuAdministrador />} />
