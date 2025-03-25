@@ -1,10 +1,10 @@
 import React from 'react';
-import '../../styles/StyleMigasDePan/MigasDePan.css';
+import '../../styles/StyleMigasDePan/MigasDePan.css'; // Archivo CSS para los estilos
 
 const MigasRecorrido = ({ items }) => {
     return (
-        <div className='ms-4'>
-            <nav className="breadcrumb" style={{background: 'var(--color-gris2)'}}>
+        <div className="breadcrumb-container pt-2 ms-5">
+            <nav className="breadcrumb">
                 <ul>
                     {items.map((link, index) => (
                         <li key={index} className="breadcrumb-item">

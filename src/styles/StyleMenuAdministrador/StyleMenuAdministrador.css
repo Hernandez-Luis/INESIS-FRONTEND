@@ -1,0 +1,12 @@
+.estilo-boton{
+    width: 10%;
+    background-color: var(--color-gris2);
+    color: var(--color-morado2);
+    font-weight: bold;
+    border-radius: 20px;
+}
+
+.estilo-boton:hover{
+    background-color: var(--color-morado2);
+    color: white;
+}
