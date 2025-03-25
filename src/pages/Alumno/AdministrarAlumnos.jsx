@@ -63,18 +63,22 @@ const AdministrarAlumnos = () => {
     const links = [
         { url: '/PrincipalAdmin', label: 'Inicio' },
         { url: '/PrincipalAdmin', label: 'Administrar' },
-        { url: '/PrincipalAdmin', label: 'Alumnos' }
+        { url: '/AdministrarAlumnos', label: 'Alumnos' }
     ];
 
     const titulos = ["Matrícula", "Nombre Completo", "Carrera", "Semestre", "Grupo"];
 
     const nombreData = "alumnos";
 
+    const subTitulo = "Gestión de los alumnos inscritos en la universidad";
+
+    const rutaBoton = "/AgregarAlumno";
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData} />
+            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData} subTitulo={subTitulo} rutaBoton={rutaBoton}/>
             <FooterInesis />
         </div>
     );
