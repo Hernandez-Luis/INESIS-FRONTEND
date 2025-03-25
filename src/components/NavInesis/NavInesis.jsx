@@ -33,7 +33,9 @@ export const NavInesis = () => {
             <Nav className="ms-auto d-flex align-items-center">
 
               <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
-                <p className='mb-0' style={{fontWeight: 'lighter'}}>Beca colegiatura</p>
+                <Link to="/menuSolicitar" className="text-decoration-none text-dark">
+                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Estudio socioeconómico</p>
+                </Link>
               </NavItem>
 
               {/* Opción 2: Lineamientos */}
