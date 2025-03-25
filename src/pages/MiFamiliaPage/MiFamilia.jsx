@@ -29,7 +29,7 @@ export const MiFamilia = () => {
 
     // Función para manejar el cambio en el input de personas dependientes
     const handleNumDependientesChange = (e) => {
-        const cantidad = parseInt(e.target.value, 10) || 0;
+        const cantidad = parseInt(e.target.value, 10);
         setNumDependientes(cantidad);
 
         // Crear un array con la cantidad de dependientes indicada
@@ -326,12 +326,12 @@ export const MiFamilia = () => {
                                                 min="0"
                                             />
                                         </div>
-                                        <label className="fs-5 mb-4" style={{ color: "var(--color-morado3)" }}>
-                                        Personas que dependen económicamente:                                           
-                                        </label>
-                                        {/* Renderizar dinámicamente los formularios según el número de dependientes */}
+                                        {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                                         {dependientes.map((dep, index) => (
-                                            <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                            <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-2">
+                                                <label className="fs-5 mb-2" style={{ color: "var(--color-morado3)" }}>
+                                                    Persona que depende económicamente:
+                                                </label>
                                                 <div className="row">
                                                     <div className="col-12 col-md-3 mb-3">
                                                         <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Nombre completo:</label>
