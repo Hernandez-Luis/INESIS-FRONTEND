@@ -50,7 +50,7 @@ export const NavInesis = () => {
               >
                 <NavDropdown.Item href="#">Mi cuenta</NavDropdown.Item>
                 <NavDropdown.Item href="#">Cambiar contraseña</NavDropdown.Item>
-                <NavDropdown.Item>Cerrar sesión</NavDropdown.Item>
+                <NavDropdown.Item href="/">Cerrar sesión</NavDropdown.Item>
               </NavDropdown>
             </Nav>
           </Navbar.Collapse>
