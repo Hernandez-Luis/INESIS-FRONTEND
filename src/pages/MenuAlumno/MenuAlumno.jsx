@@ -1,7 +1,7 @@
 import React from 'react';
 import NavInesis from "../../components/NavInesis/NavInesis";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
-import menuAlumnoImg from "../../assets/menuAlumno.png";
+import menuAlumnoImg from "../../assets/imagenMenu.png";
 
   const MenuAlumno = () => {
   const solicitarBeca = () => {

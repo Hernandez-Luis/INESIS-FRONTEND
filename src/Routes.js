@@ -36,7 +36,7 @@ const AppRoutes = () => {
         <Route path="/MenuAlumnos" element={<MenuAlumnos />} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
-        <Route path="/MenuAdministrador" element={<MenuAdministrador />} />
+        <Route path="/MenuAdministrador" element={<MenuAdministrador />} />   
         <Route path="/MiTutor" element={<MiTutor />} />
         <Route path="/AdministrarAlumnos" element={<AdministrarAlumnos />} />
         <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
