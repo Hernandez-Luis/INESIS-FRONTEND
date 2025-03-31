@@ -5,6 +5,11 @@ import { NavInesis } from './components/NavInesis/NavInesis';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MigasRecorrido from './components/MigasDePan/MigasRecorrido';
 import FooterInesis from './components/FooterInesis/FooterInesis';
+import { Login } from './pages/Login';
+import GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
+//import  GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
+
+
 import { LIneamientos } from './pages/Lineamientos/LIneamientos';
 import { MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
@@ -26,6 +31,9 @@ import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/L
 const AppRoutes = () => {
   return (
     <Routes>
+        <Route path="/" element={<Login />} />
+
+
         <Route path="/MisDatos" element={<MisDatos />} />
         <Route path="/NavInesis" element={<NavInesis />} />
         <Route path="/Migas" element={<MigasRecorrido />} />
@@ -43,7 +51,9 @@ const AppRoutes = () => {
         <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
         <Route path="/MiFamilia" element={<MiFamilia/>} />
         <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
-        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>
+        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        <Route path="/GastosIngresos" element={<GastosIngresos />} />
+        <Route path="/FooterInesis" element={<FooterInesis />} />
+        <Route path="/GastosIngresos" element={<GastosIngresos />} />
     </Routes>
   )
 }
