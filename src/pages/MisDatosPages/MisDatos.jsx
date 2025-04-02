@@ -287,7 +287,7 @@ export const MisDatos = () => {
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
                 <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
                 <br />
-                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
                 <input className='form-control w-75' type="text" />
               </div>
               {/* FIN INFORMACION COMPLEMENTARIA */}
