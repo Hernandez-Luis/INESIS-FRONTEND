@@ -27,6 +27,7 @@ import AgregarRevisor from './pages/Revisor/AgregarRevisor'
 import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud';
 import MenuAlumnos from './pages/MenuAlumno/MenuAlumno';
 import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
+import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
 
 const AppRoutes = () => {
   return (
@@ -40,6 +41,7 @@ const AppRoutes = () => {
         <Route path="/Revision" element={<RevisionSolicitud />} />
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
         <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
+        <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ResultadoEstudioSocioeconomicoCorrecto />}/>
         <Route path="/ListadoEstudioSocioeconomico" element={<ListadoEstudioSocioeconomico />}/>
         <Route path="/MenuAlumnos" element={<MenuAlumnos />} />
         <Route path="/Lineamientos" element={<LIneamientos />} />

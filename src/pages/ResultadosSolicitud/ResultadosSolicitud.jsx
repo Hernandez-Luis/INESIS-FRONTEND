@@ -13,38 +13,42 @@ export default function ResultadosSolicitud() {
     <div>
       <NavInesis />
       <MigasRecorrido items={links} />
-      <div>
-        <div className="container m-2" style={{ marginTop: "0.5cm" }}>
-          
-        </div>
-        <h1 className="titulo" style={{ textAlign: "center" }}>Mis comentarios</h1>
-        <p className="estiloInputs" style={{ textAlign: "center", border: "none" }}>
-          ¡Ups!, al parecer tienes detalles en tu formato
+      <div className="container text-center mt-4">
+        <h1 className="fw-bold" style={{ color: "#6658d3" }}>Resultado Estudio Socioeconomico</h1>
+        <p className="fw-semibold" style={{ color: "#6658d3" }}>
+          ¡Ups!, al parecer tienes detalles en tu solicitud
         </p>
-        <p className="estiloInputs" style={{ textAlign: "center", border: "none" }}>
+        <p style={{ fontSize: "14px", color: "#666" }}>
           Recuerda que tienes hasta el día 10 de octubre a las 23:59:59 para entregar tus correcciones.
         </p>
-
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-6 rounded colorFondo m-2 p-4">
-              <div style={{ textAlign: "center" }}>
-                <p className="textoInputs">Observaciones</p>
-                <span>
-                  <p>No se adjuntó un comprobante de domicilio</p>
-                  <p>Los datos del familiar están incompletos</p>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="form-check mt-3">
-            <div className="d-flex justify-content-center">
-              <button className="btn btn-outline-primary hBtn estiloBoton">Correguir</button>
-            </div>
+        
+        <div className="mt-4">
+          <h5 className="fw-semibold">Observaciones</h5>
+          <div className="rounded p-4" style={{ 
+            backgroundColor: "#f3f2ff", 
+            width: "50%", 
+            margin: "0 auto", 
+            minHeight: "100px",
+            display: "flex", 
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#6658d3",
+            fontWeight: "500"
+          }}>
+            Observaciones
           </div>
         </div>
+        
+        <button className="btn mt-4" style={{ 
+          backgroundColor: "#6658d3", 
+          color: "white", 
+          padding: "10px 30px", 
+          borderRadius: "8px",
+          fontWeight: "500"
+        }}>
+          Corregir
+        </button>
       </div>
-
       <FooterInesis />
     </div>
   );

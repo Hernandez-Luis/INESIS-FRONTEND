@@ -3,9 +3,9 @@ import NavInesis from "../../components/NavInesis/NavInesis";
 import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import SeleccionarCarrera from "../../components/ComboSeleccionar/SeleccionarCombo";
+import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
 
-    const ListadoEstudioSocioeconomico = () => {
+const ListadoEstudioSocioeconomico = () => {
     const links = [
         { url: '/PrincipalAdmin', label: 'Inicio' },
         { url: '/PrincipalAdmin', label: 'Estudios' },
@@ -14,8 +14,18 @@ import SeleccionarCarrera from "../../components/ComboSeleccionar/SeleccionarCom
 
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
+    const [selectedCarrera, setSelectedCarrera] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
+
+    const carreras = [
+        "Forestal",
+        "Ciencias Ambientales",
+        "Informática",
+        "Biología",
+        "Tecnología de la Madera",
+        "M. Ciencias en Conservación de los Recursos Forestales"
+    ];
 
     const data = [
         { nombre: "Emmanuel Graciola Tapia", semestre: "Décimo", grupo: "103", estado: "Sin revisar" },
@@ -40,9 +50,14 @@ import SeleccionarCarrera from "../../components/ComboSeleccionar/SeleccionarCom
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <div className="container">
+            <div className="container text-center mt-4 ">
+            <h1 className="fw-bold" style={{ color: "#6658d3" }}>Resultados Estudio Socioeconomico</h1>
+                <div className="mb-3" style={{ width: '50%' }}>
+
+                    <SeleccionarCombo options={carreras} onChange={setSelectedCarrera} placeholder="Selecciona una carrera" />
+                </div>
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                    <select className="form-select w-auto" onChange={e => setStatusFilter(e.target.value)}>
+                    <select className="form-select w-auto" style={{ width: '25%' }} onChange={e => setStatusFilter(e.target.value)}>
                         <option value="">Mostrar todos</option>
                         <option value="Sin revisar">Sin revisar</option>
                         <option value="Finalizado">Finalizado</option>
