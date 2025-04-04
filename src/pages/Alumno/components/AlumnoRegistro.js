@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../components/AdministrarAlumnos.css';
+import carreraService from '../../../services/CatCarreraService';
 
 const AlumnoRegistro = () => {
   // Estados para los campos del formulario
@@ -12,8 +13,7 @@ const AlumnoRegistro = () => {
   const [carrera, setCarrera] = useState('');
   const [semestre, setSemestre] = useState('');
   const [grupo, setGrupo] = useState('');
-
-  // Estados para los errores
+  const [listaCarreras, setListaCarreras] = useState([]);
   const [errores, setErrores] = useState({});
 
   // Validaciones
@@ -23,10 +23,23 @@ const AlumnoRegistro = () => {
   const validarTelefono = (valor) => /^\d{10}$/.test(valor);
   const validarMatricula = (valor) => /^\d+$/.test(valor);
 
+  React.useEffect(() => {
+    const obtenerCarreras = async () => {
+      try {
+        const carreras = await carreraService.getAll();
+        setListaCarreras(carreras);
+      } catch (error) {
+        console.error("Error al obtener carreras:", error);
+      }
+    };
+
+    obtenerCarreras();
+  }, []);
+
   // Función para manejar el envío del formulario
   const manejarEnvio = (e) => {
     e.preventDefault();
-    
+
     const erroresTemp = {};
 
     // Validar cada campo
@@ -136,13 +149,14 @@ const AlumnoRegistro = () => {
                 value={carrera}
                 onChange={(e) => setCarrera(e.target.value)}
               >
-                <option>Elige una carrera</option>
-                <option>Lic. Informática</option>
-                <option>Ing. Forestal</option>
-                <option>Lic. Biología</option>
+                <option value="">Elige una carrera</option>
+                {listaCarreras.map((c) => (
+                  <option key={c.id} value={c.nombreCarrera}>
+                    {c.nombreCarrera}
+                  </option>
+                ))}
               </select>
             </div>
-
             <div className="col-md-6">
               <label className="formulario-etiqueta">Semestre</label>
               <select
@@ -178,15 +192,15 @@ const AlumnoRegistro = () => {
               {errores.matricula && <small className="text-danger">{errores.matricula}</small>}
             </div>
             <div className="d-flex justify-content-center gap-3">
-              <button 
+              <button
                 className="btn-agregar"
                 onClick={manejarEnvio}>
                 Agregar
               </button>
             </div>
-          
+
           </div>
-          
+
         </section>
       </div>
     </div>
