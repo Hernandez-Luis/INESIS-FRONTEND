@@ -11,7 +11,7 @@ import GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
 
 
 import { LIneamientos } from './pages/Lineamientos/LIneamientos';
-import { MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
+import { MenuSolicitar } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
 import { MenuPrincipalRevisor } from './pages/MenuPrincipalRevisor/MenuPrincipalRevisor';
 import { MenuAdministrador } from './pages/MenuAdministrador/MenuAdministrador';
@@ -25,7 +25,7 @@ import MiFamilia from './pages/MiFamiliaPage/MiFamilia';
 import AdministrarRevisor from './pages/Revisor/AdministrarRevisor'
 import AgregarRevisor from './pages/Revisor/AgregarRevisor'
 import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud';
-import MenuAlumnos from './pages/MenuAlumno/MenuAlumno';
+import MenuAlumno from './pages/MenuAlumno/MenuAlumno';
 import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
 import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
 
@@ -43,7 +43,7 @@ const AppRoutes = () => {
         <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
         <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ResultadoEstudioSocioeconomicoCorrecto />}/>
         <Route path="/ListadoEstudioSocioeconomico" element={<ListadoEstudioSocioeconomico />}/>
-        <Route path="/MenuAlumnos" element={<MenuAlumnos />} />
+        <Route path="/MenuAlumno" element={<MenuAlumno/>} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
         <Route path="/MenuAdministrador" element={<MenuAdministrador />} />   

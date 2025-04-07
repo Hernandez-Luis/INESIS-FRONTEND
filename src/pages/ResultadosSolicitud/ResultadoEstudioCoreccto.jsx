@@ -1,11 +1,16 @@
-import React from "react";
+import React from "react"; 
 import NavInesis from "../../components/NavInesis/NavInesis";
 import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
+import MenuAlumno from "../MenuAlumno/MenuAlumno";
 
-export default function ResultadoEstudioSocioeconomicoCorrecto() {
+import '../ResultadosSolicitud/components/Resultados.css'; // Importa el CSS
+
+import '../../App.css';
+
+const ResultadoEstudioSocioeconomicoCorrecto = () => {
   const links = [
-    { url: '/PrincipalAdmin', label: 'Inicio' },
+    { url: '/MenuAlumno', label: 'Inicio' },
     { url: '/PrincipalAdmin', label: 'Resultados de solicitud' }
   ];
 
@@ -14,25 +19,18 @@ export default function ResultadoEstudioSocioeconomicoCorrecto() {
       <NavInesis />
       <MigasRecorrido items={links} />
       <div className="container text-center mt-5">
-        <h2 className="fw-bold text-primary">Resultado Estudio Socioeconomico</h2>
-        <p className="fw-bold text-primary">¡Tus resultados de Beca colegiatura están listos!</p>
-        <p className="text-secondary">Para cualquier aclaración puedes asistir al departamento de Servicios Escolares.</p>
+        <h2 className="titulo-resultado">Resultado Estudio Socioeconomico</h2>
+        <p className="mensaje-alerta">¡Tus resultados de Beca colegiatura están listos!</p>
+        <p className="mensaje-fecha">Para cualquier aclaración puedes asistir al departamento de Servicios Escolares.</p>
         
-        <h4 className="fw-bold mt-4">Felicidades</h4>
+        <h4 className="subtitulo-observaciones">Felicidades</h4>
         <h1 className="fw-bold text-primary" style={{ fontSize: "8rem" }}>TUS DATOS ESTÁN CORRECTOS</h1>
         
-        <button className="btn mt-4" style={{ 
-          backgroundColor: "#6658d3", 
-          color: "white", 
-          padding: "12px 40px", 
-          borderRadius: "8px",
-          fontWeight: "500",
-          fontSize: "1.2rem"
-        }}>
-          Aceptar
-        </button>
+        <button className="btn-correccion btn mt-4">Aceptar</button>
       </div>
       <FooterInesis />
     </div>
   );
-}
+};
+
+export default ResultadoEstudioSocioeconomicoCorrecto;
