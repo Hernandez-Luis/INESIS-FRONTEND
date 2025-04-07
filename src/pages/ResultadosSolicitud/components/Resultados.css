@@ -1,5 +1,8 @@
-/* Estilos previos que ya tenías */
+/* Estilos Resultados */
 
+
+
+/* Otros estilos */
 .titulo-resultado {
     color: var(--color-morado1);
     font-weight: bold;
@@ -35,8 +38,7 @@
     font-weight: 500;
 }
 
-/* Nuevos estilos añadidos para el componente 'ResultadoEstudioSocioeconomicoCorrecto' */
-
+/* Estilo Correcto */
 .btn-correccion {
     background-color: var(--color-morado5);
     color: white;
@@ -44,4 +46,10 @@
     border-radius: 8px;
     font-weight: 500;
     font-size: 1.2rem;
+}
+
+/* Título correcto */
+.titulo-correcto {
+    color: var(--color-morado2);
+    font-size: 8rem;
 }
