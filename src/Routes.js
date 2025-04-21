@@ -11,7 +11,7 @@ import GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
 
 
 import { LIneamientos } from './pages/Lineamientos/LIneamientos';
-import { MenuSolicitar } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
+import { MenuSolicitar, MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
 import { MenuPrincipalRevisor } from './pages/MenuPrincipalRevisor/MenuPrincipalRevisor';
 import { MenuAdministrador } from './pages/MenuAdministrador/MenuAdministrador';
@@ -35,6 +35,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Login />} />
 
 
+        <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
         <Route path="/MisDatos" element={<MisDatos />} />
         <Route path="/NavInesis" element={<NavInesis />} />
         <Route path="/Migas" element={<MigasRecorrido />} />
@@ -53,7 +54,7 @@ const AppRoutes = () => {
         <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
         <Route path="/MiFamilia" element={<MiFamilia/>} />
         <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
-        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        <Route path="/GastosIngresos" element={<GastosIngresos />} />
+        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        
         <Route path="/FooterInesis" element={<FooterInesis />} />
         <Route path="/GastosIngresos" element={<GastosIngresos />} />
     </Routes>

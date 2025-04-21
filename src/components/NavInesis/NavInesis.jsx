@@ -16,7 +16,7 @@ export const NavInesis = () => {
     <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
       <Navbar expand="lg">
         <Container fluid>
-          <Navbar.Brand href="/PrincipalAdmin" className='fs-1 me-auto d-flex align-items-center'>
+          <Navbar.Brand href="/menuAlumno" className='fs-1 me-auto d-flex align-items-center'>
             <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
               INESIS
             </h1>
@@ -26,7 +26,9 @@ export const NavInesis = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto d-flex align-items-center">
               <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
-                <p className='mb-0' style={{ fontWeight: 'lighter' }}>Beca colegiatura</p>
+                <Link to="/menuSolicitar" className='text-decoration-none text-dark'>
+                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Beca colegiatura</p>
+                </Link>
               </NavItem>
 
               <NavItem className='me-5 fs-5 opciones nav-item-op'>

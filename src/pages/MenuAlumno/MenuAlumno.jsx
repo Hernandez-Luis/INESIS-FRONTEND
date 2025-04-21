@@ -30,7 +30,7 @@ const MenuAlumno = () => {
                 title="Requisitar Estudio Socioeconómico"
                 imgSrc={rellenarEstudio}
                 description="En esta sección, ingresarás datos personales y de otra índole necesaria."
-                link={"/"}
+                link={"/menuSolicitar"}
               />
               <CardMenu 
                 title="Resultados del Estudio Socioeconómico"
