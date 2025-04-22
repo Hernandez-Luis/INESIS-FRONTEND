@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import NavInesis from '../../components/NavInesis/NavInesis'
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido'
 import "../../styles/TarjetaEstilo/TarjetaEstilo.css"
@@ -7,6 +7,7 @@ import RadioSelect from '../../components/RadioSelect/RadioSelect'
 import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo'
 import { CheckBox } from '../../components/CheckBox/CheckBox'
 import '../../styles/MisDatos/MisDatos.css'
+import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 
 export const MisDatos = () => {
 
@@ -16,10 +17,26 @@ export const MisDatos = () => {
     { url: '/PrincipalAdmin', label: 'Inicio' }
   ];
 
+  const [medios, setMedios] = useState([]);
+  const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [estadoCivil, setEstadoCivil] = useState(null);
   const [recursos, setRecursos] = useState(null);
   const [vivienda, setVivienda] = useState(null);
   const [selectedOption, setSelectedOption] = useState('');
+
+  useEffect(() => {
+    obtenerListaMedioTransporte();
+  }, []);
+
+  const obtenerListaMedioTransporte = async () => {
+    try {
+      let listaMedios = await CatMedioTransporteService.getAll();
+      setMedios(listaMedios)
+      console.log(listaMedios)
+    } catch (error) {
+      console.log("Error al obtener la lista de CatMediosTransporte: ", error)
+    }
+  }
 
   // Función para manejar la selección
   const handleSelectionEstadoCivil = (option) => {
@@ -41,6 +58,15 @@ export const MisDatos = () => {
   const handleSelection = (option) => {
     setSelectedOption(option); // Actualizar el estado en el componente padre
     console.log('Opción seleccionada:', option); // Mostrar en consola
+  };
+
+  const manejarCambioCheckbox = (id) => {
+    setMediosSeleccionados((prev) => 
+      prev.includes(id)
+        ? prev.filter((item) => item !== id) // Desmarcar
+        : [...prev, id] // Marcar
+    );
+    console.log(mediosSeleccionados)
   };
 
 
@@ -100,7 +126,7 @@ export const MisDatos = () => {
 
               {/* INICIO MODULO DOMICILIO */}
               <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
-                
+
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                   <div className='mt-2'>
@@ -252,25 +278,14 @@ export const MisDatos = () => {
                 </div>
                 <div className="row mt-4">
                   <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
-                  <div className="col">
-                    <CheckBox opcion="Microbús" id='micro'></CheckBox>
-                    <br />
-                    <CheckBox opcion="Automóvil de amigos" id='autoamigos'></CheckBox>
-                    <br />
-                    <CheckBox opcion="Bicicleta" id='bicicleta'></CheckBox>
-                  </div>
-                  <div className="col">
-                    <CheckBox opcion="Mototaxi" id='mototaxi'></CheckBox>
-                    <br />
-                    <CheckBox opcion="Caminando" id='caminando'></CheckBox>
-                    <br />
-                    <CheckBox opcion="Automovil familiar" id='autofamiliar'></CheckBox>
-                  </div>
-                  <div className="col">
-                    <CheckBox opcion="Colectivo" id='colectivo'></CheckBox>
-                    <br />
-                    <CheckBox opcion="Taxi" id='taxi'></CheckBox>
-                  </div>
+                  {medios.map((medio) => (
+                    <CheckBox
+                      key={medio.id}
+                      id={medio.id}
+                      opcion={medio.nombreMedio} // O la propiedad correcta que contenga el nombre
+                      onChange={manejarCambioCheckbox}
+                    />
+                  ))}
                 </div>
               </div>
               {/* FIN MODULO TRANSPORTE */}

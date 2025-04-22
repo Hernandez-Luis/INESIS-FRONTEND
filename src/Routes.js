@@ -11,7 +11,7 @@ import GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
 
 
 import { LIneamientos } from './pages/Lineamientos/LIneamientos';
-import { MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
+import { MenuSolicitar, MenuSolicitarBeca } from './pages/MenuSolicitarBeca/MenuSolicitarBeca';
 import MisDocumentos from './pages/MisDocumentos/MisDocumentos';
 import { MenuPrincipalRevisor } from './pages/MenuPrincipalRevisor/MenuPrincipalRevisor';
 import { MenuAdministrador } from './pages/MenuAdministrador/MenuAdministrador';
@@ -24,28 +24,37 @@ import RevisionSolicitud from './pages/Revisor/RevisionSolicitud';
 import MiFamilia from './pages/MiFamiliaPage/MiFamilia';
 import AdministrarRevisor from './pages/Revisor/AdministrarRevisor'
 import AgregarRevisor from './pages/Revisor/AgregarRevisor'
+import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud';
+import MenuAlumno from './pages/MenuAlumno/MenuAlumno';
+import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
+import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
+
 const AppRoutes = () => {
   return (
     <Routes>
         <Route path="/" element={<Login />} />
 
 
+        <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
         <Route path="/MisDatos" element={<MisDatos />} />
         <Route path="/NavInesis" element={<NavInesis />} />
         <Route path="/Migas" element={<MigasRecorrido />} />
         <Route path="/Revision" element={<RevisionSolicitud />} />
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
-        <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
+        <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
+        <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ResultadoEstudioSocioeconomicoCorrecto />}/>
+        <Route path="/ListadoEstudioSocioeconomico" element={<ListadoEstudioSocioeconomico />}/>
+        <Route path="/MenuAlumno" element={<MenuAlumno/>} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
-        <Route path="/MenuAdministrador" element={<MenuAdministrador />} />
+        <Route path="/MenuAdministrador" element={<MenuAdministrador />} />   
         <Route path="/MiTutor" element={<MiTutor />} />
         <Route path="/AdministrarAlumnos" element={<AdministrarAlumnos />} />
         <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
         <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
         <Route path="/MiFamilia" element={<MiFamilia/>} />
         <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
-        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        <Route path="/GastosIngresos" element={<GastosIngresos />} />
+        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        
         <Route path="/FooterInesis" element={<FooterInesis />} />
         <Route path="/GastosIngresos" element={<GastosIngresos />} />
     </Routes>
