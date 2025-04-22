@@ -60,6 +60,11 @@ export const MisDatos = () => {
     console.log('Opción seleccionada:', option); // Mostrar en consola
   };
 
+  const handleSelectionDependientEconomico = (option) => {
+    setRecursos(option); // Actualizar el estado en el componente padre
+    console.log('Recursos:', option); // Mostrar en consola
+  };
+
   const manejarCambioCheckbox = (id) => {
     setMediosSeleccionados((prev) => 
       prev.includes(id)
@@ -78,7 +83,7 @@ export const MisDatos = () => {
         <div className='flex-grow-1 mt-5 mx-5 px-5'>
           <form action="">
             <div className='row mx-5 mt-4  mw-100'>
-              {/* INICIO MODULO INFORMACION GENERA */}
+              {/* INICIO MODULO INFORMACION GENERAL */}
               <div className='col tarjeta-border px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
@@ -122,7 +127,7 @@ export const MisDatos = () => {
                   </div>
                 </div>
               </div>
-              {/* FIN MODULO INFORMACION GENERA */}
+              {/* FIN MODULO INFORMACION GENERAl */}
 
               {/* INICIO MODULO DOMICILIO */}
               <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
@@ -212,33 +217,63 @@ export const MisDatos = () => {
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                       ¿Dependes económicamente?
                     </p>
-                    <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                    <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionDependientEconomico} />
                   </div>
                 </div>
-                <div class="line mx-auto mt-5 mb-4"></div>
-                <div className="row">
-                  <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
-                  <input className='form-control w-25' type="text" />
-                </div>
-                <div className="row mt-3">
-                  <div className="col">
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
-                    <RadioSelect gris={true} options={['Temporal', 'Permanente']} onChange={handleSelectionRecursos} />
+
+
+                {recursos === 'Si' && (
+                  <div className="row mt-3">
+                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="col-12">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
+                      <input className='form-control w-25' type="text" />
+                    </div>
+                    <div className="col">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
+                      <RadioSelect gris={true} options={['Temporal', 'Permanente']} onChange={handleSelectionRecursos} />
+                    </div>
+                    <div className="col">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
+                      <SeleccionarCombo
+                        options={['Jornalero', 'Chambeador']} // Opciones disponibles
+                        onChange={handleSelection} // Función para manejar la selección
+                        placeholder="Selecciona una opción" // Placeholder
+                      />
+                    </div>
+                    <div className="col">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                      <input className='form-control w-50' type="text" />
+                    </div>
+                    <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
-                  <div className="col">
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
-                    <SeleccionarCombo
-                      options={['Jornalero', 'Chambeador']} // Opciones disponibles
-                      onChange={handleSelection} // Función para manejar la selección
-                      placeholder="Selecciona una opción" // Placeholder
-                    />
+                )}
+
+                {recursos === 'No' && (
+                  <div className="row mt-3">
+                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="col-4">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
+                      <input className='form-control w-50' type="text" />
+                    </div>
+                    <div className="col-4">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Menciona el ingreso mensual que recibes</p>
+                      <input className='form-control w-50' type="text" />
+                    </div>
+                    <div className="col-4">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Telefono celular del lugar donde trabajas</p>
+                      <input className='form-control w-50' type="text" />
+                    </div>
+                    <div className="col-12">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas</p>
+                      <input className='form-control w-50' type="text" />
+                    </div>
+                    <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
-                  <div className="col">
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
-                    <input className='form-control w-50' type="text" />
-                  </div>
-                </div>
-                <div class="line mx-auto mt-5 mb-4"></div>
+                )}
+
+
+
                 <div className="row">
                   <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
                   <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
