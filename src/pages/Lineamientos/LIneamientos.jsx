@@ -21,7 +21,7 @@ export const LIneamientos = () => {
             <section className="flex-grow-1 mb-3 p-2">
                 <div className="container">
                     <h1 className="fs-1 text-center mb-5" style={{color: 'var(--color-morado1)'}}>
-                        Toma en cuenta lo siguiente antes de solicitar tu beca:
+                        Toma en cuenta lo siguiente antes de llenar tu estudio socioeconómico:
                     </h1>
                     <div className="mt-5">
                         <div className="row w-100">

@@ -50,22 +50,6 @@ export default function MisDocumentos() {
           </div>
 
           <RecibosDeLuz />
-
-          {/* Botón "Guardar" debajo del componente RecibosDeLuz */}
-          <div style={{ textAlign: 'center', marginTop: '20px', marginBottom: '50px' }}>
-            <button style={{
-              backgroundColor: 'var(--color-morado1)',
-              color: 'white',
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}>
-              Guardar
-            </button>
-          </div>
-
           <FooterInesis />
         </div>
       </div>

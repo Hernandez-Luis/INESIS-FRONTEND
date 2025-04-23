@@ -1,0 +1,40 @@
+.modal-dialog-enhanced .btn {
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.close-white .btn-close {
+  filter: invert(1); 
+}
+
+
+/* Estilos personalizados para el modal morado */
+.bg-purple {
+  background-color: var(--color-morado1);
+}
+
+.bg-purple .form-control,
+.bg-purple .form-select {
+  background-color: #fff !important;
+  /* Fondo blanco para los inputs */
+  color: var(--color-morado1) !important;
+  /* Texto negro para mejor contraste */
+}
+
+.boton-blanco-morado {
+  background-color: var(--color-gris2) !important;
+  color: var(--color-morado1) !important;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 15px;
+  border: 2px solid var(--color-morado2);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.boton-blanco-morado:hover {
+  background-color: var(--color-gris2) !important;
+  color: #6b21a8; /* Morado más oscuro */
+  border: 2px solid var(--color-gris1);
+}

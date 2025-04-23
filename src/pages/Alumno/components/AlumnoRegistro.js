@@ -177,27 +177,18 @@ const AlumnoRegistro = () => {
               />
               {errores.matricula && <small className="text-danger">{errores.matricula}</small>}
             </div>
+            <div className="d-flex justify-content-center gap-3">
+              <button 
+                className="btn-agregar"
+                onClick={manejarEnvio}>
+                Agregar
+              </button>
+            </div>
           
           </div>
           
         </section>
-        <div className="col-10">
-              <div className="d-flex justify-content-end gap-3">
-                <button 
-                  className="btn-agregar"
-                  onClick={manejarEnvio}>
-                  Agregar
-                </button>
-              </div>
-            </div>
-       
       </div>
-       {/* Botón Agregar */}
-       <div className="d-flex justify-content-end">
-          <button className="btn-agregar" onClick={manejarEnvio}>
-            Agregar
-          </button>
-        </div>
     </div>
   );
 };

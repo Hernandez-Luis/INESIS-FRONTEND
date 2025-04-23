@@ -8,7 +8,7 @@ const AdministrarFechas = () => {
     const links = [
         { url: '/PrincipalAdmin', label: 'Inicio' },
         { url: '/PrincipalAdmin', label: 'Administrar' },
-        { url: '/PrincipalAdmin', label: 'Alumnos' }
+        { url: '/AdministrarFechas', label: 'Fechas' }
     ];
 
     const data = [
@@ -21,11 +21,13 @@ const AdministrarFechas = () => {
 
     const nombreData = "fechas";
 
+    const subTitulo = "Se asignan fechas por carrera para  abrir y cerrar la encuesta";
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData}  />
+            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData} subTitulo={subTitulo} />
             <FooterInesis />
         </div>
     );
