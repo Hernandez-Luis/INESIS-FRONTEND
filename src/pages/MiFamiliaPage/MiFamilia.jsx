@@ -23,6 +23,9 @@ export const MiFamilia = () => {
     const [casaFamilia, setCasaFamilia] = useState('');
     const [accesoInternet, setAccesoIntenet] = useState('');
     const [formData, setFormData] = useState('');
+    const [numHermanos, setNumHermanos] = useState('');
+    const [hermanosEstudian, setHermanosEstudian] = useState('');
+
 
     const [numDependientes, setNumDependientes] = useState('');
     const [dependientes, setDependientes] = useState([]);
@@ -308,6 +311,64 @@ export const MiFamilia = () => {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                        Hermanos
+                                    </p>
+                                    <div className="row">
+                                        {/* Escolaridad de padre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos hermanos tienes?
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={numHermanos}
+                                                onChange={(e) => setNumHermanos(e.target.value)}
+                                            />
+                                        </div>
+                                        {/* Escolaridad de madre */}
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos están estudiando?
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={hermanosEstudian}
+                                                onChange={(e) => setHermanosEstudian(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos dejaron de estudiar?
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-3 mb-3">
+                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                ¿Cuántos tienen licenciatura?
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                placeholder=""
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div className="container">
                                     <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
                                         <p className="fs-2" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
@@ -326,6 +387,7 @@ export const MiFamilia = () => {
                                                 min="0"
                                             />
                                         </div>
+
                                         {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                                         {dependientes.map((dep, index) => (
                                             <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-2">
