@@ -9,7 +9,7 @@ import { CheckBox } from '../../components/CheckBox/CheckBox'
 import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 
-export const MisDatos = () => {
+export const MisDatos = ({onAdd}) => {
 
   const links = [
     { url: '/PrincipalAdmin', label: 'Inicio' },
@@ -74,6 +74,47 @@ export const MisDatos = () => {
     console.log(mediosSeleccionados)
   };
 
+  const formularioInicialGastosIngresos = {
+    gastoMensual: "",
+    dependeEconomicamente: "",
+    //Si depende
+    personaDepende: "", 
+    trabajoTipo: "",
+    ocupacion: "",
+    otro: "",
+    //No depende
+    nombreTrabajo: "",
+    ingresoMensual: "",
+    telefonoTrabajo: "",
+    domicilioTrabajo: "",
+
+    solicitaBeca: ""
+  }
+
+  const [dataGastosIngresos,setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
+
+  const cambios = (e) => {
+    const { name, value } = e.target;
+    setDataGastosIngresos({ ...dataGastosIngresos, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const nuevosErrores = onAdd(dataGastosIngresos)
+
+      if(nuevosErrores && nuevosErrores.length > 0){
+        //Mostrar la lista de errores
+        return
+      }
+
+      setDataGastosIngresos({})
+      //Borrar la lista de errores
+    } catch (error) {
+      
+    }
+  }
+
 
   return (
     <div>
@@ -81,7 +122,7 @@ export const MisDatos = () => {
       <MigasRecorrido items={links}></MigasRecorrido>
       <div className='d-flex flex-column min-vh-100'>
         <div className='flex-grow-1 mt-5 mx-5 px-5'>
-          <form action="">
+          <form onSubmit={handleSubmit}>
             <div className='row mx-5 mt-4  mw-100'>
               {/* INICIO MODULO INFORMACION GENERAL */}
               <div className='col tarjeta-border px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
@@ -229,11 +270,11 @@ export const MisDatos = () => {
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                       <input className='form-control w-25' type="text" />
                     </div>
-                    <div className="col">
+                    <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                       <RadioSelect gris={true} options={['Temporal', 'Permanente']} onChange={handleSelectionRecursos} />
                     </div>
-                    <div className="col">
+                    <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
                       <SeleccionarCombo
                         options={['Jornalero', 'Chambeador']} // Opciones disponibles
@@ -241,7 +282,7 @@ export const MisDatos = () => {
                         placeholder="Selecciona una opción" // Placeholder
                       />
                     </div>
-                    <div className="col">
+                    <div className="col-5">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                       <input className='form-control w-50' type="text" />
                     </div>
