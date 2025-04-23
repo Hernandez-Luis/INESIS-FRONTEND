@@ -5,6 +5,7 @@ import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
 
+
 const ListadoEstudioSocioeconomico = () => {
     const links = [
         { url: '/PrincipalAdmin', label: 'Inicio' },
@@ -81,7 +82,12 @@ const ListadoEstudioSocioeconomico = () => {
                                 <td>{item.nombre}</td>
                                 <td>{item.semestre}</td>
                                 <td>{item.grupo}</td>
-                                <td><i className="bi bi-file-earmark-text"></i></td>
+                                <td>
+                                    <a href="/Revision">
+                                        <i className="bi bi-file-earmark-text"></i>
+                                    </a>
+                                </td>
+                                
                                 <td className={item.estado === "Finalizado" ? "text-success" : item.estado === "Pendiente" ? "text-danger" : "text-muted"}>
                                     {item.estado}
                                 </td>
