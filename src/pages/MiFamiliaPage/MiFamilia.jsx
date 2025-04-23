@@ -10,9 +10,9 @@ import { CheckBox } from '../../components//CheckBox/CheckBox'
 
 export const MiFamilia = () => {
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Solicitud' },
-        { url: '/PrincipalAdmin', label: 'Inicio' }
+        { url: '/MenuAlumno', label: 'Inicio' },
+        { url: '/MenuSolicitar', label: 'Estudio socioeconómico' },
+        { url: '/PrincipalAdmin', label: 'Mi famlia' }
     ];
 
 
@@ -118,54 +118,62 @@ export const MiFamilia = () => {
                             </div>
                             <div className="row mt-4 mx-0">
                                 {/* Tarjeta para Contacto */}
-                                <div className="col-12 col-md-4 tarjeta-border d-flex flex-column p-4 mb-4">
-                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
-                                        Contacto
-                                    </p>
-                                    <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        Telefono
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        className="form-control"
-                                        placeholder="Ingresa el número de teléfono"
-                                        value={contacto}
-                                        onChange={(e) => setContacto(e.target.value)}
-                                    />
-                                </div>
-
-                                {/* Tarjeta para Grados de Escolaridad */}
-                                <div className="col-12 col-md-8 tarjeta-border d-flex flex-column p-4 mb-4">
-                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
-                                        Escolaridad
-                                    </p>
-                                    {/* Fila para los campos de escolaridad */}
-                                    <div className="row">
-                                        {/* Escolaridad de padre */}
-                                        <div className="col-12 col-md-6 mb-3">
+                                <div className="ms-2 me-4 row mw-100 mb-4">
+                                    {/* Columna 1: Contacto */}
+                                    <div className="col-12 col-md-6 col-lg-4">
+                                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                                            <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                                Contacto
+                                            </p>
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Escolaridad de padre
+                                                Teléfono
                                             </label>
-                                            <SeleccionarCombo
-                                                options={['Primaria', 'Secundaria', 'Bachillerato', 'Universidad']}
-                                                onChange={handleSelection}
-                                                placeholder="Selecciona una opción"
-                                            />
-                                        </div>
-
-                                        {/* Escolaridad de madre */}
-                                        <div className="col-12 col-md-6 mb-3">
-                                            <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Escolaridad de la madre
-                                            </label>
-                                            <SeleccionarCombo
-                                                options={['Primaria', 'Secundaria', 'Bachillerato', 'Universidad']}
-                                                onChange={handleSelection}
-                                                placeholder="Selecciona una opción"
+                                            <input
+                                                type="tel"
+                                                className="form-control"
+                                                placeholder="Ingresa el número de teléfono"
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
                                             />
                                         </div>
                                     </div>
+
+                                    {/* Columna 2: Escolaridad */}
+                                    <div className="col-12 col-md-6 col-lg-8">
+                                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-3 mb-4">
+                                            <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                                Escolaridad
+                                            </p>
+                                            <div className="row">
+                                                {/* Escolaridad del padre */}
+                                                <div className="col-12 col-md-6 mb-3">
+                                                    <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                        Escolaridad del padre
+                                                    </label>
+                                                    <SeleccionarCombo
+                                                        options={['Primaria', 'Secundaria', 'Bachillerato', 'Universidad']}
+                                                        onChange={handleSelection}
+                                                        placeholder="Selecciona una opción"
+                                                    />
+                                                </div>
+
+                                                {/* Escolaridad de la madre */}
+                                                <div className="col-12 col-md-6 mb-3">
+                                                    <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                        Escolaridad de la madre
+                                                    </label>
+                                                    <SeleccionarCombo
+                                                        options={['Primaria', 'Secundaria', 'Bachillerato', 'Universidad']}
+                                                        onChange={handleSelection}
+                                                        placeholder="Selecciona una opción"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+
+
                                 <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
                                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                         Vivienda
@@ -312,7 +320,7 @@ export const MiFamilia = () => {
                                     </div>
                                 </div>
                                 <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                         Hermanos
                                     </p>
                                     <div className="row">
@@ -368,7 +376,7 @@ export const MiFamilia = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="container">
                                     <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
                                         <p className="fs-2" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
