@@ -5,6 +5,7 @@ import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
 
+import '../../App.css';
 
 const ListadoEstudioSocioeconomico = () => {
     const links = [
@@ -25,7 +26,9 @@ const ListadoEstudioSocioeconomico = () => {
         "Informática",
         "Biología",
         "Tecnología de la Madera",
-        "M. Ciencias en Conservación de los Recursos Forestales"
+        "M. Ciencias en Conservación de los Recursos Forestales",
+        "M. Ciencias en Gestión Ambiental ",
+        "Administracion turistica"
     ];
 
     const data = [
@@ -52,7 +55,7 @@ const ListadoEstudioSocioeconomico = () => {
             <NavInesis />
             <MigasRecorrido items={links} />
             <div className="container text-center mt-4 ">
-            <h1 className="fw-bold" style={{ color: "#6658d3" }}>Resultados Estudio Socioeconomico</h1>
+            <h1 className="fw-bold" style={{ color: "var(--color-morado2)" }}>Resultados Estudio Socioeconomico</h1>
                 <div className="mb-3" style={{ width: '50%' }}>
 
                     <SeleccionarCombo options={carreras} onChange={setSelectedCarrera} placeholder="Selecciona una carrera" />
@@ -66,7 +69,7 @@ const ListadoEstudioSocioeconomico = () => {
                     </select>
                     <input type="text" className="form-control w-auto" placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} />
                 </div>
-                <table className="table table-striped text-center">
+                <table className="table table-striped text-center" style={{ border: "2px solid #ccc", borderCollapse: "collapse" }}>
                     <thead>
                         <tr>
                             <th>Nombre Completo</th>
