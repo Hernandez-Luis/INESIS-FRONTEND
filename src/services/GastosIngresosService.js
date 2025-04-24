@@ -40,7 +40,6 @@ const deleteGastosIngresos = async (id) => {
 
 export default {
     getAll,
-    findByName,
     create,
     update,
     deleteGastosIngresos

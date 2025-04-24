@@ -93,18 +93,32 @@ export const MisDatos = ({onAdd}) => {
 
   const [dataGastosIngresos,setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
 
-  const cambios = (e) => {
+  const cambiosGastosIngresos = (e) => {
     const { name, value } = e.target;
-    setDataGastosIngresos({ ...dataGastosIngresos, [name]: value });
+    
+    // Debug: verifica que los valores se están capturando
+    console.log(`Campo cambiado: ${name}, Valor: ${value}`);
+    
+    setDataGastosIngresos(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Debug: verifica el estado después del cambio
+    console.log("Estado actualizado:", {...dataGastosIngresos, [name]: value});
+    console.log("Datos JSON: ", dataGastosIngresos)
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Datos guardar: ", dataGastosIngresos)
     try {
+      
       const nuevosErrores = onAdd(dataGastosIngresos)
 
       if(nuevosErrores && nuevosErrores.length > 0){
         //Mostrar la lista de errores
+        console.log("Aqui se mostraran los errores")
         return
       }
 
@@ -252,7 +266,7 @@ export const MisDatos = ({onAdd}) => {
                 <div className="row">
                   <div className="col">
                     <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
-                    <input className='form-control w-25' type="number" />
+                    <input className='form-control w-25' type="number" name="gastoMensual" onChange={cambiosGastosIngresos}  value={dataGastosIngresos.gastoMensual}/>
                   </div>
                   <div className='col d-flex flex-column align-items-center text-center'>
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
@@ -272,7 +286,7 @@ export const MisDatos = ({onAdd}) => {
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
-                      <RadioSelect gris={true} options={['Temporal', 'Permanente']} onChange={handleSelectionRecursos} />
+                      <RadioSelect gris={true} options={['Temporal', 'Permanente']} onChange={handleSelectionVivienda} />
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
@@ -317,7 +331,7 @@ export const MisDatos = ({onAdd}) => {
 
                 <div className="row">
                   <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
-                  <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionRecursos} />
+                  <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionVivienda} />
                 </div>
               </div>
             </div>
