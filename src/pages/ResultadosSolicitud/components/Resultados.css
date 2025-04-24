@@ -1,0 +1,55 @@
+/* Estilos Resultados */
+
+
+
+/* Otros estilos */
+.titulo-resultado {
+    color: var(--color-morado1);
+    font-weight: bold;
+}
+
+.mensaje-alerta {
+    color: var(--color-morado2);
+    font-weight: 600;
+}
+
+.mensaje-fecha {
+    font-size: 14px;
+    color: var(--color-morado2);
+}
+
+.subtitulo-observaciones {
+    color: var(--color-morado2);
+    font-weight: 600;
+}
+
+.observacion-cuadro {
+    background-color: var(--color-gris2);
+    width: 50%;
+    margin: 0 auto;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.observacion-texto {
+    color: #6658d3;
+    font-weight: 500;
+}
+
+/* Estilo Correcto */
+.btn-correccion {
+    background-color: var(--color-morado5);
+    color: white;
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+/* Título correcto */
+.titulo-correcto {
+    color: var(--color-morado2);
+    font-size: 8rem;
+}
