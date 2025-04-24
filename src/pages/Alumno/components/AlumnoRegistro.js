@@ -1,178 +1,277 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import '../components/AdministrarAlumnos.css';
 import carreraService from '../../../services/CatCarreraService';
-import semestreService from '../../../services/CatSemestreService';  
-import sexoService from '../../../services/CatSexoService'; 
+import semestreService from '../../../services/CatSemestreService';
+import sexoService from '../../../services/CatSexoService';
+import Swal from 'sweetalert2';
 
-const AlumnoRegistro = () => {
-  // Estados para los campos del formulario
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [curp, setCurp] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [matricula, setMatricula] = useState('');
-  const [carrera, setCarrera] = useState('');
-  const [semestre, setSemestre] = useState('');
-  const [grupo, setGrupo] = useState('');
+const AlumnoRegistro = forwardRef((props, ref) => {
+
+  const initialForm = {
+    nombre: '',
+    apellido: '',
+    curp: '',
+    correo: '',
+    telefono: '',
+    matricula: '',
+    carrera: '',
+    semestre: '',
+    grupo: '',
+    sexo: ''
+  };
+
+  const [formValues, setFormValues] = useState(initialForm);
+  const [errors, setErrors] = useState({});
   const [listaCarreras, setListaCarreras] = useState([]);
   const [listaSemestres, setListaSemestres] = useState([]);
-  const [listaSexo, setListaSexo] = useState([]);  
-  const [errores, setErrores] = useState({});
+  const [listaSexo, setListaSexo] = useState([]);
 
-  // Validaciones
-  const validarNombreApellido = (valor) => valor.length <= 30;
-  const validarCurp = (valor) => /^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/.test(valor);
-  const validarCorreo = (valor) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(valor);
-  const validarTelefono = (valor) => /^\d{10}$/.test(valor);
-  const validarMatricula = (valor) => /^\d+$/.test(valor);
-
+  // Obtener datos iniciales
   useEffect(() => {
-    const obtenerCarreras = async () => {
+    const fetchData = async () => {
       try {
-        const carreras = await carreraService.getAll();
+        const [carreras, semestres, sexos] = await Promise.all([
+          carreraService.getAll(),
+          semestreService.getAll(),
+          sexoService.getAll()
+        ]);
+
         setListaCarreras(carreras);
-      } catch (error) {
-        console.error("Error al obtener carreras:", error);
-      }
-    };
-
-    const obtenerSemestres = async () => {
-      try {
-        const semestres = await semestreService.getAll();  // Obtén los semestres
         setListaSemestres(semestres);
-      } catch (error) {
-        console.error("Error al obtener semestres:", error);
-      }
-    };
-
-    const obtenerSexos = async () => {
-      try {
-        const sexos = await sexoService.getAll();  // Obtén los semestres
         setListaSexo(sexos);
       } catch (error) {
-        console.error("Error al obtener semestres:", error);
+        console.error("Error cargando datos:", error);
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Error al cargar datos iniciales'
+        });
       }
     };
 
-    obtenerSexos();
-    obtenerCarreras();
-    obtenerSemestres();  // Llamar a la función para obtener semestres
+    fetchData();
   }, []);
 
-  // Función para manejar el envío del formulario
-  const manejarEnvio = (e) => {
-    e.preventDefault();
-
-    const erroresTemp = {};
-
-    // Validar cada campo
-    if (!validarNombreApellido(nombre)) erroresTemp.nombre = 'El nombre no debe exceder 30 caracteres';
-    if (!validarNombreApellido(apellido)) erroresTemp.apellido = 'El apellido no debe exceder 30 caracteres';
-    if (!validarCurp(curp)) erroresTemp.curp = 'CURP no válida';
-    if (!validarCorreo(correo)) erroresTemp.correo = 'Correo electrónico no válido';
-    if (!validarTelefono(telefono)) erroresTemp.telefono = 'Teléfono debe tener 10 dígitos';
-    if (!validarMatricula(matricula)) erroresTemp.matricula = 'La matrícula debe ser solo números';
-
-    setErrores(erroresTemp);
-
-    if (Object.keys(erroresTemp).length === 0) {
-      // Aquí se puede realizar la acción de enviar el formulario (por ejemplo, llamar a un API)
-      console.log('Formulario enviado');
-    }
-  };
-
-  // Actualización del grupo según la carrera y semestre
-  const actualizarGrupo = () => {
-    // Lógica para obtener el grupo según la carrera y semestre seleccionados (ejemplo)
-    if (carrera && semestre) {
-      setGrupo(`Grupo ${carrera}-${semestre}`);
-    }
-  };
-
-  // Actualizar el grupo cada vez que se cambian la carrera o semestre
+  // Actualizar grupo automáticamente
   useEffect(() => {
-    actualizarGrupo();
-  }, [carrera, semestre]);
+    if (formValues.carrera && formValues.semestre) {
+      const carreraSeleccionada = listaCarreras.find(c => c.nombreCarrera === formValues.carrera);
+      const semestreSeleccionado = listaSemestres.find(s => s.nombreSemestre === formValues.semestre);
+
+      if (carreraSeleccionada && semestreSeleccionado) {
+        setFormValues(prev => ({
+          ...prev,
+          grupo: `${carreraSeleccionada.clave}-${semestreSeleccionado.clave}`
+        }));
+      }
+    }
+  }, [formValues.carrera, formValues.semestre]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    validateField(name, value);
+  };
+
+  const validateField = (name, value) => {
+    let error = '';
+    const requiredFields = ['nombre', 'apellido', 'curp', 'correo', 'telefono',
+      'matricula', 'carrera', 'semestre', 'sexo'];
+
+    // Validación de campos requeridos
+    if (requiredFields.includes(name) && !value.trim()) {
+      error = 'Este campo es obligatorio';
+    }
+
+    // Validaciones específicas
+    switch (name) {
+      case 'nombre':
+      case 'apellido':
+        if (value.length > 30) error = 'Máximo 30 caracteres';
+        break;
+      case 'curp':
+        if (!/^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/.test(value))
+          error = 'Formato CURP inválido';
+        break;
+      case 'correo':
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          error = 'Correo electrónico inválido';
+        break;
+      case 'telefono':
+        if (!/^\d{10}$/.test(value))
+          error = 'Debe contener 10 dígitos';
+        break;
+      case 'matricula':
+        if (!/^\d+$/.test(value))
+          error = 'Solo se permiten números';
+        break;
+    }
+
+    setErrors(prev => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  const validateAllFields = () => {
+    const newErrors = {};
+    Object.keys(formValues).forEach(key => {
+      if (key !== 'grupo') { // Excluir campo no requerido
+        const error = validateField(key, formValues[key]);
+        if (error) newErrors[key] = error;
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const mostrarAlerta = (config) => {
+    Swal.fire({
+      ...config,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = 'var(--color-verde)';
+      },
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateAllFields()) {
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error de validación',
+        text: 'Por favor verifica todos los campos'
+      });
+      return;
+    }
+
+    // Aquí iría la lógica para enviar los datos
+    console.log('Datos válidos:', formValues);
+    mostrarAlerta({
+      icon: 'success',
+      title: 'Alumno registrado correctamente'
+    });
+    setFormValues(initialForm);
+  };
+
+  useImperativeHandle(ref, () => ({
+    getValues: () => {
+      if (!validateAllFields()) {
+        throw new Error("Errores en el formulario");
+      }
+      return formValues;
+    }
+  }));
 
   return (
     <div className="mb-5">
       <h2 className="size-font-title cardMenu-title m-5 text-center">Agregar alumno</h2>
 
-      <div className="agregar-alumno-container m-5">
+      <form className="agregar-alumno-container m-5" onSubmit={handleSubmit}>
         {/* Sección Datos Personales */}
         <section className="formulario-seccion formulario-seccion--datos-personales mb-5">
           <h2 className="texto-morado2 mb-4">Datos personales</h2>
           <div className="row g-4">
             <div>
-              <label className="formulario-etiqueta">Nombre(s)</label>
+              <label className="formulario-etiqueta">
+                Nombre(s) <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
+                name="nombre"
+                className={`formulario-entrada ${errors.nombre ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el nombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                value={formValues.nombre}
+                onChange={handleChange}
+                maxLength={30}
               />
-              {errores.nombre && <small className="text-danger">{errores.nombre}</small>}
+              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
+
             <div>
-              <label className="formulario-etiqueta">Apellido(s)</label>
+              <label className="formulario-etiqueta">
+                Apellido(s) <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
+                name="apellido"
+                className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el apellido"
-                value={apellido}
-                onChange={(e) => setApellido(e.target.value)}
+                value={formValues.apellido}
+                onChange={handleChange}
+                maxLength={30}
               />
-              {errores.apellido && <small className="text-danger">{errores.apellido}</small>}
+              {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
             </div>
+
             <div>
-              <label className="formulario-etiqueta">CURP</label>
+              <label className="formulario-etiqueta">
+                CURP <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
+                name="curp"
+                className={`formulario-entrada ${errors.curp ? 'is-invalid' : ''}`}
                 placeholder="Ingrese la CURP"
-                value={curp}
-                onChange={(e) => setCurp(e.target.value)}
+                value={formValues.curp}
+                onChange={handleChange}
+                maxLength={18}
               />
-              {errores.curp && <small className="text-danger">{errores.curp}</small>}
+              {errors.curp && <div className="invalid-feedback">{errors.curp}</div>}
             </div>
+
             <div>
-              <label className="formulario-etiqueta">Correo electrónico</label>
+              <label className="formulario-etiqueta">
+                Correo electrónico <span className="text-danger">*</span>
+              </label>
               <input
-                type="text"
-                className="formulario-entrada"
+                type="email"
+                name="correo"
+                className={`formulario-entrada ${errors.correo ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el correo"
-                value={curp}
-                onChange={(e) => setCurp(e.target.value)}
+                value={formValues.correo}
+                onChange={handleChange}
               />
-              {errores.correo && <small className="text-danger">{errores.correo}</small>}
+              {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Sexo</label>
+              <label className="formulario-etiqueta">
+                Sexo <span className="text-danger">*</span>
+              </label>
               <select
-                className="formulario-entrada formulario-seleccion"
-                value={semestre}
-                onChange={(e) => setSemestre(e.target.value)}
+                name="sexo"
+                className={`formulario-entrada formulario-seleccion ${errors.sexo ? 'is-invalid' : ''}`}
+                value={formValues.sexo}
+                onChange={handleChange}
               >
-                 <option value="">Seleciona uno</option>
-                {listaSexo.map((s) => (
+                <option value="">Selecciona una opción</option>
+                {listaSexo.map(s => (
                   <option key={s.id} value={s.nombreSexo}>
                     {s.nombreSexo}
                   </option>
                 ))}
               </select>
+              {errors.sexo && <div className="invalid-feedback">{errors.sexo}</div>}
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Número telefónico</label>
+              <label className="formulario-etiqueta">
+                Teléfono <span className="text-danger">*</span>
+              </label>
               <input
                 type="tel"
-                className="formulario-entrada"
+                name="telefono"
+                className={`formulario-entrada ${errors.telefono ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el teléfono"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                value={formValues.telefono}
+                onChange={handleChange}
+                maxLength={10}
               />
-              {errores.telefono && <small className="text-danger">{errores.telefono}</small>}
+              {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
             </div>
           </div>
         </section>
@@ -182,68 +281,81 @@ const AlumnoRegistro = () => {
           <h2 className="texto-morado2 mb-4">Datos académicos</h2>
           <div className="row g-4">
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Carrera</label>
+              <label className="formulario-etiqueta">
+                Carrera <span className="text-danger">*</span>
+              </label>
               <select
-                className="formulario-entrada formulario-seleccion"
-                value={carrera}
-                onChange={(e) => setCarrera(e.target.value)}
+                name="carrera"
+                className={`formulario-entrada formulario-seleccion ${errors.carrera ? 'is-invalid' : ''}`}
+                value={formValues.carrera}
+                onChange={handleChange}
               >
-                <option value="">Elige una carrera</option>
-                {listaCarreras.map((c) => (
+                <option value="">Selecciona una carrera</option>
+                {listaCarreras.map(c => (
                   <option key={c.id} value={c.nombreCarrera}>
                     {c.nombreCarrera}
                   </option>
                 ))}
               </select>
+              {errors.carrera && <div className="invalid-feedback">{errors.carrera}</div>}
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Semestre</label>
+              <label className="formulario-etiqueta">
+                Semestre <span className="text-danger">*</span>
+              </label>
               <select
-                className="formulario-entrada formulario-seleccion"
-                value={semestre}
-                onChange={(e) => setSemestre(e.target.value)}
+                name="semestre"
+                className={`formulario-entrada formulario-seleccion ${errors.semestre ? 'is-invalid' : ''}`}
+                value={formValues.semestre}
+                onChange={handleChange}
               >
-                 <option value="">Elige un semestre</option>
-                {listaSemestres.map((s) => (
+                <option value="">Selecciona un semestre</option>
+                {listaSemestres.map(s => (
                   <option key={s.id} value={s.nombreSemestre}>
                     {s.nombreSemestre}
                   </option>
                 ))}
               </select>
+              {errors.semestre && <div className="invalid-feedback">{errors.semestre}</div>}
             </div>
+
             <div className="col-md-6">
               <label className="formulario-etiqueta">Grupo</label>
               <input
                 type="text"
                 className="formulario-entrada"
-                placeholder="Grupo asignado"
-                value={grupo}
+                value={formValues.grupo}
                 readOnly
               />
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Matrícula</label>
+              <label className="formulario-etiqueta">
+                Matrícula <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
-                placeholder="Ingrese la matrícula académica"
-                value={matricula}
-                onChange={(e) => setMatricula(e.target.value)}
+                name="matricula"
+                className={`formulario-entrada ${errors.matricula ? 'is-invalid' : ''}`}
+                placeholder="Ingrese la matrícula"
+                value={formValues.matricula}
+                onChange={handleChange}
               />
-              {errores.matricula && <small className="text-danger">{errores.matricula}</small>}
+              {errors.matricula && <div className="invalid-feedback">{errors.matricula}</div>}
             </div>
+
             <div className="d-flex justify-content-center gap-3">
-              <button
-                className="btn-agregar"
-                onClick={manejarEnvio}>
-                Agregar alumno
-              </button>
+              <button type="submit" className="btn-agregar">
+                Registrar Alumno
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </form>
       </div>
-    </div>
+   
   );
-};
+});
 
 export default AlumnoRegistro;
