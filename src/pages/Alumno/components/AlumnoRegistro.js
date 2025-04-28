@@ -3,6 +3,7 @@ import '../components/AdministrarAlumnos.css';
 import carreraService from '../../../services/CatCarreraService';
 import semestreService from '../../../services/CatSemestreService';
 import sexoService from '../../../services/CatSexoService';
+import grupoService from '../../../services/CatGrupoService';
 import Swal from 'sweetalert2';
 
 const AlumnoRegistro = forwardRef((props, ref) => {
@@ -17,7 +18,9 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     carrera: '',
     semestre: '',
     grupo: '',
-    sexo: ''
+    sexo: '',
+    usuario: '',
+    contrasena: ''
   };
 
   const [formValues, setFormValues] = useState(initialForm);
@@ -51,27 +54,64 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     fetchData();
   }, []);
 
-  // Actualizar grupo automáticamente
+  useEffect(() => {
+    if (formValues.matricula) {
+      setFormValues(prevState => ({
+        ...prevState,
+        contraseña: prevState.matricula
+      }));
+    }
+  }, [formValues.matricula]);
+
   useEffect(() => {
     if (formValues.carrera && formValues.semestre) {
       const carreraSeleccionada = listaCarreras.find(c => c.nombreCarrera === formValues.carrera);
       const semestreSeleccionado = listaSemestres.find(s => s.nombreSemestre === formValues.semestre);
 
       if (carreraSeleccionada && semestreSeleccionado) {
-        setFormValues(prev => ({
-          ...prev,
-          grupo: `${carreraSeleccionada.clave}-${semestreSeleccionado.clave}`
-        }));
+        grupoService.getByCarreraAndSemestre(carreraSeleccionada.id, semestreSeleccionado.id)
+          .then(grupos => {
+
+            setFormValues(prev => ({
+              ...prev,
+              grupo: grupos // 👈 Ahora sí asignamos el valor al campo correcto
+            }));
+
+
+          })
+          .catch(error => {
+            console.error('Error al obtener los grupos:', error);
+            setFormValues(prev => ({
+              ...prev,
+              grupo: 'Error al cargar grupos'
+            }));
+          });
       }
     }
   }, [formValues.carrera, formValues.semestre]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormValues(prev => {
+      let updatedForm = { ...prev, [name]: value };
+
+      // Generar usuario automáticamente
+      if (name === 'nombre' || name === 'apellido') {
+        const primerNombre = updatedForm.nombre.split(' ')[0] || '';
+        const primerApellido = updatedForm.apellido.split(' ')[0] || '';
+        if (primerNombre && primerApellido) {
+          updatedForm.usuario = `${primerNombre.toLowerCase()}.${primerApellido.toLowerCase()}`;
+        }
+      }
+
+      // Generar contraseña automáticamente
+      if (name === 'curp') {
+        updatedForm.contrasena = value.slice(0, 10); // Puedes ajustar qué parte quieres usar de la CURP
+      }
+
+      console.log("Valores actualizados en handleChange:", updatedForm);
+      return updatedForm;
+    });
     validateField(name, value);
   };
 
@@ -130,9 +170,12 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       ...config,
       timer: 3000,
       timerProgressBar: true,
+      showConfirmButton: true, // Asegura que el botón "OK" se muestre
+      confirmButtonText: 'OK',
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
-        confirmButton.style.backgroundColor = 'var(--color-verde)';
+        confirmButton.style.backgroundColor = '#28a745'; // Verde tipo Bootstrap
+        confirmButton.style.color = 'white';
       },
     });
   };
@@ -141,15 +184,13 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     e.preventDefault();
     if (!validateAllFields()) {
       mostrarAlerta({
-        icon: 'error',
+        icon: 'info',
         title: 'Error de validación',
         text: 'Por favor verifica todos los campos'
       });
       return;
     }
 
-    // Aquí iría la lógica para enviar los datos
-    console.log('Datos válidos:', formValues);
     mostrarAlerta({
       icon: 'success',
       title: 'Alumno registrado correctamente'
@@ -345,16 +386,41 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               {errors.matricula && <div className="invalid-feedback">{errors.matricula}</div>}
             </div>
 
+            <h2 className="texto-morado2">Datos de la plataforma</h2>
+
+            <div className="col-md-6">
+              <label className="formulario-etiqueta">Usuario</label>
+              <input
+                type="text"
+                name="usuario"
+                className="formulario-entrada"
+                value={formValues.usuario}
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-6">
+              <label className="formulario-etiqueta">Contraseña</label>
+              <input
+                type="text"
+                name="contrasena"
+                className="formulario-entrada"
+                value={formValues.contraseña}
+                readOnly
+              />
+            </div>
+
+
             <div className="d-flex justify-content-center gap-3">
               <button type="submit" className="btn-agregar">
                 Registrar Alumno
-                </button>
-              </div>
+              </button>
             </div>
-          </section>
-        </form>
-      </div>
-   
+          </div>
+        </section>
+      </form>
+    </div>
+
   );
 });
 
