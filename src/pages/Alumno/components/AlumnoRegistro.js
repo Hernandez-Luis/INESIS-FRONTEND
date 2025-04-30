@@ -74,7 +74,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
             setFormValues(prev => ({
               ...prev,
-              grupo: grupos // 👈 Ahora sí asignamos el valor al campo correcto
+              grupo: grupos 
             }));
 
 
