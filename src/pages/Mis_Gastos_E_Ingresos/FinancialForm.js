@@ -26,6 +26,31 @@ const FinancialForm = () => {
         }
     };
 
+    const handleKeyDown = (e) => {
+        // Permitir solo números, el punto decimal, Backspace, y las flechas de navegación
+        const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
+        if (
+            !/[0-9]/.test(e.key) &&  // Permitir solo números
+            !validKeys.includes(e.key)  // Permitir teclas especiales (Backspace, flechas)
+        ) {
+            e.preventDefault();  // Bloquear la tecla si no es válida
+        }
+    };
+
+    const handleDecimalInput = (e) => {
+        const value = e.target.value;
+        const regex = /^\d{0,6}(\.\d{0,2})?$/;
+    
+        if (value === "" || regex.test(value)) {
+            e.target.setCustomValidity("");  // Formato válido
+        } else {
+            e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
+        }
+    };
+
+    
+
+
     const validateForm = () => {
         let isValid = true;
         const newEmptyFields = [];
@@ -35,8 +60,8 @@ const FinancialForm = () => {
             const fields = [
                 `person-${index}-nombrecompleto`,
                 `person-${index}-parentesco`,
-                `person-${index}-empresolugardetrabajo`,
-                `person-${index}-puestotipodetrabajo`,
+                `person-${index}-empresaolugardetrabajo`,
+                `person-${index}-puestootipodetrabajo`,
                 `person-${index}-imbbruto`,
                 `person-${index}-imnneto`
             ];
@@ -51,12 +76,22 @@ const FinancialForm = () => {
 
         // Recibo de luz
         ["lightName", "lastPayment", "avgPayment"].forEach((field) => {
-            const value = document.getElementById(field)?.value;
-            if (!value || value.trim() === "") {
-                isValid = false;
-                newEmptyFields.push(field);
+            const input = document.getElementById(field);
+            const value = input?.value;
+        
+            if (input?.type === "number") {
+                if (value === "" || isNaN(parseFloat(value))) {
+                    isValid = false;
+                    newEmptyFields.push(field);
+                }
+            } else {
+                if (!value || value.trim() === "") {
+                    isValid = false;
+                    newEmptyFields.push(field);
+                }
             }
         });
+        
 
         // Gastos
         const gastoFields = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros', 'totalGastos'];
@@ -101,6 +136,8 @@ const FinancialForm = () => {
                         <Form.Control
                             style={{ maxWidth: "350px" }}
                             type="number"
+                            onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                            onInput={handleDecimalInput}
                             placeholder="Número de personas"
                             value={numPeople}
                             onChange={handleNumPeopleChange}
@@ -134,18 +171,22 @@ const FinancialForm = () => {
 
                     <Form.Group className="mt-4 d-flex justify-content-end align-items-center">
                         <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>Ingreso total:</Form.Label>
-                        <Form.Control 
-                        style={{ maxWidth: "200px" }} type="number" placeholder="$" 
-                        id="Ingreso total:"
-                        isInvalid={emptyFields.includes("Ingreso total:")}
+                        <Form.Control
+                            style={{ maxWidth: "200px" }} type="number" placeholder="$"
+                            onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                            onInput={handleDecimalInput}
+                            id="Ingreso total:"
+                            isInvalid={emptyFields.includes("Ingreso total:")}
                         />
                     </Form.Group>
 
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
                         <Form.Label>¿Cuántas personas dependen de este ingreso mensual?</Form.Label>
-                        <Form.Control 
-                            style={{ maxWidth: "400px" }} 
-                            type="number" 
+                        <Form.Control
+                            style={{ maxWidth: "400px" }}
+                            type="number"
+                            onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                            onInput={handleDecimalInput}
                             id="¿Cuántas personas dependen de este ingreso mensual?"
                             isInvalid={emptyFields.includes("¿Cuántas personas dependen de este ingreso mensual?")}
                         />
@@ -171,7 +212,10 @@ const FinancialForm = () => {
                             <Form.Group>
                                 <Form.Label style={{ color: "#4F46E5" }}>Pago del último período (Agosto - Septiembre)</Form.Label>
                                 <Form.Control
+                                    id="lastPayment"
                                     type="number"
+                                    onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                                    onInput={handleDecimalInput}
                                     isInvalid={emptyFields.includes("lastPayment")}
                                 />
                             </Form.Group>
@@ -179,7 +223,10 @@ const FinancialForm = () => {
                             <Form.Group>
                                 <Form.Label style={{ color: "#4F46E5" }}>Paga mensual promedio</Form.Label>
                                 <Form.Control
+                                    id="avgPayment"
                                     type="number"
+                                    onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                                    onInput={handleDecimalInput}
                                     placeholder="$"
                                     isInvalid={emptyFields.includes("avgPayment")}
                                 />
@@ -199,18 +246,22 @@ const FinancialForm = () => {
                             {['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].map((label, index) => (
                                 <Form.Group key={index}>
                                     <Form.Label style={{ color: "#4F46E5" }}>{label}:</Form.Label>
-                                    <Form.Control 
+                                    <Form.Control
                                         id={label}
                                         type="number"
+                                        onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                                        onInput={handleDecimalInput}
                                         isInvalid={emptyFields.includes(label)}
                                     />
                                 </Form.Group>
                             ))}
                             <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales</Form.Label>
-                                <Form.Control 
+                                <Form.Control
                                     id="totalGastos"
-                                    type="number" 
+                                    type="number"
+                                    onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                                    onInput={handleDecimalInput}
                                     placeholder="$"
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
