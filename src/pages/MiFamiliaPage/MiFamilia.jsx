@@ -25,6 +25,8 @@ export const MiFamilia = () => {
     const [formData, setFormData] = useState('');
     const [numHermanos, setNumHermanos] = useState('');
     const [hermanosEstudian, setHermanosEstudian] = useState('');
+    const [dejanEstudio, setDejanEstudio] = useState('');
+    const [tienenLic, setTienenLic] = useState('');
 
 
     const [numDependientes, setNumDependientes] = useState('');
@@ -284,7 +286,7 @@ export const MiFamilia = () => {
                                                 type="number"
                                                 className="form-control"
                                                 placeholder=""
-                                                value={contacto}
+                                                value={vivienda}
                                                 onChange={(e) => setVivienda(e.target.value)}
                                             />
                                         </div>
@@ -358,8 +360,8 @@ export const MiFamilia = () => {
                                                 type="number"
                                                 className="form-control"
                                                 placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
+                                                value={dejanEstudio}
+                                                onChange={(e) => setDejanEstudio(e.target.value)}
                                             />
                                         </div>
                                         <div className="col-12 col-md-3 mb-3">
@@ -370,8 +372,8 @@ export const MiFamilia = () => {
                                                 type="number"
                                                 className="form-control"
                                                 placeholder=""
-                                                value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
+                                                value={tienenLic}
+                                                onChange={(e) => setTienenLic(e.target.value)}
                                             />
                                         </div>
                                     </div>
