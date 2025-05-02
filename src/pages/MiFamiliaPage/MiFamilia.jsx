@@ -16,6 +16,19 @@ export const MiFamilia = () => {
     ];
 
 
+    const [selectedOptions, setSelectedOptions] = useState([]);
+
+    const handleCheckboxChange = (id) => {
+        setSelectedOptions((prevOptions) => {
+            // Si el id ya está en el array, lo eliminamos (checkbox desmarcado)
+            if (prevOptions.includes(id)) {
+                return prevOptions.filter((option) => option !== id);
+            } else {
+                // Si el id no está, lo agregamos (checkbox marcado)
+                return [...prevOptions, id];
+            }
+        });
+    };
     const [vivienda, setVivienda] = useState(null);
     const [selectedOption, setSelectedOption] = useState('');
     const [contacto, setContacto] = useState('');
@@ -27,10 +40,34 @@ export const MiFamilia = () => {
     const [hermanosEstudian, setHermanosEstudian] = useState('');
     const [dejanEstudio, setDejanEstudio] = useState('');
     const [tienenLic, setTienenLic] = useState('');
+    const [selectedValues, setSelectedValues] = useState({});
+
 
 
     const [numDependientes, setNumDependientes] = useState('');
     const [dependientes, setDependientes] = useState([]);
+    const [radioValues, setRadioValues] = useState({});
+
+    const handleSelection = (label, value) => {
+        setSelectedValues((prev) => ({
+            ...prev,
+            [label]: value
+        }));
+    };
+
+    const handleAccesoInternet = (value) => {
+        setRadioValues(prev => ({
+            ...prev,
+            accesoInternet: value
+        }));
+    };
+
+    const handleSelectionCoincideDomicilio = (value) => {
+        setRadioValues(prev => ({
+            ...prev,
+            coincideDomicilio: value
+        }));
+    };
 
     // Función para manejar el cambio en el input de personas dependientes
     const handleNumDependientesChange = (e) => {
@@ -55,11 +92,6 @@ export const MiFamilia = () => {
         nuevosDependientes[index][field] = value;
         setDependientes(nuevosDependientes);
     };
-
-    const handleSelectionCoincideDomicilio = (option) => setVivienda(option);
-    const handleAccesoInternet = (option) => setAccesoIntenet(option);
-
-    const handleSelection = (option) => setSelectedOption(option);
 
     const handleCasaFamilia = (option) => {
         setCasaFamilia(option); // Actualizar el estado en el componente padre
@@ -99,8 +131,15 @@ export const MiFamilia = () => {
                                             ¿El domicilio de tu tutor coincide con el que te encuentras actualmente?
                                         </label>
                                         <div className="ms-4">
-                                            <RadioSelect gris={true} options={['Si', 'No']} onChange={handleSelectionCoincideDomicilio} />
+                                            <RadioSelect
+                                                name="coincideDomicilio"
+                                                gris={true}
+                                                options={['Si', 'No']}
+                                                value={radioValues['coincideDomicilio'] || ''}
+                                                onChange={handleSelectionCoincideDomicilio}
+                                            />
                                         </div>
+
                                     </div>
 
                                     {/* Contenedor para los selects */}
@@ -110,12 +149,14 @@ export const MiFamilia = () => {
                                                 <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>{item.label}</label>
                                                 <SeleccionarCombo
                                                     options={item.options}
-                                                    onChange={handleSelection}
+                                                    value={selectedValues[item.label] || ''} // Valor controlado
+                                                    onChange={(value) => handleSelection(item.label, value)}
                                                     placeholder="Selecciona una opción"
                                                 />
                                             </div>
                                         ))}
                                     </div>
+
                                 </div>
                             </div>
                             <div className="row mt-4 mx-0">
@@ -154,19 +195,20 @@ export const MiFamilia = () => {
                                                     </label>
                                                     <SeleccionarCombo
                                                         options={['Primaria', 'Secundaria', 'Bachillerato', 'Universidad']}
-                                                        onChange={handleSelection}
+                                                        value={selectedValues['escolaridadPadre'] || ''}
+                                                        onChange={(value) => handleSelection('escolaridadPadre', value)}
                                                         placeholder="Selecciona una opción"
                                                     />
                                                 </div>
 
-                                                {/* Escolaridad de la madre */}
                                                 <div className="col-12 col-md-6 mb-3">
                                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                         Escolaridad de la madre
                                                     </label>
                                                     <SeleccionarCombo
                                                         options={['Primaria', 'Secundaria', 'Bachillerato', 'Universidad']}
-                                                        onChange={handleSelection}
+                                                        value={selectedValues['escolaridadMadre'] || ''}
+                                                        onChange={(value) => handleSelection('escolaridadMadre', value)}
                                                         placeholder="Selecciona una opción"
                                                     />
                                                 </div>
@@ -185,36 +227,40 @@ export const MiFamilia = () => {
                                         {/* Escolaridad de padre */}
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                La cada donde tu Familia es:
+                                                La casa donde tu familia es:
                                             </label>
                                             <SeleccionarCombo
                                                 options={['Propia', 'Renta', 'Alquilada']}
-                                                onChange={handleSelection}
+                                                value={selectedValues['casaPropiedad'] || ''}
+                                                onChange={(value) => handleSelection('casaPropiedad', value)}
                                                 placeholder="Selecciona una opción"
                                             />
                                         </div>
 
-                                        {/* Escolaridad de madre */}
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Tipo vivienda
+                                                Tipo de vivienda
                                             </label>
                                             <SeleccionarCombo
                                                 options={['Casa sola', 'Condominio', 'Otra']}
-                                                onChange={handleSelection}
+                                                value={selectedValues['tipoVivienda'] || ''}
+                                                onChange={(value) => handleSelection('tipoVivienda', value)}
                                                 placeholder="Selecciona una opción"
                                             />
                                         </div>
+
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Material de construción
+                                                Material de construcción
                                             </label>
                                             <SeleccionarCombo
-                                                options={['Mamposteria', 'Madera', 'Lamina', 'Concreto', 'Otros']}
-                                                onChange={handleSelection}
+                                                options={['Mampostería', 'Madera', 'Lámina', 'Concreto', 'Otros']}
+                                                value={selectedValues['materialConstruccion'] || ''}
+                                                onChange={(value) => handleSelection('materialConstruccion', value)}
                                                 placeholder="Selecciona una opción"
                                             />
                                         </div>
+
                                         <div className="col-12 col-md-3 mb-3">
                                             <label className="fs-5 mb-2" style={{ color: 'var(--color-morado3)' }}>
                                                 ¿Con qué servicios cuenta la vivienda?
@@ -223,16 +269,16 @@ export const MiFamilia = () => {
 
                                                 {/* Primera columna */}
                                                 <div className="col-md-4">
-                                                    <CheckBox opcion="Agua" id='agua'></CheckBox>
-                                                    <CheckBox opcion="luz" id='luz'></CheckBox>
+                                                    <CheckBox opcion="Agua" id='agua' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="luz" id='luz' onChange={handleCheckboxChange}></CheckBox>
                                                 </div>
                                                 {/* Segunda columna */}
                                                 <div className="col-md-4">
-                                                    <CheckBox opcion="Drenaje" id='drenaje'></CheckBox>
-                                                    <CheckBox opcion="Telefono" id='telefono'></CheckBox>
+                                                    <CheckBox opcion="Drenaje" id='drenaje' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Telefono" id='telefono' onChange={handleCheckboxChange}></CheckBox>
                                                 </div>
                                                 <div className="col-md-4">
-                                                    <CheckBox opcion="Otro" id='espacioTrabajos'></CheckBox>
+                                                    <CheckBox opcion="Otro" id='espacioTrabajos' onChange={handleCheckboxChange}></CheckBox>
                                                 </div>
                                             </div>
                                         </div>
@@ -245,26 +291,26 @@ export const MiFamilia = () => {
                                             <div className="row">
                                                 {/* Primera columna */}
                                                 <div className="col-md-3">
-                                                    <CheckBox opcion="Agua Caliente" id='aguaCaliente'></CheckBox>
-                                                    <CheckBox opcion="Refrigerador" id='refrigerador'></CheckBox>
-                                                    <CheckBox opcion="Estufa de gas" id='estufaDeGas'></CheckBox>
-                                                    <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa'></CheckBox>
+                                                    <CheckBox opcion="Agua Caliente" id='aguaCaliente' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Refrigerador" id='refrigerador' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Estufa de gas" id='estufaDeGas' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa' onChange={handleCheckboxChange}></CheckBox>
                                                 </div>
 
                                                 {/* Segunda columna */}
                                                 <div className="col-md-3">
-                                                    <CheckBox opcion="Aire acondicionado" id='aireAcondicionado'></CheckBox>
-                                                    <CheckBox opcion="Automóvil propio" id='automovilPropio'></CheckBox>
-                                                    <CheckBox opcion="Televisor" id='televisor'></CheckBox>
-                                                    <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa'></CheckBox>
+                                                    <CheckBox opcion="Aire acondicionado" id='aireAcondicionado' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Automóvil propio" id='automovilPropio' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Televisor" id='televisor' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa' onChange={handleCheckboxChange}></CheckBox>
                                                 </div>
 
                                                 {/* Tercera columna */}
                                                 <div className="col-md-4">
-                                                    <CheckBox opcion="Equipo de sonido/Grabadora" id='equipoSonido'></CheckBox>
-                                                    <CheckBox opcion="Horno de microondas" id='hornoMicroondas'></CheckBox>
-                                                    <CheckBox opcion="Videocasetera o DVD" id='videocasatera'></CheckBox>
-                                                    <CheckBox opcion="Espacio privado para estudiar" id='espacioTrabajos'></CheckBox>
+                                                    <CheckBox opcion="Equipo de sonido/Grabadora" id='equipoSonido' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Horno de microondas" id='hornoMicroondas' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Videocasetera o DVD" id='videocasatera' onChange={handleCheckboxChange}></CheckBox>
+                                                    <CheckBox opcion="Espacio privado para estudiar" id='espacioTrabajos' onChange={handleCheckboxChange}></CheckBox>
                                                 </div>
                                             </div>
                                         </div>
@@ -296,16 +342,16 @@ export const MiFamilia = () => {
                                             </label>
                                             <div className='row'>
                                                 <div className="col-md-4">
-                                                    <CheckBox opcion="Computadora" id='computadora'></CheckBox>
-                                                    <CheckBox opcion="Impresora" id='impresora'></CheckBox>
-                                                    <CheckBox opcion="Librero" id='librero'></CheckBox>
-                                                    <CheckBox opcion="Escritorio/ mesa de trabajo" id='escritorio'></CheckBox>
+                                                    <CheckBox opcion="Computadora" id='computadora' onChange={handleCheckboxChange} />
+                                                    <CheckBox opcion="Impresora" id='impresora' onChange={handleCheckboxChange} />
+                                                    <CheckBox opcion="Librero" id='librero' onChange={handleCheckboxChange} />
+                                                    <CheckBox opcion="Escritorio/ mesa de trabajo" id='escritorio' onChange={handleCheckboxChange} />
                                                 </div>
                                                 <div className="col-md-4">
-                                                    <CheckBox opcion="Libros especializados" id='librosEspecializados'></CheckBox>
-                                                    <CheckBox opcion="Diccionarios" id='diccionarios'></CheckBox>
-                                                    <CheckBox opcion="Enciclopedias" id='enciclopedias'></CheckBox>
-                                                    <CheckBox opcion="Calculadora" id='calculadora'></CheckBox>
+                                                    <CheckBox opcion="Libros especializados" id='librosEspecializados' onChange={handleCheckboxChange} />
+                                                    <CheckBox opcion="Diccionarios" id='diccionarios' onChange={handleCheckboxChange} />
+                                                    <CheckBox opcion="Enciclopedias" id='enciclopedias' onChange={handleCheckboxChange} />
+                                                    <CheckBox opcion="Calculadora" id='calculadora' onChange={handleCheckboxChange} />
                                                 </div>
                                             </div>
                                         </div>
@@ -315,10 +361,15 @@ export const MiFamilia = () => {
                                             ¿Cuenta con acceso a internet?
                                         </label>
                                         <div className="ms-4">
-                                            <RadioSelect gris={true}
+                                            <RadioSelect
+                                                name="accesoInternet"
+                                                gris={true}
                                                 options={['Si', 'No']}
-                                                onChange={handleAccesoInternet} />
+                                                value={radioValues['accesoInternet'] || ''}
+                                                onChange={handleAccesoInternet}
+                                            />
                                         </div>
+
                                     </div>
                                 </div>
                                 <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
@@ -401,9 +452,7 @@ export const MiFamilia = () => {
                                         {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                                         {dependientes.map((dep, index) => (
                                             <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-2">
-                                                <label className="fs-5 mb-2" style={{ color: "var(--color-morado3)" }}>
-                                                    Persona que depende económicamente:
-                                                </label>
+
                                                 <div className="row">
                                                     <div className="col-12 col-md-3 mb-3">
                                                         <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Nombre completo:</label>
