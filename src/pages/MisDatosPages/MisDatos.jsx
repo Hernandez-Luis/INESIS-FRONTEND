@@ -73,28 +73,36 @@ export const MisDatos = ({ onAdd }) => {
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
+    // console.log("name: ", name, " valor: ", value)
 
     // ******  CONDICIONES *******
-    if (e.target.name === "dependeEconomicamente") {
-      setRecursos(e.target.value)
+    if (name === "dependeEconomicamente") {
+      setRecursos(value)
     }
 
-
-    console.log("e: nombre: ", e.target.name, ", valor: ", e.target.value)
-    setDataGastosIngresos((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (name === "ocupacion" && value !== "Otro") {  
+      setDataGastosIngresos((prevData) => ({
+        ...prevData,
+        ocupacion: value,
+        otro: '', // limpia el campo 'otro'
+      }));
+    } else {
+      // Actualiza normalmente cualquier otro campo
+      setDataGastosIngresos((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if(validacionCamposGastosIngresos() == 0){
+    if (validacionCamposGastosIngresos() == 0) {
       return
     }
-    
+
 
     const coleccionValores = {
       gastosIngresos: dataGastosIngresos
@@ -355,6 +363,7 @@ export const MisDatos = ({ onAdd }) => {
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                       <input className='form-control w-25' type="text" name='nombreQuienDependes' onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.nombreQuienDependes} />
+                      {errores.nombreQuienDependes && <div className="text-danger">{errores.nombreQuienDependes}</div>}
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
@@ -365,18 +374,21 @@ export const MisDatos = ({ onAdd }) => {
                         name="trabajoTipo"
                         value={dataGastosIngresos.trabajoTipo}
                       />
+                      {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
                       <SeleccionarCombo
                         name="ocupacion"
-                        options={['Jornalero', 'Chambeador']} // Opciones disponibles
+                        options={['Jornalero', 'Chambeador', 'Otro']} // Opciones disponibles
                         placeholder="Selecciona una opción" // Placeholder
                         value={dataGastosIngresos.ocupacion}
                         onChange={actualizarCampoGastosIngresos}
                       />
+                      {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                     </div>
-                    <div className="col-5">
+                    {dataGastosIngresos.ocupacion == "Otro" && (
+                      <div className="col-5">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                       <input
                         className='form-control w-50'
@@ -385,7 +397,11 @@ export const MisDatos = ({ onAdd }) => {
                         onChange={actualizarCampoGastosIngresos}
                         value={dataGastosIngresos.otro}
                       />
+                      {errores.otro && <div className="text-danger">{errores.otro}</div>}
+
                     </div>
+                    )}
+                    
                     <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
@@ -421,6 +437,8 @@ export const MisDatos = ({ onAdd }) => {
                     onChange={actualizarCampoGastosIngresos}
                     value={dataGastosIngresos.solicitaBecaAlimenticia}
                   />
+                  {errores.solicitaBecaAlimenticia && <div className="text-danger">{errores.solicitaBecaAlimenticia}</div>}
+
                 </div>
               </div>
             </div>
