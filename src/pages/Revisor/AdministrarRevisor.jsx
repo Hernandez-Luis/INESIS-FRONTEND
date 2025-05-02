@@ -13,9 +13,9 @@ const AdministrarRevisor = () => {
     const navigate = useNavigate();
 
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Administrar' },
-        { url: '/PrincipalAdmin', label: 'Revisor' }
+        { url: '/MenuAdministrador', label: 'Inicio' },
+        { url: '/MenuRevisor', label: 'Administrar' },
+        { url: '/AdministrarRevisor', label: 'Revisor' }
     ];
 
     useEffect(() => {
