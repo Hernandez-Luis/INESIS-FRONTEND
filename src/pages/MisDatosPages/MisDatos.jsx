@@ -9,6 +9,7 @@ import { CheckBox } from '../../components/CheckBox/CheckBox'
 import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 import { data } from 'react-router-dom'
+import Swal from 'sweetalert2'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -18,6 +19,8 @@ export const MisDatos = ({ onAdd }) => {
     { url: '/MisDatos', label: 'Inicio' }
   ];
 
+
+  // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [estadoCivil, setEstadoCivil] = useState(null);
@@ -25,40 +28,33 @@ export const MisDatos = ({ onAdd }) => {
   const [vivienda, setVivienda] = useState(null);
   const [selectedOption, setSelectedOption] = useState('');
 
+
   useEffect(() => {
     obtenerListaMedioTransporte();
   }, []);
 
+
+  // **************************  OBTENER DATOS DE LA BD  ******************************************
   const obtenerListaMedioTransporte = async () => {
     try {
       let listaMedios = await CatMedioTransporteService.getAll();
       setMedios(listaMedios)
-      console.log(listaMedios)
     } catch (error) {
       console.log("Error al obtener la lista de CatMediosTransporte: ", error)
     }
   }
 
-  // Funcion para manejar los cambios y guardarlos en la tabla GastosIngresos
-  const manejarCambioCheckbox = (id) => {
-    setMediosSeleccionados((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id) // Desmarcar
-        : [...prev, id] // Marcar
-    );
-    console.log(mediosSeleccionados)
-  };
+  // *********************************  INICIALIZANDO FORMULARIOS  ***********************************
 
   const formularioInicialGastosIngresos = {
     gastoMensual: "",
     dependeEconomicamente: "",
-    //Si depende
-    personaDepende: "",
+    nombreQuienDependes: "",
+    solicitaBecaAlimenticia: "",
     trabajoTipo: "",
     ocupacion: "",
     otro: "",
 
-    solicitaBeca: ""
   }
 
   const formularioInicialTrabajo = {
@@ -71,67 +67,122 @@ export const MisDatos = ({ onAdd }) => {
 
   const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
   const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
+  const [errores, setErrores] = useState({})
 
-  const cambiosGastosIngresos = (e) => {
+
+  // ************************  MANEJADORES DE CAMBIOS  ****************************
+  const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
 
-    // Debug: verifica que los valores se están capturando
-    console.log(`Campo cambiado: ${name}, Valor: ${value}`);
+    // ******  CONDICIONES *******
+    if (e.target.name === "dependeEconomicamente") {
+      setRecursos(e.target.value)
+    }
 
-    setDataGastosIngresos(prev => ({
-      ...prev,
-      [name]: value
+
+    console.log("e: nombre: ", e.target.name, ", valor: ", e.target.value)
+    setDataGastosIngresos((prevData) => ({
+      ...prevData,
+      [name]: value,
     }));
-
-    // Debug: verifica el estado después del cambio
-    console.log("Estado actualizado:", { ...dataGastosIngresos, [name]: value });
-    console.log("Datos JSON: ", dataGastosIngresos)
   };
 
+  // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("datosGastosIngresos: ", dataGastosIngresos)
 
-    const coleccionValores = {}
-
-    coleccionValores.data = this.formularioInicialGastosIngresos;
-    console.log("coleccion", coleccionValores)
-
-    console.log("Datos guardar: ", dataGastosIngresos)
-    try {
-
-      const nuevosErrores = onAdd(dataGastosIngresos)
-
-      if (nuevosErrores && nuevosErrores.length > 0) {
-        //Mostrar la lista de errores
-        console.log("Aqui se mostraran los errores")
-        return
-      }
-
-      setDataGastosIngresos({})
-      //Borrar la lista de errores
-    } catch (error) {
-
+    if(validacionCamposGastosIngresos() == 0){
+      return
     }
-  }
+    
 
-  // MANEJADORES DE CAMBIOS DE LOS RadioSelect
+    const coleccionValores = {
+      gastosIngresos: dataGastosIngresos
+    };
 
-  const handleCambioDependenciaEconomica = (valor) => {
-    setDataGastosIngresos((prevData) => ({
-      ...prevData,
-      dependesEconomicamente: valor,
-    }));
-    setRecursos(valor)
+    try {
+      const nuevosErrores = await onAdd(dataGastosIngresos);
+      if (nuevosErrores && nuevosErrores.length > 0) {
+        mostrarError(nuevosErrores)
+        return;
+      }
+      setDataGastosIngresos(formularioInicialGastosIngresos);
+    } catch (error) {
+      console.error("Error al guardar los datos: ", error);
+    }
   };
 
-  const handleTrabajoTipo = (valor) => {
-    setDataGastosIngresos((prevData) => ({
-      ...prevData,
-      trabajoTipo: valor
-    }));
-    
+  // ***************************  VALIDACION DE CAMPOS  *****************************
+
+  const validacionCamposGastosIngresos = () => {
+    // Validación de los campos
+    const erroresTemp = {};
+    Object.keys(dataGastosIngresos).forEach((campo) => {
+      if (!dataGastosIngresos[campo]) {
+        erroresTemp[campo] = 'Este campo es obligatorio';
+      }
+    });
+
+    if (Object.keys(erroresTemp).length > 0) {
+      setErrores(erroresTemp);
+      return 0; // No enviar el formulario si hay errores
+    }
+
+    return 1;
   }
+
+  // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  *******************
+  const mostrarAlerta = (config) => {
+    Swal.fire({
+      ...config,
+      timer: 5000,
+      timerProgressBar: true,
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = 'var(--color-verde)';
+      },
+    });
+  };
+
+  const mostrarError = (mensajeHTML) => {
+    mostrarAlerta({
+      title: 'Error',
+      html: mensajeHTML, // Usa HTML para mostrar los errores sin viñetas
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+    });
+  };
+
+  const mostrarCuidado = (mensaje) => {
+    mostrarAlerta({
+      title: '¡Cuidado!',
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonText: 'Aceptar',
+    });
+  };
+
+
+
+  const mostrarExito = (mensaje) => {
+    mostrarAlerta({
+      title: 'Éxito',
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    });
+  };
+
+  // **************************  POR VER  *****************************
+
+  // Funcion para manejar los cambios y guardarlos en la tabla GastosIngresos
+  const manejarCambioCheckbox = (id) => {
+    setMediosSeleccionados((prev) =>
+      prev.includes(id)
+        ? prev.filter((item) => item !== id) // Desmarcar
+        : [...prev, id] // Marcar
+    );
+  };
 
   return (
     <div>
@@ -279,7 +330,9 @@ export const MisDatos = ({ onAdd }) => {
                 <div className="row">
                   <div className="col">
                     <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
-                    <input className='form-control w-25' type="number" name="gastoMensual" onChange={cambiosGastosIngresos} value={dataGastosIngresos.gastoMensual} />
+                    <input className='form-control w-25' type="number" name="gastoMensual" onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.gastoMensual} />
+                    {errores.gastoMensual && <div className="text-danger">{errores.gastoMensual}</div>}
+
                   </div>
                   <div className='col d-flex flex-column align-items-center text-center'>
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
@@ -288,11 +341,11 @@ export const MisDatos = ({ onAdd }) => {
                     <RadioSelect
                       gris={true}
                       options={['Si', 'No']}
-                      onChange={handleCambioDependenciaEconomica}
-                      value={dataGastosIngresos.dependeEconomicamente}
+                      onChange={actualizarCampoGastosIngresos}
                       name="dependeEconomicamente"
+                      value={dataGastosIngresos.dependeEconomicamente}
                     />
-
+                    {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
                   </div>
                 </div>
 
@@ -301,14 +354,14 @@ export const MisDatos = ({ onAdd }) => {
                     <div class="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
-                      <input className='form-control w-25' type="text" name='personaDepende' onChange={cambiosGastosIngresos} value={dataGastosIngresos.personaDepende} />
+                      <input className='form-control w-25' type="text" name='nombreQuienDependes' onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.nombreQuienDependes} />
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                       <RadioSelect
                         gris={true}
                         options={['Temporal', 'Permanente']}
-                        onChange={handleTrabajoTipo}
+                        onChange={actualizarCampoGastosIngresos}
                         name="trabajoTipo"
                         value={dataGastosIngresos.trabajoTipo}
                       />
@@ -318,13 +371,20 @@ export const MisDatos = ({ onAdd }) => {
                       <SeleccionarCombo
                         name="ocupacion"
                         options={['Jornalero', 'Chambeador']} // Opciones disponibles
-                        // onChange={(value) => selecComboGastosIngresos("ocupacion",value)} // Función para manejar la selección
                         placeholder="Selecciona una opción" // Placeholder
+                        value={dataGastosIngresos.ocupacion}
+                        onChange={actualizarCampoGastosIngresos}
                       />
                     </div>
                     <div className="col-5">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
-                      <input className='form-control w-50' name='otro' type="text" onChange={cambiosGastosIngresos} value={dataGastosIngresos.otro} />
+                      <input
+                        className='form-control w-50'
+                        name='otro'
+                        type="text"
+                        onChange={actualizarCampoGastosIngresos}
+                        value={dataGastosIngresos.otro}
+                      />
                     </div>
                     <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
@@ -356,9 +416,10 @@ export const MisDatos = ({ onAdd }) => {
                   <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
                   <RadioSelect
                     gris={true}
-                    name="solicitaBeca"
+                    name="solicitaBecaAlimenticia"
                     options={['Si', 'No']}
-                    onChange={(val) => setDataGastosIngresos({ ...dataGastosIngresos, solicitaBeca: val })}
+                    onChange={actualizarCampoGastosIngresos}
+                    value={dataGastosIngresos.solicitaBecaAlimenticia}
                   />
                 </div>
               </div>
