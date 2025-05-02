@@ -4,6 +4,8 @@ import carreraService from '../../../services/CatCarreraService';
 import semestreService from '../../../services/CatSemestreService';
 import sexoService from '../../../services/CatSexoService';
 import grupoService from '../../../services/CatGrupoService';
+import alumnoService from '../../../services/AlumnoService';
+import usuarioService from '../../../services/UsuarioService';
 import Swal from 'sweetalert2';
 
 const AlumnoRegistro = forwardRef((props, ref) => {
@@ -74,7 +76,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
             setFormValues(prev => ({
               ...prev,
-              grupo: grupos 
+              grupo: grupos
             }));
 
 
@@ -92,6 +94,14 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    let processedValue = value;
+
+    // Convertir a número los campos que lo requieren
+    if (name === 'carrera' || name === 'semestre') {
+      processedValue = value === '' ? '' : parseInt(value, 10);
+    }
+
     setFormValues(prev => {
       let updatedForm = { ...prev, [name]: value };
 
@@ -104,16 +114,12 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         }
       }
 
-      // Generar contraseña automáticamente
-      if (name === 'curp') {
-        updatedForm.contrasena = value.slice(0, 10); // Puedes ajustar qué parte quieres usar de la CURP
-      }
-
       console.log("Valores actualizados en handleChange:", updatedForm);
       return updatedForm;
     });
     validateField(name, value);
   };
+
 
   const validateField = (name, value) => {
     let error = '';
@@ -125,24 +131,33 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       error = 'Este campo es obligatorio';
     }
 
+
     // Validaciones específicas
     switch (name) {
       case 'nombre':
       case 'apellido':
         if (value.length > 30) error = 'Máximo 30 caracteres';
         break;
-      case 'curp':
-        if (!/^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/.test(value))
+
+      case 'curp': {
+        // CURP: 18 caracteres bien formados
+        const curpRegex = /^[A-Z][AEIOU][A-Z]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HM](AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/;
+        if (!curpRegex.test(value.toUpperCase())) {
           error = 'Formato CURP inválido';
+        }
         break;
+      }
+
       case 'correo':
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           error = 'Correo electrónico inválido';
         break;
+
       case 'telefono':
         if (!/^\d{10}$/.test(value))
           error = 'Debe contener 10 dígitos';
         break;
+
       case 'matricula':
         if (!/^\d+$/.test(value))
           error = 'Solo se permiten números';
@@ -180,8 +195,11 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     });
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Validar todos los campos
     if (!validateAllFields()) {
       mostrarAlerta({
         icon: 'info',
@@ -191,21 +209,69 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       return;
     }
 
-    mostrarAlerta({
-      icon: 'success',
-      title: 'Alumno registrado correctamente'
-    });
-    setFormValues(initialForm);
+    try {
+      // 2. Crear el alumno
+      const carreraSeleccionada = listaCarreras.find(c => c.id === formValues.carrera);
+      const semestreSeleccionado = listaSemestres.find(s => s.id === formValues.semestre);
+      const sexoSeleccionado = listaSexo.find(s => s.nombreSexo === formValues.sexo);
+
+      const alumnoPayload = {
+        nombre: formValues.nombre.trim(),
+        apellido: formValues.apellido.trim(),
+        curp: formValues.curp.trim().toUpperCase(),
+        correo: formValues.correo.trim(),
+        telefono: formValues.telefono.trim(),
+        matricula: formValues.matricula.trim(),
+        semestre: { id_cat_semestre: listaSemestres.find(c => c.nombreSemestre === formValues.semestre)?.id || null },
+        carrera: { id_cat_carrera: listaCarreras.find(c => c.nombreCarrera === formValues.carrera)?.id || null },
+        sexo: { id_cat_sexo: listaSexo.find(s => s.nombreSexo === formValues.sexo)?.id || null },
+        grupo: formValues.grupo,
+      };
+
+      console.log("Alumno payload antes de enviar:", alumnoPayload);
+
+      const alumnoCreado = await alumnoService.create(alumnoPayload);
+
+      if (!alumnoCreado?.id) {
+        throw new Error('No se obtuvo el ID del alumno creado');
+      }
+
+      // 3. Crear usuario
+      const usuarioPayload = {
+        usuario: formValues.usuario,
+        contrasenia: formValues.contrasena,
+        estatus: 'Activo',
+        idCatRol: 1 // Rol "Alumno"
+      };
+      const usuarioCreado = await usuarioService.create(usuarioPayload);
+      if (!usuarioCreado?.id) {
+        throw new Error('No se pudo crear el usuario');
+      }
+
+      // 4. Relacionar alumno ↔ usuario
+      await alumnoService.updateAlumnoConUsuario(alumnoCreado.id, usuarioCreado.id);
+
+      // 5. Éxito
+      mostrarAlerta({
+        icon: 'success',
+        title: 'Registro exitoso',
+        text: 'Alumno y usuario creados correctamente',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
+
+      setFormValues(initialForm); // Reset form after success
+    } catch (err) {
+      console.error(err);
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error al registrar',
+        text: err.message || 'No se pudo completar el registro.'
+      });
+    }
   };
 
-  useImperativeHandle(ref, () => ({
-    getValues: () => {
-      if (!validateAllFields()) {
-        throw new Error("Errores en el formulario");
-      }
-      return formValues;
-    }
-  }));
 
   return (
     <div className="mb-5">
@@ -327,17 +393,19 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               </label>
               <select
                 name="carrera"
-                className={`formulario-entrada formulario-seleccion ${errors.carrera ? 'is-invalid' : ''}`}
                 value={formValues.carrera}
                 onChange={handleChange}
+                className={`formulario-entrada ${errors.carrera ? 'is-invalid' : ''}`}
               >
-                <option value="">Selecciona una carrera</option>
-                {listaCarreras.map(c => (
-                  <option key={c.id} value={c.nombreCarrera}>
-                    {c.nombreCarrera}
+                <option value="">Seleccione una carrera</option>
+                {listaCarreras.map((carrera) => (
+                  <option key={carrera.id} value={carrera.id}>
+                    {carrera.nombreCarrera}
                   </option>
                 ))}
               </select>
+
+
               {errors.carrera && <div className="invalid-feedback">{errors.carrera}</div>}
             </div>
 
@@ -345,15 +413,16 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <label className="formulario-etiqueta">
                 Semestre <span className="text-danger">*</span>
               </label>
+              {/* Select de Semestre */}
               <select
                 name="semestre"
-                className={`formulario-entrada formulario-seleccion ${errors.semestre ? 'is-invalid' : ''}`}
                 value={formValues.semestre}
                 onChange={handleChange}
+                className={`formulario-entrada formulario-seleccion ${errors.semestre ? 'is-invalid' : ''}`}
               >
                 <option value="">Selecciona un semestre</option>
                 {listaSemestres.map(s => (
-                  <option key={s.id} value={s.nombreSemestre}>
+                  <option key={s.id} value={s.id}>
                     {s.nombreSemestre}
                   </option>
                 ))}
