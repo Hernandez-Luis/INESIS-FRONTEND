@@ -7,9 +7,9 @@ import PdfVisor from '../../components/pdf/PdfVisor'; // Asegúrate de que coinc
 export default function RevisionSolicitud() {
     const [comentario, setComentario] = useState("");
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Solicitudes' },
-        { url: '/PrincipalAdmin', label: 'Revisión' }
+        { url: '/MenuRevisor', label: 'Inicio' },
+        { url: '/ListadoEstudioSocioeconomico', label: 'Solicitudes' },
+        { url: '/Revision', label: 'Revisión' }
     ];
 
     const handleEnviarCorreccion = () => {
