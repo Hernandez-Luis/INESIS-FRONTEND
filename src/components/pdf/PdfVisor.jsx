@@ -4,7 +4,7 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
-const PdfVisor = ({ archivoUrl }) => {
+const PdfVisor = ({ archivosUrl }) => {
     const [error, setError] = useState(null);
     const [cargando, setCargando] = useState(true);
     const pluginDeDiseño = defaultLayoutPlugin();
@@ -12,13 +12,13 @@ const PdfVisor = ({ archivoUrl }) => {
     useEffect(() => {
         const verificarPdf = async () => {
             try {
-                const response = await fetch(archivoUrl, { method: "HEAD" });
-
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: No se puede cargar el PDF.`);
+                for (let url of archivosUrl) {
+                    const response = await fetch(url, { method: "HEAD" });
+                    if (!response.ok) {
+                        throw new Error(`Error ${response.status}: No se puede cargar ${url}`);
+                    }
                 }
-
-                setError(null); // Reinicia el error si el PDF está disponible
+                setError(null);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -27,27 +27,47 @@ const PdfVisor = ({ archivoUrl }) => {
         };
 
         verificarPdf();
-    }, [archivoUrl]);
+    }, [archivosUrl]);
 
     if (cargando) {
-        return <div>Cargando PDF...</div>;
+        return <div>Cargando PDFs...</div>;
     }
 
     if (error) {
         return (
             <div style={{ textAlign: "center", padding: "20px", color: "red" }}>
-                <h3>📄 PDF no disponible</h3>
+                <h3>📄 PDFs no disponibles</h3>
                 <p>{error}</p>
             </div>
         );
     }
 
     return (
-        <div style={{ height: "80vh", width: "100%", margin: "auto", border: "1px solid #ddd", padding: "10px" }}>
+        <div style={{
+            width: "95vw",
+            maxWidth: "1600px",
+            height: "85vh",
+            margin: "auto",
+            padding: "10px",
+            background: "#f4f4f4",
+            border: "2px solid #ccc",
+            borderRadius: "8px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            overflowY: "auto" // Habilita el scroll vertical
+        }}>
             <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.worker.min.js">
-                <Viewer fileUrl={archivoUrl} plugins={[pluginDeDiseño]} />
+                {archivosUrl.map((url, index) => (
+                    <div key={index} style={{
+                        width: "100%",
+                        background: "#fff",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        marginBottom: "10px"
+                    }}>
+                        <Viewer fileUrl={url} plugins={[pluginDeDiseño]} />
+                    </div>
+                ))}
             </Worker>
-
         </div>
     );
 };

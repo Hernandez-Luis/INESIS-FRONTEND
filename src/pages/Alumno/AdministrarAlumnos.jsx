@@ -21,8 +21,6 @@ const AdministrarAlumnos = () => {
                 const dataBase = await response.json();
                 setAlumnos(data);
 
-
-
             } catch (error) {
                 console.error("Error al cargar alumnos:", error);
             }

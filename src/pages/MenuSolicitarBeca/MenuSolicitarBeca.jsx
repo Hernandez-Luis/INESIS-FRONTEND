@@ -15,8 +15,8 @@ import '../../App.css';
 export const MenuSolicitarBeca = () => {
 
   const links = [
-    { url: '/', label: 'Inicio' },
-    { url: '/menuAlumno', label: 'Estudio socioeconómico' },
+    { url: '/menuAlumno', label: 'Inicio' },
+    { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
   ];
 
   return (
@@ -32,31 +32,31 @@ export const MenuSolicitarBeca = () => {
                 title="Mis Datos"
                 imgSrc={misDatosImg}
                 description="Gestiona y actualiza tu información personal para mantener tus datos al día."
-                link={"/"}
+                link={"/MisDatos"}
               />
               <CardMenu 
                 title="Mi Tutor"
                 imgSrc={miTutorImg}
                 description="Registra los datos de tu tutor para mantenerlos actualizados en tu perfil."
-                link={"/"}
+                link={"/MiTutor"}
               />
               <CardMenu 
                 title="Mi Familia"
                 imgSrc={miFamiliaImg}
                 description="Ingresa los datos de tus familiares dependientes económicos, incluyendo información relevante para la solicitud de beca."
-                link={"/"}
+                link={"/MiFamilia"}
               />
               <CardMenu 
                 title="Gastos e ingresos familiares"
                 imgSrc={gastosFamiliaresImg}
                 description="Registra los ingresos y gastos mensuales de tu familia para evaluar la situación económica y el apoyo para tu beca."
-                link={"/"}
+                link={"/GastosIngresos"}
               />
               <CardMenu 
                 title="Documentos"
                 imgSrc={misDocumentosImg}
                 description="Sube y registra los documentos necesarios para completar tu solicitud."
-                link={"/"}
+                link={"/MisDocumentos"}
               />
             </div>
           </div>

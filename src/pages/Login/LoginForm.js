@@ -19,7 +19,7 @@ const LoginForm = () => {
       console.log("Usuario encontrado");
       if (password === "admin123") {
         console.log("Contraseña correcta");
-        navigate("/GastosIngresos");
+        navigate("/menuAlumno");
         
         //navigate("/MisDatos");
       } else {
