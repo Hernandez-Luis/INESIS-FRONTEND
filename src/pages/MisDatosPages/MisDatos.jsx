@@ -10,12 +10,12 @@ import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 import { data } from 'react-router-dom'
 
-export const MisDatos = ({onAdd}) => {
+export const MisDatos = ({ onAdd }) => {
 
   const links = [
-    { url: '/PrincipalAdmin', label: 'Inicio' },
-    { url: '/PrincipalAdmin', label: 'Solicitud' },
-    { url: '/PrincipalAdmin', label: 'Inicio' }
+    { url: '/menuAlumno', label: 'Inicio' },
+    { url: '/menuSolicitar', label: 'Solicitud' },
+    { url: '/MisDatos', label: 'Inicio' }
   ];
 
   const [medios, setMedios] = useState([]);
@@ -41,7 +41,7 @@ export const MisDatos = ({onAdd}) => {
 
   // Funcion para manejar los cambios y guardarlos en la tabla GastosIngresos
   const manejarCambioCheckbox = (id) => {
-    setMediosSeleccionados((prev) => 
+    setMediosSeleccionados((prev) =>
       prev.includes(id)
         ? prev.filter((item) => item !== id) // Desmarcar
         : [...prev, id] // Marcar
@@ -53,7 +53,7 @@ export const MisDatos = ({onAdd}) => {
     gastoMensual: "",
     dependeEconomicamente: "",
     //Si depende
-    personaDepende: "", 
+    personaDepende: "",
     trabajoTipo: "",
     ocupacion: "",
     otro: "",
@@ -62,29 +62,29 @@ export const MisDatos = ({onAdd}) => {
   }
 
   const formularioInicialTrabajo = {
-     //No depende
-     nombreTrabajo: "",
-     ingresoMensual: "",
-     telefonoTrabajo: "",
-     domicilioTrabajo: ""
+    //No depende
+    nombreTrabajo: "",
+    ingresoMensual: "",
+    telefonoTrabajo: "",
+    domicilioTrabajo: ""
   }
 
-  const [dataGastosIngresos,setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
-  const [dataTrabajo,setDataTrabajo] = useState(formularioInicialTrabajo)
+  const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
+  const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
 
   const cambiosGastosIngresos = (e) => {
     const { name, value } = e.target;
-    
+
     // Debug: verifica que los valores se están capturando
     console.log(`Campo cambiado: ${name}, Valor: ${value}`);
-    
+
     setDataGastosIngresos(prev => ({
       ...prev,
       [name]: value
     }));
-    
+
     // Debug: verifica el estado después del cambio
-    console.log("Estado actualizado:", {...dataGastosIngresos, [name]: value});
+    console.log("Estado actualizado:", { ...dataGastosIngresos, [name]: value });
     console.log("Datos JSON: ", dataGastosIngresos)
   };
 
@@ -96,13 +96,13 @@ export const MisDatos = ({onAdd}) => {
 
     coleccionValores.data = this.formularioInicialGastosIngresos;
     console.log("coleccion", coleccionValores)
-    
+
     console.log("Datos guardar: ", dataGastosIngresos)
     try {
-      
+
       const nuevosErrores = onAdd(dataGastosIngresos)
 
-      if(nuevosErrores && nuevosErrores.length > 0){
+      if (nuevosErrores && nuevosErrores.length > 0) {
         //Mostrar la lista de errores
         console.log("Aqui se mostraran los errores")
         return
@@ -111,10 +111,27 @@ export const MisDatos = ({onAdd}) => {
       setDataGastosIngresos({})
       //Borrar la lista de errores
     } catch (error) {
-      
+
     }
   }
 
+  // MANEJADORES DE CAMBIOS DE LOS RadioSelect
+
+  const handleCambioDependenciaEconomica = (valor) => {
+    setDataGastosIngresos((prevData) => ({
+      ...prevData,
+      dependesEconomicamente: valor,
+    }));
+    setRecursos(valor)
+  };
+
+  const handleTrabajoTipo = (valor) => {
+    setDataGastosIngresos((prevData) => ({
+      ...prevData,
+      trabajoTipo: valor
+    }));
+    
+  }
 
   return (
     <div>
@@ -143,7 +160,7 @@ export const MisDatos = ({onAdd}) => {
                       <SeleccionarCombo
                         name="semestres"
                         options={['Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto', 'Septimo', 'Octavo', 'Noveno', 'Decimo']} // Opciones disponibles
-                         // Función para manejar la selección
+                        // Función para manejar la selección
                         placeholder="Selecciona una opción" // Placeholder
 
                       />
@@ -162,8 +179,8 @@ export const MisDatos = ({onAdd}) => {
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Estado civil:</label>
-                    <RadioSelect 
-                      options={['Soltero', 'Casado']} 
+                    <RadioSelect
+                      options={['Soltero', 'Casado']}
                       // onChange={} 
                       name="estadoCivil"
                     />
@@ -171,7 +188,7 @@ export const MisDatos = ({onAdd}) => {
 
                   <div className='mt-4'>
                     <label className='fs-5' style={{ fontWeight: 'bold' }}>¿Tienes los recursos económicos necesarios para tus actividades académicas?</label>
-                    <RadioSelect gris={false} options={['Si', 'No']}  />
+                    <RadioSelect gris={false} options={['Si', 'No']} />
                   </div>
                 </div>
               </div>
@@ -194,7 +211,7 @@ export const MisDatos = ({onAdd}) => {
                         <SeleccionarCombo
                           name="estado"
                           options={['Oaxaca', 'Veracruz', 'Chiapas']} // Opciones disponibles
-                           // Función para manejar la selección
+                          // Función para manejar la selección
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
@@ -205,7 +222,7 @@ export const MisDatos = ({onAdd}) => {
                         <SeleccionarCombo
                           name="municipio"
                           options={['Ixtlan', 'Xiacui']} // Opciones disponibles
-                           // Función para manejar la selección
+                          // Función para manejar la selección
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
@@ -262,37 +279,39 @@ export const MisDatos = ({onAdd}) => {
                 <div className="row">
                   <div className="col">
                     <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
-                    <input className='form-control w-25' type="number" name="gastoMensual" onChange={cambiosGastosIngresos}  value={dataGastosIngresos.gastoMensual}/>
+                    <input className='form-control w-25' type="number" name="gastoMensual" onChange={cambiosGastosIngresos} value={dataGastosIngresos.gastoMensual} />
                   </div>
                   <div className='col d-flex flex-column align-items-center text-center'>
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                       ¿Dependes económicamente?
                     </p>
-                    <RadioSelect 
-                      gris={true} 
-                      options={['Si', 'No']} 
-                      onChange={(val) => setDataGastosIngresos({...dataGastosIngresos,dependesEconomicamente: val})} 
-                      name="dependesEconomicamente"
+                    <RadioSelect
+                      gris={true}
+                      options={['Si', 'No']}
+                      onChange={handleCambioDependenciaEconomica}
+                      value={dataGastosIngresos.dependeEconomicamente}
+                      name="dependeEconomicamente"
                     />
+
                   </div>
                 </div>
-
 
                 {recursos === 'Si' && (
                   <div className="row mt-3">
                     <div class="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
-                      <input className='form-control w-25' type="text" name='personaDepende' onChange={cambiosGastosIngresos}  value={dataGastosIngresos.personaDepende}/>
+                      <input className='form-control w-25' type="text" name='personaDepende' onChange={cambiosGastosIngresos} value={dataGastosIngresos.personaDepende} />
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
-                      <RadioSelect 
-                        gris={true} 
+                      <RadioSelect
+                        gris={true}
                         options={['Temporal', 'Permanente']}
-                        onChange={(val) => setDataGastosIngresos({...dataGastosIngresos,trabajoTipo:val})}
+                        onChange={handleTrabajoTipo}
                         name="trabajoTipo"
-                        />
+                        value={dataGastosIngresos.trabajoTipo}
+                      />
                     </div>
                     <div className="col-3">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
@@ -305,7 +324,7 @@ export const MisDatos = ({onAdd}) => {
                     </div>
                     <div className="col-5">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
-                      <input className='form-control w-50' name='otro' type="text" onChange={cambiosGastosIngresos}  value={dataGastosIngresos.otro}/>
+                      <input className='form-control w-50' name='otro' type="text" onChange={cambiosGastosIngresos} value={dataGastosIngresos.otro} />
                     </div>
                     <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
@@ -316,15 +335,15 @@ export const MisDatos = ({onAdd}) => {
                     <div class="line mx-auto mt-5 mb-4"></div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.nombreTrabajo}/>
+                      <input className='form-control w-50' type="text" value={dataTrabajo.nombreTrabajo} />
                     </div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Menciona el ingreso mensual que recibes</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.ingresoMensual}/>
+                      <input className='form-control w-50' type="text" value={dataTrabajo.ingresoMensual} />
                     </div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Telefono celular del lugar donde trabajas</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.telefonoTrabajo}/>
+                      <input className='form-control w-50' type="text" value={dataTrabajo.telefonoTrabajo} />
                     </div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas</p>
@@ -333,17 +352,18 @@ export const MisDatos = ({onAdd}) => {
                     <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
-
-
-
                 <div className="row">
                   <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
-                  <RadioSelect gris={true} options={['Si', 'No']}  />
+                  <RadioSelect
+                    gris={true}
+                    name="solicitaBeca"
+                    options={['Si', 'No']}
+                    onChange={(val) => setDataGastosIngresos({ ...dataGastosIngresos, solicitaBeca: val })}
+                  />
                 </div>
               </div>
             </div>
             {/* FIN MODULO GASTOS E INGRESOS  */}
-
 
             <div className="row mx-5 mt-4 mb-5">
               {/* MODULO TRANSPORTE */}
@@ -391,13 +411,13 @@ export const MisDatos = ({onAdd}) => {
               <div className="col tarjeta-border p-5">
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Eres hijo o nieto de comunero de Ixtlán de Juárez?</label>
-                <RadioSelect gris={true} options={['Si', 'No']}/>
+                <RadioSelect gris={true} options={['Si', 'No']} />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
                 <RadioSelect gris={true} options={['Si', 'No']} />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
-                <RadioSelect gris={true} options={['Si', 'No']}/>
+                <RadioSelect gris={true} options={['Si', 'No']} />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
                 <input className='form-control w-75' type="text" />

@@ -7,9 +7,9 @@ import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo
 
 export const MiTutor = () => {
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Solicitud' },
-        { url: '/PrincipalAdmin', label: 'Mi tutor' }
+        { url: '/menuAlumno', label: 'Inicio' },
+        { url: '/menuSolicitar', label: 'Solicitud' },
+        { url: '/MiTutor', label: 'Mi tutor' }
     ];
     const [selectedOption, setSelectedOption] = useState('');
 
