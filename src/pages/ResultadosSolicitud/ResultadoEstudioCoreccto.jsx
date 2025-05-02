@@ -14,7 +14,7 @@ const ResultadoEstudioSocioeconomicoCorrecto = () => {
 
   const links = [
     { url: '/MenuAlumno', label: 'Inicio' },
-    { url: '/PrincipalAdmin', label: 'Resultados de solicitud' }
+    { url: '/ResultadoEstudioSocioeconomicoCorrecto', label: 'Resultados Estudio Socioeconomico' }
   ];
 
   const handleClick = () => {

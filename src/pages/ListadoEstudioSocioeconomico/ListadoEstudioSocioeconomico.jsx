@@ -10,7 +10,7 @@ import MenuAdministrador from "../MenuAdministrador/MenuAdministrador";
 const ListadoEstudioSocioeconomico = () => {
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
-        { url: '/ListadoEstudioSocieconomico', label: 'Todos los Estudios' },
+        { url: '/ListadoEstudioSocioeconomico', label: 'Listado Estudios Socioeconomicos' },
     ];
 
     const [search, setSearch] = useState("");

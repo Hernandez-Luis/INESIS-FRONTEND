@@ -13,7 +13,7 @@ const ResultadosSolicitud = () => {
 
   const links = [
     { url: '/MenuAlumno', label: 'Inicio' },
-    { url: '/PrincipalAdmin', label: 'Resultados Estudio' }
+    { url: '/ResultadosSolicitud', label: 'Resultados Estudio' }
   ];
 
   const handleClick = () => {

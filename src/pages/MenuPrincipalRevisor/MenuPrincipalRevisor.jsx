@@ -5,6 +5,7 @@ import FooterInesis from '../../components/FooterInesis/FooterInesis'
 import imagenMenu from '../../assets/imagenMenu.png'
 import { CardMenu } from '../MenuSolicitarBeca/components/CardMenu'
 import ImagenRevisor from '../../assets/iconoRevisor.png'
+import ListadoEstudioSocioeconomico from '../ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico'
 
 export const MenuPrincipalRevisor = () => {
   const mandarAFormularios = () => {
@@ -24,7 +25,7 @@ export const MenuPrincipalRevisor = () => {
               title='ESTUDIOS'
               imgSrc={ImagenRevisor}
               description={'Dentro podras administrar todos los estudios enviados por los alumnos.'}
-              link={'/'}
+              link={'/ListadoEstudioSocioeconomico'}
             />
           </div>
         </div>
