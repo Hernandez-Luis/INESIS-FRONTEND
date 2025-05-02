@@ -5,7 +5,7 @@ import { NavInesis } from './components/NavInesis/NavInesis';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MigasRecorrido from './components/MigasDePan/MigasRecorrido';
 import FooterInesis from './components/FooterInesis/FooterInesis';
-import { Login } from './pages/Login';
+import { Login } from './pages/Login/Login';
 import GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
 //import  GastosIngresos from './pages/Mis_Gastos_E_Ingresos/GastosIngresos';
 
@@ -28,6 +28,7 @@ import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud
 import MenuAlumno from './pages/MenuAlumno/MenuAlumno';
 import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
 import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
+import GestionMisDatos from './pages/MisDatosPages/GestionMisDatos';
 
 const AppRoutes = () => {
   return (
@@ -36,7 +37,7 @@ const AppRoutes = () => {
 
 
         <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
-        <Route path="/MisDatos" element={<MisDatos />} />
+        <Route path="/MisDatos" element={<GestionMisDatos />} />
         <Route path="/NavInesis" element={<NavInesis />} />
         <Route path="/Migas" element={<MigasRecorrido />} />
         <Route path="/Revision" element={<RevisionSolicitud />} />

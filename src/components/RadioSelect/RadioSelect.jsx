@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 
-const RadioSelect = ({ options, onChange, gris }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
-
+const RadioSelect = ({name, options, value, onChange, gris }) => {
   // Manejar la selección del usuario
   const handleOptionChange = (option) => {
-    setSelectedOption(option); // Actualizar el estado
     onChange(option); // Pasar la opción seleccionada al componente padre
   };
 
@@ -16,8 +13,9 @@ const RadioSelect = ({ options, onChange, gris }) => {
           <label style={{color: gris ? 'var(--color-gris1)' : 'inherit',}}>
             <input
               type="radio"
+              name={name}
               value={option}
-              checked={selectedOption === option}
+              checked={value === option}
               onChange={() => handleOptionChange(option)}
               style={{ marginRight: '5px'}}
             />

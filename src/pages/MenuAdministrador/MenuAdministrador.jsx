@@ -2,8 +2,11 @@ import React from 'react'
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido'
 import NavInesis from '../../components/NavInesis/NavInesis'
 import FooterInesis from '../../components/FooterInesis/FooterInesis'
-import ImagenAdministrador from '../../assets/imgAdministradorMenu.png'
+import ImagenAlumnos from '../../assets/estudiantes.png'
+import ImagenRevisor from '../../assets/revisor.png'
+import ImagenFechas from '../../assets/fechas.png'
 import '../../styles/StyleMenuAdministrador/StyleMenuAdministrador.css'
+import { CardMenu } from '../MenuSolicitarBeca/components/CardMenu'
 
 export const MenuAdministrador = () => {
 
@@ -14,22 +17,27 @@ export const MenuAdministrador = () => {
                 <div className='flex-grow-1 m-5 px-5 d-flex justify-content-center' style={{ color: 'var(--color-morado2)' }}>
                     <h1>Bienvenido Luis David Jimenez Santos</h1>
                 </div>
-                <div className="row mb-5">
-                    <div className="row d-flex justify-content-center">
-                        <img className='w-25' src={ImagenAdministrador} alt="" />
-                    </div>
-                    <div className="mt-5 mx-5 px-5 row d-flex justify-content-center">
-                        <div className='text-center mx-5 p-4 fs-4 estilo-boton'>
-                            ALUMNOS
-                        </div>
+                <div className='container-fluid align-items-center justify-content-center text-center mb-5'>
+                    <div className='row d-flex justify-content-center'>
+                        <CardMenu
+                            title='ALUMNO'
+                            imgSrc={ImagenAlumnos}
+                            description={'Dentro podras administrar y registrar alumos a la plataforma.'}
+                            link={'/'}
+                        />
+                        <CardMenu
+                            title='REVISOR'
+                            imgSrc={ImagenRevisor}
+                            description={'Dentro podras administrar y registrar revisores a la plataforma.'}
+                            link={'/'}
+                        />
 
-                        <div className='text-center mx-5 p-4 fs-4 estilo-boton'>
-                            REVISOR
-                        </div>
-
-                        <div className='text-center mx-5 p-4 fs-4 estilo-boton'>
-                            FECHAS
-                        </div>
+                        <CardMenu
+                            title='FECHAS'
+                            imgSrc={ImagenFechas}
+                            description={'Dentro podras administrar y registrar las fechas disponibles para cada carrera.'}
+                            link={'/'}
+                        />
                     </div>
                 </div>
                 <FooterInesis></FooterInesis>

@@ -26,8 +26,8 @@ export const NavInesis = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto d-flex align-items-center">
               <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
-                <Link to="/menuSolicitar" className='text-decoration-none text-dark'>
-                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Beca colegiatura</p>
+                <Link to="/menuSolicitar" className="text-decoration-none text-dark">
+                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Estudio socioeconómico</p>
                 </Link>
               </NavItem>
 
