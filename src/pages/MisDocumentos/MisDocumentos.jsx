@@ -6,7 +6,8 @@ import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
 
 export default function MisDocumentos() {
   const links = [
-    { url: '/MenuSolicitar', label: 'Inicio' },
+    { url: '/MenuAlumno', label: 'Inicio' },
+    { url: '/MenuSolicitar', label: 'Estudio socioeconómico' },
     { url: '/MisDocumentos', label: 'Mis documentos' }
   ];
 
