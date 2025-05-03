@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../components/AdministrarAlumnos.css';
+import carreraService from '../../../services/CatCarreraService';
+import semestreService from '../../../services/CatSemestreService';  
+import sexoService from '../../../services/CatSexoService'; 
 
 const AlumnoRegistro = () => {
   // Estados para los campos del formulario
@@ -12,8 +15,9 @@ const AlumnoRegistro = () => {
   const [carrera, setCarrera] = useState('');
   const [semestre, setSemestre] = useState('');
   const [grupo, setGrupo] = useState('');
-
-  // Estados para los errores
+  const [listaCarreras, setListaCarreras] = useState([]);
+  const [listaSemestres, setListaSemestres] = useState([]);
+  const [listaSexo, setListaSexo] = useState([]);  
   const [errores, setErrores] = useState({});
 
   // Validaciones
@@ -23,10 +27,43 @@ const AlumnoRegistro = () => {
   const validarTelefono = (valor) => /^\d{10}$/.test(valor);
   const validarMatricula = (valor) => /^\d+$/.test(valor);
 
+  useEffect(() => {
+    const obtenerCarreras = async () => {
+      try {
+        const carreras = await carreraService.getAll();
+        setListaCarreras(carreras);
+      } catch (error) {
+        console.error("Error al obtener carreras:", error);
+      }
+    };
+
+    const obtenerSemestres = async () => {
+      try {
+        const semestres = await semestreService.getAll();  // Obtén los semestres
+        setListaSemestres(semestres);
+      } catch (error) {
+        console.error("Error al obtener semestres:", error);
+      }
+    };
+
+    const obtenerSexos = async () => {
+      try {
+        const sexos = await sexoService.getAll();  // Obtén los semestres
+        setListaSexo(sexos);
+      } catch (error) {
+        console.error("Error al obtener semestres:", error);
+      }
+    };
+
+    obtenerSexos();
+    obtenerCarreras();
+    obtenerSemestres();  // Llamar a la función para obtener semestres
+  }, []);
+
   // Función para manejar el envío del formulario
   const manejarEnvio = (e) => {
     e.preventDefault();
-    
+
     const erroresTemp = {};
 
     // Validar cada campo
@@ -54,7 +91,7 @@ const AlumnoRegistro = () => {
   };
 
   // Actualizar el grupo cada vez que se cambian la carrera o semestre
-  React.useEffect(() => {
+  useEffect(() => {
     actualizarGrupo();
   }, [carrera, semestre]);
 
@@ -100,16 +137,31 @@ const AlumnoRegistro = () => {
               />
               {errores.curp && <small className="text-danger">{errores.curp}</small>}
             </div>
-            <div className="col-md-6">
+            <div>
               <label className="formulario-etiqueta">Correo electrónico</label>
               <input
-                type="email"
+                type="text"
                 className="formulario-entrada"
                 placeholder="Ingrese el correo"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
+                value={curp}
+                onChange={(e) => setCurp(e.target.value)}
               />
               {errores.correo && <small className="text-danger">{errores.correo}</small>}
+            </div>
+            <div className="col-md-6">
+              <label className="formulario-etiqueta">Sexo</label>
+              <select
+                className="formulario-entrada formulario-seleccion"
+                value={semestre}
+                onChange={(e) => setSemestre(e.target.value)}
+              >
+                 <option value="">Seleciona uno</option>
+                {listaSexo.map((s) => (
+                  <option key={s.id} value={s.nombreSexo}>
+                    {s.nombreSexo}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-md-6">
               <label className="formulario-etiqueta">Número telefónico</label>
@@ -136,13 +188,14 @@ const AlumnoRegistro = () => {
                 value={carrera}
                 onChange={(e) => setCarrera(e.target.value)}
               >
-                <option>Elige una carrera</option>
-                <option>Lic. Informática</option>
-                <option>Ing. Forestal</option>
-                <option>Lic. Biología</option>
+                <option value="">Elige una carrera</option>
+                {listaCarreras.map((c) => (
+                  <option key={c.id} value={c.nombreCarrera}>
+                    {c.nombreCarrera}
+                  </option>
+                ))}
               </select>
             </div>
-
             <div className="col-md-6">
               <label className="formulario-etiqueta">Semestre</label>
               <select
@@ -150,10 +203,12 @@ const AlumnoRegistro = () => {
                 value={semestre}
                 onChange={(e) => setSemestre(e.target.value)}
               >
-                <option>Elige un semestre</option>
-                <option>Primero</option>
-                <option>Segundo</option>
-                <option>Tercero</option>
+                 <option value="">Elige un semestre</option>
+                {listaSemestres.map((s) => (
+                  <option key={s.id} value={s.nombreSemestre}>
+                    {s.nombreSemestre}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="col-md-6">
@@ -178,15 +233,13 @@ const AlumnoRegistro = () => {
               {errores.matricula && <small className="text-danger">{errores.matricula}</small>}
             </div>
             <div className="d-flex justify-content-center gap-3">
-              <button 
+              <button
                 className="btn-agregar"
                 onClick={manejarEnvio}>
-                Agregar
+                Agregar alumno
               </button>
             </div>
-          
           </div>
-          
         </section>
       </div>
     </div>
