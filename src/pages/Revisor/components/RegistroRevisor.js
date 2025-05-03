@@ -1,10 +1,10 @@
 import React from 'react';
 import '../../Alumno/components/AdministrarAlumnos.css';
-
+import '../components/AgregarRevisor.css'
 const RegistroRevisor = () => {
     return (
         <div >
-            <h2 className="size-font-title cardMenu-title m-5 text-center">Agregar revisor</h2>
+            <h2 className="size-font-title cardMenu-title m-2 text-center">Agregar revisor</h2>
             <div className="agregar-alumno-container">
 
                 {/* Sección Datos Personales */}
@@ -96,12 +96,13 @@ const RegistroRevisor = () => {
                         </div>
                     </div>
                 </section>
-                <div className="boton-contenedor">
+                
+            </div>
+            <div className="boton-contenedor">
                     <button className="btn-agregar">
                         Agregar
                     </button>
                 </div>
-            </div>
         </div>
     );
 };

@@ -14,8 +14,8 @@ const AdministrarRevisor = () => {
 
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
-        { url: '/MenuRevisor', label: 'Administrar' },
-        { url: '/AdministrarRevisor', label: 'Revisor' }
+        { url: '/MenuRevisor', label: 'Menu' },
+        { url: '/AdministrarRevisor', label: 'Revisores' }
     ];
 
     useEffect(() => {

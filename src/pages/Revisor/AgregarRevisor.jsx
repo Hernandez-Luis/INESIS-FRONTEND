@@ -8,8 +8,8 @@ import RegistroRevisor from '../Revisor/components/RegistroRevisor';
 const AgregarRevisor = () => {
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
-        { url: '/MenuRevisor', label: 'Administrar' },
-        { url: '/AdministrarRevisor', label: 'Listar revisor' },
+        { url: '/MenuRevisor', label: 'Menu' },
+        { url: '/AdministrarRevisor', label: 'Revisores' },
         { url: '/AgregarRevisor', label: 'Agregar Revisor' }
     ];
 

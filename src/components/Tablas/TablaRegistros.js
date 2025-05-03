@@ -45,7 +45,7 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
             </div>
 
             <div className="mb-5 text-center">
-                <h5 className="size-font-subtitle texto-morado2Normal">{`${subTitulo}`}</h5>
+                <h5 className="size-font-subtitle texto-morado2Normal">Revisores de beca colegiatura</h5>
             </div>
 
             <button
