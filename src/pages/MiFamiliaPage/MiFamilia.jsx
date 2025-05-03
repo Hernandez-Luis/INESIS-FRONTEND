@@ -20,11 +20,9 @@ export const MiFamilia = () => {
 
     const handleCheckboxChange = (id) => {
         setSelectedOptions((prevOptions) => {
-            // Si el id ya está en el array, lo eliminamos (checkbox desmarcado)
             if (prevOptions.includes(id)) {
                 return prevOptions.filter((option) => option !== id);
             } else {
-                // Si el id no está, lo agregamos (checkbox marcado)
                 return [...prevOptions, id];
             }
         });
@@ -73,8 +71,6 @@ export const MiFamilia = () => {
     const handleNumDependientesChange = (e) => {
         const cantidad = parseInt(e.target.value, 10);
         setNumDependientes(cantidad);
-
-        // Crear un array con la cantidad de dependientes indicada
         const nuevosDependientes = Array.from({ length: cantidad }, (_, index) => ({
             id: index,
             nombre: "",
@@ -86,6 +82,7 @@ export const MiFamilia = () => {
 
         setDependientes(nuevosDependientes);
     };
+
     // Función para manejar el cambio en los campos de cada dependiente
     const handleDependienteChange = (index, field, value) => {
         const nuevosDependientes = [...dependientes];
@@ -94,13 +91,13 @@ export const MiFamilia = () => {
     };
 
     const handleCasaFamilia = (option) => {
-        setCasaFamilia(option); // Actualizar el estado en el componente padre
-        console.log(option); // Mostrar en consola
+        setCasaFamilia(option);
+        console.log(option);
     };
 
     const handleServicioVivienda = (option) => {
         setServicioVivienda(option); // Actualizar el estado en el componente padre
-        console.log(option); // Mostrar en consola
+        console.log(option);
     };
 
 
@@ -176,8 +173,18 @@ export const MiFamilia = () => {
                                                 className="form-control"
                                                 placeholder="Ingresa el número de teléfono"
                                                 value={contacto}
-                                                onChange={(e) => setContacto(e.target.value)}
+                                                onChange={(e) => {
+                                                    const valor = e.target.value;
+
+                                                    // Expresión regular que acepta sólo números y un máximo de 10 dígitos
+                                                    const regex = /^[0-9]{0,10}$/;
+
+                                                    if (regex.test(valor)) {
+                                                        setContacto(valor);
+                                                    }
+                                                }}
                                             />
+
                                         </div>
                                     </div>
 
@@ -329,12 +336,20 @@ export const MiFamilia = () => {
                                                 ¿Cuántas personas habitan en la vivienda?
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 className="form-control"
                                                 placeholder=""
                                                 value={vivienda}
-                                                onChange={(e) => setVivienda(e.target.value)}
+                                                onChange={(e) => {
+                                                    const valor = e.target.value;
+                                                    const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
+
+                                                    if (regex.test(valor)) {
+                                                        setVivienda(valor);
+                                                    }
+                                                }}
                                             />
+
                                         </div>
                                         <div className="col-12 col-md-8 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
@@ -383,11 +398,18 @@ export const MiFamilia = () => {
                                                 ¿Cuántos hermanos tienes?
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text" 
                                                 className="form-control"
                                                 placeholder=""
                                                 value={numHermanos}
-                                                onChange={(e) => setNumHermanos(e.target.value)}
+                                                onChange={(e) => {
+                                                    const valor = e.target.value;
+                                                    const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
+
+                                                    if (regex.test(valor)) {
+                                                        setNumHermanos(valor);  // Actualiza solo si es un número
+                                                    }
+                                                }}
                                             />
                                         </div>
                                         {/* Escolaridad de madre */}
@@ -396,11 +418,17 @@ export const MiFamilia = () => {
                                                 ¿Cuántos están estudiando?
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 className="form-control"
                                                 placeholder=""
                                                 value={hermanosEstudian}
-                                                onChange={(e) => setHermanosEstudian(e.target.value)}
+                                                onChange={(e) => {
+                                                    const valor = e.target.value;
+                                                    const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
+                                                    if (regex.test(valor)) {
+                                                        setHermanosEstudian(valor);  // Actualiza solo si es un número
+                                                    }
+                                                }}
                                             />
                                         </div>
                                         <div className="col-12 col-md-3 mb-3">
@@ -412,7 +440,13 @@ export const MiFamilia = () => {
                                                 className="form-control"
                                                 placeholder=""
                                                 value={dejanEstudio}
-                                                onChange={(e) => setDejanEstudio(e.target.value)}
+                                                onChange={(e) => {
+                                                    const valor = e.target.value;
+                                                    const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
+                                                    if (regex.test(valor)) {
+                                                        setDejanEstudio(valor);  // Actualiza solo si es un número
+                                                    }
+                                                }}
                                             />
                                         </div>
                                         <div className="col-12 col-md-3 mb-3">
@@ -424,7 +458,13 @@ export const MiFamilia = () => {
                                                 className="form-control"
                                                 placeholder=""
                                                 value={tienenLic}
-                                                onChange={(e) => setTienenLic(e.target.value)}
+                                                onChange={(e) => {
+                                                    const valor = e.target.value;
+                                                    const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
+                                                    if (regex.test(valor)) {
+                                                        setTienenLic(valor);  // Actualiza solo si es un número
+                                                    }
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -448,7 +488,6 @@ export const MiFamilia = () => {
                                                 min="0"
                                             />
                                         </div>
-
                                         {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                                         {dependientes.map((dep, index) => (
                                             <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-2">
