@@ -15,8 +15,8 @@ export const MisDatos = ({ onAdd }) => {
 
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
-    { url: '/menuSolicitar', label: 'Solicitud' },
-    { url: '/MisDatos', label: 'Inicio' }
+    { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
+    { url: '/MisDatos', label: 'Mis datos' }
   ];
 
 
