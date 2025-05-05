@@ -8,7 +8,7 @@ import MenuAdministrador from "../MenuAdministrador/MenuAdministrador";
 
 const ListadoEstudioSocioeconomico = () => {
   const links = [
-    { url: "/MenuAdministrador", label: "Inicio" },
+    { url: "/MenuRevisor", label: "Inicio" },
     {
       url: "/ListadoEstudioSocioeconomico",
       label: "Listado Estudios Socioeconomicos",

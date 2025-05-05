@@ -23,13 +23,13 @@ export const MenuAdministrador = () => {
                             title='ALUMNO'
                             imgSrc={ImagenAlumnos}
                             description={'Dentro podras administrar y registrar alumos a la plataforma.'}
-                            link={'/menuAlumno'}
+                            link={'/AdministrarAlumnos'}
                         />
                         <CardMenu
                             title='REVISOR'
                             imgSrc={ImagenRevisor}
                             description={'Dentro podras administrar y registrar revisores a la plataforma.'}
-                            link={'/menuRevisor'}
+                            link={'/AdministrarRevisor'}
                         />
 
                         <CardMenu

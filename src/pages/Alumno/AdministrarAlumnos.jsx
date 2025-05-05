@@ -61,8 +61,8 @@ const AdministrarAlumnos = () => {
     ];
 
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Administrar' },
+        { url: '/MenuAdministrador', label: 'Inicio' },
+        //{ url: '/MenuAdministrador', label: 'Administrar' },
         { url: '/AdministrarAlumnos', label: 'Alumnos' }
     ];
 

@@ -14,7 +14,7 @@ const AdministrarRevisor = () => {
 
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
-        { url: '/MenuRevisor', label: 'Menu' },
+        //{ url: '/MenuRevisor', label: 'Menu' },
         { url: '/AdministrarRevisor', label: 'Revisores' }
     ];
 
