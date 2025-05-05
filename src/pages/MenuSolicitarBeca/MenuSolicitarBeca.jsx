@@ -52,12 +52,7 @@ export const MenuSolicitarBeca = () => {
                 description="Registra los ingresos y gastos mensuales de tu familia para evaluar la situación económica y el apoyo para tu beca."
                 link={"/GastosIngresos"}
               />
-              <CardMenu 
-                title="Documentos"
-                imgSrc={misDocumentosImg}
-                description="Sube y registra los documentos necesarios para completar tu solicitud."
-                link={"/MisDocumentos"}
-              />
+
             </div>
           </div>
           <div className='text-center'>

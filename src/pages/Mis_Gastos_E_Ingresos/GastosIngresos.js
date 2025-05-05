@@ -10,7 +10,7 @@ const GastosIngresos = () => {
 
     const links = [
         { url: '/MenuAlumno', label: 'Inicio' },
-        { url: '/MenuSolicitar', label: 'Solicitud' },
+        { url: '/MenuSolicitar', label: 'Estudio Socioeconómico' },
         { url: '/GastosIngresos', label: 'Mis gastos e ingresos' }
     ];
 
