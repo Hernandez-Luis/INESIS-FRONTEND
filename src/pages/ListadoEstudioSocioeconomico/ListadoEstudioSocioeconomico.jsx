@@ -4,13 +4,13 @@ import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
+import MenuAdministrador from "../MenuAdministrador/MenuAdministrador";
 
 
 const ListadoEstudioSocioeconomico = () => {
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Estudios' },
-        { url: '/PrincipalAdmin', label: 'Todos los Estudios' },
+        { url: '/MenuAdministrador', label: 'Inicio' },
+        { url: '/ListadoEstudioSocioeconomico', label: 'Listado Estudios Socioeconomicos' },
     ];
 
     const [search, setSearch] = useState("");

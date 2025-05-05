@@ -7,22 +7,17 @@ import RegistroRevisor from '../Revisor/components/RegistroRevisor';
 
 const AgregarRevisor = () => {
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Administrar' },
-        { url: '/AdministrarRevisor', label: 'Revisor' },
+        { url: '/MenuAdministrador', label: 'Inicio' },
+        { url: '/MenuRevisor', label: 'Menu' },
+        { url: '/AdministrarRevisor', label: 'Revisores' },
         { url: '/AgregarRevisor', label: 'Agregar Revisor' }
     ];
 
     return (
         <div>
             <NavInesis />
-            <MigasRecorrido items={links} />
-            <div className="mb-2 text-center">
-                <h2 className="size-font-title cardMenu-title">Agregar revisor</h2>
-            </div>
-            <div className="admin-alumnos-container">
-                <RegistroRevisor/>
-            </div>
+            <MigasRecorrido items={links}/>
+            <RegistroRevisor/>
             <FooterInesis />
         </div>
     );
