@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
+
+
 
 const FinancialForm = () => {
     const [numPeople, setNumPeople] = useState(1);
@@ -125,10 +128,17 @@ const FinancialForm = () => {
         }
     };
 
+
+    const cardStyle = {
+        backgroundColor: "#F5F5F5",
+        borderRadius: "1rem",
+        boxShadow: "0 6px 15px rgba(0, 0, 0, 0.4)"
+    };
+    
     return (
         <Container className="mt-3" style={{ maxWidth: "1400px" }}>
             {/* Ingresos Mensuales */}
-            <Card className="p-4 mb-5" style={{ backgroundColor: "#F5F5F5" }}>
+            <Card className="p-4 mb-5" style={cardStyle}>
                 <h3 style={{ color: "#4F46E5" }}>Ingresos mensuales</h3>
                 <Form>
                     <Form.Group>
@@ -197,7 +207,7 @@ const FinancialForm = () => {
             <Row className="justify-content-center">
                 {/* Recibo de luz */}
                 <Col md={5} className="d-flex justify-content-center">
-                    <Card className="p-5 mb-5 w-100" style={{ backgroundColor: "#F5F5F5" }}>
+                    <Card className="p-5 mb-5 w-100" style={cardStyle}>
                         <h4 style={{ color: "#4F46E5" }}>Recibo de luz</h4>
                         <Form>
                             <Form.Group>
@@ -232,15 +242,16 @@ const FinancialForm = () => {
                                 />
                             </Form.Group>
                         </Form>
+                    <RecibosDeLuz />
                     </Card>
                 </Col>
 
                 {/* Espacio entre las tarjetas */}
-                <div style={{ width: "70px" }}></div>
+                <div style={{ width: "50px" }}></div>
 
                 {/* Gastos Mensuales */}
                 <Col md={5} className="d-flex justify-content-center">
-                    <Card className="p-5 mb-5 w-100" style={{ backgroundColor: "#F5F5F5" }}>
+                    <Card className="p-5 mb-5 w-100" style={cardStyle}>
                         <h4 style={{ color: "#4F46E5" }}>Gastos mensuales</h4>
                         <Form id="gastosForm">
                             {['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].map((label, index) => (
