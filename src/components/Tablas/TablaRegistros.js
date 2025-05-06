@@ -45,12 +45,12 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
             </div>
 
             <div className="mb-5 text-center">
-                <h5 className="size-font-subtitle texto-morado2Normal">{`${subTitulo}`}</h5>
+                <h5 className="size-font-subtitle texto-morado2Normal">Revisores de beca colegiatura</h5>
             </div>
 
             <button
                 className="btn btn-primary btn-agregar"
-                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate(`${rutaBoton}`)}
+                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate("/AgregarRevisor")}
             >
                 <i className="bi bi-person-add me-2"></i>
                 Agregar {nombreData}

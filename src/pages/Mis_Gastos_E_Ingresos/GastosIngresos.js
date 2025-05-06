@@ -4,12 +4,29 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import NavInesis from "../../components/NavInesis/NavInesis";
 import FinancialForm from "./FinancialForm";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
+import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 
 const GastosIngresos = () => {
 
+    const links = [
+        { url: '/MenuAlumno', label: 'Inicio' },
+        { url: '/MenuSolicitar', label: 'Estudio Socioeconómico' },
+        { url: '/GastosIngresos', label: 'Mis gastos e ingresos' }
+    ];
+
     return (
-        <div className="d-flex flex-column min-vh-100 mt-2">
-            <NavInesis></NavInesis>
+        <div className="d-flex flex-column min-vh-100">
+            {/* Contenedor relativo para ubicar migas detrás del Nav */}
+            <div className="position-relative">
+                <NavInesis />
+
+                <MigasRecorrido
+                    items={links}
+                    className="position-absolute top-0 start-0 mt-3 ms-3 z-index-0"
+                />
+            </div>
+
+
             <div className="container d-flex justify-content-center text-center " style={{maxWidth: "1400px"}} >
                 <div className=" p-1" style={{ color: "#4F46E5" }} >
                 <h1 className="text-start">MIS GASTOS E INGRESOS</h1>

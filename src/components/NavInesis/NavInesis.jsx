@@ -7,10 +7,12 @@ import '../../styles/StylesNav/NavUsuarios.css';
 import { NavItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import perfilIcon from '../../assets/perfilIcon.png';
+import ModalUsuario from '../MiPerfil/ModalUsuario';
 import ModalCambiarContraseña from '../CambiarContraseña/ModalCambiarContraseña';
 
 export const NavInesis = () => {
   const [modalShow, setModalShow] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false); //ModalUsuario
 
   return (
     <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
@@ -26,8 +28,8 @@ export const NavInesis = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto d-flex align-items-center">
               <NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
-                <Link to="/menuSolicitar" className='text-decoration-none text-dark'>
-                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Beca colegiatura</p>
+                <Link to="/menuSolicitar" className="text-decoration-none text-dark">
+                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Estudio socioeconómico</p>
                 </Link>
               </NavItem>
 
@@ -38,7 +40,7 @@ export const NavInesis = () => {
               </NavItem>
 
               <NavDropdown className='me-5 no-caret custom-dropdown' title={<img src={perfilIcon} style={{ width: '40px' }} alt="Perfil" />}>
-                <NavDropdown.Item href="#">Mi cuenta</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => setShowProfileModal(true)}>Mi cuenta</NavDropdown.Item>
                 <NavDropdown.Item onClick={() => setModalShow(true)}>Cambiar contraseña</NavDropdown.Item>
                 <NavDropdown.Item>Cerrar sesión</NavDropdown.Item>
               </NavDropdown>
@@ -49,6 +51,10 @@ export const NavInesis = () => {
 
       {/* Modal para cambiar contraseña */}
       <ModalCambiarContraseña show={modalShow} handleClose={() => setModalShow(false)} />
+      {/* Modal para mostrar perfil */}
+      <ModalUsuario mostrar={showProfileModal} cerrarModal={() => setShowProfileModal(false)} usuario={{ nombre: 'Luis Alberto Hernández Ramírez', rol: 'Estudiante' }}/>
+
+
     </div>
   );
 };

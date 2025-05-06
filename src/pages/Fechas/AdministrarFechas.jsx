@@ -6,8 +6,8 @@ import TablaRegistros from '../../components/Tablas/TablaRegistros';
 
 const AdministrarFechas = () => {
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Administrar' },
+        { url: '/MenuAdministrador', label: 'Inicio' },
+        //{ url: '/PrincipalAdmin', label: 'Administrar' },
         { url: '/AdministrarFechas', label: 'Fechas' }
     ];
 
