@@ -67,19 +67,24 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (formValues.carrera && formValues.semestre) {
-      const carreraSeleccionada = listaCarreras.find(c => c.nombreCarrera === formValues.carrera);
-      const semestreSeleccionado = listaSemestres.find(s => s.nombreSemestre === formValues.semestre);
-
+      // Aseguramos que los datos seleccionados son objetos completos con 'id'
+      const carreraSeleccionada = listaCarreras.find(c => c.id === formValues.carrera.id);
+      const semestreSeleccionado = listaSemestres.find(s => s.id === formValues.semestre.id); // Asegúrate que formValues.semestre sea un objeto con id
+  
+      console.log("Carrera seleccionada: ", carreraSeleccionada.id);
+      console.log("Semestre seleccionado: ", semestreSeleccionado);
+  
       if (carreraSeleccionada && semestreSeleccionado) {
+        // Enviar los IDs de la carrera y semestre al servicio
         grupoService.getByCarreraAndSemestre(carreraSeleccionada.id, semestreSeleccionado.id)
-          .then(grupos => {
-
+          .then(grupo => {
+            console.log('Respuesta del servicio grupoService:', grupo);
+            
+            // Actualizar el estado con el grupo obtenido
             setFormValues(prev => ({
               ...prev,
-              grupo: grupos
+              grupo: grupo
             }));
-
-
           })
           .catch(error => {
             console.error('Error al obtener los grupos:', error);
@@ -210,11 +215,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
 
     try {
-      // 2. Crear el alumno
-      const carreraSeleccionada = listaCarreras.find(c => c.id === formValues.carrera);
-      const semestreSeleccionado = listaSemestres.find(s => s.id === formValues.semestre);
-      const sexoSeleccionado = listaSexo.find(s => s.nombreSexo === formValues.sexo);
-
+    
       const alumnoPayload = {
         nombre: formValues.nombre.trim(),
         apellido: formValues.apellido.trim(),
@@ -222,8 +223,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         correo: formValues.correo.trim(),
         telefono: formValues.telefono.trim(),
         matricula: formValues.matricula.trim(),
-        semestre: { id_cat_semestre: listaSemestres.find(c => c.nombreSemestre === formValues.semestre)?.id || null },
-        carrera: { id_cat_carrera: listaCarreras.find(c => c.nombreCarrera === formValues.carrera)?.id || null },
+        semestre: { id_cat_semestre: formValues.semestre },
+        carrera: { id_cat_carrera: formValues.carrera },
         sexo: { id_cat_sexo: listaSexo.find(s => s.nombreSexo === formValues.sexo)?.id || null },
         grupo: formValues.grupo,
       };
