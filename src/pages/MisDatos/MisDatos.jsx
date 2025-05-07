@@ -72,15 +72,25 @@ export const MisDatos = ({ onAdd }) => {
 
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
-    const { name, value } = e.target;
-    // console.log("name: ", name, " valor: ", value)
-
+    const { name, value } = e.target; 
+    // console.log("Name: ", name, " Value: ", value)   
     // ******  CONDICIONES *******
     if (name === "dependeEconomicamente") {
       setRecursos(value)
     }
 
-    if (name === "ocupacion" && value !== "Otro") {  
+    if(name == "dependeEconomicamente"){
+      setDataGastosIngresos((prevData)=>({
+        ...prevData,
+        nombreQuienDependes: "",
+        trabajoTipo: "",
+        ocupacion: "",
+        otro: "",
+      }))
+      setDataTrabajo(formularioInicialTrabajo)
+    }
+
+    if (name === "ocupacion" && value !== "Otro") {
       setDataGastosIngresos((prevData) => ({
         ...prevData,
         ocupacion: value,
@@ -95,6 +105,15 @@ export const MisDatos = ({ onAdd }) => {
     }
   };
 
+  const actualizarCamposTrabajo = (e) => {
+    const { name, value } = e.target;
+    console.log("Nombre: ", name, " Valor: ", value)
+    setDataTrabajo((prevData) => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,19 +121,23 @@ export const MisDatos = ({ onAdd }) => {
     if (validacionCamposGastosIngresos() == 0) {
       return
     }
-
-
     const coleccionValores = {
-      gastosIngresos: dataGastosIngresos
+      ...dataGastosIngresos,
+      trabajo: dataTrabajo
     };
 
+    console.log("Mostrando coleccion: ", coleccionValores)
+
     try {
-      const nuevosErrores = await onAdd(dataGastosIngresos);
+      const nuevosErrores = await onAdd(coleccionValores);
+      console.log("Error: ", nuevosErrores)
       if (nuevosErrores && nuevosErrores.length > 0) {
         mostrarError(nuevosErrores)
         return;
       }
       setDataGastosIngresos(formularioInicialGastosIngresos);
+      setDataTrabajo(formularioInicialTrabajo)
+      console.log("Guardado")
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
@@ -126,11 +149,11 @@ export const MisDatos = ({ onAdd }) => {
     // Validación de los campos
     const erroresTemp = {};
     Object.keys(dataGastosIngresos).forEach((campo) => {
-      if (!dataGastosIngresos[campo]) {
+      if (!dataGastosIngresos[campo] && campo != "nombreQuienDependes" && campo != "trabajoTipo" && campo != "ocupacion" && campo != "otro") {
         erroresTemp[campo] = 'Este campo es obligatorio';
       }
     });
-
+    console.log("Validacion: ", erroresTemp)
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
       return 0; // No enviar el formulario si hay errores
@@ -389,19 +412,19 @@ export const MisDatos = ({ onAdd }) => {
                     </div>
                     {dataGastosIngresos.ocupacion == "Otro" && (
                       <div className="col-5">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
-                      <input
-                        className='form-control w-50'
-                        name='otro'
-                        type="text"
-                        onChange={actualizarCampoGastosIngresos}
-                        value={dataGastosIngresos.otro}
-                      />
-                      {errores.otro && <div className="text-danger">{errores.otro}</div>}
+                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                        <input
+                          className='form-control w-50'
+                          name='otro'
+                          type="text"
+                          onChange={actualizarCampoGastosIngresos}
+                          value={dataGastosIngresos.otro}
+                        />
+                        {errores.otro && <div className="text-danger">{errores.otro}</div>}
 
-                    </div>
+                      </div>
                     )}
-                    
+
                     <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
@@ -411,19 +434,42 @@ export const MisDatos = ({ onAdd }) => {
                     <div class="line mx-auto mt-5 mb-4"></div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.nombreTrabajo} />
+                      <input
+                        className='form-control w-50'
+                        type="text"
+                        name='nombreTrabajo'
+                        value={dataTrabajo.nombreTrabajo}
+                        onChange={actualizarCamposTrabajo}
+                      />
                     </div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Menciona el ingreso mensual que recibes</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.ingresoMensual} />
+                      <input
+                        className='form-control w-50'
+                        type="text"
+                        name='ingresoMensual'
+                        onChange={actualizarCamposTrabajo}
+                        value={dataTrabajo.ingresoMensual} />
                     </div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Telefono celular del lugar donde trabajas</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.telefonoTrabajo} />
+                      <input
+                        className='form-control w-50'
+                        type="text"
+                        value={dataTrabajo.telefonoTrabajo}
+                        onChange={actualizarCamposTrabajo}
+                        name='telefonoTrabajo'
+                      />
                     </div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas</p>
-                      <input className='form-control w-50' type="text" value={dataTrabajo.domicilioTrabajo} />
+                      <input
+                        className='form-control w-50'
+                        type="text"
+                        value={dataTrabajo.domicilioTrabajo}
+                        onChange={actualizarCamposTrabajo}
+                        name='domicilioTrabajo'
+                      />
                     </div>
                     <div class="line mx-auto mt-5 mb-4"></div>
                   </div>
@@ -440,6 +486,7 @@ export const MisDatos = ({ onAdd }) => {
                   {errores.solicitaBecaAlimenticia && <div className="text-danger">{errores.solicitaBecaAlimenticia}</div>}
 
                 </div>
+                <button className='btn btn-midDatos'>Guardar</button>
               </div>
             </div>
             {/* FIN MODULO GASTOS E INGRESOS  */}

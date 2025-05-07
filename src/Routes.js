@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom';
-import { MisDatos } from './pages/MisDatosPages/MisDatos';
+import { MisDatos } from './pages/MisDatos/MisDatos';
 import { NavInesis } from './components/NavInesis/NavInesis';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MigasRecorrido from './components/MigasDePan/MigasRecorrido';
@@ -28,7 +28,7 @@ import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud
 import MenuAlumno from './pages/MenuAlumno/MenuAlumno';
 import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
 import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
-import GestionMisDatos from './pages/MisDatosPages/GestionMisDatos';
+import GestionMisDatos from './pages/MisDatos/GestionMisDatos';
 
 const AppRoutes = () => {
   return (
