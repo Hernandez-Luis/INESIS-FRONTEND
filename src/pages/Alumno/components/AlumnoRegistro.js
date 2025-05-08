@@ -66,36 +66,35 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   }, [formValues.matricula]);
 
   useEffect(() => {
-    if (formValues.carrera && formValues.semestre) {
-      // Aseguramos que los datos seleccionados son objetos completos con 'id'
-      const carreraSeleccionada = listaCarreras.find(c => c.id === formValues.carrera.id);
-      const semestreSeleccionado = listaSemestres.find(s => s.id === formValues.semestre.id); // Asegúrate que formValues.semestre sea un objeto con id
+    if (
+      formValues.carrera &&
+      formValues.semestre &&
+      listaCarreras.length > 0 &&
+      listaSemestres.length > 0
+    ) {
+      const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
+      const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
   
       console.log("Carrera seleccionada: ", carreraSeleccionada.id);
       console.log("Semestre seleccionado: ", semestreSeleccionado);
   
       if (carreraSeleccionada && semestreSeleccionado) {
-        // Enviar los IDs de la carrera y semestre al servicio
         grupoService.getByCarreraAndSemestre(carreraSeleccionada.id, semestreSeleccionado.id)
           .then(grupo => {
-            console.log('Respuesta del servicio grupoService:', grupo);
-            
-            // Actualizar el estado con el grupo obtenido
+            console.log("Respuesta del servidor (grupo):", grupo);
             setFormValues(prev => ({
               ...prev,
-              grupo: grupo
+              grupo: grupo || ''
             }));
           })
           .catch(error => {
-            console.error('Error al obtener los grupos:', error);
-            setFormValues(prev => ({
-              ...prev,
-              grupo: 'Error al cargar grupos'
-            }));
-          });
+            console.error('Error:', error);
+            setFormValues(prev => ({ ...prev, grupo: '' }));
+          });   
       }
     }
-  }, [formValues.carrera, formValues.semestre]);
+  }, [formValues.carrera, formValues.semestre, listaCarreras, listaSemestres]);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -215,6 +214,10 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
 
     try {
+
+      const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
+      const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
+      const sexoSeleccionado = listaSexo.find(s => s.nombreSexo === formValues.sexo);
     
       const alumnoPayload = {
         nombre: formValues.nombre.trim(),
@@ -223,10 +226,14 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         correo: formValues.correo.trim(),
         telefono: formValues.telefono.trim(),
         matricula: formValues.matricula.trim(),
-        semestre: { id_cat_semestre: formValues.semestre },
-        carrera: { id_cat_carrera: formValues.carrera },
-        sexo: { id_cat_sexo: listaSexo.find(s => s.nombreSexo === formValues.sexo)?.id || null },
+        semestre: semestreSeleccionado ? semestreSeleccionado.id : null,  
+        carrera: carreraSeleccionada ? carreraSeleccionada.id : null, 
+        sexo: sexoSeleccionado ?  sexoSeleccionado.id : null,
         grupo: formValues.grupo,
+        usuario: formValues.usuario,
+        contrasenia: formValues.contrasena,
+        estatus: 'Activo',
+        idCatRol: 1
       };
 
       console.log("Alumno payload antes de enviar:", alumnoPayload);
@@ -236,21 +243,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       if (!alumnoCreado?.id) {
         throw new Error('No se obtuvo el ID del alumno creado');
       }
-
-      // 3. Crear usuario
-      const usuarioPayload = {
-        usuario: formValues.usuario,
-        contrasenia: formValues.contrasena,
-        estatus: 'Activo',
-        idCatRol: 1 // Rol "Alumno"
-      };
-      const usuarioCreado = await usuarioService.create(usuarioPayload);
-      if (!usuarioCreado?.id) {
-        throw new Error('No se pudo crear el usuario');
-      }
-
-      // 4. Relacionar alumno ↔ usuario
-      await alumnoService.updateAlumnoConUsuario(alumnoCreado.id, usuarioCreado.id);
 
       // 5. Éxito
       mostrarAlerta({

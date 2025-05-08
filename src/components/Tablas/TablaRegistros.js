@@ -50,12 +50,19 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
 
             <button
                 className="btn btn-primary btn-agregar"
-                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate("/AgregarRevisor")}
+                onClick={() => {
+                    if (nombreData === "fechas") {
+                        handleAbrirModal();
+                    } else if (nombreData === "alumnos") {
+                        navigate("/AgregarAlumno");
+                    } else {
+                        navigate("/AgregarRevisor");
+                    }
+                }}
             >
                 <i className="bi bi-person-add me-2"></i>
                 Agregar {nombreData}
             </button>
-
 
             {/* Filtros y búsqueda */}
             <div className="row mb-5 align-items-center">
