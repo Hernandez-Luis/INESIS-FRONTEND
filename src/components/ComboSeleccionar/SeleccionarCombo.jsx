@@ -21,11 +21,22 @@ const SeleccionarCombo = ({ name, options, onChange, value = '', placeholder, di
       disabled={disabled}
     >
       {placeholder && <option value="">{placeholder}</option>}
-      {options.map((option, index) => (
-        <option key={index} value={option}>
-          {option}
-        </option>
-      ))}
+      {options.map((option, index) => {
+        if (typeof option === 'object' && option !== null) {
+          return (
+            <option key={index} value={option.value}>
+              {option.label}
+            </option>
+          );
+        } else {
+          return (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          );
+        }
+      })}
+
     </select>
   );
 };

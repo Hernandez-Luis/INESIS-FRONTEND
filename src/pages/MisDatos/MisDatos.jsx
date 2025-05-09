@@ -10,6 +10,7 @@ import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 import { data } from 'react-router-dom'
 import Swal from 'sweetalert2'
+import CatTipoTransporte from '../../services/CatTipoTransporte'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -27,10 +28,12 @@ export const MisDatos = ({ onAdd }) => {
   const [recursos, setRecursos] = useState(null);
   const [vivienda, setVivienda] = useState(null);
   const [selectedOption, setSelectedOption] = useState('');
+  const [catTipoTransporte, setCatTipoTransporte] = useState([]);
 
 
   useEffect(() => {
     obtenerListaMedioTransporte();
+    obtenerCatTipoTransporte();
   }, []);
 
 
@@ -44,6 +47,16 @@ export const MisDatos = ({ onAdd }) => {
     }
   }
 
+  const obtenerCatTipoTransporte = async () => {
+    try {
+      let catTipoTransporte = await CatTipoTransporte.getAll();
+      setCatTipoTransporte(catTipoTransporte)
+      console.log("Tipos transporte: ", catTipoTransporte)
+    } catch (error) {
+      console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+    }
+  }
+
   // *********************************  INICIALIZANDO FORMULARIOS  ***********************************
 
   const formularioInicialGastosIngresos = {
@@ -54,7 +67,6 @@ export const MisDatos = ({ onAdd }) => {
     trabajoTipo: "",
     ocupacion: "",
     otro: "",
-
   }
 
   const formularioInicialTrabajo = {
@@ -65,22 +77,30 @@ export const MisDatos = ({ onAdd }) => {
     domicilioTrabajo: ""
   }
 
+  const formularioInicialTransporte = {
+    llevaVehiculo: '',
+    marca: '',
+    modelo: '',
+    anio: '',
+    catTipoTransporte: ''
+  }
+
   const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
   const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
+  const [dataTransporte, setDataTransporte] = useState(formularioInicialTransporte)
   const [errores, setErrores] = useState({})
-
 
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
-    const { name, value } = e.target; 
+    const { name, value } = e.target;
     // console.log("Name: ", name, " Value: ", value)   
     // ******  CONDICIONES *******
     if (name === "dependeEconomicamente") {
       setRecursos(value)
     }
 
-    if(name == "dependeEconomicamente"){
-      setDataGastosIngresos((prevData)=>({
+    if (name == "dependeEconomicamente") {
+      setDataGastosIngresos((prevData) => ({
         ...prevData,
         nombreQuienDependes: "",
         trabajoTipo: "",
@@ -107,8 +127,17 @@ export const MisDatos = ({ onAdd }) => {
 
   const actualizarCamposTrabajo = (e) => {
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
+    // console.log("Nombre: ", name, " Valor: ", value)
     setDataTrabajo((prevData) => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
+  const actualizarCamposTransporte = (e) => {
+    const { name, value } = e.target;
+    console.log("Nombre: ", name, " Valor: ", value)
+    setDataTransporte((prevData) => ({
       ...prevData,
       [name]: value
     }))
@@ -192,8 +221,6 @@ export const MisDatos = ({ onAdd }) => {
       confirmButtonText: 'Aceptar',
     });
   };
-
-
 
   const mostrarExito = (mensaje) => {
     mostrarAlerta({
@@ -352,7 +379,6 @@ export const MisDatos = ({ onAdd }) => {
               {/* FIN MODULO DOMICILIO */}
             </div>
 
-
             {/* MODULO GASTOS E INGRESOS  */}
             <div className='row mx-5 mt-4'>
               <div className='tarjeta-border p-5'>
@@ -486,7 +512,6 @@ export const MisDatos = ({ onAdd }) => {
                   {errores.solicitaBecaAlimenticia && <div className="text-danger">{errores.solicitaBecaAlimenticia}</div>}
 
                 </div>
-                <button className='btn btn-midDatos'>Guardar</button>
               </div>
             </div>
             {/* FIN MODULO GASTOS E INGRESOS  */}
@@ -496,13 +521,24 @@ export const MisDatos = ({ onAdd }) => {
               <div className="col tarjeta-border me-4 p-5">
                 <p className='fs-2 ' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
                 <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil o motocicleta cotidianamente a la universidad?</label>
-                <RadioSelect gris={true} options={['Si', 'No']} />
+                <RadioSelect
+                  gris={true}
+                  options={['Si', 'No']}
+                  onChange={actualizarCamposTransporte}
+                  name={"llevaVehiculo"}
+                  value={dataTransporte.llevaVehiculo}
+                />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
-                <div className='w-25'>
+                <div className='w-50'>
                   <SeleccionarCombo
-                    options={['Terrestre', 'Aereo', 'Acuatico']} // Opciones disponibles
-                    // Función para manejar la selección
+                     options={catTipoTransporte.map(t => ({
+                      label: t.nombreTipo,
+                      value: t.id
+                    }))}
                     placeholder="Selecciona una opción" // Placeholder
+                    name={'catTipoTransporte'}
+                    value={dataTransporte.catTipoTransporte}
+                    onChange={actualizarCamposTransporte}
                   />
                 </div>
                 <div className="row mt-4">
