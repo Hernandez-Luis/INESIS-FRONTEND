@@ -2,6 +2,7 @@ import React from 'react'
 import { MisDatos } from './MisDatos'
 import GastosIngresosService from '../../services/GastosIngresosService';
 import Swal from 'sweetalert2';
+import TransporteService from '../../services/TransporteService';
 
 
 export default function GestionMisDatos() {
@@ -9,7 +10,8 @@ export default function GestionMisDatos() {
   // *************  FUNCION PARA GUARDAR LOS DATOS OBTENIDOS DEL FORMULARIO ******************
     const guardarDatosGastosIngresos = async (nuevosGastosIngresos) => {
         try {
-          await GastosIngresosService.create(nuevosGastosIngresos)
+          // await GastosIngresosService.create(nuevosGastosIngresos)
+          await TransporteService.create(nuevosGastosIngresos)
           return []
         } catch (error) {
             const errores = []

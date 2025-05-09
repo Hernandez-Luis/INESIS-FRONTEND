@@ -147,18 +147,19 @@ export const MisDatos = ({ onAdd }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validacionCamposGastosIngresos() == 0) {
-      return
-    }
-    const coleccionValores = {
-      ...dataGastosIngresos,
-      trabajo: dataTrabajo
-    };
+    // if (validacionCamposGastosIngresos() == 0) {
+    //   return
+    // }
+    // const coleccionValores = {
+    //   ...dataGastosIngresos,
+    //   trabajo: dataTrabajo
+    // };
 
-    console.log("Mostrando coleccion: ", coleccionValores)
+    // console.log("Mostrando coleccion: ", coleccionValores)
+    console.log("Transporte: ", dataTransporte)
 
     try {
-      const nuevosErrores = await onAdd(coleccionValores);
+      const nuevosErrores = await onAdd(dataTransporte);
       console.log("Error: ", nuevosErrores)
       if (nuevosErrores && nuevosErrores.length > 0) {
         mostrarError(nuevosErrores)
@@ -531,9 +532,9 @@ export const MisDatos = ({ onAdd }) => {
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
                 <div className='w-50'>
                   <SeleccionarCombo
-                     options={catTipoTransporte.map(t => ({
+                    options={catTipoTransporte.map(t => ({
                       label: t.nombreTipo,
-                      value: t.id
+                      value: t.idCatTipoTransporte
                     }))}
                     placeholder="Selecciona una opción" // Placeholder
                     name={'catTipoTransporte'}
@@ -544,15 +545,33 @@ export const MisDatos = ({ onAdd }) => {
                 <div className="row mt-4">
                   <div className="col">
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
-                    <input className='form-control w-75' type="text" />
+                    <input
+                      className='form-control w-75'
+                      type="text"
+                      name={'marca'}
+                      value={dataTransporte.marca}
+                      onChange={actualizarCamposTransporte}
+                    />
                   </div>
                   <div className="col">
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
-                    <input className='form-control w-75' type="text" />
+                    <input
+                      className='form-control w-75'
+                      type="text"
+                      name={'modelo'}
+                      value={dataTransporte.modelo}
+                      onChange={actualizarCamposTransporte}
+                    />
                   </div>
                   <div className="col">
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
-                    <input className='form-control w-75' type="text" />
+                    <input
+                      className='form-control w-75'
+                      type="text"
+                      name={'anio'}
+                      value={dataTransporte.anio}
+                      onChange={actualizarCamposTransporte}
+                    />
                   </div>
                 </div>
                 <div className="row mt-4">
