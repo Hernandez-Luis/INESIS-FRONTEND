@@ -60,7 +60,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     if (formValues.matricula) {
       setFormValues(prevState => ({
         ...prevState,
-        contraseña: prevState.matricula
+        contrasena: prevState.matricula
       }));
     }
   }, [formValues.matricula]);
@@ -229,7 +229,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         semestre: semestreSeleccionado ? semestreSeleccionado.id : null,  
         carrera: carreraSeleccionada ? carreraSeleccionada.id : null, 
         sexo: sexoSeleccionado ?  sexoSeleccionado.id : null,
-        grupo: formValues.grupo,
+        grupo: formValues.grupo.id,
         usuario: formValues.usuario,
         contrasenia: formValues.contrasena,
         estatus: 'Activo',
@@ -428,7 +428,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <input
                 type="text"
                 className="formulario-entrada"
-                value={formValues.grupo}
+                value={formValues.grupo.nombreGrupo}
                 readOnly
               />
             </div>
@@ -467,7 +467,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 type="text"
                 name="contrasena"
                 className="formulario-entrada"
-                value={formValues.contraseña}
+                value={formValues.contrasena}
                 readOnly
               />
             </div>
