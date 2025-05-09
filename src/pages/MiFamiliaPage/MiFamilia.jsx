@@ -180,7 +180,7 @@ export const MiFamilia = () => {
                     <div className="row mt-4 mx-0">
                         {/* Tarjeta combinada para Contacto y Escolaridad */}
                         <div className="tarjeta-border p-4 mb-4">
-                            <div className="row">
+                            <div className="row px-4">
                                 {/* Columna 1: Contacto */}
                                 <div className="col-md-4 d-flex flex-column">
                                     <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
@@ -244,16 +244,12 @@ export const MiFamilia = () => {
                                 </div>
                             </div>
                         </div>
-
-
-
-
                         <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                            <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                            <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Vivienda
                             </p>
                             {/* Fila para los campos de escolaridad */}
-                            <div className="row">
+                            <div className="row px-4 ">
                                 {/* Escolaridad de padre */}
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
@@ -291,7 +287,7 @@ export const MiFamilia = () => {
                                     />
                                 </div>
 
-                                <div className="col-12 col-md-3 mb-3">
+                                <div className="col-12 col-md-3 mb-3 ">
                                     <label className="fs-5 mb-2" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Con qué servicios cuenta la vivienda?
                                     </label>
@@ -313,7 +309,7 @@ export const MiFamilia = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className='row gap-3'>
+                            <div className='row gap-3 px-4'>
                                 <div className="col-12 col-md-12">
                                     <label className="fs-5 mb-3 d-block" style={{ color: 'var(--color-morado3)' }}>
                                         ¿En la casa donde vive tu familia hay?
@@ -324,7 +320,6 @@ export const MiFamilia = () => {
                                             <CheckBox opcion="Agua Caliente" id='aguaCaliente' onChange={handleCheckboxChange}></CheckBox>
                                             <CheckBox opcion="Refrigerador" id='refrigerador' onChange={handleCheckboxChange}></CheckBox>
                                             <CheckBox opcion="Estufa de gas" id='estufaDeGas' onChange={handleCheckboxChange}></CheckBox>
-                                            <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa' onChange={handleCheckboxChange}></CheckBox>
                                         </div>
 
                                         {/* Segunda columna */}
@@ -332,27 +327,25 @@ export const MiFamilia = () => {
                                             <CheckBox opcion="Aire acondicionado" id='aireAcondicionado' onChange={handleCheckboxChange}></CheckBox>
                                             <CheckBox opcion="Automóvil propio" id='automovilPropio' onChange={handleCheckboxChange}></CheckBox>
                                             <CheckBox opcion="Televisor" id='televisor' onChange={handleCheckboxChange}></CheckBox>
-                                            <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa' onChange={handleCheckboxChange}></CheckBox>
                                         </div>
 
                                         {/* Tercera columna */}
                                         <div className="col-md-4">
-                                            <CheckBox opcion="Equipo de sonido/Grabadora" id='equipoSonido' onChange={handleCheckboxChange}></CheckBox>
                                             <CheckBox opcion="Horno de microondas" id='hornoMicroondas' onChange={handleCheckboxChange}></CheckBox>
-                                            <CheckBox opcion="Videocasetera o DVD" id='videocasatera' onChange={handleCheckboxChange}></CheckBox>
                                             <CheckBox opcion="Espacio privado para estudiar" id='espacioTrabajos' onChange={handleCheckboxChange}></CheckBox>
+                                            <CheckBox opcion="Lavadora de ropa" id='lavadoraDeRopa' onChange={handleCheckboxChange}></CheckBox>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                            <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4 ">
+                            <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Información complementaria
                             </p>
                             {/* Fila para los campos de escolaridad */}
-                            <div className="row gab-3">
+                            <div className="row gab-3 px-4">
                                 {/* Escolaridad de padre */}
                                 <div className="col-md-4 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
@@ -388,13 +381,12 @@ export const MiFamilia = () => {
                                         <div className="col-md-4">
                                             <CheckBox opcion="Libros especializados" id='librosEspecializados' onChange={handleCheckboxChange} />
                                             <CheckBox opcion="Diccionarios" id='diccionarios' onChange={handleCheckboxChange} />
-                                            <CheckBox opcion="Enciclopedias" id='enciclopedias' onChange={handleCheckboxChange} />
                                             <CheckBox opcion="Calculadora" id='calculadora' onChange={handleCheckboxChange} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-12 col-md-3 mb-3">
+                            <div className="col-12 col-md-3 mb-3 px-4">
                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                     ¿Cuenta con acceso a internet?
                                 </label>
@@ -411,10 +403,10 @@ export const MiFamilia = () => {
                             </div>
                         </div>
                         <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                            <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                            <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Hermanos
                             </p>
-                            <div className="row">
+                            <div className="row px-4">
                                 {/* ¿Cuántos hermanos tienes? */}
                                 <div className="col-10 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
@@ -487,26 +479,7 @@ export const MiFamilia = () => {
                                     />
                                 </div>
 
-                                {/* Apartado para subir documentos */}
-                                <div className="col-12 d-flex justify-content-center">
-                                    <div className="col-md-8 tarjeta-border p-4 mt-4" style={{ backgroundColor: "#f9f9f9", borderRadius: "10px" }}>
-                                        <label className="fs-5 mb-3 d-block text-center" style={{ color: 'var(--color-morado3)', fontWeight: 'bold' }}>
-                                            Agregar comprobante de hermanos
-                                        </label>
-                                        <p className="text-center mb-3 text-muted">
-                                            Puedes subir comprobantes como constancia de estudios, certificados, acta de nacimiento, CURP, etc.
-                                        </p>
-                                        <div className="d-flex justify-content-center">
-                                            <input
-                                                type="file"
-                                                className="form-control"
-                                                multiple
-                                                style={{ maxWidth: '400px' }}
-                                                onChange={(e) => handleFileUpload(e.target.files)}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+
 
                             </div>
                         </div>
@@ -514,10 +487,10 @@ export const MiFamilia = () => {
 
                         <div className="container">
                             <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                <p className="fs-2" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
+                                <p className="fs-2 px-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
                                     Personas dependientes
                                 </p>
-                                <div className="col-12 col-md-8 mb-3">
+                                <div className="col-12 col-md-8 mb-3 px-4">
                                     <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
                                         Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
                                     </label>
@@ -527,14 +500,14 @@ export const MiFamilia = () => {
                                         placeholder="Ingrese el numero de hermanos dependientes economicamente"
                                         value={numDependientes}
                                         onChange={handleNumDependientesChange}
-                                        min="0"
+                                        min="10"
                                     />
                                 </div>
                                 {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                                 {dependientes.map((dep, index) => (
                                     <div key={dep.id} className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-2">
 
-                                        <div className="row">
+                                        <div className="row px-4">
                                             <div className="col-12 col-md-3 mb-3">
                                                 <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Nombre completo:</label>
                                                 <input
@@ -564,8 +537,31 @@ export const MiFamilia = () => {
                                                     onChange={(e) => handleDependienteChange(index, "parentesco", e.target.value)}
                                                 />
                                             </div>
-
                                             <div className="col-12 col-md-2 mb-3">
+                                                <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Tipo de comprobante</label>
+                                                <SeleccionarCombo
+                                                    options={['CURP', 'Acta de nacimiento', 'Credencial de estudio', 'INE', 'Otros']}
+                                                    value={selectedValues['Acta de nacimiento'] || ''}
+                                                    onChange={(value) => handleSelection('Acta de nacimiento', value)}
+                                                    placeholder="Selecciona una opción"
+                                                />
+                                            </div>
+
+                                            <div className="col-12 col-md-3 mb-3">
+                                                <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
+                                                    Agregar comprobante
+                                                </label>                                                
+                                                <div className="d-flex justify-content-center">
+                                                    <input
+                                                        type="file"
+                                                        className="form-control"
+                                                        multiple
+                                                        style={{ maxWidth: '400px' }}
+                                                        onChange={(e) => handleFileUpload(e.target.files)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            {/*<div className="col-12 col-md-2 mb-3">
                                                 <label className="fs-5" style={{ color: "var(--color-morado3)" }}>Grado de estudios:</label>
                                                 <input
                                                     type="number"
@@ -583,7 +579,7 @@ export const MiFamilia = () => {
                                                     value={dep.institucion}
                                                     onChange={(e) => handleDependienteChange(index, "institucion", e.target.value)}
                                                 />
-                                            </div>
+                                            </div>*/}
                                         </div>
                                     </div>
                                 ))}
