@@ -8,9 +8,13 @@ import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo
 import { CheckBox } from '../../components/CheckBox/CheckBox'
 import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
+import CatSexoService from '../../services/CatSexoService'
 import { data } from 'react-router-dom'
 import Swal from 'sweetalert2'
-import CatTipoTransporte from '../../services/CatTipoTransporte'
+import CatTipoTransporte from '../../services/CatTipoTransporteService'
+import CatTipoTransporteService from '../../services/CatTipoTransporteService'
+import CatSemestreService from '../../services/CatSemestreService'
+import CatEstadoCivilService from '../../services/CatEstadoCivilService'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -24,20 +28,16 @@ export const MisDatos = ({ onAdd }) => {
   // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
-  const [estadoCivil, setEstadoCivil] = useState(null);
+  const [estadoCivil, setEstadoCivil] = useState([]);
   const [recursos, setRecursos] = useState(null);
   const [vivienda, setVivienda] = useState(null);
   const [selectedOption, setSelectedOption] = useState('');
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
-
-
-  useEffect(() => {
-    obtenerListaMedioTransporte();
-    obtenerCatTipoTransporte();
-  }, []);
-
+  const [catSemestres, setCatSemestres] = useState([]);
+  const [catSexo, setCatSexo] = useState([]);
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
+
   const obtenerListaMedioTransporte = async () => {
     try {
       let listaMedios = await CatMedioTransporteService.getAll();
@@ -49,13 +49,48 @@ export const MisDatos = ({ onAdd }) => {
 
   const obtenerCatTipoTransporte = async () => {
     try {
-      let catTipoTransporte = await CatTipoTransporte.getAll();
+      let catTipoTransporte = await CatTipoTransporteService.getAll();
       setCatTipoTransporte(catTipoTransporte)
-      console.log("Tipos transporte: ", catTipoTransporte)
     } catch (error) {
       console.log("Error al obtener la lista de CatTipoTransporte: ", error)
     }
   }
+
+  const obtenerCatSemestres = async () => {
+    try {
+      let catSemestres = await CatSemestreService.getAll();
+      setCatSemestres(catSemestres)
+    } catch (error) {
+      console.log("Error al obtener la lista de CatSemestres: ", error)
+    }
+  }
+
+  const obtenerCatSexo = async () => {
+    try {
+      let catSexo = await CatSexoService.getAll();
+      setCatSexo(catSexo)
+    } catch (error) {
+      console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+    }
+  }
+
+  const obtenerCatEstadoCivil = async () => {
+    try {
+      let catEstadoCivil = await CatEstadoCivilService.getAll();
+      setEstadoCivil(catEstadoCivil)
+      console.log("Estado civil: ", catEstadoCivil)
+    } catch (error) {
+      console.log("Error al obtener la lista de CatEstadoCivil: ", error)
+    }
+  }
+
+  useEffect(() => {
+    obtenerListaMedioTransporte();
+    obtenerCatTipoTransporte();
+    obtenerCatSemestres();
+    obtenerCatSexo();
+    obtenerCatEstadoCivil();
+  }, []);
 
   // *********************************  INICIALIZANDO FORMULARIOS  ***********************************
 
@@ -85,9 +120,26 @@ export const MisDatos = ({ onAdd }) => {
     catTipoTransporte: ''
   }
 
+  const formularioInicialMisDatos = {
+    nombreCompleto: "",
+    carrera: "",
+    semestre: "",
+    sexo: "",
+    estadoCivil: "",
+    recursosSuficientes: "",
+    familiarComunero: "",
+    utilizaCelular: "",
+    tieneComputadora: "",
+    idioma: "",
+    transporte: "",
+    mediosTraslado: ""
+  }
+
   const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
   const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
   const [dataTransporte, setDataTransporte] = useState(formularioInicialTransporte)
+  const [dataMisDatos, setDataMisDatos] = useState(formularioInicialMisDatos)
+
   const [errores, setErrores] = useState({})
 
   // ************************  MANEJADORES DE CAMBIOS  ****************************
@@ -138,6 +190,15 @@ export const MisDatos = ({ onAdd }) => {
     const { name, value } = e.target;
     console.log("Nombre: ", name, " Valor: ", value)
     setDataTransporte((prevData) => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
+  const actualizarCamposMisDatos = (e) => {
+    const { name, value } = e.target;
+    console.log("Nombre: ", name, " Valor: ", value)
+    setDataMisDatos((prevData) => ({
       ...prevData,
       [name]: value
     }))
@@ -268,37 +329,47 @@ export const MisDatos = ({ onAdd }) => {
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Semestre:</label>
                     <div>
                       <SeleccionarCombo
-                        name="semestres"
-                        options={['Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto', 'Septimo', 'Octavo', 'Noveno', 'Decimo']} // Opciones disponibles
-                        // Función para manejar la selección
-                        placeholder="Selecciona una opción" // Placeholder
-
+                        name="semestre"
+                        options={catSemestres.map(s => ({
+                          label: s.nombreSemestre,
+                          value: s.id
+                        }))}
+                        placeholder="Selecciona una opción"
+                        value={dataMisDatos.semestre}
+                        onChange={actualizarCamposMisDatos}
                       />
                     </div>
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Sexo:</label>
                     <div>
-                      <SeleccionarCombo
+                      <RadioSelect
+                        options={catSexo.map(s => ({ label: s.nombreSexo, value: s.id }))}
                         name="sexo"
-                        options={['Hombre', 'Mujer']} // Opciones disponibles
-                        // Función para manejar la selección
-                        placeholder="Selecciona una opción" // Placeholder
+                        onChange={actualizarCamposMisDatos}
+                        value={dataMisDatos.sexo}  // <-- asegura que sea string
                       />
                     </div>
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Estado civil:</label>
                     <RadioSelect
-                      options={['Soltero', 'Casado']}
-                      // onChange={} 
+                      options={estadoCivil.map(s => ({ label: s.nombreEstadoCivil, value: s.id }))}
                       name="estadoCivil"
+                      onChange={actualizarCamposMisDatos}
+                      value={dataMisDatos.estadoCivil}
                     />
                   </div>
 
                   <div className='mt-4'>
                     <label className='fs-5' style={{ fontWeight: 'bold' }}>¿Tienes los recursos económicos necesarios para tus actividades académicas?</label>
-                    <RadioSelect gris={false} options={['Si', 'No']} />
+                    <RadioSelect
+                      gris={false}
+                      options={['Si', 'No']}
+                      onChange={actualizarCamposMisDatos}
+                      name="recursosSuficientes"
+                      value={dataMisDatos.recursosSuficientes}
+                    />
                   </div>
                 </div>
               </div>
@@ -592,16 +663,34 @@ export const MisDatos = ({ onAdd }) => {
               <div className="col tarjeta-border p-5">
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Eres hijo o nieto de comunero de Ixtlán de Juárez?</label>
-                <RadioSelect gris={true} options={['Si', 'No']} />
+                <RadioSelect
+                  gris={true}
+                  options={['Si', 'No']}
+                  value={dataMisDatos.familiarComunero}
+                  onChange={actualizarCamposMisDatos}
+                  name="familiarComunero"
+                />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
-                <RadioSelect gris={true} options={['Si', 'No']} />
+                <RadioSelect 
+                gris={true} 
+                options={['Si', 'No']} 
+                name={"utilizaCelular"}
+                value={dataMisDatos.utilizaCelular}
+                onChange={actualizarCamposMisDatos}
+                />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
-                <RadioSelect gris={true} options={['Si', 'No']} />
+                <RadioSelect 
+                gris={true} 
+                options={['Si', 'No']} 
+                name={"tieneComputadora"}
+                value={dataMisDatos.tieneComputadora}
+                onChange={actualizarCamposMisDatos}
+                />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
-                <input className='form-control w-75' type="text" />
+                <input className='form-control w-75' type="text" name='idioma' value={dataMisDatos.idioma} onChange={actualizarCamposMisDatos}/>
               </div>
               {/* FIN INFORMACION COMPLEMENTARIA */}
             </div>

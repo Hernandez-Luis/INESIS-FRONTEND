@@ -1,29 +1,33 @@
 import React from 'react';
 
 const RadioSelect = ({ name, options, value, onChange, gris }) => {
-  const handleOptionChange = (option) => {
+  const handleOptionChange = (optionValue) => {
     onChange({
       target: {
         name,
-        value: option,
+        value: optionValue,
       },
     });
   };
 
+  const normalizedOptions = options.map(option =>
+    typeof option === 'string' ? { label: option, value: option } : option
+  );
+
   return (
     <div style={{ display: 'flex', gap: '20px' }}>
-      {options.map((option, index) => (
+      {normalizedOptions.map((option, index) => (
         <div key={index}>
           <label style={{ color: gris ? 'var(--color-gris1)' : 'inherit' }}>
             <input
               type="radio"
               name={name}
-              value={option}
-              checked={value === option}
-              onChange={() => handleOptionChange(option)}
+              value={option.value}
+              checked={value === option.value}
+              onChange={() => handleOptionChange(option.value)}
               style={{ marginRight: '5px' }}
             />
-            {option}
+            {option.label}
           </label>
         </div>
       ))}
