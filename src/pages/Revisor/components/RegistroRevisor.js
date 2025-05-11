@@ -84,6 +84,10 @@ const RegistroRevisor = () => {
                                 type="text"
                                 className="formulario-entrada"
                                 placeholder="Ingrese su numero de empleado"
+                                onChange={(e) => {
+                                    const valor = e.target.value;
+                                    const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
+                                }}
                             />
                         </div>
                         <div className="col-md-6">
