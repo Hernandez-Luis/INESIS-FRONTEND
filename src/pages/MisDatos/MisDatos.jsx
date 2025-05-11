@@ -78,7 +78,6 @@ export const MisDatos = ({ onAdd }) => {
     try {
       let catEstadoCivil = await CatEstadoCivilService.getAll();
       setEstadoCivil(catEstadoCivil)
-      console.log("Estado civil: ", catEstadoCivil)
     } catch (error) {
       console.log("Error al obtener la lista de CatEstadoCivil: ", error)
     }
@@ -208,27 +207,30 @@ export const MisDatos = ({ onAdd }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (validacionCamposGastosIngresos() == 0) {
-    //   return
-    // }
-    // const coleccionValores = {
-    //   ...dataGastosIngresos,
-    //   trabajo: dataTrabajo
-    // };
+    //  if (validacionCamposGastosIngresos() == 0) {
+    //    return
+    //  }
+     const coleccionValores = {
+      ...dataMisDatos,
+      gastosIngresos: {
+        ...dataGastosIngresos,
+        trabajo: dataTrabajo
+      }
+    };
 
-    // console.log("Mostrando coleccion: ", coleccionValores)
-    console.log("Transporte: ", dataTransporte)
+    console.log("Mostrando coleccion: ", coleccionValores)
+    
 
     try {
-      const nuevosErrores = await onAdd(dataTransporte);
-      console.log("Error: ", nuevosErrores)
-      if (nuevosErrores && nuevosErrores.length > 0) {
-        mostrarError(nuevosErrores)
-        return;
-      }
-      setDataGastosIngresos(formularioInicialGastosIngresos);
-      setDataTrabajo(formularioInicialTrabajo)
-      console.log("Guardado")
+      // const nuevosErrores = await onAdd(dataTransporte);
+      // console.log("Error: ", nuevosErrores)
+      // if (nuevosErrores && nuevosErrores.length > 0) {
+      //   mostrarError(nuevosErrores)
+      //   return;
+      // }
+      // setDataGastosIngresos(formularioInicialGastosIngresos);
+      // setDataTrabajo(formularioInicialTrabajo)
+      // console.log("Guardado")
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
