@@ -27,7 +27,6 @@ export const MisDatos = ({ onAdd }) => {
 
   // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
-  const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [estadoCivil, setEstadoCivil] = useState([]);
   const [recursos, setRecursos] = useState(null);
   const [vivienda, setVivienda] = useState(null);
@@ -35,6 +34,9 @@ export const MisDatos = ({ onAdd }) => {
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
+  const [mediosSeleccionados, setMediosSeleccionados] = useState([])
+  const [mediosTraslado, setMediosTraslado] = useState([])
+
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -120,8 +122,8 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialMisDatos = {
-    nombreCompleto: "",
-    carrera: "",
+    nombreCompleto: "Luis Hernandez",
+    carrera: 3,
     semestre: "",
     sexo: "",
     estadoCivil: "",
@@ -187,7 +189,7 @@ export const MisDatos = ({ onAdd }) => {
 
   const actualizarCamposTransporte = (e) => {
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
+    //console.log("Nombre: ", name, " Valor: ", value)
     setDataTransporte((prevData) => ({
       ...prevData,
       [name]: value
@@ -196,45 +198,67 @@ export const MisDatos = ({ onAdd }) => {
 
   const actualizarCamposMisDatos = (e) => {
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
+    //console.log("Nombre: ", name, " Valor: ", value)
     setDataMisDatos((prevData) => ({
       ...prevData,
       [name]: value
     }))
   }
 
+  const actualizarMediosTraslado = (e) => {
+    const { value, checked, name } = e.target;
+    const id = parseInt(value, 10);
+    if (checked) {
+      setMediosSeleccionados((prev) => [...prev, id]);
+    } else {
+      setMediosSeleccionados((prev) => prev.filter((medioId) => medioId !== id));
+    }
+  };
+
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    //  if (validacionCamposGastosIngresos() == 0) {
-    //    return
-    //  }
-     const coleccionValores = {
+    if (validacionCamposGastosIngresos() == 0) {
+      return
+    }
+
+    agregrMediosTrasladoSeleccionados();
+
+
+    const coleccionValores = {
       ...dataMisDatos,
+      transporte: dataTransporte,
       gastosIngresos: {
         ...dataGastosIngresos,
         trabajo: dataTrabajo
-      }
+      },
+      mediosTraslado
     };
 
     console.log("Mostrando coleccion: ", coleccionValores)
-    
+
 
     try {
-      // const nuevosErrores = await onAdd(dataTransporte);
-      // console.log("Error: ", nuevosErrores)
-      // if (nuevosErrores && nuevosErrores.length > 0) {
-      //   mostrarError(nuevosErrores)
-      //   return;
-      // }
+      const nuevosErrores = await onAdd(coleccionValores);
+      console.log("Error: ", nuevosErrores)
+      if (nuevosErrores && nuevosErrores.length > 0) {
+        mostrarError(nuevosErrores)
+        return;
+      }
       // setDataGastosIngresos(formularioInicialGastosIngresos);
       // setDataTrabajo(formularioInicialTrabajo)
-      // console.log("Guardado")
+      console.log("Guardado")
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
   };
+
+  const agregrMediosTrasladoSeleccionados = () => {
+    setMediosTraslado(mediosSeleccionados.map(id => ({
+      catMediosTransporte: { id }
+    })))
+  }
 
   // ***************************  VALIDACION DE CAMPOS  *****************************
 
@@ -246,7 +270,7 @@ export const MisDatos = ({ onAdd }) => {
         erroresTemp[campo] = 'Este campo es obligatorio';
       }
     });
-    console.log("Validacion: ", erroresTemp)
+    //console.log("Validacion: ", erroresTemp)
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
       return 0; // No enviar el formulario si hay errores
@@ -295,16 +319,6 @@ export const MisDatos = ({ onAdd }) => {
     });
   };
 
-  // **************************  POR VER  *****************************
-
-  // Funcion para manejar los cambios y guardarlos en la tabla GastosIngresos
-  const manejarCambioCheckbox = (id) => {
-    setMediosSeleccionados((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id) // Desmarcar
-        : [...prev, id] // Marcar
-    );
-  };
 
   return (
     <div>
@@ -653,8 +667,11 @@ export const MisDatos = ({ onAdd }) => {
                     <CheckBox
                       key={medio.id}
                       id={medio.id}
-                      opcion={medio.nombreMedio} // O la propiedad correcta que contenga el nombre
-                      onChange={manejarCambioCheckbox}
+                      opcion={medio.nombreMedio}
+                      onChange={actualizarMediosTraslado}
+                      checked={mediosSeleccionados.includes(medio.id)}
+                      //value={dataMisDatos.mediosTraslado}
+                      name={"mediosTraslado"}
                     />
                   ))}
                 </div>
@@ -674,25 +691,25 @@ export const MisDatos = ({ onAdd }) => {
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
-                <RadioSelect 
-                gris={true} 
-                options={['Si', 'No']} 
-                name={"utilizaCelular"}
-                value={dataMisDatos.utilizaCelular}
-                onChange={actualizarCamposMisDatos}
+                <RadioSelect
+                  gris={true}
+                  options={['Si', 'No']}
+                  name={"utilizaCelular"}
+                  value={dataMisDatos.utilizaCelular}
+                  onChange={actualizarCamposMisDatos}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
-                <RadioSelect 
-                gris={true} 
-                options={['Si', 'No']} 
-                name={"tieneComputadora"}
-                value={dataMisDatos.tieneComputadora}
-                onChange={actualizarCamposMisDatos}
+                <RadioSelect
+                  gris={true}
+                  options={['Si', 'No']}
+                  name={"tieneComputadora"}
+                  value={dataMisDatos.tieneComputadora}
+                  onChange={actualizarCamposMisDatos}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
-                <input className='form-control w-75' type="text" name='idioma' value={dataMisDatos.idioma} onChange={actualizarCamposMisDatos}/>
+                <input className='form-control w-75' type="text" name='idioma' value={dataMisDatos.idioma} onChange={actualizarCamposMisDatos} />
               </div>
               {/* FIN INFORMACION COMPLEMENTARIA */}
             </div>
