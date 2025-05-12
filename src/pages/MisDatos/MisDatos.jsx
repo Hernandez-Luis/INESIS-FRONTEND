@@ -24,19 +24,17 @@ export const MisDatos = ({ onAdd }) => {
     { url: '/MisDatos', label: 'Mis datos' }
   ];
 
+  
 
   // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
   const [estadoCivil, setEstadoCivil] = useState([]);
   const [recursos, setRecursos] = useState(null);
-  const [vivienda, setVivienda] = useState(null);
-  const [selectedOption, setSelectedOption] = useState('');
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [mediosTraslado, setMediosTraslado] = useState([])
-
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -106,7 +104,6 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialTrabajo = {
-    //No depende
     nombreTrabajo: "",
     ingresoMensual: "",
     telefonoTrabajo: "",
@@ -223,8 +220,7 @@ export const MisDatos = ({ onAdd }) => {
       return
     }
 
-    agregrMediosTrasladoSeleccionados();
-
+    agregrMediosTrasladoSeleccionados()
 
     const coleccionValores = {
       ...dataMisDatos,
@@ -255,10 +251,15 @@ export const MisDatos = ({ onAdd }) => {
   };
 
   const agregrMediosTrasladoSeleccionados = () => {
-    setMediosTraslado(mediosSeleccionados.map(id => ({
+  setMediosTraslado((prev) => {
+    const nuevosMedios = mediosSeleccionados.map(id => ({
       catMediosTransporte: { id }
-    })))
-  }
+    }));
+    
+    // Devuelves el nuevo estado, que React usará
+    return nuevosMedios;
+  });
+};
 
   // ***************************  VALIDACION DE CAMPOS  *****************************
 
