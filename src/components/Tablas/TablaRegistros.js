@@ -4,30 +4,35 @@ import '../../pages/Alumno/components/AdministrarAlumnos.css';
 import noDatosIcon from '../../assets/sin-datos.png';
 import ModalRegistrarFecha from '../../pages/Fechas/components/ModalRegistrarFechas';
 
-
 const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina, setElementosPorPagina] = useState(8);
     const [datosFiltrados, setDatosFiltrados] = useState([]);
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [cargando, setCargando] = useState(true);
     const navigate = useNavigate();
 
     const handleAbrirModal = () => setMostrarModal(true);
     const handleCerrarModal = () => setMostrarModal(false);
 
     useEffect(() => {
-        let filtrados = data;
-        if (busqueda) {
-            filtrados = data.filter(item => {
-                // Convertimos cada valor del item a string para hacer la comparación
-                return Object.values(item).some(valor =>
-                    String(valor).toLowerCase().includes(busqueda.toLowerCase())
+        setCargando(true); // empieza cargando
+        const timeout = setTimeout(() => {
+            let filtrados = data;
+            if (busqueda) {
+                filtrados = data.filter(item =>
+                    Object.values(item).some(valor =>
+                        String(valor).toLowerCase().includes(busqueda.toLowerCase())
+                    )
                 );
-            });
-        }
-        setDatosFiltrados(filtrados);
-        setPaginaActual(1); // Reiniciar a la primera página al filtrar
+            }
+            setDatosFiltrados(filtrados);
+            setPaginaActual(1);
+            setCargando(false); // termina carga
+        }, 500); // simula un retraso de 500ms
+
+        return () => clearTimeout(timeout);
     }, [busqueda, data]);
 
     const totalPaginas = Math.ceil(datosFiltrados.length / elementosPorPagina);
@@ -35,7 +40,7 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
 
     const handleChangeElementos = (e) => {
         setElementosPorPagina(Number(e.target.value));
-        setPaginaActual(1); // Reiniciar a la primera página cuando se cambie la cantidad de registros
+        setPaginaActual(1);
     };
 
     return (
@@ -45,26 +50,18 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
             </div>
 
             <div className="mb-5 text-center">
-                <h5 className="size-font-subtitle texto-morado2Normal">Revisores de beca colegiatura</h5>
+                <h5 className="size-font-subtitle texto-morado2Normal">{`${subTitulo}`}</h5>
             </div>
 
             <button
                 className="btn btn-primary btn-agregar"
-                onClick={() => {
-                    if (nombreData === "fechas") {
-                        handleAbrirModal();
-                    } else if (nombreData === "alumnos") {
-                        navigate("/AgregarAlumno");
-                    } else {
-                        navigate("/AgregarRevisor");
-                    }
-                }}
+                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate(`${rutaBoton}`)}
             >
                 <i className="bi bi-person-add me-2"></i>
                 Agregar {nombreData}
             </button>
 
-            {/* Filtros y búsqueda */}
+            {/* Filtros */}
             <div className="row mb-5 align-items-center">
                 <div className="col-md-6 d-flex align-items-center">
                     <div className="d-flex align-items-center filtro-container">
@@ -106,7 +103,15 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                         </tr>
                     </thead>
                     <tbody>
-                        {datosPaginados.length === 0 ? (
+                        {cargando ? (
+                            <tr>
+                                <td colSpan={titulos.length + 1} className="text-center py-5">
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Cargando...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : datosPaginados.length === 0 ? (
                             <tr>
                                 <td colSpan={titulos.length + 1} className="text-center py-3">
                                     <span className="fs-5 texto-gris2 d-block mt-2 mb-3">No existen registros</span>
@@ -117,15 +122,19 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                             datosPaginados.map((registro, index) => (
                                 <tr key={index} className="fila-tabla">
                                     <td className="celda-icono">
-                                        <button className="boton-icono me-5" title="Eliminar">
+                                        <button className="boton-icono" title="Eliminar"  onClick={() => handleEliminar(id)}>
                                             <i className="bi bi-trash3 icono-basura"></i>
                                         </button>
-                                        <button className="boton-icono" title="Editar">
+                                        <button className="boton-icono" title="Editar" onClick={() => handleEditar(id)}>
                                             <i className="bi bi-pencil-square icono-editar"></i>
                                         </button>
                                     </td>
                                     {Object.values(registro).map((valor, i) => (
-                                        <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>{valor}</td>
+                                        <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>
+                                            {typeof valor === 'object' && valor !== null
+                                                ? valor.nombreCarrera || valor.nombre || JSON.stringify(valor)
+                                                : valor}
+                                        </td>
                                     ))}
                                 </tr>
                             ))
@@ -134,7 +143,6 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                 </table>
             </div>
 
-            {/* Mostrar el total de registros debajo de la tabla */}
             <div className="row mb-3">
                 <div className="col-md-12 text-center">
                     <span className="texto-gris2">
@@ -143,7 +151,6 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                 </div>
             </div>
 
-            {/* Paginación (se muestra solo si hay más de 8 registros) */}
             {datosFiltrados.length > elementosPorPagina && (
                 <div className="pagination-container mb-4">
                     <button
@@ -171,6 +178,7 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                     </button>
                 </div>
             )}
+
             {nombreData === "fechas" && (
                 <ModalRegistrarFecha
                     show={mostrarModal}
@@ -179,12 +187,8 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                     onSubmit={(datos) => console.log("Datos registrados:", datos)}
                 />
             )}
-
         </div>
-
     );
-
-
 };
 
 export default TablaRegistros;

@@ -5,8 +5,8 @@ import semestreService from '../../../services/CatSemestreService';
 import sexoService from '../../../services/CatSexoService';
 import grupoService from '../../../services/CatGrupoService';
 import alumnoService from '../../../services/AlumnoService';
-import usuarioService from '../../../services/UsuarioService';
 import Swal from 'sweetalert2';
+
 
 const AlumnoRegistro = forwardRef((props, ref) => {
 
@@ -30,6 +30,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [listaCarreras, setListaCarreras] = useState([]);
   const [listaSemestres, setListaSemestres] = useState([]);
   const [listaSexo, setListaSexo] = useState([]);
+  const [alumnoId, setAlumnoId] = useState(props.id || null);
 
   // Obtener datos iniciales
   useEffect(() => {
@@ -74,14 +75,10 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     ) {
       const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
       const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
-  
-      console.log("Carrera seleccionada: ", carreraSeleccionada.id);
-      console.log("Semestre seleccionado: ", semestreSeleccionado);
-  
+
       if (carreraSeleccionada && semestreSeleccionado) {
         grupoService.getByCarreraAndSemestre(carreraSeleccionada.id, semestreSeleccionado.id)
           .then(grupo => {
-            console.log("Respuesta del servidor (grupo):", grupo);
             setFormValues(prev => ({
               ...prev,
               grupo: grupo || ''
@@ -90,11 +87,11 @@ const AlumnoRegistro = forwardRef((props, ref) => {
           .catch(error => {
             console.error('Error:', error);
             setFormValues(prev => ({ ...prev, grupo: '' }));
-          });   
+          });
       }
     }
   }, [formValues.carrera, formValues.semestre, listaCarreras, listaSemestres]);
-  
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,8 +114,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
           updatedForm.usuario = `${primerNombre.toLowerCase()}.${primerApellido.toLowerCase()}`;
         }
       }
-
-      console.log("Valores actualizados en handleChange:", updatedForm);
       return updatedForm;
     });
     validateField(name, value);
@@ -127,14 +122,12 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
   const validateField = (name, value) => {
     let error = '';
-    const requiredFields = ['nombre', 'apellido', 'curp', 'correo', 'telefono',
-      'matricula', 'carrera', 'semestre', 'sexo'];
+    const requiredFields = ['nombre', 'apellido', 'curp', 'correo', 'telefono', 'matricula', 'carrera', 'semestre', 'sexo'];
 
     // Validación de campos requeridos
     if (requiredFields.includes(name) && !value.trim()) {
       error = 'Este campo es obligatorio';
     }
-
 
     // Validaciones específicas
     switch (name) {
@@ -166,6 +159,11 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         if (!/^\d+$/.test(value))
           error = 'Solo se permiten números';
         break;
+
+      case 'matricula':
+        if (!/^\d{10}$/.test(value))
+          error = 'La matrícula debe contener exactamente 10 dígitos numéricos';
+        break;
     }
 
     setErrors(prev => ({ ...prev, [name]: error }));
@@ -189,7 +187,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       ...config,
       timer: 3000,
       timerProgressBar: true,
-      showConfirmButton: true, // Asegura que el botón "OK" se muestre
+      showConfirmButton: true, 
       confirmButtonText: 'OK',
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
@@ -207,18 +205,37 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     if (!validateAllFields()) {
       mostrarAlerta({
         icon: 'info',
-        title: 'Error de validación',
+        title: '¡Ups! Verifica los campos',
         text: 'Por favor verifica todos los campos'
       });
       return;
     }
 
+    // 2. Verificar si CURP, matrícula o correo ya existen
     try {
+      const alumnoExistente = await alumnoService.checkIfExists(formValues.curp, formValues.matricula, formValues.correo);
+      if (alumnoExistente) {
+        mostrarAlerta({
+          icon: 'info',
+          title: '¡Atención!🔍',
+          text: 'Ya existe un alumno con la misma CURP, matrícula o correo.'
+        });
+        return;
+      }
+    } catch (error) {
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error al verificar duplicados',
+        text: 'Hubo un problema al verificar los datos. Intente nuevamente.'
+      });
+      return;
+    }
 
+    try {
       const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
       const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
       const sexoSeleccionado = listaSexo.find(s => s.nombreSexo === formValues.sexo);
-    
+
       const alumnoPayload = {
         nombre: formValues.nombre.trim(),
         apellido: formValues.apellido.trim(),
@@ -226,9 +243,9 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         correo: formValues.correo.trim(),
         telefono: formValues.telefono.trim(),
         matricula: formValues.matricula.trim(),
-        semestre: semestreSeleccionado ? semestreSeleccionado.id : null,  
-        carrera: carreraSeleccionada ? carreraSeleccionada.id : null, 
-        sexo: sexoSeleccionado ?  sexoSeleccionado.id : null,
+        semestre: semestreSeleccionado ? semestreSeleccionado.id : null,
+        carrera: carreraSeleccionada ? carreraSeleccionada.id : null,
+        sexo: sexoSeleccionado ? sexoSeleccionado.id : null,
         grupo: formValues.grupo.id,
         usuario: formValues.usuario,
         contrasenia: formValues.contrasena,
@@ -236,25 +253,20 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         idCatRol: 1
       };
 
-      console.log("Alumno payload antes de enviar:", alumnoPayload);
+      const response = await alumnoService.create(alumnoPayload);
 
-      const alumnoCreado = await alumnoService.create(alumnoPayload);
+      if (response.status === 201) {
+        mostrarAlerta({
+          icon: 'success',
+          title: 'Registro exitoso',
+          text: 'Alumno guardado correctamente'
+        });
 
-      if (!alumnoCreado?.id) {
-        throw new Error('No se obtuvo el ID del alumno creado');
+        setFormValues(initialForm);
+        window.history.back();
+      } else {
+        throw new Error('Error al registrar el alumno');
       }
-
-      // 5. Éxito
-      mostrarAlerta({
-        icon: 'success',
-        title: 'Registro exitoso',
-        text: 'Alumno y usuario creados correctamente',
-        timer: 3000,
-        timerProgressBar: true,
-        showConfirmButton: false
-      });
-
-      setFormValues(initialForm); // Reset form after success
     } catch (err) {
       console.error(err);
       mostrarAlerta({
@@ -264,7 +276,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       });
     }
   };
-
 
   return (
     <div className="mb-5">
@@ -443,12 +454,15 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 className={`formulario-entrada ${errors.matricula ? 'is-invalid' : ''}`}
                 placeholder="Ingrese la matrícula"
                 value={formValues.matricula}
+                maxLength={10}
                 onChange={handleChange}
               />
               {errors.matricula && <div className="invalid-feedback">{errors.matricula}</div>}
             </div>
 
+            {/* Sección Datos de la Plataforma */}
             <h2 className="texto-morado2">Datos de la plataforma</h2>
+            <p className="texto-pequeno">Estos datos se asignan automáticamente. </p>
 
             <div className="col-md-6">
               <label className="formulario-etiqueta">Usuario</label>

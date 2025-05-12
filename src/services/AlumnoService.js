@@ -23,7 +23,7 @@ const getById = async (id) => {
 const create = async (params) => {
   try {
     const response = await axiosInstance.post(API_URL, params);
-    return response.data;
+    return response;
   } catch (error) {
     throw error.response.data;
   }
@@ -59,11 +59,22 @@ const deleteAlumno = async (id) => {
   }
 };
 
+const checkIfExists = async (curp, matricula, correo) => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/checkExists?curp=${curp}&matricula=${matricula}&correo=${correo}`);
+    return response.data.exists;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
+
 export default {
   getAll,
   getById,
   create,
   update,
   updateAlumnoConUsuario,
-  deleteAlumno
+  deleteAlumno,
+  checkIfExists
 };
