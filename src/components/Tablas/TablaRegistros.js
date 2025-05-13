@@ -5,7 +5,7 @@ import noDatosIcon from '../../assets/sin-datos.png';
 import ModalRegistrarFecha from '../../pages/Fechas/components/ModalRegistrarFechas';
 import { Table } from 'react-bootstrap';
 
-const TablaRegistros = ({ data, titulos, columns, nombreData, subTitulo, rutaBoton,onEdit,onDelete }) => {
+const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdit, onDelete }) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina, setElementosPorPagina] = useState(8);
@@ -42,6 +42,10 @@ const TablaRegistros = ({ data, titulos, columns, nombreData, subTitulo, rutaBot
     const handleChangeElementos = (e) => {
         setElementosPorPagina(Number(e.target.value));
         setPaginaActual(1);
+    };
+
+    const obtenerValorPorAccessor = (obj, accessor) => {
+        return accessor.split('.').reduce((valor, clave) => valor?.[clave], obj);
     };
 
     return (
@@ -106,7 +110,7 @@ const TablaRegistros = ({ data, titulos, columns, nombreData, subTitulo, rutaBot
                     <tbody>
                         {cargando ? (
                             <tr>
-                                <td colSpan={titulos.length + 1} className="text-center py-5">
+                                <td colSpan={columns.length + 1} className="text-center py-5">
                                     <div className="spinner-border text-primary" role="status">
                                         <span className="visually-hidden">Cargando...</span>
                                     </div>
@@ -114,7 +118,7 @@ const TablaRegistros = ({ data, titulos, columns, nombreData, subTitulo, rutaBot
                             </tr>
                         ) : datosPaginados.length === 0 ? (
                             <tr>
-                                <td colSpan={titulos.length + 1} className="text-center py-3">
+                                <td colSpan={columns.length + 1} className="text-center py-3">
                                     <span className="fs-5 texto-gris2 d-block mt-2 mb-3">No existen registros</span>
                                     <img src={noDatosIcon} alt="No hay datos" className="img-fluid" style={{ width: '80px' }} />
                                 </td>
@@ -123,20 +127,25 @@ const TablaRegistros = ({ data, titulos, columns, nombreData, subTitulo, rutaBot
                             datosPaginados.map((registro, index) => (
                                 <tr key={index} className="fila-tabla">
                                     <td className="celda-icono">
-                                        <button className="boton-icono" title="Eliminar"  onClick={() => onDelete(1)}>
+                                        <button className="boton-icono" title="Eliminar" onClick={() => onDelete(data.id)}>
                                             <i className="bi bi-trash3 icono-basura"></i>
                                         </button>
-                                        <button className="boton-icono" title="Editar" onClick={() => onEdit(1)}>
+                                        <button className="boton-icono" title="Editar" onClick={() => onEdit(registro.idAlumno)}>
                                             <i className="bi bi-pencil-square icono-editar"></i>
                                         </button>
                                     </td>
-                                    {Object.values(registro).map((valor, i) => (
-                                        <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>
-                                            {typeof valor === 'object' && valor !== null
-                                                ? valor.nombreCarrera || valor.nombre || JSON.stringify(valor)
-                                                : valor}
-                                        </td>
-                                    ))}
+                                    {columns.map((col, i) => {
+                                        const valor = obtenerValorPorAccessor(registro, col.accessor);
+                                        return (
+                                            <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>
+                                                {typeof valor === 'object' && valor !== null
+                                                    ? JSON.stringify(valor)
+                                                    : valor}
+                                            </td>
+                                        );
+                                    })}
+
+
                                 </tr>
                             ))
                         )}

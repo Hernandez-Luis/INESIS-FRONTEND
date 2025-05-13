@@ -21,7 +21,11 @@ const AdministrarAlumnos = () => {
         const fetchAlumnos = async () => {
             try {
                 const data = await alumnoService.getAll();
-                setAlumnos(data);
+                const alumnosConNombreCompleto = data.map(alumno => ({
+                    ...alumno,
+                    nombreCompleto: `${alumno.nombre} ${alumno.apellido}`
+                }));
+                setAlumnos(alumnosConNombreCompleto);
             } catch (error) {
                 console.error("Error al cargar alumnos:", error);
             }
@@ -30,16 +34,13 @@ const AdministrarAlumnos = () => {
         fetchAlumnos();
     }, []);
 
-    // Aquí asegúrate de que los titulos coincidan con la estructura de los datos
-    const titulos = ["Matrícula", "Nombre Completo", "Carrera", "Semestre", "Grupo"];
-
     // Configuración de columnas
     const columns = [
         { header: 'Matrícula', accessor: 'matricula' },
-        { header: 'Nombre completo', accessor: 'municipio' },
-        { header: 'Carrera', accessor: 'entidad' },
-        { header: 'Semestre', accessor: 'semestre' },
-        { header: 'Grupo', accessor: 'grupo' },
+        { header: 'Nombre completo', accessor: 'nombreCompleto' },
+        { header: "Carrera", accessor: "carrera.nombreCarrera" },
+        { header: "Semestre", accessor: "semestre.nombreSemestre" },
+        { header: "Grupo", accessor: "grupo.nombreGrupo" },
     ];
 
     const nombreData = "alumnos";
@@ -48,18 +49,10 @@ const AdministrarAlumnos = () => {
 
     const rutaBoton = "/AgregarAlumno";
 
-    // Aquí mapeamos la data de los alumnos para adaptarla a las columnas
-    const datosAlumnos = alumnos.map((alumno) => ({
-        matricula: alumno.matricula,
-        nombreCompleto: `${alumno.nombre} ${alumno.apellido}`,
-        carrera: alumno.carrera.nombreCarrera,
-        semestre: alumno.semestre.nombreSemestre,
-        grupo: alumno.grupo.nombreGrupo
-    }));
+    const editarAlumno = (item) => {
+    navigate(`/AgregarAlumno`);
+};
 
-    const editarAlumno = (matricula) => {
-        navigate(`/AgregarAlumno/${matricula}`);
-    };
 
     const eliminarAlumno = async (matricula) => {
         try {
@@ -77,9 +70,8 @@ const AdministrarAlumnos = () => {
             <NavInesis />
             <MigasRecorrido items={links} />
             <TablaRegistros
-                data={datosAlumnos}
+                data={alumnos}
                 columns={columns}
-                titulos={titulos}
                 nombreData={nombreData}
                 subTitulo={subTitulo}
                 rutaBoton={rutaBoton}
