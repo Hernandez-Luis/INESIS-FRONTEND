@@ -4,6 +4,7 @@ import { Table } from 'react-bootstrap';
 import '../../pages/Alumno/components/AdministrarAlumnos.css';
 import noDatosIcon from '../../assets/sin-datos.png';
 import ModalRegistrarFecha from '../../pages/Fechas/components/ModalRegistrarFechas';
+import Swal from 'sweetalert2';
 
 const TablaRegistros = ({
     data = [],
@@ -205,9 +206,21 @@ const TablaRegistros = ({
                 <ModalRegistrarFecha
                     show={mostrarModal}
                     handleClose={handleCerrarModal}
-                    carreras={["Ingeniería en Software", "Administración", "Contaduría"]}
-                    onSubmit={(datos) => console.log("Datos registrados:", datos)}
+                    onSubmit={(datos) => {
+                        console.log("Datos registrados:", datos);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Fecha registrada',
+                            text: 'La fecha fue registrada correctamente.',
+                            confirmButtonColor: '#6f42c1',
+                            timer: 2000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            handleCerrarModal(); // Cierra el modal después del mensaje
+                        });
+                    }}
                 />
+
             )}
         </div>
     );

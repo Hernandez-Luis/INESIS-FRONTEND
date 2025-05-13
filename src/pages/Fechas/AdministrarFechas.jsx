@@ -11,13 +11,15 @@ const AdministrarFechas = () => {
         { url: '/AdministrarFechas', label: 'Fechas' }
     ];
 
-    const data = [
-        { carrera: "Lic.Biologia", fechaInicio: "01/04/2025", fechaFinal: "01/08/2025" },
-        { carrera: "Lic.Informatica", fechaInicio: "01/04/2025", fechaFinal: "01/08/2025" },
-        { carrera: "Ing.Forestal", fechaInicio: "01/04/2025", fechaFinal: "01/08/2025" },
-    ];
+    const data = [];
 
-    const titulos = ["Carrera", "Fecha inicial", "Fecha final"];
+     // Configuración de columnas
+    const columns = [
+        { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
+        { header: 'Fecha inicial', accessor: 'fecha inicial' },
+        { header: "Fecha final", accessor: "fecha final" },
+        { header: "Estatus", accessor: "estatus" },
+    ];
 
     const nombreData = "fechas";
 
@@ -27,7 +29,7 @@ const AdministrarFechas = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData} subTitulo={subTitulo} />
+            <TablaRegistros data={data} columns={columns} nombreData={nombreData} subTitulo={subTitulo} />
             <FooterInesis />
         </div>
     );
