@@ -33,6 +33,15 @@ const AdministrarAlumnos = () => {
     // Aquí asegúrate de que los titulos coincidan con la estructura de los datos
     const titulos = ["Matrícula", "Nombre Completo", "Carrera", "Semestre", "Grupo"];
 
+    // Configuración de columnas
+    const columns = [
+        { header: 'Matrícula', accessor: 'matricula' },
+        { header: 'Nombre completo', accessor: 'municipio' },
+        { header: 'Carrera', accessor: 'entidad' },
+        { header: 'Semestre', accessor: 'semestre' },
+        { header: 'Grupo', accessor: 'grupo' },
+    ];
+
     const nombreData = "alumnos";
 
     const subTitulo = "Gestión de los alumnos inscritos en la universidad";
@@ -69,6 +78,7 @@ const AdministrarAlumnos = () => {
             <MigasRecorrido items={links} />
             <TablaRegistros
                 data={datosAlumnos}
+                columns={columns}
                 titulos={titulos}
                 nombreData={nombreData}
                 subTitulo={subTitulo}

@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import '../../pages/Alumno/components/AdministrarAlumnos.css';
 import noDatosIcon from '../../assets/sin-datos.png';
 import ModalRegistrarFecha from '../../pages/Fechas/components/ModalRegistrarFechas';
+import { Table } from 'react-bootstrap';
 
-const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => {
+const TablaRegistros = ({ data, titulos, columns, nombreData, subTitulo, rutaBoton,onEdit,onDelete }) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina, setElementosPorPagina] = useState(8);
@@ -93,12 +94,12 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
             </div>
 
             <div className="table-responsive custom-table-container">
-                <table className="table align-middle custom-table">
+                <Table className="table align-middle custom-table">
                     <thead>
                         <tr className="table-header">
                             <th className="celda-icono">Acciones</th>
-                            {titulos.map((titulo, index) => (
-                                <th key={index} className="titulo-columna">{titulo}</th>
+                            {columns.map((column, index) => (
+                                <th key={index}>{column.header}</th>
                             ))}
                         </tr>
                     </thead>
@@ -122,10 +123,10 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                             datosPaginados.map((registro, index) => (
                                 <tr key={index} className="fila-tabla">
                                     <td className="celda-icono">
-                                        <button className="boton-icono" title="Eliminar"  onClick={() => handleEliminar(id)}>
+                                        <button className="boton-icono" title="Eliminar"  onClick={() => onDelete(1)}>
                                             <i className="bi bi-trash3 icono-basura"></i>
                                         </button>
-                                        <button className="boton-icono" title="Editar" onClick={() => handleEditar(id)}>
+                                        <button className="boton-icono" title="Editar" onClick={() => onEdit(1)}>
                                             <i className="bi bi-pencil-square icono-editar"></i>
                                         </button>
                                     </td>
@@ -140,7 +141,7 @@ const TablaRegistros = ({ data, titulos, nombreData, subTitulo, rutaBoton }) => 
                             ))
                         )}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
             <div className="row mb-3">
