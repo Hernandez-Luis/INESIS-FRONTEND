@@ -6,21 +6,26 @@ import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import TablaRegistros from '../../components/Tablas/TablaRegistros';
 import '../Alumno/components/AdministrarAlumnos.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import alumnoService from '../../services/AlumnoService';
 
 const AdministrarAlumnos = () => {
     const [alumnos, setAlumnos] = useState([]);
     const navigate = useNavigate();
 
+    const links = [
+        { url: '/MenuAdministrador', label: 'Inicio' },
+        { url: '/AdministrarAlumnos', label: 'Alumnos' }
+    ];
+
     useEffect(() => {
         const fetchAlumnos = async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/alumnos");
-                if (!response.ok) {
-                    throw new Error("Error al obtener los datos");
-                }
-                const dataBase = await response.json();
-                setAlumnos(data);
-
+                const data = await alumnoService.getAll();
+                const alumnosConNombreCompleto = data.map(alumno => ({
+                    ...alumno,
+                    nombreCompleto: `${alumno.nombre} ${alumno.apellido}`
+                }));
+                setAlumnos(alumnosConNombreCompleto);
             } catch (error) {
                 console.error("Error al cargar alumnos:", error);
             }
@@ -29,44 +34,14 @@ const AdministrarAlumnos = () => {
         fetchAlumnos();
     }, []);
 
-
-    const data = [
-        { matricula: 28933, nombre: "Emmanuel Graciola Tapia", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 23833, nombre: "Adriana Hernández Ramírez", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 23433, nombre: "Luis Alberto Hernández Ramírez", carrera: "Lic.Informatica", semestre: "Tercero", grupo: 303 },
-        { matricula: 45565, nombre: "Hipólito Javier Domínguez", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 23833, nombre: "Arturo Sánchez Barrera", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 56987, nombre: "Luis Jiménez Jiménez", carrera: "Lic.Biología", semestre: "Sexto", grupo: 103 },
-        { matricula: 23433, nombre: "José Luis Brito Gato", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
-        { matricula: 23833, nombre: "Arturo Sánchez Barrera", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 56987, nombre: "Luis Jiménez Jiménez", carrera: "Lic.Biología", semestre: "Sexto", grupo: 103 },
-        { matricula: 23433, nombre: "José Luis Brito Gato", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
-        { matricula: 45565, nombre: "Hipólito Javier Domínguez", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 23833, nombre: "Arturo Sánchez Barrera", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 56987, nombre: "Luis Jiménez Jiménez", carrera: "Lic.Biología", semestre: "Sexto", grupo: 103 },
-        { matricula: 23433, nombre: "José Luis Brito Gato", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
-        { matricula: 23833, nombre: "Arturo Sánchez Barrera", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 56987, nombre: "Luis Jiménez Jiménez", carrera: "Lic.Biología", semestre: "Sexto", grupo: 103 },
-        { matricula: 23433, nombre: "José Luis Brito Gato", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
-        { matricula: 23433, nombre: "José Luis Brito Gato", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
-        { matricula: 23833, nombre: "Arturo Sánchez Barrera", carrera: "Lic.Informatica", semestre: "Decimo", grupo: 1003 },
-        { matricula: 56987, nombre: "Luis Jiménez Jiménez", carrera: "Lic.Biología", semestre: "Sexto", grupo: 103 },
-        { matricula: 23433, nombre: "José Luis Brito Gato", carrera: "Ing.Forestal", semestre: "Decimo", grupo: 1003 },
-        { matricula: 45456, nombre: "Elisa Hernández Marcial", carrera: "Lic.Biologia", semestre: "Octavo", grupo: 803 },
+    // Configuración de columnas
+    const columns = [
+        { header: 'Matrícula', accessor: 'matricula' },
+        { header: 'Nombre completo', accessor: 'nombreCompleto' },
+        { header: "Carrera", accessor: "carrera.nombreCarrera" },
+        { header: "Semestre", accessor: "semestre.nombreSemestre" },
+        { header: "Grupo", accessor: "grupo.nombreGrupo" },
     ];
-
-    const links = [
-        { url: '/MenuAdministrador', label: 'Inicio' },
-        //{ url: '/MenuAdministrador', label: 'Administrar' },
-        { url: '/AdministrarAlumnos', label: 'Alumnos' }
-    ];
-
-    const titulos = ["Matrícula", "Nombre Completo", "Carrera", "Semestre", "Grupo"];
 
     const nombreData = "alumnos";
 
@@ -74,11 +49,35 @@ const AdministrarAlumnos = () => {
 
     const rutaBoton = "/AgregarAlumno";
 
+    const editarAlumno = (item) => {
+    navigate(`/AgregarAlumno`);
+};
+
+
+    const eliminarAlumno = async (matricula) => {
+        try {
+            await alumnoService.deleteAlumno(matricula); // Eliminar el alumno por matrícula
+            setAlumnos(alumnos.filter((alumno) => alumno.matricula !== matricula)); // Actualizar el estado
+            alert('Alumno eliminado con éxito');
+        } catch (error) {
+            console.error("Error al eliminar el alumno:", error);
+            alert('Hubo un error al eliminar el alumno');
+        }
+    };
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData} subTitulo={subTitulo} rutaBoton={rutaBoton}/>
+            <TablaRegistros
+                data={alumnos}
+                columns={columns}
+                nombreData={nombreData}
+                subTitulo={subTitulo}
+                rutaBoton={rutaBoton}
+                onEdit={editarAlumno}
+                onDelete={eliminarAlumno}
+            />
             <FooterInesis />
         </div>
     );
