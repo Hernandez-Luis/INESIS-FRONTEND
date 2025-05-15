@@ -13,7 +13,8 @@ const TablaRegistros = ({
     subTitulo = '',
     rutaBoton = '',
     onEdit = () => { },
-    onDelete = () => { }
+    onDelete = () => { },
+    onFechaAgregada
 }) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
@@ -207,7 +208,7 @@ const TablaRegistros = ({
                     show={mostrarModal}
                     handleClose={handleCerrarModal}
                     onSubmit={(datos) => {
-                        console.log("Datos registrados:", datos);
+                        onFechaAgregada();
                         Swal.fire({
                             icon: 'success',
                             title: 'Fecha registrada',
@@ -219,6 +220,7 @@ const TablaRegistros = ({
                             handleCerrarModal(); // Cierra el modal después del mensaje
                         });
                     }}
+                    
                 />
 
             )}

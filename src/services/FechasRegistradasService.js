@@ -22,6 +22,7 @@ const getById = async (id) => {
 
 const create = async (params) => {
   try {
+    console.log("Datos enviados:", params);
     const response = await axiosInstance.post(API_URL, params);
     return response;
   } catch (error) {
@@ -46,10 +47,25 @@ const deleteFecha = async (id) => {
   }
 };
 
+const getByCarrera = async (idCarrera) => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/carrera/${idCarrera}`);
+    return response.data;
+  } catch (error) {
+    // Si el backend responde con 404 (no encontrada), devolvemos null
+    if (error.response && error.response.status === 404) {
+      return null;
+    }
+    throw error.response.data;
+  }
+};
+
+
 export default {
   getAll,
   getById,
   create,
   update,
-  deleteFecha
+  deleteFecha,
+  getByCarrera
 };

@@ -8,10 +8,10 @@ import fechaService from '../../../services/FechasRegistradasService';
 
 const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-  idCarrera: "",   // ← antes decía "carrera"
-  fechaInicio: "",
-  fechaFin: ""
-});
+    idCarrera: "", 
+    fechaInicio: "",
+    fechaFin: ""
+  });
 
   const [validated, setValidated] = useState(false);
   const [carreras, setCarreras] = useState([]);
@@ -19,7 +19,7 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
   // Resetear formulario cuando se cierra
   useEffect(() => {
     if (!show) {
-      setFormData({ carrera: "", fechaInicio: "", fechaFin: "" });
+      setFormData({ idCarrera: "", fechaInicio: "", fechaFin: "" });
       setValidated(false);
     }
   }, [show]);
@@ -41,11 +41,11 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (field, value) => {
-  setFormData((prev) => ({
-    ...prev,
-    [field]: field === 'idCarrera' ? Number(value) : value
-  }));
-};
+    setFormData((prev) => ({
+      ...prev,
+      [field]: field === 'idCarrera' ? Number(value) : value
+    }));
+  };
 
 
   // Función para manejar el envío del formulario
@@ -64,13 +64,15 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
     } else {
       // Llamada a fechaService.create para guardar los datos
       try {
-        await fechaService.create(formData);  // <-- Aquí se guarda la fecha
+        
+        await fechaService.create(formData);  
         Swal.fire({
           icon: 'success',
           title: 'Fecha registrada correctamente',
           confirmButtonColor: '#6f42c1'
         });
         handleClose();
+        onSubmit();
       } catch (error) {
         console.error("Error al registrar la fecha:", error);
         Swal.fire({
@@ -105,18 +107,18 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
           <Form.Group className="mb-4">
             <Form.Label className="text-white fw-bold mb-2">Carrera:</Form.Label>
             <Form.Select
-  required
-  value={formData.idCarrera}
-  onChange={(e) => handleChange('idCarrera', e.target.value)}
-  className="rounded-3 py-2"
->
-  <option value="">Seleccione una carrera</option>
-  {carreras.map((carrera) => (
-    <option key={carrera.id} value={carrera.id}>
-      {carrera.nombreCarrera}
-    </option>
-  ))}
-</Form.Select>
+              required
+              value={formData.idCarrera}
+              onChange={(e) => handleChange('idCarrera', e.target.value)}
+              className="rounded-3 py-2"
+            >
+              <option value="">Seleccione una carrera</option>
+              {carreras.map((carrera) => (
+                <option key={carrera.id} value={carrera.id}>
+                  {carrera.nombreCarrera}
+                </option>
+              ))}
+            </Form.Select>
 
             <Form.Control.Feedback type="invalid">
               Por favor seleccione una carrera
