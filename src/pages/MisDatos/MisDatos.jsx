@@ -24,7 +24,7 @@ export const MisDatos = ({ onAdd }) => {
     { url: '/MisDatos', label: 'Mis datos' }
   ];
 
-  
+
 
   // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
@@ -220,8 +220,10 @@ export const MisDatos = ({ onAdd }) => {
       return
     }
 
-    agregrMediosTrasladoSeleccionados()
-
+    const nuevosMedios = mediosSeleccionados.map(id => ({
+      catMediosTransporte: { id }
+    }));
+    
     const coleccionValores = {
       ...dataMisDatos,
       transporte: dataTransporte,
@@ -229,7 +231,7 @@ export const MisDatos = ({ onAdd }) => {
         ...dataGastosIngresos,
         trabajo: dataTrabajo
       },
-      mediosTraslado
+      mediosTraslado: nuevosMedios
     };
 
     console.log("Mostrando coleccion: ", coleccionValores)
@@ -249,17 +251,6 @@ export const MisDatos = ({ onAdd }) => {
       console.error("Error al guardar los datos: ", error);
     }
   };
-
-  const agregrMediosTrasladoSeleccionados = () => {
-  setMediosTraslado((prev) => {
-    const nuevosMedios = mediosSeleccionados.map(id => ({
-      catMediosTransporte: { id }
-    }));
-    
-    // Devuelves el nuevo estado, que React usará
-    return nuevosMedios;
-  });
-};
 
   // ***************************  VALIDACION DE CAMPOS  *****************************
 
