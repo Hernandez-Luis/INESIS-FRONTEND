@@ -15,6 +15,7 @@ import CatTipoTransporte from '../../services/CatTipoTransporteService'
 import CatTipoTransporteService from '../../services/CatTipoTransporteService'
 import CatSemestreService from '../../services/CatSemestreService'
 import CatEstadoCivilService from '../../services/CatEstadoCivilService'
+import DomicilioCpService from '../../services/DomicilioCpService'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -24,6 +25,32 @@ export const MisDatos = ({ onAdd }) => {
     { url: '/MisDatos', label: 'Mis datos' }
   ];
 
+  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
+
+  const [estado, setEstado] = useState('');
+  const [municipio, setMunicipio] = useState('');
+  const [colonias, setColonias] = useState([]);
+  const [codigoPostal, setCodigoPostal] = useState('');
+
+  const handleBuscarCP = async (e) => {
+    const cp = e.target.value;
+    setCodigoPostal(cp);
+
+    // Solo buscar si tiene 5 dígitos
+    if (cp.length === 5) {
+      try {
+        const datos = await DomicilioCpService.getColoniasPorCP(cp);
+        console.log("Datos de la API: ", datos)        
+        setEstado(datos.codigo_postal.estado || '');
+        setMunicipio(datos.codigo_postal.municipio || '');
+        setColonias(datos.codigo_postal.colonias || []);
+
+      } catch (err) {
+        console.error('Error al buscar código postal:', err);
+        setColonias([]);
+      }
+    }
+  };
 
 
   // *************************** DEFINICION DE VARIABLES  ***************************************
@@ -133,10 +160,21 @@ export const MisDatos = ({ onAdd }) => {
     mediosTraslado: ""
   }
 
+  const formularioInicialDomicilio = {
+    estado: "",
+    municipio: "",
+    colonia: "",
+    localidad: "",
+    calle: "",
+    numero:"",
+    cp: "",
+  }
+
   const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
   const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
   const [dataTransporte, setDataTransporte] = useState(formularioInicialTransporte)
   const [dataMisDatos, setDataMisDatos] = useState(formularioInicialMisDatos)
+  const [dataDomicilio, setDataDomicilio] = useState(formularioInicialDomicilio)
 
   const [errores, setErrores] = useState({})
 
@@ -397,23 +435,13 @@ export const MisDatos = ({ onAdd }) => {
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
                       <div>
-                        <SeleccionarCombo
-                          name="estado"
-                          options={['Oaxaca', 'Veracruz', 'Chiapas']} // Opciones disponibles
-                          // Función para manejar la selección
-                          placeholder="Selecciona una opción" // Placeholder
-                        />
+                         <input className='form-control' type="text" value={estado} name='estado'/> 
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                       <div>
-                        <SeleccionarCombo
-                          name="municipio"
-                          options={['Ixtlan', 'Xiacui']} // Opciones disponibles
-                          // Función para manejar la selección
-                          placeholder="Selecciona una opción" // Placeholder
-                        />
+                        <input className='form-control' type="text" value={municipio} name='municipio'/> 
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
@@ -431,8 +459,11 @@ export const MisDatos = ({ onAdd }) => {
                       <div>
                         <SeleccionarCombo
                           name="colonia"
-                          options={['Soledad', 'Asuncion']} // Opciones disponibles
-                          // Función para manejar la selección
+                          options={colonias.map(c =>({
+                            label: c,
+                            value: c
+                          }))}// Opciones disponibles
+                          
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
@@ -447,7 +478,7 @@ export const MisDatos = ({ onAdd }) => {
                     </div>
                     <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                      <input className='form-control' type="text" />
+                      <input className='form-control' type="text" onChange={handleBuscarCP}/>
                     </div>
                     <div className="col-12">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
