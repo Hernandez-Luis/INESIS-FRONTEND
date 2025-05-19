@@ -25,34 +25,7 @@ export const MisDatos = ({ onAdd }) => {
     { url: '/MisDatos', label: 'Mis datos' }
   ];
 
-  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
-
-  const [estado, setEstado] = useState('');
-  const [municipio, setMunicipio] = useState('');
-  const [colonias, setColonias] = useState([]);
-  const [codigoPostal, setCodigoPostal] = useState('');
-
-  const handleBuscarCP = async (e) => {
-    const cp = e.target.value;
-    setCodigoPostal(cp);
-
-    // Solo buscar si tiene 5 dígitos
-    if (cp.length === 5) {
-      try {
-        const datos = await DomicilioCpService.getColoniasPorCP(cp);
-        console.log("Datos de la API: ", datos)        
-        setEstado(datos.codigo_postal.estado || '');
-        setMunicipio(datos.codigo_postal.municipio || '');
-        setColonias(datos.codigo_postal.colonias || []);
-
-      } catch (err) {
-        console.error('Error al buscar código postal:', err);
-        setColonias([]);
-      }
-    }
-  };
-
-
+ 
   // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
   const [estadoCivil, setEstadoCivil] = useState([]);
@@ -157,7 +130,9 @@ export const MisDatos = ({ onAdd }) => {
     tieneComputadora: "",
     idioma: "",
     transporte: "",
-    mediosTraslado: ""
+    mediosTraslado: "",
+    situacionVivienda: "",
+    nombreCasaHuesped: "",
   }
 
   const formularioInicialDomicilio = {
@@ -166,7 +141,7 @@ export const MisDatos = ({ onAdd }) => {
     colonia: "",
     localidad: "",
     calle: "",
-    numero:"",
+    numero: "",
     cp: "",
   }
 
@@ -250,6 +225,46 @@ export const MisDatos = ({ onAdd }) => {
     }
   };
 
+  const actualizarCamposDomicilio = (e) => {
+    const { name, value } = e.target;
+    //console.log("Nombre: ", name, " Valor: ", value)
+    setDataDomicilio((prevData) => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
+   // ***************************  OBTENIENDO DATOS DE LA API  ********************************
+
+  const [estado, setEstado] = useState('');
+  const [municipio, setMunicipio] = useState('');
+  const [colonias, setColonias] = useState([]);
+  const [codigoPostal, setCodigoPostal] = useState('');
+
+  const handleBuscarCP = async (e) => {
+    const cp = e.target.value;
+    // Solo buscar si tiene 5 dígitos
+    if (cp.length === 5) {
+      try {
+        const datos = await DomicilioCpService.getColoniasPorCP(cp);
+        console.log("Datos de la API: ", datos)
+        setColonias(datos.codigo_postal.colonias);
+
+        setDataDomicilio((prevData) => ({
+        ...prevData,
+          estado:datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
+          municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
+          cp: cp,
+      }))
+
+      console.log(dataDomicilio)
+      } catch (err) {
+        console.error('Error al buscar código postal:', err);
+        setColonias([]);
+      }
+    }
+  };
+
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -261,7 +276,7 @@ export const MisDatos = ({ onAdd }) => {
     const nuevosMedios = mediosSeleccionados.map(id => ({
       catMediosTransporte: { id }
     }));
-    
+
     const coleccionValores = {
       ...dataMisDatos,
       transporte: dataTransporte,
@@ -269,7 +284,8 @@ export const MisDatos = ({ onAdd }) => {
         ...dataGastosIngresos,
         trabajo: dataTrabajo
       },
-      mediosTraslado: nuevosMedios
+      mediosTraslado: nuevosMedios,
+      domicilio: dataDomicilio
     };
 
     console.log("Mostrando coleccion: ", coleccionValores)
@@ -428,61 +444,65 @@ export const MisDatos = ({ onAdd }) => {
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                   <div className='mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:</label>
-                    <RadioSelect gris={true} options={['Rento cuarto', 'Rento casa', 'Vivo con familiares']} />
+                    <RadioSelect
+                      gris={true}
+                      options={['Rento cuarto', 'Rento casa', 'Vivo con familiares']}
+                      name={"situacionVivienda"}
+                      value={dataMisDatos.situacionVivienda}
+                      onChange={actualizarCamposMisDatos}
+                    />
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
                   <div className='row'>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
                       <div>
-                         <input className='form-control' type="text" value={estado} name='estado'/> 
+                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.estado} name='estado' disabled={true} />
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                       <div>
-                        <input className='form-control' type="text" value={municipio} name='municipio'/> 
+                        <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true}/>
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                       <div>
-                        <SeleccionarCombo
-                          options={['Capulalpam', 'Guelatao']} // Opciones disponibles
-                          // Función para manejar la selección
-                          placeholder="Selecciona una opción" // Placeholder
-                        />
+                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
+
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
                       <div>
                         <SeleccionarCombo
-                          name="colonia"
-                          options={colonias.map(c =>({
+                          options={colonias.map(c => ({
                             label: c,
                             value: c
-                          }))}// Opciones disponibles
-                          
+                          }))}
+                          name={"colonia"}
+                          value={dataDomicilio.colonia}
+                          onChange={actualizarCamposDomicilio}
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                      <input className='form-control' type="text" />
+                      <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio}/>
                     </div>
                     <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                      <input className='form-control' type="text" />
+                      <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio}/>
                     </div>
                     <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                      <input className='form-control' type="text" onChange={handleBuscarCP}/>
+                      <input className='form-control' type="text" onChange={handleBuscarCP} name={"cp"} />
                     </div>
                     <div className="col-12">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
-                      <input className='form-control' type="text" />
+                      <input className='form-control' type="text" value={dataMisDatos.nombreCasaHuesped} name={"nombreCasaHuesped"} onChange={actualizarCamposMisDatos} />
                     </div>
                   </div>
                 </div>
