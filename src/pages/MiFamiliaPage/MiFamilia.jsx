@@ -112,12 +112,13 @@ export const MiFamilia = () => {
 
     // Datos de los selects organizados en un array para evitar repeticiones
     const selectData = [
+        { label: "Codigo Postal", options: [""] },
         { label: "Estado", options: ["Oaxaca", "Veracruz", "Chiapas"] },
+        { label: "Municipio", options: ["Ixtlan", "Xiacui", "Tamazulapam Del Espiritu Santo Mixe"] },
+        { label: "Colonia o barrio", options: ["Soledad", "Asuncion"] },
         { label: "Región", options: ["Yahuiche", "Tierra Caliente"] },
         { label: "Localidad", options: ["Capulalpam", "Guelatao"] },
         { label: "Distrito", options: ["Villa Alta", "Ixtlan de Juarez"] },
-        { label: "Municipio", options: ["Ixtlan", "Xiacui", "Tamazulapam Del Espiritu Santo Mixe"] },
-        { label: "Colonia o barrio", options: ["Soledad", "Asuncion"] },
     ];
     const handleGuardarDatos = () => {
         // validacion si los campos están llenos, prueba 
@@ -164,7 +165,7 @@ export const MiFamilia = () => {
                             {/* Contenedor para los selects */}
                             <div className='row mt-3'>
                                 {selectData.map((item, index) => (
-                                    <div key={index} className='col-md-4 col-sm-6 mt-2'>
+                                    <div key={index} className='col-md-3 col-sm-6 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>{item.label}</label>
                                         <SeleccionarCombo
                                             options={item.options}
