@@ -360,23 +360,40 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               />
               {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
-
-            <div>
-              <label className="formulario-etiqueta">
-                Apellido(s) <span className="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                name="apellido"
-                className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
-                placeholder="Ingrese el apellido"
-                value={formValues.apellido}
-                onChange={handleChange}
-                maxLength={30}
-              />
-              {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+            <div className="col-md-6">
+              <div>
+                <label className="formulario-etiqueta">
+                  Apellido Paterno <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="apellidoPaterno"
+                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
+                  placeholder="Ingrese el apellido paterno"
+                  value={formValues.apellidoPaterno}
+                  onChange={handleChange}
+                  maxLength={30}
+                />
+                {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+              </div>
             </div>
-
+            <div className="col-md-6">
+              <div>
+                <label className="formulario-etiqueta">
+                  Apellido Materno
+                </label>
+                <input
+                  type="text"
+                  name="apellidoMaterno"
+                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
+                  placeholder="Ingrese el apellido materno"
+                  value={formValues.apellidoMaterno}
+                  onChange={handleChange}
+                  maxLength={30}
+                />
+                {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+              </div>
+            </div>
             <div>
               <label className="formulario-etiqueta">
                 CURP <span className="text-danger">*</span>
