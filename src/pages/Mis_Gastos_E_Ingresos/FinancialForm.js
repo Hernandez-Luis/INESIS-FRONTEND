@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
+import axiosInstance from '../../api/axiosConfig';
+
+
 
 
 
@@ -10,6 +13,8 @@ const FinancialForm = () => {
     const [peopleData, setPeopleData] = useState([]);
     const [emptyFields, setEmptyFields] = useState([]);
     const [error, setError] = useState(""); // Para manejar el mensaje de error
+    const [reciboFile, setReciboFile] = useState(null);
+    const [observaciones, setObservaciones] = useState("");
 
     const handleNumPeopleChange = (e) => {
         const value = e.target.value;
@@ -43,16 +48,13 @@ const FinancialForm = () => {
     const handleDecimalInput = (e) => {
         const value = e.target.value;
         const regex = /^\d{0,6}(\.\d{0,2})?$/;
-    
+
         if (value === "" || regex.test(value)) {
             e.target.setCustomValidity("");  // Formato válido
         } else {
             e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
         }
     };
-
-    
-
 
     const validateForm = () => {
         let isValid = true;
@@ -81,7 +83,7 @@ const FinancialForm = () => {
         ["lightName", "lastPayment", "avgPayment"].forEach((field) => {
             const input = document.getElementById(field);
             const value = input?.value;
-        
+
             if (input?.type === "number") {
                 if (value === "" || isNaN(parseFloat(value))) {
                     isValid = false;
@@ -94,7 +96,7 @@ const FinancialForm = () => {
                 }
             }
         });
-        
+
 
         // Gastos
         const gastoFields = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros', 'totalGastos'];
@@ -121,12 +123,96 @@ const FinancialForm = () => {
         return isValid;
     };
 
-    const handleSave = () => {
+    const parentescos = [
+        { id: 1, nombre: "Padre" },
+        { id: 2, nombre: "Madre" },
+        { id: 3, nombre: "Hermano/a" },
+        { id: 4, nombre: "Tío/a" },
+        { id: 5, nombre: "Abuelo/a" },
+        { id: 6, nombre: "Otro" }
+    ];
+
+    const convertirArchivoABase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleSave = async () => {
         const isFormValid = validateForm();
-        if (isFormValid) {
-            console.log("Formulario guardado correctamente");
+        if (!isFormValid) return;
+
+        try {
+            const people = [...Array(numPeople)].map((_, index) => ({
+                name: document.getElementById(`person-${index}-nombrecompleto`).value,
+                relationship: document.getElementById(`person-${index}-parentesco`).value,
+                company: document.getElementById(`person-${index}-empresaolugardetrabajo`).value,
+                job: document.getElementById(`person-${index}-puestootipodetrabajo`).value,
+                gross: parseFloat(document.getElementById(`person-${index}-imbbruto`).value),
+                net: parseFloat(document.getElementById(`person-${index}-imnneto`).value),
+            }));
+
+            const ingresoTotal = parseFloat(document.getElementById("Ingreso total:").value);
+            const personasDependen = parseInt(document.getElementById("¿Cuántas personas dependen de este ingreso mensual?").value);
+
+            const gastos = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
+                acc[label] = parseFloat(document.getElementById(label).value);
+                return acc;
+            }, {});
+            gastos.total = parseFloat(document.getElementById("totalGastos").value);
+
+            const reciboLuz = {
+                titular: document.getElementById("lightName").value,
+                ultimoPago: parseFloat(document.getElementById("lastPayment").value),
+                promedioPago: parseFloat(document.getElementById("avgPayment").value),
+                observaciones: observaciones || "",
+                contenidoBase64: "",
+            };
+
+            if (reciboFile) {
+                const base64Completo = await convertirArchivoABase64(reciboFile);
+                // Aquí guardamos solo la parte base64 sin metadata (opcional)
+                reciboLuz.contenidoBase64 = base64Completo.split(",")[1];
+            }
+
+            if (isNaN(ingresoTotal) || isNaN(personasDependen)) {
+                alert("Revisa los campos numéricos. Hay valores inválidos.");
+                return;
+            }
+
+
+            const payload = {
+                personas: people,
+                ingresoTotal,
+                personasDependen,
+                reciboLuz,
+                gastos,
+            };
+
+            console.log("LO que se manda al back:", payload);
+
+            const response = await axiosInstance.post('/gastosFamiliares', payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            alert("Datos guardados correctamente");
+            console.log("Respuesta del backend:", response.data);
+
+        } catch (error) {
+            console.error("Error al guardar:", error);
+            alert("Error al guardar datos");
         }
     };
+
+
+
+
+
 
 
     const cardStyle = {
@@ -134,7 +220,7 @@ const FinancialForm = () => {
         borderRadius: "1rem",
         boxShadow: "0 6px 15px rgba(0, 0, 0, 0.4)"
     };
-    
+
     return (
         <Container className="mt-3" style={{ maxWidth: "1400px" }}>
             {/* Ingresos Mensuales */}
@@ -155,29 +241,72 @@ const FinancialForm = () => {
                     </Form.Group>
                     <h4 className="mt-4" style={{ color: "#4F46E5" }}>Personas que aportan al gasto familiar:</h4>
                     {[...Array(numPeople)].map((_, index) => (
-                        <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
-                            {[
-                                { label: "Nombre completo", placeholder: "Nombre completo", type: "text" },
-                                { label: "Parentesco", placeholder: "Parentesco", type: "text" },
-                                { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text" },
-                                { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text" },
-                                { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text" },
-                                { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text" }
-                            ].map((field, idx) => (
-                                <Col key={idx} className="d-flex">
-                                    <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                                        <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
-                                        <Form.Control
-                                            id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
-                                            type={field.type}
-                                            placeholder={field.placeholder}
-                                            isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
-                                        />
-                                    </div>
-                                </Col>
-                            ))}
-                        </Row>
-                    ))}
+    <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
+        {[
+            { label: "Nombre completo", placeholder: "Nombre completo", type: "text" },
+            { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text" },
+            { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text" },
+            { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text" },
+            { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text" }
+        ].map((field, idx) => {
+            // Insertar el campo "Parentesco" después de "Nombre completo"
+            if (idx === 1) {
+                return (
+                    <React.Fragment key={idx}>
+                        {/* Campo Parentesco */}
+                        <Col className="d-flex">
+                            <Form.Group className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                <Form.Label style={{ fontSize: "18px", color: "#4F46E5" }}>Parentesco</Form.Label>
+                                <Form.Select
+                                    id={`person-${index}-parentesco`}
+                                    isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
+                                >
+                                    <option value="">Selecciona un parentesco</option>
+                                    {parentescos.map((item) => (
+                                        <option key={item.id} value={item.id}>
+                                            {item.nombre}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+
+                        {/* Campo original (Empresa o lugar de trabajo) */}
+                        <Col className="d-flex">
+                            <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
+                                <Form.Control
+                                    id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
+                                    type={field.type}
+                                    placeholder={field.placeholder}
+                                    isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
+                                />
+                            </div>
+                        </Col>
+                    </React.Fragment>
+                );
+            }
+
+            // Campos normales (Nombre completo, Puesto, IMB, IMN)
+            return (
+                <Col key={idx} className="d-flex">
+                    <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                        <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
+                        <Form.Control
+                            id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
+                            type={field.type}
+                            placeholder={field.placeholder}
+                            isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
+                        />
+                    </div>
+                </Col>
+            );
+        })}
+    </Row>
+))}
+
+
+
 
                     <Form.Group className="mt-4 d-flex justify-content-end align-items-center">
                         <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>Ingreso total:</Form.Label>
@@ -242,7 +371,11 @@ const FinancialForm = () => {
                                 />
                             </Form.Group>
                         </Form>
-                    <RecibosDeLuz />
+                        <RecibosDeLuz
+                            onChangeFile={(e) => setReciboFile(e.target.files[0])}
+                            onChangeObservaciones={(text) => setObservaciones(text)}
+                        />
+
                     </Card>
                 </Col>
 

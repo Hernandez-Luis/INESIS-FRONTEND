@@ -75,4 +75,4 @@ const AdministrarFechas = () => {
     );
 };
 
-export default AdministrarFechas;
+    export default AdministrarFechas;
