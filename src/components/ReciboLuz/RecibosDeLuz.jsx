@@ -1,24 +1,20 @@
+// RecibosDeLuz.jsx
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
-const RecibosDeLuz = () => {
-  const handleGuardar = () => {
-    console.log("Marcado como finalizado");
-};
+const RecibosDeLuz = ({ onChangeFile, onChangeObservaciones }) => {
   return (
     <>
       <div 
         className="container my-4" 
         style={{
-          backgroundColor: 'var(--color-gris2)', // Fondo gris claro
+          backgroundColor: 'var(--color-gris2)',
           borderRadius: '10px',
           padding: '1.5rem',
-          maxWidth: '600px',  // Limitar el tamaño máximo
-          margin: '0 auto'    // Centrar el componente
+          maxWidth: '600px',
+          margin: '0 auto'
         }}
       >
-        {/* Título */}
         <h5 className="mb-3" style={{ color: 'var(--color-morado2)' }}>
           Recibos de luz
         </h5>
@@ -33,6 +29,7 @@ const RecibosDeLuz = () => {
             className="form-control" 
             id="recibo" 
             accept=".pdf,.jpg,.jpeg,.png"
+            onChange={onChangeFile}
           />
         </div>
 
@@ -46,13 +43,9 @@ const RecibosDeLuz = () => {
             id="observaciones" 
             rows="4" 
             placeholder="Ingresa tus observaciones"
+            onChange={(e) => onChangeObservaciones(e.target.value)}
           />
         </div>
-      </div>
-
-      {/* Botón Guardar (Fuera del div con fondo gris) */}
-      <div style={{ textAlign: 'center', marginTop: '20px', marginBottom: '50px' }}>
-        <button className='btn btn-primary btn-lg' onClick={handleGuardar}>Guardar</button>
       </div>
     </>
   );
