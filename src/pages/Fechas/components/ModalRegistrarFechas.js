@@ -8,7 +8,7 @@ import fechaService from '../../../services/FechasRegistradasService';
 
 const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    idCarrera: "", 
+    idCarrera: "",
     fechaInicio: "",
     fechaFin: ""
   });
@@ -27,15 +27,39 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
   // Cargar carreras cuando se abre el modal
   useEffect(() => {
     if (show) {
-      const fetchCarreras = async () => {
+      const fetchData = async () => {
         try {
-          const response = await carreraService.getAll();
-          setCarreras(response);
+          // Obtener carreras y fechas registradas al mismo tiempo
+          const [carrerasResponse, fechasResponse] = await Promise.all([
+            carreraService.getAll(),
+            fechaService.getAll()
+          ]);
+          // Obtener los IDs de las carreras con fechas registradas
+          const carrerasConFechas = fechasResponse.map(f => f.carrera.id);
+          // Filtrar las carreras que aún no tienen fechas
+          const carrerasDisponibles = carrerasResponse.filter(
+            c => !carrerasConFechas.includes(c.id)
+          );
+
+          if (carrerasDisponibles.length === 0) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Todas las carreras tienen fechas',
+              text: 'A todas las carreras les fueron asignadas fechas.',
+              confirmButtonColor: '#6f42c1'
+            }).then(() => {
+              // Cerrar modal después de aceptar el mensaje
+              handleClose();
+            });
+          }
+          // Guardar en el estado solo las carreras filtradas
+          setCarreras(carrerasDisponibles);
         } catch (error) {
-          console.error("Error al cargar las carreras:", error);
+          console.error("Error al cargar datos:", error);
         }
       };
-      fetchCarreras();
+
+      fetchData();
     }
   }, [show]);
 
@@ -46,7 +70,6 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
       [field]: field === 'idCarrera' ? Number(value) : value
     }));
   };
-
 
   // Función para manejar el envío del formulario
   const handleSubmit = async (event) => {
@@ -64,8 +87,8 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
     } else {
       // Llamada a fechaService.create para guardar los datos
       try {
-        
-        await fechaService.create(formData);  
+
+        await fechaService.create(formData);
         Swal.fire({
           icon: 'success',
           title: 'Fecha registrada correctamente',
@@ -86,6 +109,7 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
 
     setValidated(true);
   };
+  console.log("📅 Fecha mínima:", new Date().toISOString().split('T')[0]);
 
   return (
     <Modal
@@ -136,7 +160,7 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
                 value={formData.fechaInicio}
                 onChange={(e) => handleChange('fechaInicio', e.target.value)}
                 className="rounded-3 py-2"
-                min={new Date().toISOString().split('T')[0]} // <-- aquí
+                min={new Date().toLocaleDateString('en-CA')}
               />
               <Form.Control.Feedback type="invalid">
                 Fecha de inicio requerida
@@ -153,7 +177,7 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
                 value={formData.fechaFin}
                 onChange={(e) => handleChange('fechaFin', e.target.value)}
                 className="rounded-3 py-2"
-                min={formData.fechaInicio || new Date().toISOString().split('T')[0]}
+                min={formData.fechaInicio || new Date().toLocaleDateString('en-CA')}
               />
               <Form.Control.Feedback type="invalid">
                 Fecha de cierre válida requerida
