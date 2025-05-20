@@ -1,178 +1,388 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import '../components/AdministrarAlumnos.css';
 import carreraService from '../../../services/CatCarreraService';
-import semestreService from '../../../services/CatSemestreService';  
-import sexoService from '../../../services/CatSexoService'; 
+import semestreService from '../../../services/CatSemestreService';
+import sexoService from '../../../services/CatSexoService';
+import grupoService from '../../../services/CatGrupoService';
+import alumnoService from '../../../services/AlumnoService';
+import Swal from 'sweetalert2';
 
-const AlumnoRegistro = () => {
-  // Estados para los campos del formulario
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [curp, setCurp] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [matricula, setMatricula] = useState('');
-  const [carrera, setCarrera] = useState('');
-  const [semestre, setSemestre] = useState('');
-  const [grupo, setGrupo] = useState('');
+
+const AlumnoRegistro = forwardRef((props, ref) => {
+
+  const initialForm = {
+    nombre: '',
+    apellido: '',
+    curp: '',
+    correo: '',
+    telefono: '',
+    matricula: '',
+    carrera: '',
+    semestre: '',
+    grupo: '',
+    sexo: '',
+    usuario: '',
+    contrasena: ''
+  };
+
+  const [formValues, setFormValues] = useState(initialForm);
+  const [errors, setErrors] = useState({});
   const [listaCarreras, setListaCarreras] = useState([]);
   const [listaSemestres, setListaSemestres] = useState([]);
-  const [listaSexo, setListaSexo] = useState([]);  
-  const [errores, setErrores] = useState({});
+  const [listaSexo, setListaSexo] = useState([]);
+  const [alumnoId, setAlumnoId] = useState(props.id || null);
 
-  // Validaciones
-  const validarNombreApellido = (valor) => valor.length <= 30;
-  const validarCurp = (valor) => /^[A-Z]{4}\d{6}[A-Z]{6}\d{2}$/.test(valor);
-  const validarCorreo = (valor) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(valor);
-  const validarTelefono = (valor) => /^\d{10}$/.test(valor);
-  const validarMatricula = (valor) => /^\d+$/.test(valor);
-
+  // Obtener datos iniciales
   useEffect(() => {
-    const obtenerCarreras = async () => {
+    const fetchData = async () => {
       try {
-        const carreras = await carreraService.getAll();
+        const [carreras, semestres, sexos] = await Promise.all([
+          carreraService.getAll(),
+          semestreService.getAll(),
+          sexoService.getAll()
+        ]);
+
         setListaCarreras(carreras);
-      } catch (error) {
-        console.error("Error al obtener carreras:", error);
-      }
-    };
-
-    const obtenerSemestres = async () => {
-      try {
-        const semestres = await semestreService.getAll();  // Obtén los semestres
         setListaSemestres(semestres);
-      } catch (error) {
-        console.error("Error al obtener semestres:", error);
-      }
-    };
-
-    const obtenerSexos = async () => {
-      try {
-        const sexos = await sexoService.getAll();  // Obtén los semestres
         setListaSexo(sexos);
       } catch (error) {
-        console.error("Error al obtener semestres:", error);
+        console.error("Error cargando datos:", error);
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Error al cargar datos iniciales'
+        });
       }
     };
 
-    obtenerSexos();
-    obtenerCarreras();
-    obtenerSemestres();  // Llamar a la función para obtener semestres
+    fetchData();
   }, []);
 
-  // Función para manejar el envío del formulario
-  const manejarEnvio = (e) => {
+  useEffect(() => {
+    if (formValues.matricula) {
+      setFormValues(prevState => ({
+        ...prevState,
+        contrasena: prevState.matricula
+      }));
+    }
+  }, [formValues.matricula]);
+
+  useEffect(() => {
+    if (
+      formValues.carrera &&
+      formValues.semestre &&
+      listaCarreras.length > 0 &&
+      listaSemestres.length > 0
+    ) {
+      const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
+      const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
+
+      if (carreraSeleccionada && semestreSeleccionado) {
+        grupoService.getByCarreraAndSemestre(carreraSeleccionada.id, semestreSeleccionado.id)
+          .then(grupo => {
+            setFormValues(prev => ({
+              ...prev,
+              grupo: grupo || ''
+            }));
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            setFormValues(prev => ({ ...prev, grupo: '' }));
+          });
+      }
+    }
+  }, [formValues.carrera, formValues.semestre, listaCarreras, listaSemestres]);
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    let processedValue = value;
+
+    // Convertir a número los campos que lo requieren
+    if (name === 'carrera' || name === 'semestre') {
+      processedValue = value === '' ? '' : parseInt(value, 10);
+    }
+
+    setFormValues(prev => {
+      let updatedForm = { ...prev, [name]: value };
+
+      // Generar usuario automáticamente
+      if (name === 'nombre' || name === 'apellido') {
+        const primerNombre = updatedForm.nombre.split(' ')[0] || '';
+        const primerApellido = updatedForm.apellido.split(' ')[0] || '';
+        if (primerNombre && primerApellido) {
+          updatedForm.usuario = `${primerNombre.toLowerCase()}.${primerApellido.toLowerCase()}`;
+        }
+      }
+      return updatedForm;
+    });
+    validateField(name, value);
+  };
+
+
+  const validateField = (name, value) => {
+    let error = '';
+    const requiredFields = ['nombre', 'apellido', 'curp', 'correo', 'telefono', 'matricula', 'carrera', 'semestre', 'sexo'];
+
+    // Validación de campos requeridos
+    if (requiredFields.includes(name) && !value.trim()) {
+      error = 'Este campo es obligatorio';
+    }
+
+    // Validaciones específicas
+    switch (name) {
+      case 'nombre':
+      case 'apellido':
+        if (value.length > 30) error = 'Máximo 30 caracteres';
+        break;
+
+      case 'curp': {
+        // CURP: 18 caracteres bien formados
+        const curpRegex = /^[A-Z][AEIOU][A-Z]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HM](AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/;
+        if (!curpRegex.test(value.toUpperCase())) {
+          error = 'Formato CURP inválido';
+        }
+        break;
+      }
+
+      case 'correo':
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          error = 'Correo electrónico inválido';
+        break;
+
+      case 'telefono':
+        if (!/^\d{10}$/.test(value))
+          error = 'Debe contener 10 dígitos';
+        break;
+
+      case 'matricula':
+        if (!/^\d+$/.test(value))
+          error = 'Solo se permiten números';
+        break;
+
+      case 'matricula':
+        if (!/^\d{10}$/.test(value))
+          error = 'La matrícula debe contener exactamente 10 dígitos numéricos';
+        break;
+    }
+
+    setErrors(prev => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  const validateAllFields = () => {
+    const newErrors = {};
+    Object.keys(formValues).forEach(key => {
+      if (key !== 'grupo') { // Excluir campo no requerido
+        const error = validateField(key, formValues[key]);
+        if (error) newErrors[key] = error;
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const mostrarAlerta = (config) => {
+    Swal.fire({
+      ...config,
+      timer: 3000,
+      timerProgressBar: true,
+      showConfirmButton: true, 
+      confirmButtonText: 'OK',
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = '#28a745'; // Verde tipo Bootstrap
+        confirmButton.style.color = 'white';
+      },
+    });
+  };
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const erroresTemp = {};
+    // 1. Validar todos los campos
+    if (!validateAllFields()) {
+      mostrarAlerta({
+        icon: 'info',
+        title: '¡Ups! Verifica los campos',
+        text: 'Por favor verifica todos los campos'
+      });
+      return;
+    }
 
-    // Validar cada campo
-    if (!validarNombreApellido(nombre)) erroresTemp.nombre = 'El nombre no debe exceder 30 caracteres';
-    if (!validarNombreApellido(apellido)) erroresTemp.apellido = 'El apellido no debe exceder 30 caracteres';
-    if (!validarCurp(curp)) erroresTemp.curp = 'CURP no válida';
-    if (!validarCorreo(correo)) erroresTemp.correo = 'Correo electrónico no válido';
-    if (!validarTelefono(telefono)) erroresTemp.telefono = 'Teléfono debe tener 10 dígitos';
-    if (!validarMatricula(matricula)) erroresTemp.matricula = 'La matrícula debe ser solo números';
+    // 2. Verificar si CURP, matrícula o correo ya existen
+    try {
+      const alumnoExistente = await alumnoService.checkIfExists(formValues.curp, formValues.matricula, formValues.correo);
+      if (alumnoExistente) {
+        mostrarAlerta({
+          icon: 'info',
+          title: '¡Atención!🔍',
+          text: 'Ya existe un alumno con la misma CURP, matrícula o correo.'
+        });
+        return;
+      }
+    } catch (error) {
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error al verificar duplicados',
+        text: 'Hubo un problema al verificar los datos. Intente nuevamente.'
+      });
+      return;
+    }
 
-    setErrores(erroresTemp);
+    try {
+      const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
+      const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
+      const sexoSeleccionado = listaSexo.find(s => s.nombreSexo === formValues.sexo);
 
-    if (Object.keys(erroresTemp).length === 0) {
-      // Aquí se puede realizar la acción de enviar el formulario (por ejemplo, llamar a un API)
-      console.log('Formulario enviado');
+      const alumnoPayload = {
+        nombre: formValues.nombre.trim(),
+        apellido: formValues.apellido.trim(),
+        curp: formValues.curp.trim().toUpperCase(),
+        correo: formValues.correo.trim(),
+        telefono: formValues.telefono.trim(),
+        matricula: formValues.matricula.trim(),
+        semestre: semestreSeleccionado ? semestreSeleccionado.id : null,
+        carrera: carreraSeleccionada ? carreraSeleccionada.id : null,
+        sexo: sexoSeleccionado ? sexoSeleccionado.id : null,
+        grupo: formValues.grupo.id,
+        usuario: formValues.usuario,
+        contrasenia: formValues.contrasena,
+        estatus: 'Activo',
+        idCatRol: 1
+      };
+
+      const response = await alumnoService.create(alumnoPayload);
+
+      if (response.status === 201) {
+        mostrarAlerta({
+          icon: 'success',
+          title: 'Registro exitoso',
+          text: 'Alumno guardado correctamente'
+        });
+
+        setFormValues(initialForm);
+        window.history.back();
+      } else {
+        throw new Error('Error al registrar el alumno');
+      }
+    } catch (err) {
+      console.error(err);
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error al registrar',
+        text: err.message || 'No se pudo completar el registro.'
+      });
     }
   };
-
-  // Actualización del grupo según la carrera y semestre
-  const actualizarGrupo = () => {
-    // Lógica para obtener el grupo según la carrera y semestre seleccionados (ejemplo)
-    if (carrera && semestre) {
-      setGrupo(`Grupo ${carrera}-${semestre}`);
-    }
-  };
-
-  // Actualizar el grupo cada vez que se cambian la carrera o semestre
-  useEffect(() => {
-    actualizarGrupo();
-  }, [carrera, semestre]);
 
   return (
     <div className="mb-5">
       <h2 className="size-font-title cardMenu-title m-5 text-center">Agregar alumno</h2>
 
-      <div className="agregar-alumno-container m-5">
+      <form className="agregar-alumno-container m-5" onSubmit={handleSubmit}>
         {/* Sección Datos Personales */}
         <section className="formulario-seccion formulario-seccion--datos-personales mb-5">
           <h2 className="texto-morado2 mb-4">Datos personales</h2>
           <div className="row g-4">
             <div>
-              <label className="formulario-etiqueta">Nombre(s)</label>
+              <label className="formulario-etiqueta">
+                Nombre(s) <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
+                name="nombre"
+                className={`formulario-entrada ${errors.nombre ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el nombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                value={formValues.nombre}
+                onChange={handleChange}
+                maxLength={30}
               />
-              {errores.nombre && <small className="text-danger">{errores.nombre}</small>}
+              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
+
             <div>
-              <label className="formulario-etiqueta">Apellido(s)</label>
+              <label className="formulario-etiqueta">
+                Apellido(s) <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
+                name="apellido"
+                className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el apellido"
-                value={apellido}
-                onChange={(e) => setApellido(e.target.value)}
+                value={formValues.apellido}
+                onChange={handleChange}
+                maxLength={30}
               />
-              {errores.apellido && <small className="text-danger">{errores.apellido}</small>}
+              {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
             </div>
+
             <div>
-              <label className="formulario-etiqueta">CURP</label>
+              <label className="formulario-etiqueta">
+                CURP <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
+                name="curp"
+                className={`formulario-entrada ${errors.curp ? 'is-invalid' : ''}`}
                 placeholder="Ingrese la CURP"
-                value={curp}
-                onChange={(e) => setCurp(e.target.value)}
+                value={formValues.curp}
+                onChange={handleChange}
+                maxLength={18}
               />
-              {errores.curp && <small className="text-danger">{errores.curp}</small>}
+              {errors.curp && <div className="invalid-feedback">{errors.curp}</div>}
             </div>
+
             <div>
-              <label className="formulario-etiqueta">Correo electrónico</label>
+              <label className="formulario-etiqueta">
+                Correo electrónico <span className="text-danger">*</span>
+              </label>
               <input
-                type="text"
-                className="formulario-entrada"
+                type="email"
+                name="correo"
+                className={`formulario-entrada ${errors.correo ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el correo"
-                value={curp}
-                onChange={(e) => setCurp(e.target.value)}
+                value={formValues.correo}
+                onChange={handleChange}
               />
-              {errores.correo && <small className="text-danger">{errores.correo}</small>}
+              {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Sexo</label>
+              <label className="formulario-etiqueta">
+                Sexo <span className="text-danger">*</span>
+              </label>
               <select
-                className="formulario-entrada formulario-seleccion"
-                value={semestre}
-                onChange={(e) => setSemestre(e.target.value)}
+                name="sexo"
+                className={`formulario-entrada formulario-seleccion ${errors.sexo ? 'is-invalid' : ''}`}
+                value={formValues.sexo}
+                onChange={handleChange}
               >
-                 <option value="">Seleciona uno</option>
-                {listaSexo.map((s) => (
+                <option value="">Selecciona una opción</option>
+                {listaSexo.map(s => (
                   <option key={s.id} value={s.nombreSexo}>
                     {s.nombreSexo}
                   </option>
                 ))}
               </select>
+              {errors.sexo && <div className="invalid-feedback">{errors.sexo}</div>}
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Número telefónico</label>
+              <label className="formulario-etiqueta">
+                Teléfono <span className="text-danger">*</span>
+              </label>
               <input
                 type="tel"
-                className="formulario-entrada"
+                name="telefono"
+                className={`formulario-entrada ${errors.telefono ? 'is-invalid' : ''}`}
                 placeholder="Ingrese el teléfono"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                value={formValues.telefono}
+                onChange={handleChange}
+                maxLength={10}
               />
-              {errores.telefono && <small className="text-danger">{errores.telefono}</small>}
+              {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
             </div>
           </div>
         </section>
@@ -182,68 +392,112 @@ const AlumnoRegistro = () => {
           <h2 className="texto-morado2 mb-4">Datos académicos</h2>
           <div className="row g-4">
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Carrera</label>
+              <label className="formulario-etiqueta">
+                Carrera <span className="text-danger">*</span>
+              </label>
               <select
-                className="formulario-entrada formulario-seleccion"
-                value={carrera}
-                onChange={(e) => setCarrera(e.target.value)}
+                name="carrera"
+                value={formValues.carrera}
+                onChange={handleChange}
+                className={`formulario-entrada ${errors.carrera ? 'is-invalid' : ''}`}
               >
-                <option value="">Elige una carrera</option>
-                {listaCarreras.map((c) => (
-                  <option key={c.id} value={c.nombreCarrera}>
-                    {c.nombreCarrera}
+                <option value="">Seleccione una carrera</option>
+                {listaCarreras.map((carrera) => (
+                  <option key={carrera.id} value={carrera.id}>
+                    {carrera.nombreCarrera}
                   </option>
                 ))}
               </select>
+
+
+              {errors.carrera && <div className="invalid-feedback">{errors.carrera}</div>}
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Semestre</label>
+              <label className="formulario-etiqueta">
+                Semestre <span className="text-danger">*</span>
+              </label>
+              {/* Select de Semestre */}
               <select
-                className="formulario-entrada formulario-seleccion"
-                value={semestre}
-                onChange={(e) => setSemestre(e.target.value)}
+                name="semestre"
+                value={formValues.semestre}
+                onChange={handleChange}
+                className={`formulario-entrada formulario-seleccion ${errors.semestre ? 'is-invalid' : ''}`}
               >
-                 <option value="">Elige un semestre</option>
-                {listaSemestres.map((s) => (
-                  <option key={s.id} value={s.nombreSemestre}>
+                <option value="">Selecciona un semestre</option>
+                {listaSemestres.map(s => (
+                  <option key={s.id} value={s.id}>
                     {s.nombreSemestre}
                   </option>
                 ))}
               </select>
+              {errors.semestre && <div className="invalid-feedback">{errors.semestre}</div>}
             </div>
+
             <div className="col-md-6">
               <label className="formulario-etiqueta">Grupo</label>
               <input
                 type="text"
                 className="formulario-entrada"
-                placeholder="Grupo asignado"
-                value={grupo}
+                value={formValues.grupo.nombreGrupo}
                 readOnly
               />
             </div>
+
             <div className="col-md-6">
-              <label className="formulario-etiqueta">Matrícula</label>
+              <label className="formulario-etiqueta">
+                Matrícula <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="formulario-entrada"
-                placeholder="Ingrese la matrícula académica"
-                value={matricula}
-                onChange={(e) => setMatricula(e.target.value)}
+                name="matricula"
+                className={`formulario-entrada ${errors.matricula ? 'is-invalid' : ''}`}
+                placeholder="Ingrese la matrícula"
+                value={formValues.matricula}
+                maxLength={10}
+                onChange={handleChange}
               />
-              {errores.matricula && <small className="text-danger">{errores.matricula}</small>}
+              {errors.matricula && <div className="invalid-feedback">{errors.matricula}</div>}
             </div>
+
+            {/* Sección Datos de la Plataforma */}
+            <h2 className="texto-morado2">Datos de la plataforma</h2>
+            <p className="texto-pequeno">Estos datos se asignan automáticamente. </p>
+
+            <div className="col-md-6">
+              <label className="formulario-etiqueta">Usuario</label>
+              <input
+                type="text"
+                name="usuario"
+                className="formulario-entrada"
+                value={formValues.usuario}
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-6">
+              <label className="formulario-etiqueta">Contraseña</label>
+              <input
+                type="text"
+                name="contrasena"
+                className="formulario-entrada"
+                value={formValues.contrasena}
+                readOnly
+              />
+            </div>
+
+
             <div className="d-flex justify-content-center gap-3">
-              <button
-                className="btn-agregar"
-                onClick={manejarEnvio}>
-                Agregar alumno
+              <button type="submit" className="btn-agregar">
+                Registrar Alumno
               </button>
             </div>
           </div>
         </section>
-      </div>
+      </form>
     </div>
+
   );
-};
+});
 
 export default AlumnoRegistro;

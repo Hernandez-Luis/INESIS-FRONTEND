@@ -13,6 +13,23 @@
    
 }
 
+.texto-pequeno {
+  font-size: 14px;
+  color: var(--color-gris1);
+  margin-top: 5px;
+  margin-bottom: 1px;
+}
+
+.celda-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-width: 100px; /* Puedes ajustarlo si los botones se ven apretados */
+  white-space: nowrap;
+}
+
+
 .admin-alumnos-container {
     min-height: 100vh;
     display: flex;
@@ -75,18 +92,21 @@
 }
 
 .btn-agregar {
-    padding: 0.5rem 1.5rem;
-    font-weight: 500;
+    padding: 0.75rem 2rem;
+    font-weight: bold;
     border-radius: 8px;
     background-color: var(--color-morado1);
+    color: white;
+    border: none;
+    cursor: pointer;
     transition: background-color 0.3s ease-in-out;
     margin-bottom: 25px !important;
-    font-weight: bold;
 }
 
 .btn-agregar:hover {
     background-color: var(--color-morado2);
 }
+
 
 .table-footer {
     font-size: 0.9rem;
@@ -164,19 +184,7 @@
     outline: none;
 }
 
-/* Botón de agregar */
-.btn-agregar {
-    background-color: var(--color-morado1);
-    color: white;
-    padding: 0.75rem 2rem;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
 
-.btn-agregar:hover {
-    background-color: var(--color-morado2);
-}
 
 
 /* Paginación */
