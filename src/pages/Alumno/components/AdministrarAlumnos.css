@@ -250,3 +250,19 @@
     color: white;
 }
 
+.readonly-style {
+  background-color: #ececec;
+  color: #333;
+  cursor: not-allowed;
+  border: 0px solid #ddd;
+  font-weight: 600; 
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.readonly-style2 {
+  background-color: #ececec;
+  color: #333;
+  cursor: not-allowed;
+  border: 0px solid #ddd;
+}
