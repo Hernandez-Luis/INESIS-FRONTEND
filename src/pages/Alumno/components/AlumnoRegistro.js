@@ -321,7 +321,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         });
 
         setFormValues(initialForm);
-        window.history.back(); // O props.onAlumnoGuardado?.()
+        //window.history.back(); // O props.onAlumnoGuardado?.()
       } else {
         throw new Error('Error al guardar el alumno');
       }
