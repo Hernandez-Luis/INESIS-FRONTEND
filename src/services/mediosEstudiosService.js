@@ -1,6 +1,6 @@
-import axiosInstance from '../api/axiosConfig';
+import axiosInstance from './api/axiosConfig';
 
-const API_URL = '/mi_familia';
+const API_URL = '/medios_estudios';
 
 const getAll = async () => {
   try {
@@ -20,27 +20,28 @@ const getById = async (id) => {
   }
 };
 
-const create = async (params) => {
+const create = async (data) => {
   try {
-    const response = await axiosInstance.post(API_URL, params);
+    const response = await axiosInstance.post(API_URL, data);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-const update = async (id, params) => {
+const update = async (id, data) => {
   try {
-    const response = await axiosInstance.put(`${API_URL}/${id}`, params);
+    const response = await axiosInstance.put(`${API_URL}/${id}`, data);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-const deleteById = async (id) => {
+const remove = async (id) => {
   try {
-    await axiosInstance.delete(`${API_URL}/${id}`);
+    const response = await axiosInstance.delete(`${API_URL}/${id}`);
+    return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
@@ -51,5 +52,5 @@ export default {
   getById,
   create,
   update,
-  deleteById
+  remove,
 };
