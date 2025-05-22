@@ -4,11 +4,14 @@ import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import AlumnoRegistro from './components/AlumnoRegistro';
+import { useLocation } from 'react-router-dom';
 
 const AgregarAlumno = () => {
+    const location = useLocation();
+    const alumno = location.state?.alumno || null;
+
     const links = [
         { url: '/PrincipalAdmin', label: 'Inicio' },
-        { url: '/PrincipalAdmin', label: 'Administrar' },
         { url: '/AdministrarAlumnos', label: 'Alumnos' },
         { url: '/AgregarAlumno', label: 'Agregar alumno' }
     ];
@@ -17,7 +20,7 @@ const AgregarAlumno = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <AlumnoRegistro />
+             <AlumnoRegistro alumno={alumno} />
             <FooterInesis />
         </div>
     );
