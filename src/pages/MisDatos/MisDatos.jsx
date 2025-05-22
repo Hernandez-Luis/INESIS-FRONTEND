@@ -278,6 +278,7 @@ export const MisDatos = ({ onAdd }) => {
     }));
 
     const coleccionValores = {
+      alumnoId:JSON.parse(localStorage.getItem('usuario')).alumnoId,
       ...dataMisDatos,
       transporte: dataTransporte,
       gastosIngresos: {
