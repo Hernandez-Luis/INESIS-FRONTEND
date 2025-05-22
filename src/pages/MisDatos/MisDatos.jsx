@@ -9,6 +9,7 @@ import { CheckBox } from '../../components/CheckBox/CheckBox'
 import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 import CatSexoService from '../../services/CatSexoService'
+import AlumnoService from '../../services/AlumnoService'
 import { data } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import CatTipoTransporte from '../../services/CatTipoTransporteService'
@@ -25,7 +26,7 @@ export const MisDatos = ({ onAdd }) => {
     { url: '/MisDatos', label: 'Mis datos' }
   ];
 
- 
+
   // *************************** DEFINICION DE VARIABLES  ***************************************
   const [medios, setMedios] = useState([]);
   const [estadoCivil, setEstadoCivil] = useState([]);
@@ -35,8 +36,12 @@ export const MisDatos = ({ onAdd }) => {
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [mediosTraslado, setMediosTraslado] = useState([])
+  const [datosAlumno, setDatosAlumno] = useState({})
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
+
+  const localStorageData = JSON.parse(localStorage.getItem('usuario'))
+  console.log('Alumno: ', localStorageData)
 
   const obtenerListaMedioTransporte = async () => {
     try {
@@ -83,12 +88,25 @@ export const MisDatos = ({ onAdd }) => {
     }
   }
 
+  const obtenerDatosAlumno = async () => {
+    try {
+      const idAlumno = localStorageData.alumnoId;
+      let dataAlumno = await AlumnoService.getById(idAlumno);
+      setDatosAlumno(dataAlumno)
+      console.log('dataAlumno: ', dataAlumno)
+    } catch (error) {
+      console.log("Error al obtener datos del alumno: ", error)
+    }
+  }
+
   useEffect(() => {
+    obtenerDatosAlumno();
     obtenerListaMedioTransporte();
     obtenerCatTipoTransporte();
     obtenerCatSemestres();
     obtenerCatSexo();
     obtenerCatEstadoCivil();
+    
   }, []);
 
   // *********************************  INICIALIZANDO FORMULARIOS  ***********************************
@@ -119,7 +137,7 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialMisDatos = {
-    nombreCompleto: "Luis Hernandez",
+    nombreCompleto: datosAlumno.nombre,
     carrera: 3,
     semestre: "",
     sexo: "",
@@ -234,7 +252,7 @@ export const MisDatos = ({ onAdd }) => {
     }))
   }
 
-   // ***************************  OBTENIENDO DATOS DE LA API  ********************************
+  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
 
   const [estado, setEstado] = useState('');
   const [municipio, setMunicipio] = useState('');
@@ -251,13 +269,13 @@ export const MisDatos = ({ onAdd }) => {
         setColonias(datos.codigo_postal.colonias);
 
         setDataDomicilio((prevData) => ({
-        ...prevData,
-          estado:datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
+          ...prevData,
+          estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
           municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
           cp: cp,
-      }))
+        }))
 
-      console.log(dataDomicilio)
+        console.log(dataDomicilio)
       } catch (err) {
         console.error('Error al buscar código postal:', err);
         setColonias([]);
@@ -278,7 +296,7 @@ export const MisDatos = ({ onAdd }) => {
     }));
 
     const coleccionValores = {
-      alumnoId:JSON.parse(localStorage.getItem('usuario')).alumnoId,
+      alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
       ...dataMisDatos,
       transporte: dataTransporte,
       gastosIngresos: {
@@ -381,12 +399,12 @@ export const MisDatos = ({ onAdd }) => {
                   <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
                   <div className='d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Nombre:</label>
-                    <label>Luis Alberto Hernandez Ramirez</label>
+                    <label>{datosAlumno.nombre} {datosAlumno.apellido}</label>
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Carrera:</label>
 
-                    <label>Licenciatura en Informatica</label>
+                    {/* <label>{datosAlumno.carrera.nombreCarrera}</label> */}
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Semestre:</label>
@@ -398,7 +416,7 @@ export const MisDatos = ({ onAdd }) => {
                           value: s.id
                         }))}
                         placeholder="Selecciona una opción"
-                        value={dataMisDatos.semestre}
+                        // value={datosAlumno.semestre.id}
                         onChange={actualizarCamposMisDatos}
                       />
                     </div>
@@ -410,7 +428,7 @@ export const MisDatos = ({ onAdd }) => {
                         options={catSexo.map(s => ({ label: s.nombreSexo, value: s.id }))}
                         name="sexo"
                         onChange={actualizarCamposMisDatos}
-                        value={dataMisDatos.sexo}  // <-- asegura que sea string
+                        value={datosAlumno.sexo}  // <-- asegura que sea string
                       />
                     </div>
                   </div>
@@ -464,7 +482,7 @@ export const MisDatos = ({ onAdd }) => {
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                       <div>
-                        <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true}/>
+                        <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
@@ -491,11 +509,11 @@ export const MisDatos = ({ onAdd }) => {
                     </div>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                      <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio}/>
+                      <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
                     </div>
                     <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                      <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio}/>
+                      <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
                     </div>
                     <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
