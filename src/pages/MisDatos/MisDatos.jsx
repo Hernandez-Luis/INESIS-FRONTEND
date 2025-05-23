@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import NavInesis from '../../components/NavInesis/NavInesis'
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido'
 import "../../styles/TarjetaEstilo/TarjetaEstilo.css"
@@ -10,9 +10,7 @@ import '../../styles/MisDatos/MisDatos.css'
 import CatMedioTransporteService from '../../services/CatMedioTransporteService'
 import CatSexoService from '../../services/CatSexoService'
 import AlumnoService from '../../services/AlumnoService'
-import { data } from 'react-router-dom'
 import Swal from 'sweetalert2'
-import CatTipoTransporte from '../../services/CatTipoTransporteService'
 import CatTipoTransporteService from '../../services/CatTipoTransporteService'
 import CatSemestreService from '../../services/CatSemestreService'
 import CatEstadoCivilService from '../../services/CatEstadoCivilService'
@@ -31,17 +29,16 @@ export const MisDatos = ({ onAdd }) => {
   const [medios, setMedios] = useState([]);
   const [estadoCivil, setEstadoCivil] = useState([]);
   const [recursos, setRecursos] = useState(null);
+  const [tieneVehiulo, setTieneVehiulo] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
-  const [mediosTraslado, setMediosTraslado] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
   const localStorageData = JSON.parse(localStorage.getItem('usuario'))
-  console.log('Alumno: ', localStorageData)
 
   const obtenerListaMedioTransporte = async () => {
     try {
@@ -93,7 +90,13 @@ export const MisDatos = ({ onAdd }) => {
       const idAlumno = localStorageData.alumnoId;
       let dataAlumno = await AlumnoService.getById(idAlumno);
       setDatosAlumno(dataAlumno)
-      console.log('dataAlumno: ', dataAlumno)
+      setDataMisDatos((prevData) => ({
+        ...prevData,
+        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellido,
+        carrera: dataAlumno.carrera?.id,
+        semestre: dataAlumno.semestre?.id,
+        sexo: dataAlumno.sexo?.id,
+      }))
     } catch (error) {
       console.log("Error al obtener datos del alumno: ", error)
     }
@@ -106,7 +109,7 @@ export const MisDatos = ({ onAdd }) => {
     obtenerCatSemestres();
     obtenerCatSexo();
     obtenerCatEstadoCivil();
-    
+
   }, []);
 
   // *********************************  INICIALIZANDO FORMULARIOS  ***********************************
@@ -129,7 +132,6 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialTransporte = {
-    llevaVehiculo: '',
     marca: '',
     modelo: '',
     anio: '',
@@ -137,8 +139,8 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialMisDatos = {
-    nombreCompleto: datosAlumno.nombre,
-    carrera: 3,
+    nombreCompleto: datosAlumno.nombre + " " + datosAlumno.apellido,
+    carrera: "",
     semestre: "",
     sexo: "",
     estadoCivil: "",
@@ -151,6 +153,7 @@ export const MisDatos = ({ onAdd }) => {
     mediosTraslado: "",
     situacionVivienda: "",
     nombreCasaHuesped: "",
+    llevaVehiculo: '',
   }
 
   const formularioInicialDomicilio = {
@@ -171,16 +174,44 @@ export const MisDatos = ({ onAdd }) => {
 
   const [errores, setErrores] = useState({})
 
+  
+  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
+
+  const [colonias, setColonias] = useState([]);
+
+  const handleBuscarCP = async (e) => {
+    const codigoPostal = e.target.value;
+    console.log("Codigo postal: ", codigoPostal)
+    // Solo buscar si tiene 5 dígitos
+    if (codigoPostal.length === 5) {
+      try {
+        const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
+        console.log("Datos de la API: ", datos)
+        setColonias(datos.codigo_postal.colonias);
+
+        setDataDomicilio((prevData) => ({
+          ...prevData,
+          estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
+          municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
+          cp: 99999,
+        }))
+
+        console.log(dataDomicilio)
+      } catch (err) {
+        console.error('Error al buscar código postal:', err);
+        setColonias([]);
+      }
+    }
+  };
+
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
     // console.log("Name: ", name, " Value: ", value)   
     // ******  CONDICIONES *******
+
     if (name === "dependeEconomicamente") {
       setRecursos(value)
-    }
-
-    if (name == "dependeEconomicamente") {
       setDataGastosIngresos((prevData) => ({
         ...prevData,
         nombreQuienDependes: "",
@@ -227,6 +258,12 @@ export const MisDatos = ({ onAdd }) => {
   const actualizarCamposMisDatos = (e) => {
     const { name, value } = e.target;
     //console.log("Nombre: ", name, " Valor: ", value)
+
+    if (name === "llevaVehiculo") {
+      setTieneVehiulo(value)
+      setDataTransporte(formularioInicialTransporte)
+    }
+
     setDataMisDatos((prevData) => ({
       ...prevData,
       [name]: value
@@ -234,7 +271,7 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const actualizarMediosTraslado = (e) => {
-    const { value, checked, name } = e.target;
+    const { value, checked} = e.target;
     const id = parseInt(value, 10);
     if (checked) {
       setMediosSeleccionados((prev) => [...prev, id]);
@@ -246,48 +283,19 @@ export const MisDatos = ({ onAdd }) => {
   const actualizarCamposDomicilio = (e) => {
     const { name, value } = e.target;
     //console.log("Nombre: ", name, " Valor: ", value)
+    handleBuscarCP(e)
     setDataDomicilio((prevData) => ({
       ...prevData,
       [name]: value
     }))
   }
 
-  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
-
-  const [estado, setEstado] = useState('');
-  const [municipio, setMunicipio] = useState('');
-  const [colonias, setColonias] = useState([]);
-  const [codigoPostal, setCodigoPostal] = useState('');
-
-  const handleBuscarCP = async (e) => {
-    const cp = e.target.value;
-    // Solo buscar si tiene 5 dígitos
-    if (cp.length === 5) {
-      try {
-        const datos = await DomicilioCpService.getColoniasPorCP(cp);
-        console.log("Datos de la API: ", datos)
-        setColonias(datos.codigo_postal.colonias);
-
-        setDataDomicilio((prevData) => ({
-          ...prevData,
-          estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-          municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-          cp: cp,
-        }))
-
-        console.log(dataDomicilio)
-      } catch (err) {
-        console.error('Error al buscar código postal:', err);
-        setColonias([]);
-      }
-    }
-  };
 
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validacionCamposGastosIngresos() == 0) {
+    if (validacionCamposGastosIngresos() === 0) {
       return
     }
 
@@ -319,7 +327,7 @@ export const MisDatos = ({ onAdd }) => {
       }
       // setDataGastosIngresos(formularioInicialGastosIngresos);
       // setDataTrabajo(formularioInicialTrabajo)
-      console.log("Guardado")
+      mostrarExito("Los datos se guardaron correctamente")
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
@@ -331,7 +339,7 @@ export const MisDatos = ({ onAdd }) => {
     // Validación de los campos
     const erroresTemp = {};
     Object.keys(dataGastosIngresos).forEach((campo) => {
-      if (!dataGastosIngresos[campo] && campo != "nombreQuienDependes" && campo != "trabajoTipo" && campo != "ocupacion" && campo != "otro") {
+      if (!dataGastosIngresos[campo] && campo !== "nombreQuienDependes" && campo !== "trabajoTipo" && campo !== "ocupacion" && campo !== "otro") {
         erroresTemp[campo] = 'Este campo es obligatorio';
       }
     });
@@ -384,7 +392,6 @@ export const MisDatos = ({ onAdd }) => {
     });
   };
 
-
   return (
     <div>
       <NavInesis></NavInesis>
@@ -399,12 +406,11 @@ export const MisDatos = ({ onAdd }) => {
                   <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
                   <div className='d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Nombre:</label>
-                    <label>{datosAlumno.nombre} {datosAlumno.apellido}</label>
+                    <label>{dataMisDatos.nombreCompleto}</label>
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Carrera:</label>
-
-                    {/* <label>{datosAlumno.carrera.nombreCarrera}</label> */}
+                    <label>{datosAlumno.carrera?.nombreCarrera || ''}</label>
                   </div>
                   <div className='mt-4 d-flex align-items-center'>
                     <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Semestre:</label>
@@ -416,7 +422,7 @@ export const MisDatos = ({ onAdd }) => {
                           value: s.id
                         }))}
                         placeholder="Selecciona una opción"
-                        // value={datosAlumno.semestre.id}
+                        value={datosAlumno.semestre?.id || ''}
                         onChange={actualizarCamposMisDatos}
                       />
                     </div>
@@ -428,7 +434,7 @@ export const MisDatos = ({ onAdd }) => {
                         options={catSexo.map(s => ({ label: s.nombreSexo, value: s.id }))}
                         name="sexo"
                         onChange={actualizarCamposMisDatos}
-                        value={datosAlumno.sexo}  // <-- asegura que sea string
+                        value={datosAlumno.sexo?.id || ''}  // <-- asegura que sea string
                       />
                     </div>
                   </div>
@@ -517,7 +523,7 @@ export const MisDatos = ({ onAdd }) => {
                     </div>
                     <div className="col-3 mt-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                      <input className='form-control' type="text" onChange={handleBuscarCP} name={"cp"} />
+                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
                     </div>
                     <div className="col-12">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
@@ -586,7 +592,7 @@ export const MisDatos = ({ onAdd }) => {
                       />
                       {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                     </div>
-                    {dataGastosIngresos.ocupacion == "Otro" && (
+                    {dataGastosIngresos.ocupacion === "Otro" && (
                       <div className="col-5">
                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                         <input
@@ -674,55 +680,60 @@ export const MisDatos = ({ onAdd }) => {
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
-                  onChange={actualizarCamposTransporte}
+                  onChange={actualizarCamposMisDatos}
                   name={"llevaVehiculo"}
-                  value={dataTransporte.llevaVehiculo}
+                  value={dataMisDatos.llevaVehiculo}
                 />
-                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
-                <div className='w-50'>
-                  <SeleccionarCombo
-                    options={catTipoTransporte.map(t => ({
-                      label: t.nombreTipo,
-                      value: t.idCatTipoTransporte
-                    }))}
-                    placeholder="Selecciona una opción" // Placeholder
-                    name={'catTipoTransporte'}
-                    value={dataTransporte.catTipoTransporte}
-                    onChange={actualizarCamposTransporte}
-                  />
-                </div>
-                <div className="row mt-4">
-                  <div className="col">
-                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
-                    <input
-                      className='form-control w-75'
-                      type="text"
-                      name={'marca'}
-                      value={dataTransporte.marca}
-                      onChange={actualizarCamposTransporte}
-                    />
+
+                {tieneVehiulo === 'Si' && (
+                  <div>
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
+                    <div className='w-50'>
+                      <SeleccionarCombo
+                        options={catTipoTransporte.map(t => ({
+                          label: t.nombreTipo,
+                          value: t.idCatTipoTransporte
+                        }))}
+                        placeholder="Selecciona una opción" // Placeholder
+                        name={'catTipoTransporte'}
+                        value={dataTransporte.catTipoTransporte}
+                        onChange={actualizarCamposTransporte}
+                      />
+                    </div>
+                    <div className="row mt-4">
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'marca'}
+                          value={dataTransporte.marca}
+                          onChange={actualizarCamposTransporte}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'modelo'}
+                          value={dataTransporte.modelo}
+                          onChange={actualizarCamposTransporte}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'anio'}
+                          value={dataTransporte.anio}
+                          onChange={actualizarCamposTransporte}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="col">
-                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
-                    <input
-                      className='form-control w-75'
-                      type="text"
-                      name={'modelo'}
-                      value={dataTransporte.modelo}
-                      onChange={actualizarCamposTransporte}
-                    />
-                  </div>
-                  <div className="col">
-                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
-                    <input
-                      className='form-control w-75'
-                      type="text"
-                      name={'anio'}
-                      value={dataTransporte.anio}
-                      onChange={actualizarCamposTransporte}
-                    />
-                  </div>
-                </div>
+                )}
                 <div className="row mt-4">
                   <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
                   {medios.map((medio) => (
