@@ -15,6 +15,7 @@ import CatTipoTransporteService from '../../services/CatTipoTransporteService'
 import CatSemestreService from '../../services/CatSemestreService'
 import CatEstadoCivilService from '../../services/CatEstadoCivilService'
 import DomicilioCpService from '../../services/DomicilioCpService'
+import CatOcupacionService from '../../services/CatOcupacionService'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -32,6 +33,7 @@ export const MisDatos = ({ onAdd }) => {
   const [tieneVehiulo, setTieneVehiulo] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
+  const [catOcupacion, setCatOcupacion] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
@@ -102,6 +104,16 @@ export const MisDatos = ({ onAdd }) => {
     }
   }
 
+  const obtenerCatOcupacion = async () => {
+    try {
+      let ocupaciones = await CatOcupacionService.getAll();
+      setCatOcupacion(ocupaciones)
+      console.log("Ocupacion cat: ", ocupaciones)
+    } catch (error) {
+      console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+    }
+  }
+
   useEffect(() => {
     obtenerDatosAlumno();
     obtenerListaMedioTransporte();
@@ -109,7 +121,7 @@ export const MisDatos = ({ onAdd }) => {
     obtenerCatSemestres();
     obtenerCatSexo();
     obtenerCatEstadoCivil();
-
+    obtenerCatOcupacion();
   }, []);
 
   // *********************************  INICIALIZANDO FORMULARIOS  ***********************************
@@ -174,33 +186,31 @@ export const MisDatos = ({ onAdd }) => {
 
   const [errores, setErrores] = useState({})
 
-  
+
   // ***************************  OBTENIENDO DATOS DE LA API  ********************************
 
   const [colonias, setColonias] = useState([]);
 
-  const handleBuscarCP = async (e) => {
-    const codigoPostal = e.target.value;
+  const handleBuscarCP = async (value) => {
+    const codigoPostal = value
     console.log("Codigo postal: ", codigoPostal)
     // Solo buscar si tiene 5 dígitos
-    if (codigoPostal.length === 5) {
-      try {
-        const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-        console.log("Datos de la API: ", datos)
-        setColonias(datos.codigo_postal.colonias);
+    try {
+      const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
+      console.log("Datos de la API: ", datos)
+      setColonias(datos.codigo_postal.colonias);
 
-        setDataDomicilio((prevData) => ({
-          ...prevData,
-          estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-          municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-          cp: 99999,
-        }))
+      setDataDomicilio((prevData) => ({
+        ...prevData,
+        estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
+        municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
+        cp: codigoPostal,
+      }))
 
-        console.log(dataDomicilio)
-      } catch (err) {
-        console.error('Error al buscar código postal:', err);
-        setColonias([]);
-      }
+      console.log(dataDomicilio)
+    } catch (err) {
+      console.error('Error al buscar código postal:', err);
+      setColonias([]);
     }
   };
 
@@ -248,7 +258,7 @@ export const MisDatos = ({ onAdd }) => {
 
   const actualizarCamposTransporte = (e) => {
     const { name, value } = e.target;
-    //console.log("Nombre: ", name, " Valor: ", value)
+    console.log("Nombre: ", name, " Valor: ", value)
     setDataTransporte((prevData) => ({
       ...prevData,
       [name]: value
@@ -271,7 +281,7 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const actualizarMediosTraslado = (e) => {
-    const { value, checked} = e.target;
+    const { value, checked } = e.target;
     const id = parseInt(value, 10);
     if (checked) {
       setMediosSeleccionados((prev) => [...prev, id]);
@@ -283,7 +293,8 @@ export const MisDatos = ({ onAdd }) => {
   const actualizarCamposDomicilio = (e) => {
     const { name, value } = e.target;
     //console.log("Nombre: ", name, " Valor: ", value)
-    handleBuscarCP(e)
+    if (name === "cp")
+      handleBuscarCP(value)
     setDataDomicilio((prevData) => ({
       ...prevData,
       [name]: value
@@ -585,7 +596,10 @@ export const MisDatos = ({ onAdd }) => {
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
                       <SeleccionarCombo
                         name="ocupacion"
-                        options={['Jornalero', 'Chambeador', 'Otro']} // Opciones disponibles
+                        options={catOcupacion.map(ocupacion => ({
+                          label: ocupacion.nombreOcupacion,
+                          value: ocupacion.id
+                        }))} // Opciones disponibles
                         placeholder="Selecciona una opción" // Placeholder
                         value={dataGastosIngresos.ocupacion}
                         onChange={actualizarCampoGastosIngresos}
