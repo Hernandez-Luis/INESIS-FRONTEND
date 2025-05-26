@@ -6,7 +6,12 @@ import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import fechaService from '../../../services/FechasRegistradasService';
 
-const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
+const ModalRegistrarFecha = ({  show, 
+  handleClose, 
+  onSubmit,
+  modoEdicion = false, // Nueva prop para determinar el modo
+  fechaEditar = null // Nueva prop para datos a editar
+}) => {
   const [formData, setFormData] = useState({
     idCarrera: "",
     fechaInicio: "",
@@ -16,27 +21,30 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
   const [validated, setValidated] = useState(false);
   const [carreras, setCarreras] = useState([]);
 
-  // Resetear formulario cuando se cierra
+  // Efecto para manejar cambios entre modos
   useEffect(() => {
-    if (!show) {
+    if (modoEdicion && fechaEditar) {
+      setFormData({
+        idCarrera: fechaEditar.carrera.id,
+        fechaInicio: fechaEditar.fechaInicio.split('T')[0],
+        fechaFin: fechaEditar.fechaFin.split('T')[0]
+      });
+    } else {
       setFormData({ idCarrera: "", fechaInicio: "", fechaFin: "" });
-      setValidated(false);
     }
-  }, [show]);
+  }, [show, modoEdicion, fechaEditar]);
 
-  // Cargar carreras cuando se abre el modal
+  // Cargar carreras solo en modo registro
   useEffect(() => {
-    if (show) {
+    if (show && !modoEdicion) {
       const fetchData = async () => {
         try {
-          // Obtener carreras y fechas registradas al mismo tiempo
           const [carrerasResponse, fechasResponse] = await Promise.all([
             carreraService.getAll(),
             fechaService.getAll()
           ]);
-          // Obtener los IDs de las carreras con fechas registradas
+          
           const carrerasConFechas = fechasResponse.map(f => f.carrera.id);
-          // Filtrar las carreras que aún no tienen fechas
           const carrerasDisponibles = carrerasResponse.filter(
             c => !carrerasConFechas.includes(c.id)
           );
@@ -45,14 +53,10 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
             Swal.fire({
               icon: 'info',
               title: 'Todas las carreras tienen fechas',
-              text: 'A todas las carreras les fueron asignadas fechas.',
               confirmButtonColor: '#6f42c1'
-            }).then(() => {
-              // Cerrar modal después de aceptar el mensaje
-              handleClose();
-            });
+            }).then(handleClose);
           }
-          // Guardar en el estado solo las carreras filtradas
+          
           setCarreras(carrerasDisponibles);
         } catch (error) {
           console.error("Error al cargar datos:", error);
@@ -61,55 +65,53 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
 
       fetchData();
     }
-  }, [show]);
+  }, [show, modoEdicion]);
 
-  // Función para manejar el cambio en los campos del formulario
   const handleChange = (field, value) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [field]: field === 'idCarrera' ? Number(value) : value
     }));
   };
 
-  // Función para manejar el envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
 
-    if (form.checkValidity() === false) {
+    if (!form.checkValidity()) {
       event.stopPropagation();
       Swal.fire({
         icon: 'info',
         title: 'Campos incompletos',
-        text: 'Por favor complete todos los campos obligatorios.',
         confirmButtonColor: '#6f42c1'
       });
-    } else {
-      // Llamada a fechaService.create para guardar los datos
-      try {
-
-        await fechaService.create(formData);
-        Swal.fire({
-          icon: 'success',
-          title: 'Fecha registrada correctamente',
-          confirmButtonColor: '#6f42c1'
-        });
-        handleClose();
-        onSubmit();
-      } catch (error) {
-        console.error("Error al registrar la fecha:", error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al registrar la fecha',
-          text: 'Hubo un problema al guardar la fecha. Intente de nuevo.',
-          confirmButtonColor: '#6f42c1'
-        });
-      }
+      return setValidated(true);
     }
 
-    setValidated(true);
+    try {
+      if (modoEdicion) {
+        await fechaService.update(fechaEditar.id, formData);
+      } else {
+        await fechaService.create(formData);
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: `Fecha ${modoEdicion ? 'actualizada' : 'registrada'}!`,
+        confirmButtonColor: '#6f42c1'
+      });
+
+      handleClose();
+      onSubmit();
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        icon: 'error',
+        title: `Error al ${modoEdicion ? 'editar' : 'registrar'}`,
+        confirmButtonColor: '#6f42c1'
+      });
+    }
   };
-  console.log("📅 Fecha mínima:", new Date().toISOString().split('T')[0]);
 
   return (
     <Modal
@@ -122,31 +124,39 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
     >
       <Modal.Header closeButton className="border-bottom-0 text-center close-white">
         <Modal.Title as="h3" className="text-white fw-bold w-100">
-          Registrar fecha
+          {modoEdicion ? 'Editar fecha' : 'Registrar fecha'}
         </Modal.Title>
       </Modal.Header>
 
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
         <Modal.Body className="pt-0">
           <Form.Group className="mb-4">
-            <Form.Label className="text-white fw-bold mb-2">Carrera:</Form.Label>
-            <Form.Select
-              required
-              value={formData.idCarrera}
-              onChange={(e) => handleChange('idCarrera', e.target.value)}
-              className="rounded-3 py-2"
-            >
-              <option value="">Seleccione una carrera</option>
-              {carreras.map((carrera) => (
-                <option key={carrera.id} value={carrera.id}>
-                  {carrera.nombreCarrera}
-                </option>
-              ))}
-            </Form.Select>
-
-            <Form.Control.Feedback type="invalid">
-              Por favor seleccione una carrera
-            </Form.Control.Feedback>
+            <Form.Label className="text-white fw-bold mb-2">
+              Carrera:
+            </Form.Label>
+            
+            {modoEdicion ? (
+              <Form.Control
+                plaintext
+                readOnly
+                value={fechaEditar?.carrera?.nombreCarrera || ''}
+                className="text-white"
+              />
+            ) : (
+              <Form.Select
+                required
+                value={formData.idCarrera}
+                onChange={(e) => handleChange('idCarrera', e.target.value)}
+                className="rounded-3 py-2"
+              >
+                <option value="">Seleccione una carrera</option>
+                {carreras.map((carrera) => (
+                  <option key={carrera.id} value={carrera.id}>
+                    {carrera.nombreCarrera}
+                  </option>
+                ))}
+              </Form.Select>
+            )}
           </Form.Group>
 
           <div className="row g-3">
@@ -160,11 +170,8 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
                 value={formData.fechaInicio}
                 onChange={(e) => handleChange('fechaInicio', e.target.value)}
                 className="rounded-3 py-2"
-                min={new Date().toLocaleDateString('en-CA')}
+                min={modoEdicion ? undefined : new Date().toISOString().split('T')[0]}
               />
-              <Form.Control.Feedback type="invalid">
-                Fecha de inicio requerida
-              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="col-md-6 mb-4">
@@ -177,18 +184,15 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
                 value={formData.fechaFin}
                 onChange={(e) => handleChange('fechaFin', e.target.value)}
                 className="rounded-3 py-2"
-                min={formData.fechaInicio || new Date().toLocaleDateString('en-CA')}
+                min={formData.fechaInicio || new Date().toISOString().split('T')[0]}
               />
-              <Form.Control.Feedback type="invalid">
-                Fecha de cierre válida requerida
-              </Form.Control.Feedback>
             </Form.Group>
           </div>
         </Modal.Body>
 
         <Modal.Footer className="border-top-0 justify-content-center mt-0">
           <Button type="submit" className="boton-blanco-morado">
-            Aceptar
+            {modoEdicion ? 'Guardar cambios' : 'Aceptar'}
           </Button>
         </Modal.Footer>
       </Form>
@@ -199,7 +203,8 @@ const ModalRegistrarFecha = ({ show, handleClose, onSubmit }) => {
 ModalRegistrarFecha.propTypes = {
   show: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func.isRequired,
+  modoEdicion: PropTypes.bool,
+  fechaEditar: PropTypes.object
 };
-
 export default ModalRegistrarFecha;

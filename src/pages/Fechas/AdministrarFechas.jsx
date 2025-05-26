@@ -4,12 +4,17 @@ import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import TablaRegistros from '../../components/Tablas/TablaRegistros';
 import fechasRegistradasService from '../../services/FechasRegistradasService';
+import ModalRegistrarFecha from './components/ModalRegistrarFechas';
 
 const AdministrarFechas = () => {
 
     const [fechas, setFechas] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [fechaEditar, setFechaEditar] = useState(null);
+    const nombreData = "fechas";
+    const subTitulo = "Se asignan fechas por carrera para  abrir y cerrar la encuesta";
 
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
@@ -17,8 +22,11 @@ const AdministrarFechas = () => {
         { url: '/AdministrarFechas', label: 'Fechas' }
     ];
 
-    const nombreData = "fechas";
-    const subTitulo = "Se asignan fechas por carrera para  abrir y cerrar la encuesta";
+    const handleEditar = (fecha) => {
+        setFechaEditar(fecha);
+        setShowModal(true);
+    };
+
     // Configuración de columnas
     const columns = [
         { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
@@ -69,10 +77,21 @@ const AdministrarFechas = () => {
                 nombreData={nombreData}
                 subTitulo={subTitulo}
                 onFechaAgregada={recargarFechas}
+                onEdit={handleEditar} 
+            />
+            <ModalRegistrarFecha
+                show={showModal}
+                handleClose={() => {
+                    setShowModal(false);
+                    setFechaEditar(null);
+                }}
+                onSubmit={recargarFechas}
+                modoEdicion={!!fechaEditar}
+                fechaEditar={fechaEditar}
             />
             <FooterInesis />
         </div>
     );
 };
 
-    export default AdministrarFechas;
+export default AdministrarFechas;
