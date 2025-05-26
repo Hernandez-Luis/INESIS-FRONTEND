@@ -9,10 +9,20 @@ import { Link } from 'react-router-dom';
 import perfilIcon from '../../assets/perfilIcon.png';
 import ModalUsuario from '../MiPerfil/ModalUsuario';
 import ModalCambiarContraseña from '../CambiarContraseña/ModalCambiarContraseña';
+import { useNavigate } from 'react-router-dom';
+
 
 export const NavInesis = () => {
   const [modalShow, setModalShow] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false); //ModalUsuario
+  const navigate = useNavigate();
+
+
+  const handleLogout = () => {
+    localStorage.removeItem('usuario'); // Borra datos del usuario
+    navigate('/'); // Redirige al login
+  };
+  
 
   return (
     <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
@@ -42,8 +52,8 @@ export const NavInesis = () => {
               <NavDropdown className='me-5 no-caret custom-dropdown' title={<img src={perfilIcon} style={{ width: '40px' }} alt="Perfil" />}>
               <NavDropdown.Item onClick={() => setShowProfileModal(true)}>Mi cuenta</NavDropdown.Item>
                 <NavDropdown.Item onClick={() => setModalShow(true)}>Cambiar contraseña</NavDropdown.Item>
-                <NavDropdown.Item>Cerrar sesión</NavDropdown.Item>
-              </NavDropdown>
+                <NavDropdown.Item onClick={handleLogout}>Cerrar sesión</NavDropdown.Item>
+                </NavDropdown>
             </Nav>
           </Navbar.Collapse>
         </Container>

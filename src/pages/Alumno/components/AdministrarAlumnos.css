@@ -21,7 +21,6 @@
 }
 
 .celda-icono {
-  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
@@ -120,6 +119,22 @@
     color: var(--color-morado2);
 }
 
+.icono-editar, 
+.icono-basura {
+    font-size: 22px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.icono-basura:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+.icono-editar:hover {
+    background: rgba(91, 162, 202, 0.1);
+}
+
 .boton-icono {
     cursor: pointer;
     background-color: transparent;
@@ -134,9 +149,6 @@
     color: rgb(91, 162, 202);  
 }
 
-.icono-editar, .icono-basura {
-    font-size: 25px;
-}
 
 
 /* Contenedor principal para alinear horizontalmente las secciones */

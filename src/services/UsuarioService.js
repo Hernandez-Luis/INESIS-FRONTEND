@@ -46,10 +46,21 @@ const deleteUsuario = async (id) => {
   }
 };
 
+const getByAlumnoId = async (idAlumno) => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/byAlumno/${idAlumno}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || "Error al obtener el usuario por alumno";
+  }
+};
+
+
 export default {
   getAll,
   getById,
   create,
   update,
-  deleteUsuario
+  deleteUsuario,
+  getByAlumnoId
 };

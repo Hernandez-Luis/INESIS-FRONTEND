@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { Table } from 'react-bootstrap';
 import '../../pages/Alumno/components/AdministrarAlumnos.css';
 import noDatosIcon from '../../assets/sin-datos.png';
 import ModalRegistrarFecha from '../../pages/Fechas/components/ModalRegistrarFechas';
-import { Table } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
-const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdit, onDelete }) => {
+const TablaRegistros = ({
+    data = [],
+    columns = [],
+    nombreData = '',
+    subTitulo = '',
+    rutaBoton = '',
+    onEdit = () => { },
+    onDelete = () => { },
+    onFechaAgregada
+}) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
     const [elementosPorPagina, setElementosPorPagina] = useState(8);
@@ -17,21 +27,32 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
     const handleAbrirModal = () => setMostrarModal(true);
     const handleCerrarModal = () => setMostrarModal(false);
 
+    const obtenerValorPorAccessor = (obj, accessor) => {
+        return accessor.split('.').reduce((valor, clave) => valor?.[clave], obj);
+    };
+
+    const filtrarDatos = () => {
+        if (!busqueda.trim()) return data;
+        const busquedaLower = busqueda.toLowerCase();
+
+        return data.filter(item =>
+            columns.some(col => {
+                const valor = obtenerValorPorAccessor(item, col.accessor);
+                return String(valor ?? '')
+                    .toLowerCase()
+                    .includes(busquedaLower);
+            })
+        );
+    };
+
     useEffect(() => {
-        setCargando(true); // empieza cargando
+        setCargando(true);
         const timeout = setTimeout(() => {
-            let filtrados = data;
-            if (busqueda) {
-                filtrados = data.filter(item =>
-                    Object.values(item).some(valor =>
-                        String(valor).toLowerCase().includes(busqueda.toLowerCase())
-                    )
-                );
-            }
+            const filtrados = filtrarDatos();
             setDatosFiltrados(filtrados);
             setPaginaActual(1);
-            setCargando(false); // termina carga
-        }, 500); // simula un retraso de 500ms
+            setCargando(false);
+        }, 300);
 
         return () => clearTimeout(timeout);
     }, [busqueda, data]);
@@ -44,23 +65,19 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
         setPaginaActual(1);
     };
 
-    const obtenerValorPorAccessor = (obj, accessor) => {
-        return accessor.split('.').reduce((valor, clave) => valor?.[clave], obj);
-    };
-
     return (
         <div className="container my-1 w-75 mx-auto mb-5">
             <div className="mb-4 text-center">
-                <h2 className="size-font-title cardMenu-title">{`Administrar ${nombreData}`}</h2>
+                <h2 className="size-font-title cardMenu-title">Administrar {nombreData}</h2>
             </div>
 
             <div className="mb-5 text-center">
-                <h5 className="size-font-subtitle texto-morado2Normal">{`${subTitulo}`}</h5>
+                <h5 className="size-font-subtitle texto-morado2Normal">{subTitulo}</h5>
             </div>
 
             <button
                 className="btn btn-primary btn-agregar"
-                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate(`${rutaBoton}`)}
+                onClick={nombreData === "fechas" ? handleAbrirModal : () => navigate(rutaBoton)}
             >
                 <i className="bi bi-person-add me-2"></i>
                 Agregar {nombreData}
@@ -74,12 +91,13 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
                         <select
                             className="form-select form-select-sm select-mostrar texto-morado2"
                             onChange={handleChangeElementos}
-                            value={elementosPorPagina}>
+                            value={elementosPorPagina}
+                        >
                             <option value={8}>8</option>
                             <option value={12}>12</option>
                             <option value={20}>20</option>
                         </select>
-                        <span className="ms-2 texto-morado2">{`${nombreData}`}</span>
+                        <span className="ms-2 texto-morado2">{nombreData}</span>
                     </div>
                 </div>
 
@@ -127,10 +145,10 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
                             datosPaginados.map((registro, index) => (
                                 <tr key={index} className="fila-tabla">
                                     <td className="celda-icono">
-                                        <button className="boton-icono" title="Eliminar" onClick={() => onDelete(data.id)}>
+                                        <button className="boton-icono" title="Eliminar" onClick={() => onDelete(registro)}>
                                             <i className="bi bi-trash3 icono-basura"></i>
                                         </button>
-                                        <button className="boton-icono" title="Editar" onClick={() => onEdit(registro.idAlumno)}>
+                                        <button className="boton-icono" title="Editar" onClick={() => onEdit(registro)}>
                                             <i className="bi bi-pencil-square icono-editar"></i>
                                         </button>
                                     </td>
@@ -144,8 +162,6 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
                                             </td>
                                         );
                                     })}
-
-
                                 </tr>
                             ))
                         )}
@@ -155,9 +171,7 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
 
             <div className="row mb-3">
                 <div className="col-md-12 text-center">
-                    <span className="texto-gris2">
-                        Total de registros: {datosFiltrados.length}
-                    </span>
+                    <span className="texto-gris2">Total de registros: {datosFiltrados.length}</span>
                 </div>
             </div>
 
@@ -193,9 +207,22 @@ const TablaRegistros = ({ data, columns, nombreData, subTitulo, rutaBoton, onEdi
                 <ModalRegistrarFecha
                     show={mostrarModal}
                     handleClose={handleCerrarModal}
-                    carreras={["Ingeniería en Software", "Administración", "Contaduría"]}
-                    onSubmit={(datos) => console.log("Datos registrados:", datos)}
+                    onSubmit={(datos) => {
+                        onFechaAgregada();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Fecha registrada',
+                            text: 'La fecha fue registrada correctamente.',
+                            confirmButtonColor: '#6f42c1',
+                            timer: 2000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            handleCerrarModal(); // Cierra el modal después del mensaje
+                        });
+                    }}
+                    
                 />
+
             )}
         </div>
     );
