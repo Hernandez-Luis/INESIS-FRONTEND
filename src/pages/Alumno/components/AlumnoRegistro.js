@@ -6,6 +6,7 @@ import sexoService from '../../../services/CatSexoService';
 import grupoService from '../../../services/CatGrupoService';
 import alumnoService from '../../../services/AlumnoService';
 import Swal from 'sweetalert2';
+import UsuarioService from '../../../services/UsuarioService';
 
 
 const AlumnoRegistro = forwardRef((props, ref) => {
@@ -31,6 +32,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [listaSemestres, setListaSemestres] = useState([]);
   const [listaSexo, setListaSexo] = useState([]);
   const [alumnoId, setAlumnoId] = useState(props.id || null);
+  const esEdicion = !!props.alumno;
+
 
   // Obtener datos iniciales
   useEffect(() => {
@@ -58,13 +61,49 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   }, []);
 
   useEffect(() => {
-    if (formValues.matricula) {
+    const cargarDatosAlumno = async () => {
+      if (props.alumno) {
+        try {
+          // Petición para obtener el usuario relacionado con el alumno
+          const usuario = await UsuarioService.getByAlumnoId(props.alumno.id);
+
+          console.log("ESTE ES EL USUARIO", usuario);
+          // Convertimos los datos al formato esperado por el formulario
+          const alumnoEditar = {
+            nombre: props.alumno.nombre || '',
+            apellido: props.alumno.apellido || '',
+            curp: props.alumno.curp || '',
+            correo: props.alumno.correo || '',
+            telefono: props.alumno.telefono || '',
+            matricula: props.alumno.matricula || '',
+            carrera: props.alumno.carrera?.id || '',
+            semestre: props.alumno.semestre?.id || '',
+            grupo: '',
+            sexo: props.alumno.sexo?.id || '',
+            usuario: usuario?.usuario || '', // Aquí se carga el usuario
+            contrasena: usuario?.contrasenia || '',
+          };
+
+          setFormValues(alumnoEditar);
+          setAlumnoId(props.alumno.id);
+        } catch (error) {
+          console.error("Error al cargar usuario del alumno:", error);
+        }
+      }
+    };
+
+    cargarDatosAlumno();
+  }, [props.alumno]);
+
+  useEffect(() => {
+    if (formValues.matricula && !props.alumno) {
       setFormValues(prevState => ({
         ...prevState,
         contrasena: prevState.matricula
       }));
     }
-  }, [formValues.matricula]);
+  }, [formValues.matricula, props.alumno]);
+
 
   useEffect(() => {
     if (
@@ -125,23 +164,28 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     const requiredFields = ['nombre', 'apellido', 'curp', 'correo', 'telefono', 'matricula', 'carrera', 'semestre', 'sexo'];
 
     // Validación de campos requeridos
-    if (requiredFields.includes(name) && !value.trim()) {
-      error = 'Este campo es obligatorio';
+    if (requiredFields.includes(name)) {
+      if (typeof value === 'string') {
+        if (!value.trim()) {
+          error = 'Este campo es obligatorio';
+        }
+      } else if (value === null || value === undefined || value === '') {
+        error = 'Este campo es obligatorio';
+      }
     }
 
     // Validaciones específicas
     switch (name) {
       case 'nombre':
       case 'apellido':
-        if (value.length > 30) error = 'Máximo 30 caracteres';
+        if (typeof value === 'string' && value.length > 30)
+          error = 'Máximo 30 caracteres';
         break;
 
       case 'curp': {
-        // CURP: 18 caracteres bien formados
         const curpRegex = /^[A-Z][AEIOU][A-Z]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HM](AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/;
-        if (!curpRegex.test(value.toUpperCase())) {
+        if (!curpRegex.test(value?.toUpperCase()))
           error = 'Formato CURP inválido';
-        }
         break;
       }
 
@@ -156,11 +200,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         break;
 
       case 'matricula':
-        if (!/^\d+$/.test(value))
-          error = 'Solo se permiten números';
-        break;
-
-      case 'matricula':
         if (!/^\d{10}$/.test(value))
           error = 'La matrícula debe contener exactamente 10 dígitos numéricos';
         break;
@@ -169,6 +208,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     setErrors(prev => ({ ...prev, [name]: error }));
     return error;
   };
+
 
   const validateAllFields = () => {
     const newErrors = {};
@@ -187,7 +227,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       ...config,
       timer: 3000,
       timerProgressBar: true,
-      showConfirmButton: true, 
+      showConfirmButton: true,
       confirmButtonText: 'OK',
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
@@ -211,30 +251,37 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       return;
     }
 
-    // 2. Verificar si CURP, matrícula o correo ya existen
-    try {
-      const alumnoExistente = await alumnoService.checkIfExists(formValues.curp, formValues.matricula, formValues.correo);
-      if (alumnoExistente) {
+    // 2. Verificar si CURP, matrícula o correo ya existen (solo si es nuevo)
+    if (!esEdicion) {
+      try {
+        const alumnoExistente = await alumnoService.checkIfExists(
+          formValues.curp,
+          formValues.matricula,
+          formValues.correo
+        );
+        if (alumnoExistente) {
+          mostrarAlerta({
+            icon: 'info',
+            title: '¡Atención!🔍',
+            text: 'Ya existe un alumno con la misma CURP, matrícula o correo.'
+          });
+          return;
+        }
+      } catch (error) {
         mostrarAlerta({
-          icon: 'info',
-          title: '¡Atención!🔍',
-          text: 'Ya existe un alumno con la misma CURP, matrícula o correo.'
+          icon: 'error',
+          title: 'Error al verificar duplicados',
+          text: 'Hubo un problema al verificar los datos. Intente nuevamente.'
         });
         return;
       }
-    } catch (error) {
-      mostrarAlerta({
-        icon: 'error',
-        title: 'Error al verificar duplicados',
-        text: 'Hubo un problema al verificar los datos. Intente nuevamente.'
-      });
-      return;
     }
 
     try {
+      // 3. Preparar datos
       const carreraSeleccionada = listaCarreras.find(c => c.id.toString() === formValues.carrera.toString());
       const semestreSeleccionado = listaSemestres.find(s => s.id.toString() === formValues.semestre.toString());
-      const sexoSeleccionado = listaSexo.find(s => s.nombreSexo === formValues.sexo);
+      const sexoSeleccionado = listaSexo.find(s => s.id.toString() === formValues.sexo.toString());
 
       const alumnoPayload = {
         nombre: formValues.nombre.trim(),
@@ -253,33 +300,45 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         idCatRol: 1
       };
 
-      const response = await alumnoService.create(alumnoPayload);
+      // 4. Crear o actualizar
+      let response;
+      if (esEdicion) {
+        console.log("si se envian estos datos", props.alumno.id, "contenido: ", alumnoPayload)
+        response = await alumnoService.update(props.alumno.id, alumnoPayload);
+      } else {
+        response = await alumnoService.create(alumnoPayload);
+      }
 
-      if (response.status === 201) {
+      // 5. Confirmar éxito
+      // 5. Confirmar éxito
+      if (response.status === 200 || response.status === 201 || response.status === 204) {
         mostrarAlerta({
           icon: 'success',
-          title: 'Registro exitoso',
-          text: 'Alumno guardado correctamente'
+          title: esEdicion ? 'Alumno actualizado correctamente' : 'Registro exitoso',
+          text: esEdicion
+            ? 'Los datos del alumno fueron modificados correctamente.'
+            : 'Alumno registrado correctamente.'
         });
 
         setFormValues(initialForm);
-        window.history.back();
+        window.history.back(); // O props.onAlumnoGuardado?.()
       } else {
-        throw new Error('Error al registrar el alumno');
+        throw new Error('Error al guardar el alumno');
       }
     } catch (err) {
       console.error(err);
       mostrarAlerta({
         icon: 'error',
-        title: 'Error al registrar',
-        text: err.message || 'No se pudo completar el registro.'
+        title: 'Error al guardar',
+        text: err.message || 'No se pudo completar la operación.'
       });
     }
   };
 
+
   return (
     <div className="mb-5">
-      <h2 className="size-font-title cardMenu-title m-5 text-center">Agregar alumno</h2>
+      <h2 className="size-font-title cardMenu-title m-5 text-center"> {props.alumno ? 'Editar Alumno' : 'Agregar Alumno'}</h2>
 
       <form className="agregar-alumno-container m-5" onSubmit={handleSubmit}>
         {/* Sección Datos Personales */}
@@ -360,15 +419,14 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 onChange={handleChange}
               >
                 <option value="">Selecciona una opción</option>
-                {listaSexo.map(s => (
-                  <option key={s.id} value={s.nombreSexo}>
-                    {s.nombreSexo}
+                {listaSexo.map((sexo) => (
+                  <option key={sexo.id} value={sexo.id}>
+                    {sexo.nombreSexo}
                   </option>
                 ))}
               </select>
               {errors.sexo && <div className="invalid-feedback">{errors.sexo}</div>}
             </div>
-
             <div className="col-md-6">
               <label className="formulario-etiqueta">
                 Teléfono <span className="text-danger">*</span>
@@ -408,8 +466,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                   </option>
                 ))}
               </select>
-
-
               {errors.carrera && <div className="invalid-feedback">{errors.carrera}</div>}
             </div>
 
@@ -485,11 +541,9 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 readOnly
               />
             </div>
-
-
             <div className="d-flex justify-content-center gap-3">
               <button type="submit" className="btn-agregar">
-                Registrar Alumno
+                {props.alumno ? 'Editar Alumno' : 'Agregar Alumno'}
               </button>
             </div>
           </div>

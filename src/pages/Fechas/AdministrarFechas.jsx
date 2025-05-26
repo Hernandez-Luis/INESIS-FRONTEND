@@ -1,36 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import TablaRegistros from '../../components/Tablas/TablaRegistros';
+import fechasRegistradasService from '../../services/FechasRegistradasService';
 
 const AdministrarFechas = () => {
+
+    const [fechas, setFechas] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
         //{ url: '/PrincipalAdmin', label: 'Administrar' },
         { url: '/AdministrarFechas', label: 'Fechas' }
     ];
 
-    const data = [
-        { carrera: "Lic.Biologia", fechaInicio: "01/04/2025", fechaFinal: "01/08/2025" },
-        { carrera: "Lic.Informatica", fechaInicio: "01/04/2025", fechaFinal: "01/08/2025" },
-        { carrera: "Ing.Forestal", fechaInicio: "01/04/2025", fechaFinal: "01/08/2025" },
+    const nombreData = "fechas";
+    const subTitulo = "Se asignan fechas por carrera para  abrir y cerrar la encuesta";
+    // Configuración de columnas
+    const columns = [
+        { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
+        { header: 'Fecha inicial', accessor: 'fechaInicio' },
+        { header: 'Fecha final', accessor: 'fechaFin' },
+        { header: 'Estatus', accessor: 'status' },
     ];
 
-    const titulos = ["Carrera", "Fecha inicial", "Fecha final"];
+    useEffect(() => {
+        const fetchFechas = async () => {
+            try {
+                const data = await fechasRegistradasService.getAll();
+                console.log("REGISTROS:", data);
+                setFechas(data);
+            } catch (err) {
+                setError(err.message || "Error al obtener fechas");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    const nombreData = "fechas";
+        fetchFechas();
+    }, []);
 
-    const subTitulo = "Se asignan fechas por carrera para  abrir y cerrar la encuesta";
+    // Dentro de TablaRegistros o aquí mismo puedes formatear las fechas
+    const formattedData = fechas.map(fecha => ({
+        ...fecha,
+        fechaInicio: new Date(fecha.fechaInicio).toLocaleDateString(),
+        fechaFin: new Date(fecha.fechaFin).toLocaleDateString()
+    }));
+
+    const recargarFechas = async () => {
+        try {
+            const data = await fechasRegistradasService.getAll();
+            setFechas(data);
+        } catch (err) {
+            setError(err.message || "Error al obtener fechas");
+        }
+    };
 
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <TablaRegistros data={data} titulos={titulos} nombreData={nombreData} subTitulo={subTitulo} />
+            <TablaRegistros
+                data={formattedData}
+                columns={columns}
+                nombreData={nombreData}
+                subTitulo={subTitulo}
+                onFechaAgregada={recargarFechas}
+            />
             <FooterInesis />
         </div>
     );
 };
 
-export default AdministrarFechas;
+    export default AdministrarFechas;

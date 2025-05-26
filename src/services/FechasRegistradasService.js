@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/alumno';
+const API_URL = '/fechas-registradas';
 
 const getAll = async () => {
   try {
@@ -22,6 +22,7 @@ const getById = async (id) => {
 
 const create = async (params) => {
   try {
+    console.log("Datos enviados:", params);
     const response = await axiosInstance.post(API_URL, params);
     return response;
   } catch (error) {
@@ -38,20 +39,7 @@ const update = async (id, params) => {
   }
 };
 
-
-const updateAlumnoConUsuario = async (alumnoId, usuarioId) => {
-  try {
-    const response = await axiosInstance.put(
-      `${API_URL}/${alumnoId}/usuario`,
-      { idUsuario: usuarioId }
-    );
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
-};
-
-const deleteAlumno = async (id) => {
+const deleteFecha = async (id) => {
   try {
     await axiosInstance.delete(`${API_URL}/${id}`);
   } catch (error) {
@@ -59,11 +47,15 @@ const deleteAlumno = async (id) => {
   }
 };
 
-const checkIfExists = async (curp, matricula, correo) => {
+const getByCarrera = async (idCarrera) => {
   try {
-    const response = await axiosInstance.get(`${API_URL}/checkExists?curp=${curp}&matricula=${matricula}&correo=${correo}`);
-    return response.data.exists;
+    const response = await axiosInstance.get(`${API_URL}/carrera/${idCarrera}`);
+    return response.data;
   } catch (error) {
+    // Si el backend responde con 404 (no encontrada), devolvemos null
+    if (error.response && error.response.status === 404) {
+      return null;
+    }
     throw error.response.data;
   }
 };
@@ -74,7 +66,6 @@ export default {
   getById,
   create,
   update,
-  updateAlumnoConUsuario,
-  deleteAlumno,
-  checkIfExists
+  deleteFecha,
+  getByCarrera
 };

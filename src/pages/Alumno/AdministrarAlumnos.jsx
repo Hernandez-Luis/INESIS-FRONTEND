@@ -7,6 +7,7 @@ import TablaRegistros from '../../components/Tablas/TablaRegistros';
 import '../Alumno/components/AdministrarAlumnos.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import alumnoService from '../../services/AlumnoService';
+import Swal from 'sweetalert2';
 
 const AdministrarAlumnos = () => {
     const [alumnos, setAlumnos] = useState([]);
@@ -49,21 +50,33 @@ const AdministrarAlumnos = () => {
 
     const rutaBoton = "/AgregarAlumno";
 
-    const editarAlumno = (item) => {
-    navigate(`/AgregarAlumno`);
+  const editarAlumno = (alumno) => {
+    console.log("ESTE DATO ES PARA EDITA ",alumno);
+    navigate('/AgregarAlumno', { state: { alumno } });
 };
 
 
-    const eliminarAlumno = async (matricula) => {
+    const eliminarAlumno = async (alumno) => {
+    const result = await Swal.fire({
+        title: `¿Eliminar a ${alumno.nombre} ${alumno.apellido}?`,
+        text: "Esta acción no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
         try {
-            await alumnoService.deleteAlumno(matricula); // Eliminar el alumno por matrícula
-            setAlumnos(alumnos.filter((alumno) => alumno.matricula !== matricula)); // Actualizar el estado
-            alert('Alumno eliminado con éxito');
+            await alumnoService.deleteAlumno(alumno.id); // o alumno.matricula si aplica
+            setAlumnos(prev => prev.filter(a => a.id !== alumno.id));
+            Swal.fire('Eliminado', 'El alumno fue eliminado correctamente', 'success');
         } catch (error) {
-            console.error("Error al eliminar el alumno:", error);
-            alert('Hubo un error al eliminar el alumno');
+            console.error("Error al eliminar:", error);
+            Swal.fire('Error', 'No se pudo eliminar el alumno', 'error');
         }
-    };
+    }
+};
 
     return (
         <div>
