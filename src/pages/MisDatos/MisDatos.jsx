@@ -16,6 +16,8 @@ import CatSemestreService from '../../services/CatSemestreService'
 import CatEstadoCivilService from '../../services/CatEstadoCivilService'
 import DomicilioCpService from '../../services/DomicilioCpService'
 import CatOcupacionService from '../../services/CatOcupacionService'
+import CatSituacionVivienda from '../../services/CatSituacionVivienda'
+import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -34,6 +36,8 @@ export const MisDatos = ({ onAdd }) => {
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
   const [catOcupacion, setCatOcupacion] = useState([]);
+  const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
+  const [catTipoTrabajo,setCatTipoTrabajo] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
@@ -108,13 +112,34 @@ export const MisDatos = ({ onAdd }) => {
     try {
       let ocupaciones = await CatOcupacionService.getAll();
       setCatOcupacion(ocupaciones)
-      console.log("Ocupacion cat: ", ocupaciones)
+      // console.log("Ocupacion cat: ", ocupaciones)
     } catch (error) {
       console.log("Error al obtener la lista de CatTipoTransporte: ", error)
     }
   }
 
+  const obtenerCatSituacionVivienda = async () => {
+    try {
+      let situacionViviendaLista = await CatSituacionVivienda.getAll();
+      setCatSituacionVivienda(situacionViviendaLista)
+    } catch (error) {
+      console.log("Error al obtener la lista de SituacionVivienda: ", error)
+    }
+  }
+
+  const obtenerCatTipoTrabajo = async () => {
+    try {
+      let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
+      setCatTipoTrabajo(tipoTrabajoLista)
+      console.log("Tipo Trabajo cat: ", tipoTrabajoLista)
+    } catch (error) {
+      console.log("Error al obtener la lista de SituacionVivienda: ", error)
+    }
+  }
+
   useEffect(() => {
+    obtenerCatTipoTrabajo();
+    obtenerCatSituacionVivienda();
     obtenerDatosAlumno();
     obtenerListaMedioTransporte();
     obtenerCatTipoTransporte();
@@ -482,7 +507,10 @@ export const MisDatos = ({ onAdd }) => {
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:</label>
                     <RadioSelect
                       gris={true}
-                      options={['Rento cuarto', 'Rento casa', 'Vivo con familiares']}
+                      options={catSituacionVivienda.map(s => ({
+                        label: s.nombreSituacion,
+                        value: s.id
+                      }))}
                       name={"situacionVivienda"}
                       value={dataMisDatos.situacionVivienda}
                       onChange={actualizarCamposMisDatos}
@@ -585,7 +613,10 @@ export const MisDatos = ({ onAdd }) => {
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                       <RadioSelect
                         gris={true}
-                        options={['Temporal', 'Permanente']}
+                        options={catTipoTrabajo.map (t => ({
+                          label: t.nombreTipo,
+                          value: t.id
+                        }))}
                         onChange={actualizarCampoGastosIngresos}
                         name="trabajoTipo"
                         value={dataGastosIngresos.trabajoTipo}
