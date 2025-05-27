@@ -35,7 +35,7 @@ export const MenuSolicitarBeca = () => {
     if(!idAlumno) return;
     const response = await AlumnoService.getById(idAlumno);
     console.log(response);
-    if(response.misDatos !== null){
+    if(response.misDatos !== null && response.misDatos.completo === true) {
       setCardClasses({
         misDatos: 'completo',
         miTutor: '',

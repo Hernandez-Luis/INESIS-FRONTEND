@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../../styles/StyleCardMenu/CardMenu.css'
 
-export const CardMenu = ({ imgSrc, title, description, link, customClass = '' }) => {
+export const CardMenu = ({ imgSrc, title, description, link, customClass = '', dataToSend = '' }) => {
   const isDisabled = customClass.includes('deshabilitado');
 
   return (
@@ -18,7 +18,7 @@ export const CardMenu = ({ imgSrc, title, description, link, customClass = '' })
         </div>
       ) : (
         // Si no está deshabilitado, renderizamos el Link
-        <Link to={link} className="text-decoration-none">
+        <Link to={{link, state: {data: dataToSend}}} className="text-decoration-none">
           <div className={`card h-100 clickable-cardMenu ${customClass}`}>
             <img src={imgSrc} className="cardMenu-img-top img-fluid" alt={title} />
             <div className="card-body">
