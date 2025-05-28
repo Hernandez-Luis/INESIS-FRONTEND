@@ -241,7 +241,7 @@ export const MisDatos = ({ onAdd }) => {
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
-    console.log("Name: ", name, " Value: ", value)   
+    // console.log("Name: ", name, " Value: ", value)   
     // ******  CONDICIONES *******
 
     if (name === "dependeEconomicamente") {
@@ -291,7 +291,7 @@ export const MisDatos = ({ onAdd }) => {
 
   const actualizarCamposMisDatos = (e) => {
     const { name, value } = e.target;
-    //console.log("Nombre: ", name, " Valor: ", value)
+    console.log("Nombre: ", name, " Valor: ", value)
 
     if (name === "llevaVehiculo") {
       setTieneVehiulo(value)
