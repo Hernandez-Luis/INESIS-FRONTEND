@@ -131,7 +131,6 @@ export const MisDatos = ({ onAdd }) => {
     try {
       let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
       setCatTipoTrabajo(tipoTrabajoLista)
-      console.log("Tipo Trabajo cat: ", tipoTrabajoLista)
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
     }
@@ -242,7 +241,7 @@ export const MisDatos = ({ onAdd }) => {
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
-    // console.log("Name: ", name, " Value: ", value)   
+    console.log("Name: ", name, " Value: ", value)   
     // ******  CONDICIONES *******
 
     if (name === "dependeEconomicamente") {
@@ -603,7 +602,7 @@ export const MisDatos = ({ onAdd }) => {
 
                 {recursos === 'Si' && (
                   <div className="row mt-3">
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                       <input className='form-control w-25' type="text" name='nombreQuienDependes' onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.nombreQuienDependes} />
@@ -637,7 +636,7 @@ export const MisDatos = ({ onAdd }) => {
                       />
                       {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                     </div>
-                    {dataGastosIngresos.ocupacion === "Otro" && (
+                    {dataGastosIngresos.ocupacion === '8' && (
                       <div className="col-5">
                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                         <input
@@ -652,13 +651,13 @@ export const MisDatos = ({ onAdd }) => {
                       </div>
                     )}
 
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
 
                 {recursos === 'No' && (
                   <div className="row mt-3">
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
                       <input
@@ -698,7 +697,7 @@ export const MisDatos = ({ onAdd }) => {
                         name='domicilioTrabajo'
                       />
                     </div>
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
                 <div className="row">

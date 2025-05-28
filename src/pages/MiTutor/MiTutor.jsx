@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import NavInesis from '../../components/NavInesis/NavInesis'
 import FooterInesis from '../../components/FooterInesis/FooterInesis'
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import RadioSelect from '../../components/RadioSelect/RadioSelect';
 import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo';
 import Swal from 'sweetalert2';
+import CatTipoTrabajoService from '../../services/CatTipoTrabajoService';
+import CatOcupacionService from '../../services/CatOcupacionService';
 
 export const MiTutor = () => {
     const links = [
@@ -16,12 +18,37 @@ export const MiTutor = () => {
     // ********************************** DEFINICION DE VARIABLES  *****************************************
     const [selectedOption, setSelectedOption] = useState('');
     const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
+    const [catOcupacion, setCatOcupacion] = useState([])
 
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
 
+    const obtenerCatTipoTrabajo = async () => {
+        try {
+            let catTipoTrabajo = await CatTipoTrabajoService.getAll();
+            setCatTipoTrabajo(catTipoTrabajo)
+        } catch (error) {
+            console.log("Error al obtener la lista de CatTipoTrabajo: ", error)
+        }
+    }
+
+    const obtenerCatOcupacion = async () => {
+        try {
+            let ocupaciones = await CatOcupacionService.getAll();
+            setCatOcupacion(ocupaciones)
+            // console.log("Ocupacion cat: ", ocupaciones)
+        } catch (error) {
+            console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+        }
+    }
+
+    useEffect(() => {
+        obtenerCatTipoTrabajo();
+        obtenerCatOcupacion();
+    }, []);
+
     // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
 
-    const  formularioInicialMitTutor = {
+    const formularioInicialMitTutor = {
         nombreTutor: '',
         telefono: '',
         correo: '',
@@ -31,7 +58,7 @@ export const MiTutor = () => {
         ocupacionOtro: ''
     }
 
-    const [datosMiTutor,setDatosMiTutor] = useState(formularioInicialMitTutor)
+    const [datosMiTutor, setDatosMiTutor] = useState(formularioInicialMitTutor)
 
     const [errores, setErrores] = useState({})
 
@@ -40,13 +67,13 @@ export const MiTutor = () => {
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
 
     const actualizarCamposMiTutor = (e) => {
-    const { name, value } = e.target;
-    // console.log("Nombre: ", name, " Valor: ", value)
-    setDatosMiTutor((prevData) => ({
-      ...prevData,
-      [name]: value
-    }))
-  }
+        const { name, value } = e.target;
+        console.log("Nombre: ", name, " Valor: ", value)
+        setDatosMiTutor((prevData) => ({
+            ...prevData,
+            [name]: value
+        }))
+    }
 
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
 
@@ -112,7 +139,7 @@ export const MiTutor = () => {
 
                                 <label className='fs-5 mt-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco</label>
                                 <input className='form-control' type="text" />
-                                <div class="line mx-auto mt-5 mb-4"></div>
+                                <div className="line mx-auto mt-5 mb-4"></div>
                                 <div className="row mt-3">
                                     <div className="col">
                                         <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Telefono</label>
@@ -125,7 +152,7 @@ export const MiTutor = () => {
                                 </div>
                                 <label className='fs-5 mt-4 mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿Es trabajador de la UNSIJ o SUNEO?</label>
                                 <RadioSelect gris={true} options={['Si', 'No']} />
-                                <div className="col-3">
+                                <div className="row">
                                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                                     <RadioSelect
                                         gris={true}
@@ -133,11 +160,44 @@ export const MiTutor = () => {
                                             label: t.nombreTipo,
                                             value: t.id
                                         }))}
-                                        // onChange={actualizarCampoGastosIngresos}
-                                        name="trabajoTipo"
-                                        // value={dataGastosIngresos.trabajoTipo}
+                                        onChange={actualizarCamposMiTutor}
+                                        name="tipoTrabajo"
+                                        value={datosMiTutor.tipoTrabajo}
                                     />
                                     {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
+                                </div>
+                                <div className='row'>
+                                    <div className="col">
+                                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
+                                        <SeleccionarCombo
+                                            name="ocupacion"
+                                            options={catOcupacion.map(ocupacion => ({
+                                                label: ocupacion.nombreOcupacion,
+                                                value: ocupacion.id
+                                            }))} // Opciones disponibles
+                                            placeholder="Selecciona una opción" // Placeholder
+                                            value={datosMiTutor.ocupacion}
+                                            onChange={actualizarCamposMiTutor}
+                                        />
+                                        {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
+                                    </div>
+                                    <div className="col">
+                                        {datosMiTutor.ocupacion === '8' && (
+                                            <div className="row-5">
+                                                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                                                <input
+                                                    className='form-control w-50'
+                                                    name='otro'
+                                                    type="text"
+                                                    onChange={actualizarCamposMiTutor}
+                                                    value={datosMiTutor.otro}
+                                                />
+                                                {errores.otro && <div className="text-danger">{errores.otro}</div>}
+
+                                            </div>
+                                        )}
+                                    </div>
+
                                 </div>
                             </div>
                             {/* FIN DATOS PERSONALES */}
