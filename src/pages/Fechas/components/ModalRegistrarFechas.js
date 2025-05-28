@@ -5,8 +5,10 @@ import carreraService from '../../../services/CatCarreraService';
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import fechaService from '../../../services/FechasRegistradasService';
+import { FiCalendar, FiBook, FiX } from "react-icons/fi";
 
-const ModalRegistrarFecha = ({  show, 
+const ModalRegistrarFecha = ({  
+  show, 
   handleClose, 
   onSubmit,
   modoEdicion = false, // Nueva prop para determinar el modo
@@ -119,28 +121,29 @@ const ModalRegistrarFecha = ({  show,
       onHide={handleClose}
       centered
       backdrop="static"
-      dialogClassName="modal-dialog-enhanced"
-      contentClassName="bg-purple text-white"
+      className="modal-fechas"
     >
-      <Modal.Header closeButton className="border-bottom-0 text-center close-white">
-        <Modal.Title as="h3" className="text-white fw-bold w-100">
+      <Modal.Header closeButton className="border-bottom-0 text-center close-white modal-header-fechas">
+        <Modal.Title as="h3" className="modal-title-fechas modal-title-icon">
+            <FiCalendar className="modal-title-icon" />
           {modoEdicion ? 'Editar fecha' : 'Registrar fecha'}
         </Modal.Title>
       </Modal.Header>
 
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
-        <Modal.Body className="pt-0">
+        <Modal.Body className="modal-body-fechas">
           <Form.Group className="mb-4">
-            <Form.Label className="text-white fw-bold mb-2">
+             <Form.Label className="form-label-fechas">
+              <FiBook className="label-icon" />
               Carrera:
             </Form.Label>
             
             {modoEdicion ? (
               <Form.Control
+              className="readonly-field"
                 plaintext
-                readOnly
                 value={fechaEditar?.carrera?.nombreCarrera || ''}
-                className="text-white"
+               
               />
             ) : (
               <Form.Select
@@ -149,7 +152,7 @@ const ModalRegistrarFecha = ({  show,
                 onChange={(e) => handleChange('idCarrera', e.target.value)}
                 className="rounded-3 py-2"
               >
-                <option value="">Seleccione una carrera</option>
+                <option value="">Seleccione una</option>
                 {carreras.map((carrera) => (
                   <option key={carrera.id} value={carrera.id}>
                     {carrera.nombreCarrera}
@@ -161,7 +164,8 @@ const ModalRegistrarFecha = ({  show,
 
           <div className="row g-3">
             <Form.Group className="col-md-6 mb-4">
-              <Form.Label className="text-white fw-bold mb-2">
+               <Form.Label className="form-label-fechas">
+                <FiCalendar className="label-icon" />
                 Fecha de Inicio
               </Form.Label>
               <Form.Control
@@ -175,7 +179,8 @@ const ModalRegistrarFecha = ({  show,
             </Form.Group>
 
             <Form.Group className="col-md-6 mb-4">
-              <Form.Label className="text-white fw-bold mb-2">
+               <Form.Label className="form-label-fechas">
+                <FiCalendar className="label-icon" />
                 Fecha de Cierre
               </Form.Label>
               <Form.Control
@@ -188,10 +193,16 @@ const ModalRegistrarFecha = ({  show,
               />
             </Form.Group>
           </div>
+          {!modoEdicion && (
+            <div className="info-card-fechas">
+              <FiCalendar className="info-icon" />
+              <span>Seleccione una carrera que aún no tenga fechas registradas</span>
+            </div>
+          )}
         </Modal.Body>
 
-        <Modal.Footer className="border-top-0 justify-content-center mt-0">
-          <Button type="submit" className="boton-blanco-morado">
+        <Modal.Footer className="modal-footer-fechas">
+          <Button type="submit" className="btn-fechas">
             {modoEdicion ? 'Guardar cambios' : 'Aceptar'}
           </Button>
         </Modal.Footer>

@@ -1,40 +1,154 @@
-.modal-dialog-enhanced .btn {
-  transition: all 0.3s ease;
-  text-transform: uppercase;
+/* Estilos generales del modal */
+.modal-fechas .modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(111, 66, 193, 0.2);
+  border: none;
+}
+
+.modal-luna-header {
+  background: linear-gradient(135deg, #6f42c1, #8a63d2);
+  border-bottom: none;
+  padding: 30px 25px 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.modal-header-fechas {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 20px 25px;
+  position: relative;
+}
+
+.modal-title-fechas {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #6f42c1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-title-icon {
+  font-size: 1.6rem;
+}
+
+.modal-body-fechas {
+  padding: 25px;
+}
+
+/* Estilos para los labels */
+.form-label-fechas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  color: #495057;
+  font-size: 0.95rem;
 }
 
-.close-white .btn-close {
-  filter: invert(1); 
+.label-icon {
+  color: #6f42c1;
 }
 
-
-/* Estilos personalizados para el modal morado */
-.bg-purple {
-  background-color: var(--color-morado2);
-}
-
-.bg-purple .form-control,
-.bg-purple .form-select {
+/* Estilos para los inputs y selects */
+.form-control-fechas, .form-select-fechas {
   background-color: #fff !important;
-  /* Fondo blanco para los inputs */
-  color: var(--color-morado1) !important;
-  /* Texto negro para mejor contraste */
+  border: 1px solid #ced4da !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  color: #495057 !important;
+  font-weight: 500;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+  transition: all 0.3s ease;
 }
 
-.boton-blanco-morado {
-  background-color: var(--color-gris2) !important;
-  color: var(--color-morado1) !important;
-  font-weight: bold;
-  padding: 8px 16px;
-  border-radius: 15px;
-  border: 2px solid var(--color-morado2);
-  transition: background-color 0.3s ease, color 0.3s ease;
+.form-control-fechas:focus, .form-select-fechas:focus {
+  border-color: #6f42c1 !important;
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25) !important;
 }
 
-.boton-blanco-morado:hover {
-  background-color: var(--color-gris2) !important;
-  color: #6b21a8; /* Morado más oscuro */
-  border: 2px solid var(--color-gris1);
+.form-select-fechas {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%236f42c1' fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+
+/* Campo de solo lectura */
+.readonly-field {
+  background-color: #f8f9fa !important;
+  color: #6f42c1 !important;
+  padding: 12px 16px !important;
+  border-radius: 10px;
+  border: 1px solid #e9ecef !important;
+  font-weight: 500;
+}
+
+/* Tarjeta informativa */
+.info-card-fechas {
+  background-color: #f0f2ff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 20px;
+  border-left: 3px solid #6f42c1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.info-icon {
+  color: #6f42c1;
+  flex-shrink: 0;
+}
+
+/* Pie del modal */
+.modal-footer-fechas {
+  border-top: 1px solid #e9ecef;
+  padding: 20px 25px;
+  justify-content: center;
+}
+
+/* Botón principal */
+.btn-fechas {
+  background: #6f42c1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 30px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 10px rgba(111, 66, 193, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-fechas:hover {
+  background: #5a32a0;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(111, 66, 193, 0.4);
+}
+
+.btn-fechas:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .modal-header-fechas, .modal-body-fechas, .modal-footer-fechas {
+    padding: 15px;
+  }
+  
+  .modal-title-fechas {
+    font-size: 1.2rem;
+  }
 }
