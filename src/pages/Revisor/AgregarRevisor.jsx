@@ -1,5 +1,4 @@
 import React from 'react';
-import { useState , useEffect} from 'react';
 import '../../pages/Alumno/components/AdministrarAlumnos.css';
 import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';

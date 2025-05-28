@@ -10,149 +10,103 @@ import ValidationError from './ValidacionFamilia';
 //Servicios cat
 import CatBienesHogarService from '../../../services/CatBienesHogarService';
 import CatEscolaridadService from '../../../services/CatEscolaridadService';
+import CatMaterialViviendaService from '../../../services/CatMaterialViviendaService';
+import CatInternetService from '../../../services/CatInternetService';
 
 const MiFamiliaForm = () => {
-    // ---- ESTADOS DE LOS CATALOGOS
-    const [catbienesHogar, setBienesHogar] = useState([]);
+    // ********************************** DEFINICION DE VARIABLES  *****************************************
+    const [bienesHogar, setBienesHogar] = useState([]);
+    const [selectedBienesHogar, setSelectedBienesHogar] = useState([]);
+
     const [escolaridades, setEscolaridades] = useState([]);
-    const [materialesVivienda, setMaterialesVivienda] = useState([]);
-    const [proveedoresInternet, setProveedoresInternet] = useState([]);
-
-    // ---- CARGAR LOS CATALOGOS AL INICIAR EL COMPONENTE
-    useEffect(() => {
-        const fetchCatalogos = async () => {
-            try {
-                const [bienes, escolaridad, materiales, internet] = await Promise.all([
-                    CatBienesHogarService.getAll(),
-                    CatEscolaridadService.getAll(),
-                    MaterialViviendaService.getAll(),
-                    InternetService.getAll(),
-                ]);
-
-                setBienesHogar(bienes);
-                setEscolaridades(escolaridad);
-                setMaterialesVivienda(materiales);
-                setProveedoresInternet(internet);
-            } catch (error) {
-                console.error('Error al cargar los catálogos', error);
-            }
-        };
-
-        fetchCatalogos();
-    }, []);
-
-    // Estados para radio buttons
-    const [radioValues, setRadioValues] = useState({
-        coincideDomicilio: '',
-        accesoInternet: '',
-    });
-    // Estado para contacto y validación
-    const [contacto, setContacto] = useState('');
-    const [contactoError, setContactoError] = useState('');
-
-    // Estados para escolaridad
     const [escolaridadPadre, setEscolaridadPadre] = useState('');
     const [escolaridadMadre, setEscolaridadMadre] = useState('');
 
-    // Estados para vivienda (selects y checkbox)
-    const [tipoCasa, setTipoCasa] = useState('');
-    const [tipoVivienda, setTipoVivienda] = useState('');
-    const [materialConstruccion, setMaterialConstruccion] = useState('');
-    const [serviciosVivienda, setServiciosVivienda] = useState({
-        luz: false,
-        agua: false,
-        drenaje: false,
-        gas: false,
-    });
+    const [materialesVivienda, setMaterialesVivienda] = useState([]);
+    const [materialSeleccionado, setMaterialSeleccionado] = useState('');
 
-    // Estado para número de habitantes
-    const [numPersonasVivienda, setNumPersonasVivienda] = useState('');
+    const [opcionesInternet, setOpcionesInternet] = useState([]);
+    const [internetSeleccionado, setInternetSeleccionado] = useState('');
 
-    // Estados para medios para estudiar en casa (checkboxes)
-    const [mediosEstudio, setMediosEstudio] = useState({
-        computadora: false,
-        internet: false,
-        celular: false,
-        otros: false,
-    });
+    // **********************************  OBTENER DATOS DE LA BD  *****************************************
+    // - No aplica en frontend directo, porque se consulta desde el backend por API.
 
-    // Estado para hermanos licenciatura
-    const [tienenLic, setTienenLic] = useState('');
+    // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
+    useEffect(() => {
+        obtenerCatalogos();
+    }, []);
 
-    // Controladores para radio buttons
-    const handleSelectionCoincideDomicilio = (value) => {
-        setRadioValues((prev) => ({ ...prev, coincideDomicilio: value }));
-    };
+    // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
+    const obtenerCatalogos = async () => {
+        try {
+            const bienes = await CatBienesHogarService.getAll();
+            const escolaridad = await CatEscolaridadService.getAll();
+            const materiales = await CatMaterialViviendaService.getAll();
+            const internet = await CatInternetService.getAll();
 
-    const handleAccesoInternet = (value) => {
-        setRadioValues((prev) => ({ ...prev, accesoInternet: value }));
-    };
-
-    // Controlador para checkbox servicios de vivienda
-    const handleServiciosChange = (event) => {
-        const { id, checked } = event.target;
-        setServiciosVivienda((prev) => ({
-            ...prev,
-            [id]: checked,
-        }));
-    };
-
-    // Controlador para checkbox medios para estudiar
-    const handleMediosEstudioChange = (event) => {
-        const { id, checked } = event.target;
-        setMediosEstudio((prev) => ({
-            ...prev,
-            [id]: checked,
-        }));
-    };
-
-    // Validación y control para teléfono (solo números y 10 dígitos)
-    const handleContactoChange = (e) => {
-        const valor = e.target.value;
-        const regex = /^[0-9]{0,10}$/;
-        if (regex.test(valor)) {
-            setContacto(valor);
-            setContactoError(valor.length < 10 ? 'El número debe tener al menos 10 dígitos' : '');
+            setBienesHogar(bienes);
+            setEscolaridades(escolaridad);
+            setMaterialesVivienda(materiales);
+            setOpcionesInternet(internet);
+        } catch (error) {
+            console.error('Error al obtener los catálogos', error);
+            mostrarMensajeError('Hubo un error al cargar los catálogos');
         }
     };
 
-    // Controladores para selects de escolaridad y vivienda
-    const handleEscolaridadPadreChange = (value) => setEscolaridadPadre(value);
-    const handleEscolaridadMadreChange = (value) => setEscolaridadMadre(value);
-    const handleTipoCasaChange = (value) => setTipoCasa(value);
-    const handleTipoViviendaChange = (value) => setTipoVivienda(value);
-    const handleMaterialConstruccionChange = (value) => setMaterialConstruccion(value);
-
-    // Control para número de personas en vivienda (solo números hasta 2 dígitos)
-    const handleNumPersonasViviendaChange = (e) => {
-        const valor = e.target.value;
-        const regex = /^[0-9]{0,2}$/;
-        if (regex.test(valor)) setNumPersonasVivienda(valor);
-    };
-
-    // Control para hermanos licenciatura
-    const handleTienenLicChange = (e) => {
-        const valor = e.target.value;
-        const regex = /^[0-9]{0,2}$/;
-        if (regex.test(valor)) setTienenLic(valor);
-    };
-
-    // Función para submit (aquí puedes agregar validaciones antes de enviar)
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (contactoError) {
-            Swal.fire('Error', 'Por favor corrige los errores en el formulario', 'error');
-            return;
+    // **********************************  MANEJADORES DE CAMBIOS  *****************************************
+    const handleCheckBienesHogar = (e) => {
+        const value = e.target.value;
+        if (e.target.checked) {
+            setSelectedBienesHogar([...selectedBienesHogar, value]);
+        } else {
+            setSelectedBienesHogar(selectedBienesHogar.filter((item) => item !== value));
         }
-        // Aquí llamarías a tu API o lo que necesites con los datos
-        Swal.fire('Éxito', 'Datos guardados correctamente', 'success');
     };
 
+    const handleChangeEscolaridadPadre = (e) => {
+        setEscolaridadPadre(e.target.value);
+    };
 
+    const handleChangeEscolaridadMadre = (e) => {
+        setEscolaridadMadre(e.target.value);
+    };
+
+    const handleChangeMaterial = (e) => {
+        setMaterialSeleccionado(e.target.value);
+    };
+
+    const handleChangeInternet = (e) => {
+        setInternetSeleccionado(e.target.value);
+    };
+
+    // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
+    const handleSubmit = () => {
+        const payload = {
+            bienesHogar: selectedBienesHogar,
+            escolaridadPadre,
+            escolaridadMadre,
+            materialVivienda: materialSeleccionado,
+            accesoInternet: internetSeleccionado,
+        };
+
+        console.log('Datos a enviar:', payload);
+        // Aquí puedes hacer el POST con Axios o fetch.
+    };
+
+    // ***********************************  VALIDACION DE CAMPOS  ******************************************
+    // Aquí podrías validar que los campos requeridos no estén vacíos antes de enviar
+
+    // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  ******************************
+    const mostrarMensajeError = (mensaje) => {
+        alert(mensaje);
+    };
+
+    // ******************************************************************************************************
     return (
         <div>
             <div className='d-flex flex-column min-vh-100 mt-3 mb-4 ms-4 me-4'>
-                <form>
+                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                     <div className='tarjeta-border p-4 mb-2'>
                         <div className='row'>
                             <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
@@ -160,19 +114,12 @@ const MiFamiliaForm = () => {
                                 <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                                     ¿El domicilio de tu tutor coincide con el que te encuentras actualmente?
                                 </label>
-                                <RadioSelect
-                                    name='coincideDomicilio'
-                                    gris={true}
-                                    options={['Si', 'No']}
-                                    value={radioValues.coincideDomicilio}
-                                    onChange={handleSelectionCoincideDomicilio}
-                                />
 
                             </div>
 
                             {/* Contenedor para los selects */}
                             <div className='row mt-3'>
-
+                                    /*comunidades*/
                             </div>
                         </div>
                     </div>
@@ -193,52 +140,40 @@ const MiFamiliaForm = () => {
                                             type="tel"
                                             className="form-control"
                                             placeholder="Ingresa el número de teléfono"
-                                            value={contacto}
-                                            onChange={(e) => {
-                                                const valor = e.target.value;
-                                                const regex = /^[0-9]{0,10}$/;
-                                                if (regex.test(valor)) {
-                                                    setContacto(valor);
-                                                    setContactoError(valor.length < 10 ? 'El número debe tener al menos 10 dígitos' : '');
-                                                }
-                                            }}
+
                                         />
-                                        <ValidationError message={contactoError} />
                                     </div>
                                 </div>
 
 
-                                {/* Columna 2: Escolaridad */}
+                                {/* ESCOLARIDAD */}
                                 <div className="col-md-8 d-flex flex-column">
                                     <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                         Escolaridad
                                     </p>
                                     <div className="row">
-                                        {/* Escolaridad del padre */}
                                         <div className="col-6 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                 Escolaridad del padre
                                             </label>
                                             <SeleccionarCombo
-                                                etiqueta='¿Cuál es el nivel de escolaridad del tutor o tutora?'
-                                                id='escolaridad'
-                                                value={escolaridad}
-                                                onChange={(e) => setEscolaridad(e.target.value)}
-                                                opciones={escolaridades.map((item) => ({ id: item.id, descripcion: item.descripcion }))}
+                                                name="escolaridadPadre"
+                                                options={escolaridades.map((e) => ({ value: e.id, label: e.nombreEscolaridad }))}
+                                                value={escolaridadPadre}
+                                                onChange={handleChangeEscolaridadPadre}
+                                                placeholder="Selecciona una opción"
                                             />
                                         </div>
-
-                                        {/* Escolaridad de la madre */}
                                         <div className="col-6">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                 Escolaridad de la madre
                                             </label>
                                             <SeleccionarCombo
-                                                etiqueta='¿Cuál es el nivel de escolaridad del tutor o tutora?'
-                                                id='escolaridad'
-                                                value={escolaridad}
-                                                onChange={(e) => setEscolaridad(e.target.value)}
-                                                opciones={escolaridades.map((item) => ({ id: item.id, descripcion: item.descripcion }))}
+                                                name="escolaridadMadre"
+                                                options={escolaridades.map((e) => ({ value: e.id, label: e.nombreEscolaridad }))}
+                                                value={escolaridadMadre}
+                                                onChange={handleChangeEscolaridadMadre}
+                                                placeholder="Selecciona una opción"
                                             />
                                         </div>
                                     </div>
@@ -256,18 +191,13 @@ const MiFamiliaForm = () => {
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         La casa donde tu familia es:
                                     </label>
-                                    <SeleccionarCombo
 
-                                    />
                                 </div>
 
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Tipo de vivienda
                                     </label>
-                                    <SeleccionarCombo
-
-                                    />
                                 </div>
 
                                 <div className="col-12 col-md-3 mb-3">
@@ -275,13 +205,12 @@ const MiFamiliaForm = () => {
                                         Material de construcción
                                     </label>
                                     <SeleccionarCombo
-                                        etiqueta='¿Cuál es el material de construcción predominante en tu vivienda?'
-                                        id='materialVivienda'
-                                        value={materialesVivienda}
-                                        onChange={(e) => setMaterialesVivienda(e.target.value)}
-                                        opciones={materialesVivienda.map((item) => ({ id: item.id, descripcion: item.descripcion }))}
+                                        name="materialVivienda"
+                                        options={materialesVivienda.map((e) => ({ value: e.id, label: e.nombreMaterial }))}
+                                        value={materialSeleccionado}
+                                        onChange={handleChangeMaterial}
+                                        placeholder="Selecciona el material"
                                     />
-
                                 </div>
 
                                 <div className="col-12 col-md-3 mb-3 ">
@@ -289,7 +218,6 @@ const MiFamiliaForm = () => {
                                         ¿Con qué servicios cuenta la vivienda?
                                     </label>
                                     <div className="row">
-
                                         {/* Primera columna */}
                                         <div className="col-md-4">
 
@@ -309,20 +237,22 @@ const MiFamiliaForm = () => {
                                         ¿En la casa donde vive tu familia hay?
                                     </label>
                                     <div className="row">
-                                        {/* Primera columna */}
-                                        <div className="col-md-3">
-
-                                        </div>
-
-                                        {/* Segunda columna */}
-                                        <div className="col-md-3">
-
-                                        </div>
-
-                                        {/* Tercera columna */}
-                                        <div className="col-md-4">
-
-                                        </div>
+                                        {[0, 1, 2].map((col) => (
+                                            <div className="col-md-3" key={col}>
+                                                {bienesHogar
+                                                    .filter((_, idx) => idx % 3 === col)
+                                                    .map((bien) => (
+                                                        <CheckBox
+                                                            style={{ color: 'var(--color-morado3)' }}
+                                                            key={bien.id}
+                                                            id={bien.id}
+                                                            opcion={bien.nombreBien}
+                                                            checked={selectedBienesHogar.includes(String(bien.id))}
+                                                            onChange={handleCheckBienesHogar}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -373,16 +303,15 @@ const MiFamiliaForm = () => {
                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                     ¿Cuenta con acceso a internet?
                                 </label>
-                                <div className="ms-4">
+                                <div className="col-md-6">
                                     <SeleccionarCombo
-                                        etiqueta='¿Qué proveedor de internet tienen en casa?'
-                                        id='proveedorInternet'
-                                        value={proveedorInternet}
-                                        onChange={(e) => setProveedorInternet(e.target.value)}
-                                        opciones={proveedoresInternet.map((item) => ({ id: item.id, descripcion: item.descripcion }))}
+                                        name="accesoInternet"
+                                        options={opcionesInternet.map((e) => ({ value: e.id, label: e.nombreInternet }))}
+                                        value={internetSeleccionado}
+                                        onChange={handleChangeInternet}
+                                        placeholder="Seleccione una opción"
                                     />
                                 </div>
-
                             </div>
                         </div>
                         <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
