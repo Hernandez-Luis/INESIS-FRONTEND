@@ -7,6 +7,8 @@ import SeleccionarCombo from '../../components/ComboSeleccionar/SeleccionarCombo
 import Swal from 'sweetalert2';
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService';
 import CatOcupacionService from '../../services/CatOcupacionService';
+import CatParentescoService from '../../services/CatParentescoService';
+import MisDatosService from '../../services/MisDatosService';
 
 export const MiTutor = () => {
     const links = [
@@ -18,7 +20,9 @@ export const MiTutor = () => {
     // ********************************** DEFINICION DE VARIABLES  *****************************************
     const [selectedOption, setSelectedOption] = useState('');
     const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
-    const [catOcupacion, setCatOcupacion] = useState([])
+    const [catOcupacion, setCatOcupacion] = useState([]);
+    const [catParentesco, setCatParentesco] = useState([]);
+    const [datosAlumno,setDatosAlumno] = useState([]);
 
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
 
@@ -41,9 +45,39 @@ export const MiTutor = () => {
         }
     }
 
+    const obtenerCatParentesco = async () => {
+        try {
+            let parentescoLista = await CatParentescoService.getAll();
+            setCatParentesco(parentescoLista)
+            console.log("Parentesco cat: ", parentescoLista)
+        } catch (error) {
+            console.log("Error al obtener la lista de CatParentesco: ", error)
+        }
+    }
+
+    const obtenerDatosPorAlumno = async () => {
+    try {
+
+        const usuario = JSON.parse(localStorage.getItem('usuario'));
+        const alumnoId = usuario?.alumnoId;
+
+        if (!alumnoId) {
+            console.error('No se encontró el alumnoId en el localStorage.');
+            return;
+        }
+        let datos = await MisDatosService.getByIdAlumno(alumnoId); // asegúrate de tener definido `id`
+        setDatosAlumno(datos);
+        console.log("Datos del alumno: ", datos);
+    } catch (error) {
+        console.log("Error al obtener datos del alumno: ", error);
+    }
+};
+
     useEffect(() => {
         obtenerCatTipoTrabajo();
         obtenerCatOcupacion();
+        obtenerCatParentesco();
+        obtenerDatosPorAlumno()
     }, []);
 
     // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
@@ -135,10 +169,21 @@ export const MiTutor = () => {
                             <div className="col tarjeta-border me-4 p-5">
                                 <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
                                 <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo</label>
-                                <input className='form-control' type="text" />
+                                <input className='form-control' type="text" value={datosMiTutor.nombreTutor} onChange={actualizarCamposMiTutor} name='nombreTutor' />
+                                <div className='w-25'>
+                                    <label className='fs-5 mt-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco</label>
+                                    <SeleccionarCombo
+                                        name="parentesco"
+                                        options={catParentesco.map(parentesco => ({
+                                            label: parentesco.nombreParentesco,
+                                            value: parentesco.id
+                                        }))} // Opciones disponibles
+                                        placeholder="Selecciona una opción" // Placeholder
+                                        value={datosMiTutor.parentesco}
+                                        onChange={actualizarCamposMiTutor}
+                                    />
+                                </div>
 
-                                <label className='fs-5 mt-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco</label>
-                                <input className='form-control' type="text" />
                                 <div className="line mx-auto mt-5 mb-4"></div>
                                 <div className="row mt-3">
                                     <div className="col">
