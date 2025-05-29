@@ -152,3 +152,18 @@
     font-size: 1.2rem;
   }
 }
+/* AdministrarFechas.css */
+.texto-verde {
+  color: #28a745 !important;
+  font-weight: bold !important;
+}
+
+.texto-naranja {
+  color: #ff9800 !important;
+  font-weight: bold !important;
+}
+
+.texto-rojo {
+  color: #dc3545 !important;
+  font-weight: bold !important;
+}

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import TablaRegistros from '../../components/Tablas/TablaRegistros';
 import fechasRegistradasService from '../../services/FechasRegistradasService';
 import ModalRegistrarFecha from './components/ModalRegistrarFechas';
+import Swal from 'sweetalert2';
+import '../Fechas/components/AdministrarFechas.css';
 
 const AdministrarFechas = () => {
 
@@ -27,13 +30,42 @@ const AdministrarFechas = () => {
         setShowModal(true);
     };
 
+    const handleEliminar = async (fecha) => {
+        const confirmacion = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: `¿Deseas eliminar las fechas para la carrera "${fecha.carrera.nombreCarrera}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (confirmacion.isConfirmed) {
+            try {
+                await fechasRegistradasService.deleteFecha(fecha.id);
+                Swal.fire('Eliminado', 'La fecha ha sido eliminada correctamente.', 'success');
+                recargarFechas();
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error', 'Hubo un problema al eliminar la fecha.', 'error');
+            }
+        }
+    };
     // Configuración de columnas
-    const columns = [
-        { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
-        { header: 'Fecha inicial', accessor: 'fechaInicio' },
-        { header: 'Fecha final', accessor: 'fechaFin' },
-        { header: 'Estatus', accessor: 'status' },
-    ];
+   const columns = [
+  { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
+  { header: 'Fecha inicial', accessor: 'fechaInicioFormateada' },
+  { header: 'Fecha final', accessor: 'fechaFinFormateada' },
+  { 
+    header: 'Estatus', 
+    accessor: 'estatusTexto',
+    Cell: ({ row }) => (
+      <span className={row.original.claseColor}>
+        {row.original.estatusTexto}
+      </span>
+    )
+  },
+];
 
     useEffect(() => {
         const fetchFechas = async () => {
@@ -52,11 +84,30 @@ const AdministrarFechas = () => {
     }, []);
 
     // Dentro de TablaRegistros o aquí mismo puedes formatear las fechas
-    const formattedData = fechas.map(fecha => ({
-        ...fecha,
-        fechaInicio: new Date(fecha.fechaInicio).toLocaleDateString(),
-        fechaFin: new Date(fecha.fechaFin).toLocaleDateString()
-    }));
+    // Solo formatear para mostrar en la tabla
+ const formattedData = fechas.map(fecha => {
+  const fechaInicioFormateada = dayjs(fecha.fechaInicio).format('DD/MM/YYYY');
+  const fechaFinFormateada = dayjs(fecha.fechaFin).format('DD/MM/YYYY');
+
+  let estatusTexto = '';
+  let claseColor = '';
+  
+  if (fecha.active) {
+    estatusTexto = `ACTIVO quedan ${fecha.restante} días`;
+    claseColor = fecha.restante < 5 ? 'texto-naranja' : 'texto-verde';
+  } else {
+    estatusTexto = 'FINALIZADO';
+    claseColor = 'texto-rojo';
+  }
+
+  return {
+    ...fecha,
+    fechaInicioFormateada,
+    fechaFinFormateada,
+    estatusTexto,
+    claseColor  // Nueva propiedad para la clase CSS
+  };
+});
 
     const recargarFechas = async () => {
         try {
@@ -77,7 +128,8 @@ const AdministrarFechas = () => {
                 nombreData={nombreData}
                 subTitulo={subTitulo}
                 onFechaAgregada={recargarFechas}
-                onEdit={handleEditar} 
+                onEdit={handleEditar}
+                onDelete={handleEliminar}
             />
             <ModalRegistrarFecha
                 show={showModal}

@@ -43,16 +43,27 @@
 
 .custom-table {
     margin-bottom: 0;
-    
+    background-color: var(--color-gris2);
 }
 
 .custom-table tbody {
     background-color: var(--color-gris2); /* Gris claro */
+    border-radius: 70%;
 }
 
 .custom-table thead {
     background-color: #f8f9fa;
     
+}
+.custom-table td,
+.custom-table th {
+    background-color: var(--color-gris2);
+}
+
+
+.custom-table {
+    border-radius: 0.6cm; /* borde redondeado */
+    overflow: hidden;
 }
 
 .custom-table th {
@@ -265,4 +276,19 @@
   color: #333;
   cursor: not-allowed;
   border: 0px solid #ddd;
+}
+
+.texto-verde {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.texto-naranja {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.texto-rojo {
+  color: #dc3545;
+  font-weight: bold;
 }
