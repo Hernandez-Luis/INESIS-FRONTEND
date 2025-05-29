@@ -13,6 +13,10 @@ import CatEscolaridadService from '../../../services/CatEscolaridadService';
 import CatMaterialViviendaService from '../../../services/CatMaterialViviendaService';
 import CatInternetService from '../../../services/CatInternetService';
 
+import CatTipoViviendaService from '../../../services/CatTipoViviendaService';
+import CatSituacionViviendaService from '../../../services/CatSituacionViviendaService';
+import CatMediosEstudioService from '../../../services/CatMediosEstudioService';
+
 const MiFamiliaForm = () => {
     // ********************************** DEFINICION DE VARIABLES  *****************************************
     const [bienesHogar, setBienesHogar] = useState([]);
@@ -28,6 +32,14 @@ const MiFamiliaForm = () => {
     const [opcionesInternet, setOpcionesInternet] = useState([]);
     const [internetSeleccionado, setInternetSeleccionado] = useState('');
 
+    const [tiposVivienda, setTiposVivienda] = useState([]);
+    const [tipoViviendaSeleccionado, setTipoViviendaSeleccionado] = useState('');
+
+    const [situacionesVivienda, setSituacionesVivienda] = useState([]);
+    const [situacionViviendaSeleccionada, setSituacionViviendaSeleccionada] = useState('');
+
+    const [mediosEstudio, setMediosEstudio] = useState([]);
+    const [mediosEstudioSeleccionados, setMediosEstudioSeleccionados] = useState([]);
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
     // - No aplica en frontend directo, porque se consulta desde el backend por API.
 
@@ -43,11 +55,18 @@ const MiFamiliaForm = () => {
             const escolaridad = await CatEscolaridadService.getAll();
             const materiales = await CatMaterialViviendaService.getAll();
             const internet = await CatInternetService.getAll();
+            const tipos = await CatTipoViviendaService.getAll();
+            const situaciones = await CatSituacionViviendaService.getAll();
+            const medios = await CatMediosEstudioService.getAll();
 
             setBienesHogar(bienes);
             setEscolaridades(escolaridad);
             setMaterialesVivienda(materiales);
             setOpcionesInternet(internet);
+
+            setTiposVivienda(tipos);
+            setSituacionesVivienda(situaciones);
+            setMediosEstudio(medios);
         } catch (error) {
             console.error('Error al obtener los catálogos', error);
             mostrarMensajeError('Hubo un error al cargar los catálogos');
@@ -80,6 +99,22 @@ const MiFamiliaForm = () => {
         setInternetSeleccionado(e.target.value);
     };
 
+    const handleChangeTipoVivienda = (e) => {
+        setTipoViviendaSeleccionado(e.target.value);
+    };
+
+    const handleChangeSituacionVivienda = (e) => {
+        setSituacionViviendaSeleccionada(e.target.value);
+    };
+
+    const handleCheckMediosEstudio = (e) => {
+        const value = e.target.value;
+        if (e.target.checked) {
+            setMediosEstudioSeleccionados([...mediosEstudioSeleccionados, value]);
+        } else {
+            setMediosEstudioSeleccionados(mediosEstudioSeleccionados.filter((item) => item !== value));
+        }
+    };
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
     const handleSubmit = () => {
         const payload = {
@@ -88,6 +123,9 @@ const MiFamiliaForm = () => {
             escolaridadMadre,
             materialVivienda: materialSeleccionado,
             accesoInternet: internetSeleccionado,
+            tipoVivienda: tipoViviendaSeleccionado,
+            situacionVivienda: situacionViviendaSeleccionada,
+            mediosEstudio: mediosEstudioSeleccionados,
         };
 
         console.log('Datos a enviar:', payload);
@@ -191,15 +229,25 @@ const MiFamiliaForm = () => {
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         La casa donde tu familia es:
                                     </label>
-
+                                    <select className="form-select" value={situacionViviendaSeleccionada} onChange={handleChangeSituacionVivienda}>
+                                        <option value="">Selecciona una opción</option>
+                                        {situacionesVivienda.map((item) => (
+                                            <option key={item.id} value={item.id}>{item.nombreSituacion}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Tipo de vivienda
                                     </label>
+                                    <select className="form-select" value={tipoViviendaSeleccionado} onChange={handleChangeTipoVivienda}>
+                                        <option value="">Selecciona una opción</option>
+                                        {tiposVivienda.map((item) => (
+                                            <option key={item.id} value={item.id}>{item.nombreTipo}</option>
+                                        ))}
+                                    </select>
                                 </div>
-
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Material de construcción
@@ -289,13 +337,23 @@ const MiFamiliaForm = () => {
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Medios para estudiar en casa (marca tantas opciones como sea necesario):
                                     </label>
-                                    <div className='row'>
-                                        <div className="col-md-4">
-
-                                        </div>
-                                        <div className="col-md-4">
-
-                                        </div>
+                                     <div className="row">
+                                        {[0, 1, 2].map((col) => (
+                                            <div className="col-md-3" key={col}>
+                                                {mediosEstudio
+                                                    .filter((_, idx) => idx % 3 === col)
+                                                    .map((item) => (
+                                                        <CheckBox
+                                                            style={{ color: 'var(--color-morado3)' }}
+                                                            key={item.id}
+                                                            id={item.id}
+                                                            opcion={item.nombreMedios}
+                                                            checked={mediosEstudioSeleccionados.includes(String(item.id))}
+                                                            onChange={handleCheckMediosEstudio}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -407,12 +465,10 @@ const MiFamiliaForm = () => {
                                         Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
                                     </label>
                                     <input
-                                    /*type="number"
+                                    type="number"
                                     className="form-control col-md-4 mt-2"
                                     placeholder="Ingrese el numero de hermanos dependientes economicamente"
-                                    value={numDependientes}
-                                    onChange={handleNumDependientesChange}
-                                    min="10"*/
+                                    min="10"
                                     />
                                 </div>
                                 {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
