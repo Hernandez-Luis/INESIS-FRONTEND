@@ -20,7 +20,7 @@ import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
 
 export const MisDatos = ({ onAdd }) => {
-
+  const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
     { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -93,9 +93,10 @@ export const MisDatos = ({ onAdd }) => {
 
   const obtenerDatosAlumno = async () => {
     try {
-      const idAlumno = localStorageData.alumnoId;
       let dataAlumno = await AlumnoService.getById(idAlumno);
       setDatosAlumno(dataAlumno)
+      console.log(dataAlumno?.misDatos);
+      //setMisDatos(dataAlumno?.misDatos)
       setDataMisDatos((prevData) => ({
         ...prevData,
         nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellido,
@@ -103,6 +104,56 @@ export const MisDatos = ({ onAdd }) => {
         semestre: dataAlumno.semestre?.id,
         sexo: dataAlumno.sexo?.id,
       }))
+      if (dataAlumno?.misDatos) {
+        setDataMisDatos((prevData) => ({
+          ...prevData,
+          estadoCivil: dataAlumno?.misDatos.estadoCivil?.id,
+          recursosSuficientes: dataAlumno?.misDatos.recursosSuficientes,
+          nombreCasaHuesped: dataAlumno?.misDatos.nombreCasaHuesped || '',
+          llevaVehiculo: dataAlumno?.misDatos.llevaVehiculo,
+          familiarComunero: dataAlumno?.misDatos.familiarComunero,
+          utilizaCelular: dataAlumno?.misDatos.utilizaCelular,
+          tieneComputadora: dataAlumno?.misDatos.tieneComputadora,
+          idioma: dataAlumno?.misDatos.idioma || '',
+        }))
+        setDataDomicilio((prevData) => ({
+          ...prevData,
+          cp: dataAlumno?.misDatos.domicilio?.cp || '',
+          localidad: dataAlumno?.misDatos.domicilio?.localidad || '',
+          calle: dataAlumno?.misDatos.domicilio?.calle || '',
+          numero: dataAlumno?.misDatos.domicilio?.numero || '',
+          colonia: dataAlumno?.misDatos.domicilio?.colonia || '',
+        }))
+        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente ? 'Si' : 'No')
+        setDataGastosIngresos((prevData) => ({
+          ...prevData,
+          gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
+          dependeEconomicamente: dataAlumno?.misDatos.gastosIngresos?.dependeEconomicamente || '',
+          nombreQuienDependes: dataAlumno?.misDatos.gastosIngresos?.nombreQuienDependes || '',
+          solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia || '',
+          trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
+          ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
+        }))
+        //todo:
+        setDataTrabajo((prevData) => ({
+          ...prevData,
+          nombreTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.nombreTrabajo || '',
+          //toodo:
+        }))
+        setTieneVehiulo(dataAlumno?.misDatos.llevaVehiculo)
+        setDataTransporte((prevData) => ({
+          ...prevData,
+          marca: dataAlumno?.misDatos.transporte?.marca || '',
+          modelo: dataAlumno?.misDatos.transporte?.modelo || '',
+          anio: dataAlumno?.misDatos.transporte?.anio || '',
+          catTipoTransporte: dataAlumno?.misDatos.transporte?.catTipoTransporte?.idCatTipoTransporte || ''
+        }))
+        // Extraer los IDs de los medios seleccionados
+        const mediosSeleccionadosIds = dataAlumno?.misDatos?.mediosTraslado?.map(
+          (medio) => medio.catMediosTransporte.id
+        ) || [];
+        setMediosSeleccionados(mediosSeleccionadosIds);
+      }
     } catch (error) {
       console.log("Error al obtener datos del alumno: ", error)
     }
@@ -131,7 +182,6 @@ export const MisDatos = ({ onAdd }) => {
     try {
       let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
       setCatTipoTrabajo(tipoTrabajoLista)
-      console.log("Tipo Trabajo cat: ", tipoTrabajoLista)
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
     }
@@ -211,6 +261,12 @@ export const MisDatos = ({ onAdd }) => {
 
   const [errores, setErrores] = useState({})
 
+  // *********************************  BUSCAR CP DE LOS DATOS DEL BACK  ***********************************
+  useEffect(() => {
+    if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
+      handleBuscarCP(dataDomicilio.cp);
+    }
+  }, [dataDomicilio.cp]);
 
   // ***************************  OBTENIENDO DATOS DE LA API  ********************************
 
@@ -458,7 +514,7 @@ export const MisDatos = ({ onAdd }) => {
                           value: s.id
                         }))}
                         placeholder="Selecciona una opción"
-                        value={datosAlumno.semestre?.id || ''}
+                        value={dataMisDatos.semestre || ''}
                         onChange={actualizarCamposMisDatos}
                       />
                     </div>
@@ -491,7 +547,7 @@ export const MisDatos = ({ onAdd }) => {
                       options={['Si', 'No']}
                       onChange={actualizarCamposMisDatos}
                       name="recursosSuficientes"
-                      value={dataMisDatos.recursosSuficientes}
+                      value={dataMisDatos.recursosSuficientes ? 'Si':'No'}
                     />
                   </div>
                 </div>
@@ -603,7 +659,7 @@ export const MisDatos = ({ onAdd }) => {
 
                 {recursos === 'Si' && (
                   <div className="row mt-3">
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                       <input className='form-control w-25' type="text" name='nombreQuienDependes' onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.nombreQuienDependes} />
@@ -652,13 +708,13 @@ export const MisDatos = ({ onAdd }) => {
                       </div>
                     )}
 
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
 
                 {recursos === 'No' && (
                   <div className="row mt-3">
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
                       <input
@@ -698,7 +754,7 @@ export const MisDatos = ({ onAdd }) => {
                         name='domicilioTrabajo'
                       />
                     </div>
-                    <div class="line mx-auto mt-5 mb-4"></div>
+                    <div className="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
                 <div className="row">
@@ -727,10 +783,10 @@ export const MisDatos = ({ onAdd }) => {
                   options={['Si', 'No']}
                   onChange={actualizarCamposMisDatos}
                   name={"llevaVehiculo"}
-                  value={dataMisDatos.llevaVehiculo}
+                  value={dataMisDatos.llevaVehiculo ? 'Si':'No'}
                 />
 
-                {tieneVehiulo === 'Si' && (
+                {(tieneVehiulo === 'Si') || tieneVehiulo === true && (
                   <div>
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
                     <div className='w-50'>
@@ -803,7 +859,7 @@ export const MisDatos = ({ onAdd }) => {
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
-                  value={dataMisDatos.familiarComunero}
+                  value={dataMisDatos.familiarComunero ? 'Si':'No'}
                   onChange={actualizarCamposMisDatos}
                   name="familiarComunero"
                 />
@@ -813,7 +869,7 @@ export const MisDatos = ({ onAdd }) => {
                   gris={true}
                   options={['Si', 'No']}
                   name={"utilizaCelular"}
-                  value={dataMisDatos.utilizaCelular}
+                  value={dataMisDatos.utilizaCelular ? 'Si':'No'}
                   onChange={actualizarCamposMisDatos}
                 />
                 <br />
@@ -822,7 +878,7 @@ export const MisDatos = ({ onAdd }) => {
                   gris={true}
                   options={['Si', 'No']}
                   name={"tieneComputadora"}
-                  value={dataMisDatos.tieneComputadora}
+                  value={dataMisDatos.tieneComputadora ? 'Si':'No'}
                   onChange={actualizarCamposMisDatos}
                 />
                 <br />
