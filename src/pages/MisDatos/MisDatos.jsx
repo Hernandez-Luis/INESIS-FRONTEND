@@ -256,7 +256,7 @@ export const MisDatos = ({ onAdd }) => {
       setDataTrabajo(formularioInicialTrabajo)
     }
 
-    if (name === "ocupacion" && value !== "Otro") {
+    if (name === "ocupacion") {
       setDataGastosIngresos((prevData) => ({
         ...prevData,
         ocupacion: value,

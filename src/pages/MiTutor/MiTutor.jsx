@@ -18,11 +18,16 @@ export const MiTutor = () => {
     ];
 
     // ********************************** DEFINICION DE VARIABLES  *****************************************
-    const [selectedOption, setSelectedOption] = useState('');
     const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
     const [catOcupacion, setCatOcupacion] = useState([]);
     const [catParentesco, setCatParentesco] = useState([]);
-    const [datosAlumno,setDatosAlumno] = useState([]);
+    const [datosAlumno, setDatosAlumno] = useState([]);
+
+    // --------- INFOMRACION DE MI TUTOR DESDE MIS DATOS --------------
+    const [nombreTutorMisDatos, setNombreTutor] = useState();
+    const [tipoTrabajoMisDatos, setTipoTrabajoMisDatos] = useState();
+    const [ocupacionMisDatos, setOcupacionMisDatos] = useState();
+    const [ocupacionOtroMisDatos, setOcupacionOtroMisDatos] = useState();
 
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
 
@@ -39,7 +44,6 @@ export const MiTutor = () => {
         try {
             let ocupaciones = await CatOcupacionService.getAll();
             setCatOcupacion(ocupaciones)
-            // console.log("Ocupacion cat: ", ocupaciones)
         } catch (error) {
             console.log("Error al obtener la lista de CatTipoTransporte: ", error)
         }
@@ -49,47 +53,83 @@ export const MiTutor = () => {
         try {
             let parentescoLista = await CatParentescoService.getAll();
             setCatParentesco(parentescoLista)
-            console.log("Parentesco cat: ", parentescoLista)
         } catch (error) {
             console.log("Error al obtener la lista de CatParentesco: ", error)
         }
     }
 
     const obtenerDatosPorAlumno = async () => {
-    try {
-
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        const alumnoId = usuario?.alumnoId;
-
-        if (!alumnoId) {
-            console.error('No se encontró el alumnoId en el localStorage.');
-            return;
+        try {
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+            const alumnoId = usuario?.alumnoId;
+            if (!alumnoId) {
+                console.error('No se encontró el alumnoId en el localStorage.');
+                return;
+            }
+            let datos = await MisDatosService.getByIdAlumno(alumnoId); // asegúrate de tener definido `id`
+            setDatosAlumno(datos);
+            // console.log("Datos del alumno: ", datos);
+        } catch (error) {
+            console.log("Error al obtener datos del alumno: ", error);
         }
-        let datos = await MisDatosService.getByIdAlumno(alumnoId); // asegúrate de tener definido `id`
-        setDatosAlumno(datos);
-        console.log("Datos del alumno: ", datos);
-    } catch (error) {
-        console.log("Error al obtener datos del alumno: ", error);
+    };
+
+    const obtenerDatosTutorDeMisDatos = () => {
+        let dependeEconomicamente = datosAlumno?.gastosIngresos?.dependeEconomicamente;
+        // console.log('depende: ', dependeEconomicamente)
+        if (dependeEconomicamente === 'Si') {
+            setNombreTutor(datosAlumno?.gastosIngresos?.nombreQuienDependes);
+            setTipoTrabajoMisDatos(datosAlumno?.gastosIngresos?.catTipoTrabajo?.id)
+            setOcupacionMisDatos(datosAlumno?.gastosIngresos?.ocupacionModel?.id)
+            setOcupacionOtroMisDatos(datosAlumno?.gastosIngresos?.otro)
+        }
     }
-};
 
     useEffect(() => {
         obtenerCatTipoTrabajo();
         obtenerCatOcupacion();
         obtenerCatParentesco();
-        obtenerDatosPorAlumno()
+        obtenerDatosPorAlumno();
     }, []);
+
+    useEffect(() => {
+        if (datosAlumno) {
+            obtenerDatosTutorDeMisDatos();
+        }
+    }, [datosAlumno]);
+
+    useEffect(() => {
+        setDatosMiTutor(prev => ({
+            ...prev,
+            nombreTutor: nombreTutorMisDatos || '',
+            tipoTrabajo: tipoTrabajoMisDatos || '',
+            ocupacion: ocupacionMisDatos || '',
+            ocupacionOtro: ocupacionOtroMisDatos || ''
+        }));
+    }, [nombreTutorMisDatos, tipoTrabajoMisDatos, ocupacionMisDatos, ocupacionOtroMisDatos]);
+
+
+    // useEffect(() => {
+    //     if (nombreTutorMisDatos || tipoTrabajoMisDatos || ocupacionMisDatos || ocupacionOtroMisDatos) {
+    //         console.log("📌 Datos del tutor actualizados:");
+    //         console.log("Tutor:", nombreTutorMisDatos);
+    //         console.log("Tipo de trabajo:", tipoTrabajoMisDatos);
+    //         console.log("Ocupación:", ocupacionMisDatos);
+    //         console.log("Ocupación otro:", ocupacionOtroMisDatos);
+    //     }
+    // }, [nombreTutorMisDatos, tipoTrabajoMisDatos, ocupacionMisDatos, ocupacionOtroMisDatos]);
 
     // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
 
     const formularioInicialMitTutor = {
-        nombreTutor: '',
+        nombreTutor: nombreTutorMisDatos ? nombreTutorMisDatos : '',
         telefono: '',
         correo: '',
         trabajadorSuneo: '',
         comparteVivienda: '',
         tipoTrabajo: '',
-        ocupacionOtro: ''
+        ocupacion: '',
+        ocupacionOtro: null
     }
 
     const [datosMiTutor, setDatosMiTutor] = useState(formularioInicialMitTutor)
@@ -102,11 +142,21 @@ export const MiTutor = () => {
 
     const actualizarCamposMiTutor = (e) => {
         const { name, value } = e.target;
-        console.log("Nombre: ", name, " Valor: ", value)
-        setDatosMiTutor((prevData) => ({
-            ...prevData,
-            [name]: value
-        }))
+        // console.log("Nombre: ", name, " Valor: ", value)
+
+        if (name == 'ocupacion') {
+            setDatosMiTutor((prevData) => ({
+                ...prevData,
+                ocupacion: value,
+                ocupacionOtro: ''
+            }))
+        } else {
+            setDatosMiTutor((prevData) => ({
+                ...prevData,
+                [name]: value
+            }))
+        }
+
     }
 
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
@@ -227,15 +277,15 @@ export const MiTutor = () => {
                                         {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                                     </div>
                                     <div className="col">
-                                        {datosMiTutor.ocupacion === '8' && (
+                                        {datosMiTutor?.ocupacion == 8 && (
                                             <div className="row-5">
                                                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                                                 <input
                                                     className='form-control w-50'
-                                                    name='otro'
+                                                    name='ocupacionOtro'
                                                     type="text"
                                                     onChange={actualizarCamposMiTutor}
-                                                    value={datosMiTutor.otro}
+                                                    value={datosMiTutor.ocupacionOtro}
                                                 />
                                                 {errores.otro && <div className="text-danger">{errores.otro}</div>}
 
