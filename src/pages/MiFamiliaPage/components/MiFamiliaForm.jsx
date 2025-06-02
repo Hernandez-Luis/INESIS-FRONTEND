@@ -15,10 +15,22 @@ import CatInternetService from '../../../services/CatInternetService';
 
 import CatTipoViviendaService from '../../../services/CatTipoViviendaService';
 import CatSituacionViviendaService from '../../../services/CatSituacionViviendaService';
-import CatMediosEstudioService from '../../../services/CatMediosEstudioService';
+import CatMediosEstudioService from '../../../services/catMediosEstudioService';
+import CatServiciosOtro from '../../../services/CatServiciosOtro';
+
+
+import MiFamiliaService from '../../../services/MiFamiliaService';
+import PersonasDependientesService from '../../../services/personasDependientesService';
+import MediosEstudioService from '../../../services/MediosEstudiosService';
+import viviendaFamiliarService from '../../../services/viviendaFamiliarService';
+import serviciosViviendaService from '../../../services/serviciosViviendaService';
+import BienesHogarService from '../../../services/BienesHogarService';
+import personasDependientesService from '../../../services/personasDependientesService';
+import MediosEstudiosService from '../../../services/MediosEstudiosService';
 
 const MiFamiliaForm = () => {
     // ********************************** DEFINICION DE VARIABLES  *****************************************
+    // ****************************** CATALOGOS ************************************************
     const [bienesHogar, setBienesHogar] = useState([]);
     const [selectedBienesHogar, setSelectedBienesHogar] = useState([]);
 
@@ -40,13 +52,44 @@ const MiFamiliaForm = () => {
 
     const [mediosEstudio, setMediosEstudio] = useState([]);
     const [mediosEstudioSeleccionados, setMediosEstudioSeleccionados] = useState([]);
+
+    const [serviciosOtro, setServiciosOtro] = useState([]);
+    const [servicioOtroSeleccionado, setServiciosOtroSeleccionda] = useState([]);
+
+    const [nombreCompleto, setNombreCompleto] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [idDomicilio, setIdDomicilio] = useState(null);
+    const [viviendaFamiliarSeleccionada, setViviendaFamiliarSeleccionada] = useState(null);
+
+    // ********************************* RELACION CON CATALOGOS *******************************************
+    const [numPersonasHabitan, setNumPersonasHabitan] = useState('');
+    const OTRO_ID = 5;
+    const [otroServicioTexto, setOtroServicioTexto] = useState('');
+
+
+    const [numHermanos, setNumHermanos] = useState('');
+    const [numHermanosEstudiando, setNumHermanosEstudiando] = useState('');
+    const [numHermanosNoEstudiando, setNumHermanosNoEstudiando] = useState('');
+    const [numHermanosLicenciatura, setNumHermanosLicenciatura] = useState('');
+
+    const [numDependientes, setNumDependientes] = useState(0);
+    const [dependientes, setDependientes] = useState([]);
+
+
+
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
+    const localStorageData = JSON.parse(localStorage.getItem('miFamilia'))
+    const idMiFamilia = localStorageData?.id_mi_familia;
+
+
     // - No aplica en frontend directo, porque se consulta desde el backend por API.
 
     // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
     useEffect(() => {
         obtenerCatalogos();
     }, []);
+
+    //******************************* INICIALIZACION DE FORMULARIO *********************************** */
 
     // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
     const obtenerCatalogos = async () => {
@@ -58,6 +101,7 @@ const MiFamiliaForm = () => {
             const tipos = await CatTipoViviendaService.getAll();
             const situaciones = await CatSituacionViviendaService.getAll();
             const medios = await CatMediosEstudioService.getAll();
+            const serviciosOtro = await CatServiciosOtro.getAll();
 
             setBienesHogar(bienes);
             setEscolaridades(escolaridad);
@@ -67,6 +111,7 @@ const MiFamiliaForm = () => {
             setTiposVivienda(tipos);
             setSituacionesVivienda(situaciones);
             setMediosEstudio(medios);
+            setServiciosOtro(serviciosOtro);
         } catch (error) {
             console.error('Error al obtener los catálogos', error);
             mostrarMensajeError('Hubo un error al cargar los catálogos');
@@ -74,15 +119,6 @@ const MiFamiliaForm = () => {
     };
 
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
-    const handleCheckBienesHogar = (e) => {
-        const value = e.target.value;
-        if (e.target.checked) {
-            setSelectedBienesHogar([...selectedBienesHogar, value]);
-        } else {
-            setSelectedBienesHogar(selectedBienesHogar.filter((item) => item !== value));
-        }
-    };
-
     const handleChangeEscolaridadPadre = (e) => {
         setEscolaridadPadre(e.target.value);
     };
@@ -107,6 +143,24 @@ const MiFamiliaForm = () => {
         setSituacionViviendaSeleccionada(e.target.value);
     };
 
+    const handleCheckBienesHogar = (e) => {
+        const value = e.target.value;
+        if (e.target.checked) {
+            setSelectedBienesHogar([...selectedBienesHogar, value]);
+        } else {
+            setSelectedBienesHogar(selectedBienesHogar.filter((item) => item !== value));
+        }
+    };
+
+    const handleCheckServiciosOtro = (e) => {
+        const value = e.target.value;
+        if (e.target.checked) {
+            setServiciosOtroSeleccionda([...servicioOtroSeleccionado, value]);
+        } else {
+            setServiciosOtroSeleccionda(servicioOtroSeleccionado.filter((item) => item !== value));
+        }
+    };
+
     const handleCheckMediosEstudio = (e) => {
         const value = e.target.value;
         if (e.target.checked) {
@@ -115,21 +169,138 @@ const MiFamiliaForm = () => {
             setMediosEstudioSeleccionados(mediosEstudioSeleccionados.filter((item) => item !== value));
         }
     };
-    // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
-    const handleSubmit = () => {
-        const payload = {
-            bienesHogar: selectedBienesHogar,
-            escolaridadPadre,
-            escolaridadMadre,
-            materialVivienda: materialSeleccionado,
-            accesoInternet: internetSeleccionado,
-            tipoVivienda: tipoViviendaSeleccionado,
-            situacionVivienda: situacionViviendaSeleccionada,
-            mediosEstudio: mediosEstudioSeleccionados,
-        };
+    //Actualizar dinamicamente el num de personas dependientes
+    const handleNumDependientesChange = (e) => {
+        const value = parseInt(e.target.value, 10);
+        setNumDependientes(value);
 
-        console.log('Datos a enviar:', payload);
-        // Aquí puedes hacer el POST con Axios o fetch.
+        const nuevosDependientes = Array.from({ length: value }, (_, i) => ({
+            nombre: '',
+            edad: '',
+            parentesco: '',
+            archivo: null,
+        }));
+
+        setDependientes(nuevosDependientes);
+    };
+
+    const handleChangeDependiente = (index, field, value) => {
+        const nuevos = [...dependientes];
+        nuevos[index][field] = value;
+        setDependientes(nuevos);
+    };
+
+    const handleFileUpload = (index, file) => {
+        const nuevos = [...dependientes];
+        nuevos[index].archivo = file;
+        setDependientes(nuevos);
+    };
+
+    const mostrarMensajeErrorAlGuardar = (mensaje) => {
+        Swal.fire('Error', mensaje, 'error');
+    };
+
+    const mostrarMensajeExito = (mensaje) => {
+        Swal.fire('Éxito', mensaje, 'success');
+    };
+
+    // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
+
+    const handleSubmit = async () => {
+        try {
+            // 1. Guardar medios 
+            const mediosEstudioPayload = {
+                id_cat_medios_estudios: parseInt(mediosEstudioSeleccionados)
+            }
+            console.log('Payload a enviar:', mediosEstudioPayload);
+            await MediosEstudioService.create(mediosEstudioPayload)
+
+            // 2. guardar viviendas familiares
+            const viviendaPayload = {
+                num_personas_habitan: parseInt(numPersonasHabitan),
+                id_cat_situacion_vivienda: parseInt(situacionViviendaSeleccionada),
+                id_cat_tipo_vivienda: parseInt(tipoViviendaSeleccionado),
+                id_cat_material_vivienda: parseInt(materialSeleccionado),
+                servicios_otro: otroServicioTexto 
+            };
+            console.log('Payload a enviar:', viviendaPayload);
+            const viviendaResponse = await viviendaFamiliarService.create(viviendaPayload);
+            const viviendaId = viviendaResponse.id || viviendaResponse.data.id;
+            if (!viviendaId) {
+                throw new Error('No se obtuvo el id de vivienda familiar tras crearla');
+            }
+
+            // 3. Guardar servicios vivienda, ahora con id_vivienda_familiar incluido
+            const serviciosPromises = servicioOtroSeleccionado.map((id) => {
+                const payload = {
+                    servicioViviendaId: parseInt(id),
+                    id_vivienda_familiar: viviendaId
+                };
+                if (parseInt(id) === OTRO_ID && otroServicioTexto.trim() !== '') {
+                    payload.otro = otroServicioTexto;
+                }
+                return serviciosViviendaService.create(payload);
+            });
+
+            // 4. Guardar Mi Familia
+            const familiaPayload = {
+                nombreCompleto: nombreCompleto || '', 
+                idDomicilio: idDomicilio || null,    
+                telefono: telefono || '',             
+                numHermanos: parseInt(numHermanos),
+                numHermanosEstudiando: parseInt(numHermanosEstudiando),
+                numHermanosNoEstudiando: parseInt(numHermanosNoEstudiando),
+                numHermanosLicenciatura: parseInt(numHermanosLicenciatura),
+                viviendaFamiliar: viviendaId,       
+                mediosEstudio: mediosEstudioSeleccionados,  
+                escolaridadPadre: parseInt(escolaridadPadre),
+                escolaridadMadre: parseInt(escolaridadMadre),
+            };
+
+
+            console.log('Payload a enviar mi familia:', familiaPayload);
+            const miFamiliaResponse = await MiFamiliaService.create(familiaPayload);
+            const miFamiliaId = miFamiliaResponse.id || miFamiliaResponse.params.id;
+            if (!miFamiliaId) {
+                throw new Error('No se obtuvo el id de mi familia tras crearla');
+            }
+
+            // 5. Guardar dependientes
+            const dependientesPromises = dependientes.map((dep) => {
+                const formData = new FormData();
+                formData.append('nombre', dep.nombre);
+                formData.append('edad', dep.edad);
+                formData.append('parentesco', dep.parentesco);
+                if (dep.archivo) {
+                    formData.append('archivo', dep.archivo);
+                }
+                return personasDependientesService.create(formData);
+            });
+
+            // 6. Guardar bienes hogar
+            const bienesHogarPayload = selectedBienesHogar.map(selectedBienesHogar => ({
+                id_mi_familia: idMiFamilia,
+                id_cat_bienes_hogar: parseInt(selectedBienesHogar)
+            }));
+
+            console.log('Payload bienes hogar:', bienesHogarPayload);
+
+            for (const bien of bienesHogarPayload) {
+                try {
+                    await BienesHogarService.create(bien);
+                } catch (error) {
+                    console.error('Error al guardar bien del hogar:', bien, error);
+                    mostrarMensajeErrorAlGuardar(`Error al guardar un bien del hogar con ID ${bien.id_cat_bienes_hogar}`);
+                }
+            }
+
+
+            // Ejecutar todas las promesas en paralelo
+            await Promise.all(serviciosPromises);
+            mostrarMensajeExito('Datos guardados correctamente');
+        } catch (error) {
+            mostrarMensajeErrorAlGuardar('Ocurrió un error al guardar la información');
+        }
     };
 
     // ***********************************  VALIDACION DE CAMPOS  ******************************************
@@ -158,6 +329,11 @@ const MiFamiliaForm = () => {
                             {/* Contenedor para los selects */}
                             <div className='row mt-3'>
                                     /*comunidades*/
+                                <input
+                                    type="text"
+                                    value={nombreCompleto}
+                                    onChange={(e) => setNombreCompleto(e.target.value)}
+                                />
                             </div>
                         </div>
                     </div>
@@ -178,12 +354,11 @@ const MiFamiliaForm = () => {
                                             type="tel"
                                             className="form-control"
                                             placeholder="Ingresa el número de teléfono"
-
+                                            value={telefono}
+                                            onChange={(e) => setTelefono(e.target.value)}
                                         />
                                     </div>
                                 </div>
-
-
                                 {/* ESCOLARIDAD */}
                                 <div className="col-md-8 d-flex flex-column">
                                     <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
@@ -222,9 +397,7 @@ const MiFamiliaForm = () => {
                             <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Vivienda
                             </p>
-                            {/* Fila para los campos de escolaridad */}
                             <div className="row px-4 ">
-                                {/* Escolaridad de padre */}
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         La casa donde tu familia es:
@@ -266,17 +439,38 @@ const MiFamiliaForm = () => {
                                         ¿Con qué servicios cuenta la vivienda?
                                     </label>
                                     <div className="row">
-                                        {/* Primera columna */}
-                                        <div className="col-md-4">
-
-                                        </div>
-                                        {/* Segunda columna */}
-                                        <div className="col-md-4">
-
-                                        </div>
-                                        <div className="col-md-4">
-                                        </div>
+                                        {[0, 1, 2].map((col) => (
+                                            <div className="col-md-4" key={col}>
+                                                {serviciosOtro
+                                                    .filter((_, idx) => idx % 3 === col)
+                                                    .map((otro) => (
+                                                        <CheckBox
+                                                            style={{ color: 'var(--color-morado3)' }}
+                                                            key={otro.id}
+                                                            id={otro.id}
+                                                            opcion={otro.nombreServicio}
+                                                            checked={servicioOtroSeleccionado.includes(String(otro.id))}
+                                                            onChange={handleCheckServiciosOtro}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        ))}
+                                        {servicioOtroSeleccionado.includes(OTRO_ID) && (
+                                            <div className="col-md-4 mb-3">
+                                                <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
+                                                    Especifique otro servicio:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={otroServicioTexto}
+                                                    onChange={(e) => setOtroServicioTexto(e.target.value)}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
+
+
                                 </div>
                             </div>
                             <div className='row gap-3 px-4'>
@@ -310,34 +504,24 @@ const MiFamiliaForm = () => {
                             <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Información complementaria
                             </p>
-                            {/* Fila para los campos de escolaridad */}
                             <div className="row gab-3 px-4">
-                                {/* Escolaridad de padre */}
                                 <div className="col-md-4 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Cuántas personas habitan en la vivienda?
                                     </label>
                                     <input
-                                    /* type="text"
-                                     className="form-control"
-                                     placeholder=""
-                                     value={vivienda}
-                                     onChange={(e) => {
-                                         const valor = e.target.value;
-                                         const regex = /^[0-9]{0,2}$/; // Permite 0 a 2 dígitos numéricos
-
-                                         if (regex.test(valor)) {
-                                             setVivienda(valor);
-                                         }
-                                     }}*/
+                                        type="number"
+                                        className="form-control"
+                                        min="1"
+                                        value={numPersonasHabitan}
+                                        onChange={(e) => setNumPersonasHabitan(e.target.value)}
                                     />
-
                                 </div>
                                 <div className="col-12 col-md-8 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Medios para estudiar en casa (marca tantas opciones como sea necesario):
                                     </label>
-                                     <div className="row">
+                                    <div className="row">
                                         {[0, 1, 2].map((col) => (
                                             <div className="col-md-3" key={col}>
                                                 {mediosEstudio
@@ -383,15 +567,10 @@ const MiFamiliaForm = () => {
                                         ¿Cuántos hermanos tienes?
                                     </label>
                                     <input
-                                    /*type="text"
-                                    className="form-control"
-                                    placeholder=""
-                                    value={numHermanos}
-                                    onChange={(e) => {
-                                        const valor = e.target.value;
-                                        const regex = /^[0-9]{0,2}$/;
-                                        if (regex.test(valor)) setNumHermanos(valor);
-                                    }}*/
+                                        type="number"
+                                        className="form-control"
+                                        value={numHermanos}
+                                        onChange={(e) => setNumHermanos(e.target.value)}
                                     />
                                 </div>
 
@@ -401,15 +580,10 @@ const MiFamiliaForm = () => {
                                         ¿Cuántos están estudiando?
                                     </label>
                                     <input
-                                    /*type="text"
-                                    className="form-control"
-                                    placeholder=""
-                                    value={hermanosEstudian}
-                                    onChange={(e) => {
-                                        const valor = e.target.value;
-                                        const regex = /^[0-9]{0,2}$/;
-                                        if (regex.test(valor)) setHermanosEstudian(valor);
-                                    }}*/
+                                        type="number"
+                                        className="form-control"
+                                        value={numHermanosEstudiando}
+                                        onChange={(e) => setNumHermanosEstudiando(e.target.value)}
                                     />
                                 </div>
 
@@ -419,15 +593,10 @@ const MiFamiliaForm = () => {
                                         ¿Cuántos dejaron de estudiar?
                                     </label>
                                     <input
-                                    /*type="number"
-                                    className="form-control"
-                                    placeholder=""
-                                    value={dejanEstudio}
-                                    onChange={(e) => {
-                                        const valor = e.target.value;
-                                        const regex = /^[0-9]{0,2}$/;
-                                        if (regex.test(valor)) setDejanEstudio(valor);
-                                    }}*/
+                                        type="number"
+                                        className="form-control"
+                                        value={numHermanosNoEstudiando}
+                                        onChange={(e) => setNumHermanosNoEstudiando(e.target.value)}
                                     />
                                 </div>
 
@@ -437,20 +606,12 @@ const MiFamiliaForm = () => {
                                         ¿Cuántos tienen licenciatura?
                                     </label>
                                     <input
-                                    /*type="number"
-                                    className="form-control"
-                                    placeholder=""
-                                    value={tienenLic}
-                                    onChange={(e) => {
-                                        const valor = e.target.value;
-                                        const regex = /^[0-9]{0,2}$/;
-                                        if (regex.test(valor)) setTienenLic(valor);
-                                    }}*/
+                                        type="number"
+                                        className="form-control"
+                                        value={numHermanosLicenciatura}
+                                        onChange={(e) => setNumHermanosLicenciatura(e.target.value)}
                                     />
                                 </div>
-
-
-
                             </div>
                         </div>
 
@@ -465,18 +626,64 @@ const MiFamiliaForm = () => {
                                         Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
                                     </label>
                                     <input
-                                    type="number"
-                                    className="form-control col-md-4 mt-2"
-                                    placeholder="Ingrese el numero de hermanos dependientes economicamente"
-                                    min="10"
+                                        type="number"
+                                        className="form-control col-md-4 mt-2"
+                                        placeholder="Número de personas dependientes"
+                                        value={numDependientes}
+                                        min="0"
+                                        onChange={handleNumDependientesChange}
                                     />
                                 </div>
                                 {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
+                                {dependientes.map((dep, index) => (
+                                    <div key={index} className="col-12 tarjeta-border p-4 mb-2">
+                                        <div className="row">
+                                            <div className="col-md-3">
+                                                <label>Nombre completo:</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={dep.nombre}
+                                                    onChange={(e) => handleChangeDependiente(index, 'nombre', e.target.value)}
+                                                />
+                                            </div>
 
+                                            <div className="col-md-2">
+                                                <label>Edad:</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    value={dep.edad}
+                                                    onChange={(e) => handleChangeDependiente(index, 'edad', e.target.value)}
+                                                />
+                                            </div>
+
+                                            <div className="col-md-2">
+                                                <label>Parentesco:</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={dep.parentesco}
+                                                    onChange={(e) => handleChangeDependiente(index, 'parentesco', e.target.value)}
+                                                />
+                                            </div>
+
+                                            <div className="col-md-5">
+                                                <label>Comprobante (CURP, Acta, etc.):</label>
+                                                <input
+                                                    type="file"
+                                                    className="form-control"
+                                                    onChange={(e) => handleFileUpload(index, e.target.files[0])}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                             <div className="text-center mt-4 mb-4">
                                 <button
                                     className="btn btn-primary px-4 py-2"
+                                    onClick={handleSubmit}
                                     style={{
                                         backgroundColor: 'var(--color-morado3)',
                                         border: 'none',

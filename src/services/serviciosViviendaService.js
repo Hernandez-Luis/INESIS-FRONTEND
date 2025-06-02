@@ -1,7 +1,10 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/viviendas_familiares';
+const API_URL = '/servicios_vivienda';
 
+/**
+ * Obtiene todos los registros de servicios de vivienda.
+ */
 const getAll = async () => {
   try {
     const response = await axiosInstance.get(API_URL);
@@ -11,6 +14,10 @@ const getAll = async () => {
   }
 };
 
+/**
+ * Obtiene un servicio de vivienda por su ID.
+ * @param {number} id 
+ */
 const getById = async (id) => {
   try {
     const response = await axiosInstance.get(`${API_URL}/${id}`);
@@ -20,28 +27,40 @@ const getById = async (id) => {
   }
 };
 
-const create = async (data) => {
+/**
+ * Crea un nuevo servicio de vivienda.
+ * @param {Object} params - Debe incluir `id_vivienda_familiar` como obligatorio.
+ */
+const create = async (params) => {
   try {
-    const response = await axiosInstance.post(API_URL, data);
+    const response = await axiosInstance.post(API_URL, params);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-const update = async (id, data) => {
+/**
+ * Actualiza un servicio de vivienda existente.
+ * @param {number} id 
+ * @param {Object} params 
+ */
+const update = async (id, params) => {
   try {
-    const response = await axiosInstance.put(`${API_URL}/${id}`, data);
+    const response = await axiosInstance.put(`${API_URL}/${id}`, params);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-const remove = async (id) => {
+/**
+ * Elimina un servicio de vivienda por su ID.
+ * @param {number} id 
+ */
+const deleteById = async (id) => {
   try {
-    const response = await axiosInstance.delete(`${API_URL}/${id}`);
-    return response.data;
+    await axiosInstance.delete(`${API_URL}/${id}`);
   } catch (error) {
     throw error.response?.data || error.message;
   }
@@ -52,5 +71,5 @@ export default {
   getById,
   create,
   update,
-  remove,
+  deleteById
 };

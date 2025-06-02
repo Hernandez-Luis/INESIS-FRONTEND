@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/viviendas_familiares';
+const API_URL = '/personas_dependientes'; 
 
 const getAll = async () => {
   try {
@@ -20,28 +20,27 @@ const getById = async (id) => {
   }
 };
 
-const create = async (data) => {
+const create = async (params) => {
   try {
-    const response = await axiosInstance.post(API_URL, data);
+    const response = await axiosInstance.post(API_URL, params);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-const update = async (id, data) => {
+const update = async (id, params) => {
   try {
-    const response = await axiosInstance.put(`${API_URL}/${id}`, data);
+    const response = await axiosInstance.put(`${API_URL}/${id}`, params);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-const remove = async (id) => {
+const deleteById = async (id) => {
   try {
-    const response = await axiosInstance.delete(`${API_URL}/${id}`);
-    return response.data;
+    await axiosInstance.delete(`${API_URL}/${id}`);
   } catch (error) {
     throw error.response?.data || error.message;
   }
@@ -52,5 +51,5 @@ export default {
   getById,
   create,
   update,
-  remove,
+  deleteById
 };
