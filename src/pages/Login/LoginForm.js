@@ -53,6 +53,8 @@
         }
 
 
+        const data = await response.json();
+
         const usuarioData = {
           id: data.id,
           usuario: data.usuario,
@@ -60,9 +62,10 @@
           rol: data.rol.nombreRol,
           alumnoId: data.alumno?.id || null
         };
+
+
         localStorage.setItem('usuario', JSON.stringify(usuarioData));
     
-        const data = await response.json();
         console.log("Login exitoso:", data);
         navigate("/menuAlumno");
     
