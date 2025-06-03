@@ -10,22 +10,23 @@
 
 .texto-morado2Normal {
     color: var(--color-morado2);
-   
+
 }
 
 .texto-pequeno {
-  font-size: 14px;
-  color: var(--color-gris1);
-  margin-top: 5px;
-  margin-bottom: 1px;
+    font-size: 14px;
+    color: var(--color-gris1);
+    margin-top: 5px;
+    margin-bottom: 1px;
 }
 
 .celda-icono {
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  min-width: 100px; /* Puedes ajustarlo si los botones se ven apretados */
-  white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-width: 100px;
+    /* Puedes ajustarlo si los botones se ven apretados */
+    white-space: nowrap;
 }
 
 
@@ -47,14 +48,16 @@
 }
 
 .custom-table tbody {
-    background-color: var(--color-gris2); /* Gris claro */
+    background-color: var(--color-gris2);
+    /* Gris claro */
     border-radius: 70%;
 }
 
 .custom-table thead {
     background-color: #f8f9fa;
-    
+
 }
+
 .custom-table td,
 .custom-table th {
     background-color: var(--color-gris2);
@@ -62,7 +65,8 @@
 
 
 .custom-table {
-    border-radius: 0.6cm; /* borde redondeado */
+    border-radius: 0.6cm;
+    /* borde redondeado */
     overflow: hidden;
 }
 
@@ -70,10 +74,10 @@
     padding: 1rem;
     font-weight: 600;
     color: var(--color-morado2);
-    position: relative; 
+    position: relative;
     text-align: center;
     font-weight: bold;
-    border-bottom: 2px solid #ffffff; 
+    border-bottom: 2px solid #ffffff;
 }
 
 /* Línea decorativa bajo cada título */
@@ -81,11 +85,14 @@
     content: '';
     position: absolute;
     left: 50%;
-    bottom: 10px; /* Ajusta la posición vertical */
-    width: 52%; /* Ancho de la línea respecto al texto */
+    bottom: 10px;
+    /* Ajusta la posición vertical */
+    width: 52%;
+    /* Ancho de la línea respecto al texto */
     height: 2px;
     background: var(--color-morado2);
-    transform: translateX(-50%); /* Centra horizontalmente */
+    transform: translateX(-50%);
+    /* Centra horizontalmente */
 }
 
 .custom-table td {
@@ -130,7 +137,7 @@
     color: var(--color-morado2);
 }
 
-.icono-editar, 
+.icono-editar,
 .icono-basura {
     font-size: 22px;
     padding: 5px;
@@ -149,15 +156,15 @@
 .boton-icono {
     cursor: pointer;
     background-color: transparent;
-    border: none;   
+    border: none;
 }
 
 .icono-basura {
-    color: red; 
+    color: red;
 }
 
 .icono-editar {
-    color: rgb(91, 162, 202);  
+    color: rgb(91, 162, 202);
 }
 
 
@@ -165,10 +172,12 @@
 /* Contenedor principal para alinear horizontalmente las secciones */
 .agregar-alumno-container {
     display: flex;
-    flex-wrap: wrap; /* Permite el salto de línea si no cabe */
+    flex-wrap: wrap;
+    /* Permite el salto de línea si no cabe */
     gap: 50px;
     padding: 20px;
-    align-items: flex-start; /* Alinea al inicio para evitar estiramiento vertical */
+    align-items: flex-start;
+    /* Alinea al inicio para evitar estiramiento vertical */
     max-width: 1600px;
     margin: 0 auto;
 }
@@ -176,19 +185,22 @@
 /* Secciones alineadas */
 .formulario-seccion--datos-personales,
 .formulario-seccion--datos-academicos {
-    flex: 1; /* Ocupan espacio disponible */
-    min-width: 500px; /* Ancho mínimo para responsividad */
+    flex: 1;
+    /* Ocupan espacio disponible */
+    min-width: 500px;
+    /* Ancho mínimo para responsividad */
     background-color: var(--color-gris2);
     padding: 40px;
     border-radius: 30px;
     display: flex;
     flex-direction: column;
-    height: auto; /* Altura según contenido */
+    height: auto;
+    /* Altura según contenido */
 }
 
 /* Etiquetas */
 .formulario-etiqueta {
-    
+
     color: var(--color-morado2);
 }
 
@@ -207,9 +219,6 @@
     outline: none;
 }
 
-
-
-
 /* Paginación */
 .pagination-container {
     display: flex;
@@ -224,7 +233,7 @@
     font-size: 1.2rem;
     cursor: pointer;
     padding: 5px 10px;
-    color:  var(--color-morado2);
+    color: var(--color-morado2);
     transition: 0.3s;
 }
 
@@ -262,33 +271,33 @@
 }
 
 .readonly-style {
-  background-color: #ececec;
-  color: #333;
-  cursor: not-allowed;
-  border: 0px solid #ddd;
-  font-weight: 600; 
-  text-align: center;
-  font-size: 1.1rem;
+    background-color: #ececec;
+    color: #333;
+    cursor: not-allowed;
+    border: 0px solid #ddd;
+    font-weight: 600;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .readonly-style2 {
-  background-color: #ececec;
-  color: #333;
-  cursor: not-allowed;
-  border: 0px solid #ddd;
+    background-color: #ececec;
+    color: #333;
+    cursor: not-allowed;
+    border: 0px solid #ddd;
 }
 
 .texto-verde {
-  color: #28a745;
-  font-weight: bold;
+    color: #28a745;
+    font-weight: bold;
 }
 
 .texto-naranja {
-  color: #ff9800;
-  font-weight: bold;
+    color: #ff9800;
+    font-weight: bold;
 }
 
 .texto-rojo {
-  color: #dc3545;
-  font-weight: bold;
+    color: #dc3545;
+    font-weight: bold;
 }
