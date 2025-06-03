@@ -19,7 +19,7 @@ import CatOcupacionService from '../../services/CatOcupacionService'
 import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
 
-export const MisDatos = ({ onAdd }) => {
+export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
@@ -115,6 +115,7 @@ export const MisDatos = ({ onAdd }) => {
           utilizaCelular: dataAlumno?.misDatos.utilizaCelular,
           tieneComputadora: dataAlumno?.misDatos.tieneComputadora,
           idioma: dataAlumno?.misDatos.idioma || '',
+          situacionVivienda: dataAlumno?.misDatos.situacionVivienda.id
         }))
         setDataDomicilio((prevData) => ({
           ...prevData,
@@ -134,11 +135,12 @@ export const MisDatos = ({ onAdd }) => {
           trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
           ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
         }))
-        //todo:
         setDataTrabajo((prevData) => ({
           ...prevData,
           nombreTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.nombreTrabajo || '',
-          //toodo:
+          ingresoMensual: dataAlumno?.misDatos.gastosIngresos?.trabajo?.ingresoMensual || '',
+          telefonoTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.telefonoTrabajo || '',
+          domicilioTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
         }))
         setTieneVehiulo(dataAlumno?.misDatos.llevaVehiculo)
         setDataTransporte((prevData) => ({
@@ -346,15 +348,31 @@ export const MisDatos = ({ onAdd }) => {
     }))
   }
 
+  const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
+  const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
+
   const actualizarCamposMisDatos = (e) => {
+    const camposBooleanos = [
+      "recursosSuficientes",
+      "llevaVehiculo",
+      "familiarComunero",
+      "utilizaCelular",
+      "tieneComputadora"
+    ];
     const { name, value } = e.target;
     //console.log("Nombre: ", name, " Valor: ", value)
 
-    if (name === "llevaVehiculo") {
-      setTieneVehiulo(value)
-      setDataTransporte(formularioInicialTransporte)
+    if (camposBooleanos.includes(name)) {
+      setDataMisDatos((prevData) => ({
+        ...prevData,
+        [name]: siNoToBool(value)
+      }));
+      if (name === "llevaVehiculo") {
+        setTieneVehiulo(siNoToBool(value));
+        setDataTransporte(formularioInicialTransporte);
+      }
+      return;
     }
-
     setDataMisDatos((prevData) => ({
       ...prevData,
       [name]: value
@@ -411,7 +429,13 @@ export const MisDatos = ({ onAdd }) => {
 
 
     try {
-      const nuevosErrores = await onAdd(coleccionValores);
+      let nuevosErrores = null;
+      if(datosAlumno.misDatos !== null){
+        let idMisDatos = datosAlumno.misDatos.id;
+        nuevosErrores = await update(idMisDatos,coleccionValores);
+      } else {
+        nuevosErrores = await onAdd(coleccionValores);
+      }
       console.log("Error: ", nuevosErrores)
       if (nuevosErrores && nuevosErrores.length > 0) {
         mostrarError(nuevosErrores)
@@ -547,7 +571,7 @@ export const MisDatos = ({ onAdd }) => {
                       options={['Si', 'No']}
                       onChange={actualizarCamposMisDatos}
                       name="recursosSuficientes"
-                      value={dataMisDatos.recursosSuficientes ? 'Si':'No'}
+                      value={boolToSiNo(dataMisDatos.recursosSuficientes)}
                     />
                   </div>
                 </div>
@@ -783,7 +807,7 @@ export const MisDatos = ({ onAdd }) => {
                   options={['Si', 'No']}
                   onChange={actualizarCamposMisDatos}
                   name={"llevaVehiculo"}
-                  value={dataMisDatos.llevaVehiculo ? 'Si':'No'}
+                  value={boolToSiNo(dataMisDatos.llevaVehiculo)}
                 />
 
                 {(tieneVehiulo === 'Si') || tieneVehiulo === true && (
@@ -859,9 +883,9 @@ export const MisDatos = ({ onAdd }) => {
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
-                  value={dataMisDatos.familiarComunero ? 'Si':'No'}
                   onChange={actualizarCamposMisDatos}
                   name="familiarComunero"
+                  value={boolToSiNo(dataMisDatos.familiarComunero)}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
@@ -869,8 +893,8 @@ export const MisDatos = ({ onAdd }) => {
                   gris={true}
                   options={['Si', 'No']}
                   name={"utilizaCelular"}
-                  value={dataMisDatos.utilizaCelular ? 'Si':'No'}
                   onChange={actualizarCamposMisDatos}
+                  value={boolToSiNo(dataMisDatos.utilizaCelular)}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
@@ -878,8 +902,8 @@ export const MisDatos = ({ onAdd }) => {
                   gris={true}
                   options={['Si', 'No']}
                   name={"tieneComputadora"}
-                  value={dataMisDatos.tieneComputadora ? 'Si':'No'}
                   onChange={actualizarCamposMisDatos}
+                  value={boolToSiNo(dataMisDatos.tieneComputadora)}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
