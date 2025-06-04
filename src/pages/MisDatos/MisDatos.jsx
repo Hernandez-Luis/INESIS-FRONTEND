@@ -33,12 +33,13 @@ export const MisDatos = ({ onAdd }) => {
   const [medios, setMedios] = useState([]);
   const [estadoCivil, setEstadoCivil] = useState([]);
   const [recursos, setRecursos] = useState(null);
-  const [tieneVehiulo, setTieneVehiulo] = useState(null);
+  const [tieneAutomovil, setTieneAutomovil] = useState(null);
+  const [tieneMotocicleta, setTieneMotocicleta] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
   const [catOcupacion, setCatOcupacion] = useState([]);
   const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
-  const [catTipoTrabajo,setCatTipoTrabajo] = useState([]);
+  const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
@@ -96,7 +97,7 @@ export const MisDatos = ({ onAdd }) => {
     try {
       const idAlumno = localStorageData.alumnoId;
       let dataAlumno = await AlumnoService.getById(idAlumno);
-      console.log("ALUMNO: ",dataAlumno)
+      console.log("ALUMNO: ", dataAlumno)
       console.log("materno: ", dataAlumno.apellidoMaterno)
       setDatosAlumno(dataAlumno)
       setDataMisDatos((prevData) => ({
@@ -170,7 +171,14 @@ export const MisDatos = ({ onAdd }) => {
     domicilioTrabajo: ""
   }
 
-  const formularioInicialTransporte = {
+  const formularioInicialTransporteAutomovil = {
+    marca: '',
+    modelo: '',
+    anio: '',
+    catTipoTransporte: ''
+  }
+
+  const formularioInicialTransporteMotocicleta = {
     marca: '',
     modelo: '',
     anio: '',
@@ -188,11 +196,13 @@ export const MisDatos = ({ onAdd }) => {
     utilizaCelular: "",
     tieneComputadora: "",
     idioma: "",
-    transporte: "",
+    transporteAutomovil: "",
+    transporteMotocicleta: "",
     mediosTraslado: "",
     situacionVivienda: "",
     nombreCasaHuesped: "",
-    llevaVehiculo: '',
+    llevaAutomovil: '',
+    llevaMotocicleta: '',
   }
 
   const formularioInicialDomicilio = {
@@ -207,7 +217,8 @@ export const MisDatos = ({ onAdd }) => {
 
   const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
   const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
-  const [dataTransporte, setDataTransporte] = useState(formularioInicialTransporte)
+  const [dataTransporteAutomovil, setDataTransporteAutomovil] = useState(formularioInicialTransporteAutomovil)
+  const [dataTransporteMotocicleta, setDataTransporteMotocicleta] = useState(formularioInicialTransporteMotocicleta)
   const [dataMisDatos, setDataMisDatos] = useState(formularioInicialMisDatos)
   const [dataDomicilio, setDataDomicilio] = useState(formularioInicialDomicilio)
 
@@ -283,10 +294,19 @@ export const MisDatos = ({ onAdd }) => {
     }))
   }
 
-  const actualizarCamposTransporte = (e) => {
+  const actualizarCamposTransporteAutomovil = (e) => {
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
-    setDataTransporte((prevData) => ({
+    // console.log("Nombre: ", name, " Valor: ", value)
+    setDataTransporteAutomovil((prevData) => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
+  const actualizarCamposTransporteMotocicleta = (e) => {
+    const { name, value } = e.target;
+    // console.log("Nombre: ", name, " Valor: ", value)
+    setDataTransporteMotocicleta((prevData) => ({
       ...prevData,
       [name]: value
     }))
@@ -296,9 +316,14 @@ export const MisDatos = ({ onAdd }) => {
     const { name, value } = e.target;
     console.log("Nombre: ", name, " Valor: ", value)
 
-    if (name === "llevaVehiculo") {
-      setTieneVehiulo(value)
-      setDataTransporte(formularioInicialTransporte)
+    if (name === "llevaAutomovil") {
+      setTieneAutomovil(value)
+      setDataTransporteAutomovil(formularioInicialTransporteAutomovil)
+    }
+
+    if (name === "llevaMotocicleta") {
+      setTieneMotocicleta(value)
+      setDataTransporteMotocicleta(formularioInicialTransporteMotocicleta)
     }
 
     setDataMisDatos((prevData) => ({
@@ -344,7 +369,8 @@ export const MisDatos = ({ onAdd }) => {
     const coleccionValores = {
       alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
       ...dataMisDatos,
-      transporte: dataTransporte,
+      transporteAutomovil: dataTransporteAutomovil,
+      transporteMotocicleta: dataTransporteMotocicleta,
       gastosIngresos: {
         ...dataGastosIngresos,
         trabajo: dataTrabajo
@@ -615,7 +641,7 @@ export const MisDatos = ({ onAdd }) => {
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                       <RadioSelect
                         gris={true}
-                        options={catTipoTrabajo.map (t => ({
+                        options={catTipoTrabajo.map(t => ({
                           label: t.nombreTipo,
                           value: t.id
                         }))}
@@ -723,16 +749,16 @@ export const MisDatos = ({ onAdd }) => {
               {/* MODULO TRANSPORTE */}
               <div className="col tarjeta-border me-4 p-5">
                 <p className='fs-2 ' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
-                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil o motocicleta cotidianamente a la universidad?</label>
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil cotidianamente a la universidad?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
                   onChange={actualizarCamposMisDatos}
-                  name={"llevaVehiculo"}
-                  value={dataMisDatos.llevaVehiculo}
+                  name={"llevaAutomovil"}
+                  value={dataMisDatos.llevaAutomovil}
                 />
 
-                {tieneVehiulo === 'Si' && (
+                {tieneAutomovil === 'Si' && (
                   <div>
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
                     <div className='w-50'>
@@ -743,8 +769,8 @@ export const MisDatos = ({ onAdd }) => {
                         }))}
                         placeholder="Selecciona una opción" // Placeholder
                         name={'catTipoTransporte'}
-                        value={dataTransporte.catTipoTransporte}
-                        onChange={actualizarCamposTransporte}
+                        value={dataTransporteAutomovil.catTipoTransporte}
+                        onChange={actualizarCamposTransporteAutomovil}
                       />
                     </div>
                     <div className="row mt-4">
@@ -754,8 +780,8 @@ export const MisDatos = ({ onAdd }) => {
                           className='form-control w-75'
                           type="text"
                           name={'marca'}
-                          value={dataTransporte.marca}
-                          onChange={actualizarCamposTransporte}
+                          value={dataTransporteAutomovil.marca}
+                          onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
                       <div className="col">
@@ -764,8 +790,8 @@ export const MisDatos = ({ onAdd }) => {
                           className='form-control w-75'
                           type="text"
                           name={'modelo'}
-                          value={dataTransporte.modelo}
-                          onChange={actualizarCamposTransporte}
+                          value={dataTransporteAutomovil.modelo}
+                          onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
                       <div className="col">
@@ -774,13 +800,74 @@ export const MisDatos = ({ onAdd }) => {
                           className='form-control w-75'
                           type="text"
                           name={'anio'}
-                          value={dataTransporte.anio}
-                          onChange={actualizarCamposTransporte}
+                          value={dataTransporteAutomovil.anio}
+                          onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
                     </div>
                   </div>
                 )}
+                <div className="line mx-auto mt-3 mb-3"></div>
+
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas motocicleta cotidianamente a la universidad?</label>
+                <RadioSelect
+                  gris={true}
+                  options={['Si', 'No']}
+                  onChange={actualizarCamposMisDatos}
+                  name={"llevaMotocicleta"}
+                  value={dataMisDatos.llevaMotocicleta}
+                />
+
+                {tieneMotocicleta === 'Si' && (
+                  <div>
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
+                    <div className='w-50'>
+                      <SeleccionarCombo
+                        options={catTipoTransporte.map(t => ({
+                          label: t.nombreTipo,
+                          value: t.idCatTipoTransporte
+                        }))}
+                        placeholder="Selecciona una opción" // Placeholder
+                        name={'catTipoTransporte'}
+                        value={dataTransporteMotocicleta.catTipoTransporte}
+                        onChange={actualizarCamposTransporteMotocicleta}
+                      />
+                    </div>
+                    <div className="row mt-4">
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'marca'}
+                          value={dataTransporteMotocicleta.marca}
+                          onChange={actualizarCamposTransporteMotocicleta}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'modelo'}
+                          value={dataTransporteMotocicleta.modelo}
+                          onChange={actualizarCamposTransporteMotocicleta}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'anio'}
+                          value={dataTransporteMotocicleta.anio}
+                          onChange={actualizarCamposTransporteMotocicleta}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="line mx-auto mt-3 mb-3"></div>
                 <div className="row mt-4">
                   <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
                   {medios.map((medio) => (
