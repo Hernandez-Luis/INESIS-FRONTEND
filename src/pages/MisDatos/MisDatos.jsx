@@ -18,6 +18,7 @@ import DomicilioCpService from '../../services/DomicilioCpService'
 import CatOcupacionService from '../../services/CatOcupacionService'
 import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
+import { data } from 'react-router-dom'
 
 export const MisDatos = ({ onAdd }) => {
 
@@ -95,10 +96,12 @@ export const MisDatos = ({ onAdd }) => {
     try {
       const idAlumno = localStorageData.alumnoId;
       let dataAlumno = await AlumnoService.getById(idAlumno);
+      console.log("ALUMNO: ",dataAlumno)
+      console.log("materno: ", dataAlumno.apellidoMaterno)
       setDatosAlumno(dataAlumno)
       setDataMisDatos((prevData) => ({
         ...prevData,
-        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellido,
+        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellidoMaterno + " " + dataAlumno.apellidoPaterno,
         carrera: dataAlumno.carrera?.id,
         semestre: dataAlumno.semestre?.id,
         sexo: dataAlumno.sexo?.id,
@@ -175,7 +178,7 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialMisDatos = {
-    nombreCompleto: datosAlumno.nombre + " " + datosAlumno.apellido,
+    nombreCompleto: "",
     carrera: "",
     semestre: "",
     sexo: "",
