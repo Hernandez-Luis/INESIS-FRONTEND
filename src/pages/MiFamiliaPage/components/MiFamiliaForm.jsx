@@ -54,7 +54,7 @@ const MiFamiliaForm = () => {
     const [mediosEstudioSeleccionados, setMediosEstudioSeleccionados] = useState([]);
 
     const [serviciosOtro, setServiciosOtro] = useState([]);
-    const [servicioOtroSeleccionado, setServiciosOtroSeleccionda] = useState([]);
+    const [servicioOtroSeleccionado, setServiciosOtroSelecciondo] = useState([]);
 
     const [nombreCompleto, setNombreCompleto] = useState('');
     const [telefono, setTelefono] = useState('');
@@ -66,11 +66,10 @@ const MiFamiliaForm = () => {
     const OTRO_ID = 5;
     const [otroServicioTexto, setOtroServicioTexto] = useState('');
 
-
     const [numHermanos, setNumHermanos] = useState('');
-    const [numHermanosEstudiando, setNumHermanosEstudiando] = useState('');
-    const [numHermanosNoEstudiando, setNumHermanosNoEstudiando] = useState('');
-    const [numHermanosLicenciatura, setNumHermanosLicenciatura] = useState('');
+    const [numHermanosEstudiando, setNumHermanosEstudiando] = useState('num_hermanos_estudiando"');
+    const [numHermanosNoEstudiando, setNumHermanosNoEstudiando] = useState('num_hermanos_no_estudiando');
+    const [numHermanosLicenciatura, setNumHermanosLicenciatura] = useState('num_hermanos_licenciatura');
 
     const [numDependientes, setNumDependientes] = useState(0);
     const [dependientes, setDependientes] = useState([]);
@@ -195,9 +194,9 @@ const MiFamiliaForm = () => {
     const handleCheckServiciosOtro = (e) => {
         const value = e.target.value;
         if (e.target.checked) {
-            setServiciosOtroSeleccionda([...servicioOtroSeleccionado, value]);
+            setServiciosOtroSelecciondo([...servicioOtroSeleccionado, value]);
         } else {
-            setServiciosOtroSeleccionda(servicioOtroSeleccionado.filter((item) => item !== value));
+            setServiciosOtroSelecciondo(servicioOtroSeleccionado.filter((item) => item !== value));
         }
     };
 
@@ -215,7 +214,7 @@ const MiFamiliaForm = () => {
         setNumDependientes(value);
 
         const nuevosDependientes = Array.from({ length: value }, (_, i) => ({
-            nombre: '',
+            nombrePersona: '',
             edad: '',
             parentesco: '',
             archivo: null,
@@ -262,6 +261,7 @@ const MiFamiliaForm = () => {
                 id_cat_situacion_vivienda: parseInt(situacionViviendaSeleccionada),
                 id_cat_tipo_vivienda: parseInt(tipoViviendaSeleccionado),
                 id_cat_material_vivienda: parseInt(materialSeleccionado),
+                id_servicio_otro: parseInt(servicioOtroSeleccionado),
                 servicios_otro: otroServicioTexto
             };
             console.log('Payload a enviar:', viviendaPayload);
@@ -288,40 +288,54 @@ const MiFamiliaForm = () => {
                 nombreCompleto: nombreCompleto || '',
                 idDomicilio: idDomicilio || null,
                 telefono: telefono || '',
+                nombreCompleto: nombreCompleto || '',
+                idDomicilio: idDomicilio || null,
+                telefono: telefono || '',
                 numHermanos: parseInt(numHermanos),
                 numHermanosEstudiando: parseInt(numHermanosEstudiando),
                 numHermanosNoEstudiando: parseInt(numHermanosNoEstudiando),
                 numHermanosLicenciatura: parseInt(numHermanosLicenciatura),
                 viviendaFamiliar: viviendaId,
                 mediosEstudio: mediosEstudioSeleccionados,
+                viviendaFamiliar: viviendaId,
+                mediosEstudio: mediosEstudioSeleccionados,
                 escolaridadPadre: parseInt(escolaridadPadre),
                 escolaridadMadre: parseInt(escolaridadMadre),
             };
 
-
-            console.log('Payload a enviar mi familia:', familiaPayload);
             const miFamiliaResponse = await MiFamiliaService.create(familiaPayload);
+            console.log('Payload a enviar mi familia:', familiaPayload);
             const miFamiliaId = miFamiliaResponse.id || miFamiliaResponse.params.id;
             if (!miFamiliaId) {
                 throw new Error('No se obtuvo el id de mi familia tras crearla');
             }
 
             // 5. Guardar dependientes
-            const dependientesPromises = dependientes.map((dep) => {
+            // 4. Guardar personas dependientes
+            for (const dependiente of dependientes) {
                 const formData = new FormData();
-                formData.append('nombre', dep.nombre);
-                formData.append('edad', dep.edad);
-                formData.append('parentesco', dep.parentesco);
-                if (dep.archivo) {
-                    formData.append('archivo', dep.archivo);
+                formData.append('nombre_persona', dependiente.nombrePersona);
+                formData.append('edad', dependiente.edad);
+                formData.append('parentesco', dependiente.parentesco);
+                formData.append('id_mi_familia', idMiFamilia);
+
+                if (dependiente.archivo) {
+                    formData.append('nombre_archivo', dependiente.archivo);
                 }
-                return personasDependientesService.create(formData);
-            });
+
+                try {
+                    await personasDependientesService.create(formData);
+                } catch (error) {
+                    console.error('Error al guardar dependiente:', error);
+                    mostrarMensajeErrorAlGuardar('Hubo un error al guardar uno de los dependientes. Verifica los datos e inténtalo nuevamente.');
+                    return; // Cancelar si uno falla
+                }
+            }
 
             // 6. Guardar bienes hogar
-            const bienesHogarPayload = selectedBienesHogar.map(selectedBienesHogar => ({
-                id_mi_familia: idMiFamilia,
-                id_cat_bienes_hogar: parseInt(selectedBienesHogar)
+            const bienesHogarPayload = selectedBienesHogar.map(selectedBien => ({
+                id_mi_familia: miFamiliaId,
+                id_cat_bienes_hogar: parseInt(selectedBien)
             }));
 
             console.log('Payload bienes hogar:', bienesHogarPayload);
@@ -334,8 +348,6 @@ const MiFamiliaForm = () => {
                     mostrarMensajeErrorAlGuardar(`Error al guardar un bien del hogar con ID ${bien.id_cat_bienes_hogar}`);
                 }
             }
-
-
             // Ejecutar todas las promesas en paralelo
             await Promise.all(serviciosPromises);
             mostrarMensajeExito('Datos guardados correctamente');
@@ -343,9 +355,6 @@ const MiFamiliaForm = () => {
             mostrarMensajeErrorAlGuardar('Ocurrió un error al guardar la información');
         }
     };
-
-    // ***********************************  VALIDACION DE CAMPOS  ******************************************
-    // Aquí podrías validar que los campos requeridos no estén vacíos antes de enviar
 
     // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  ******************************
     const mostrarMensajeError = (mensaje) => {
@@ -356,7 +365,7 @@ const MiFamiliaForm = () => {
     return (
         <div>
             <div className='d-flex flex-column min-vh-100 mt-3 mb-4 ms-4 me-4'>
-                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                <form onSubmit={(e) => { e.preventDefault(); }}>
                     <div className='tarjeta-border p-4 mb-2'>
                         <div className='row'>
                             <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
@@ -649,7 +658,8 @@ const MiFamiliaForm = () => {
                                         type="number"
                                         className="form-control"
                                         value={numHermanos}
-                                        onChange={(e) => setNumHermanos(e.target.value)}
+                                        onChange={(e) => setNumHermanos(parseInt(e.target.value) || 0)}
+
                                     />
                                 </div>
 
@@ -662,7 +672,8 @@ const MiFamiliaForm = () => {
                                         type="number"
                                         className="form-control"
                                         value={numHermanosEstudiando}
-                                        onChange={(e) => setNumHermanosEstudiando(e.target.value)}
+                                        onChange={(e) => setNumHermanosEstudiando(parseInt(e.target.value) || 0)}
+
                                     />
                                 </div>
 
@@ -675,7 +686,7 @@ const MiFamiliaForm = () => {
                                         type="number"
                                         className="form-control"
                                         value={numHermanosNoEstudiando}
-                                        onChange={(e) => setNumHermanosNoEstudiando(e.target.value)}
+                                        onChange={(e) => setNumHermanosNoEstudiando(parseInt(e.target.value) || 0)}
                                     />
                                 </div>
 
@@ -688,7 +699,7 @@ const MiFamiliaForm = () => {
                                         type="number"
                                         className="form-control"
                                         value={numHermanosLicenciatura}
-                                        onChange={(e) => setNumHermanosLicenciatura(e.target.value)}
+                                        onChange={(e) => setNumHermanosLicenciatura(parseInt(e.target.value) || 0)}
                                     />
                                 </div>
                             </div>
@@ -722,8 +733,9 @@ const MiFamiliaForm = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={dep.nombre}
-                                                    onChange={(e) => handleChangeDependiente(index, 'nombre', e.target.value)}
+                                                    value={dep.nombrePersona}
+                                                    onChange={(e) => handleChangeDependiente(index, 'nombrePersona', e.target.value)}
+                                                    placeholder="Nombre completo"
                                                 />
                                             </div>
 
@@ -752,7 +764,8 @@ const MiFamiliaForm = () => {
                                                 <input
                                                     type="file"
                                                     className="form-control"
-                                                    onChange={(e) => handleFileUpload(index, e.target.files[0])}
+                                                    onChange={(e) => handleFileUpload(index, 'nombreArchivo', e.target.files[0])}
+                                                    accept=".jpg,.jpeg,.png,.pdf"
                                                 />
                                             </div>
                                         </div>
