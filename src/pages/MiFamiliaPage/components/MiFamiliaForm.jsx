@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import MigasRecorrido from '../../../components/MigasDePan/MigasRecorrido';
@@ -19,9 +19,8 @@ import CatMediosEstudioService from '../../../services/catMediosEstudioService';
 import CatServiciosOtro from '../../../services/CatServiciosOtro';
 
 
-import MiFamiliaService from '../../../services/miFamiliaService';
-import PersonasDependientesService from '../../../services/personasDependientesService';
-import MediosEstudioService from '../../../services/mediosEstudiosService';
+import MiFamiliaService from '../../../services/MiFamiliaService';
+import MediosEstudioService from '../../../services/MediosEstudiosService';
 import viviendaFamiliarService from '../../../services/viviendaFamiliarService';
 import serviciosViviendaService from '../../../services/serviciosViviendaService';
 import BienesHogarService from '../../../services/BienesHogarService';
@@ -66,11 +65,6 @@ const MiFamiliaForm = () => {
     const OTRO_ID = 5;
     const [otroServicioTexto, setOtroServicioTexto] = useState('');
 
-    const [numHermanos, setNumHermanos] = useState('');
-    const [numHermanosEstudiando, setNumHermanosEstudiando] = useState('num_hermanos_estudiando"');
-    const [numHermanosNoEstudiando, setNumHermanosNoEstudiando] = useState('num_hermanos_no_estudiando');
-    const [numHermanosLicenciatura, setNumHermanosLicenciatura] = useState('num_hermanos_licenciatura');
-
     const [numDependientes, setNumDependientes] = useState(0);
     const [dependientes, setDependientes] = useState([]);
 
@@ -84,8 +78,25 @@ const MiFamiliaForm = () => {
         cp: "",
     }
 
-    const [dataDomicilio, setDataDomicilio] = useState(formularioInicialDomicilio)
+    const formularioInicialMiFamilia = {
+        nombre_completo: "",
+        id_domicilio: null,
+        telefono: "",
 
+        num_hermanos: null,
+        num_hermanos_estudiando: null,
+        num_hermanos_no_estudiando: null,
+        num_hermanos_licenciatura: null,
+
+        id_cat_vivienda_familiar: null,
+        id_medios_estudio: null,
+        id_escolaridad_padre: null,
+        id_escolaridad_madre: null,
+    };
+
+
+    const [dataDomicilio, setDataDomicilio] = useState(formularioInicialDomicilio)
+    const [dataMiFamilia, setDataMiFamilia] = useState(formularioInicialMiFamilia)
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
     const localStorageData = JSON.parse(localStorage.getItem('miFamilia'))
     const idMiFamilia = localStorageData?.id_mi_familia;
@@ -243,6 +254,17 @@ const MiFamiliaForm = () => {
         Swal.fire('Éxito', mensaje, 'success');
     };
 
+    const handleChange = (e) => {
+        const { name, value, type } = e.target;
+
+        setDataMiFamilia((prevState) => ({
+            ...prevState,
+            [name]: type === "number" ? (value === "" ? null : parseInt(value)) : value,
+        }));
+    };
+
+
+
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
 
     const handleSubmit = async () => {
@@ -284,27 +306,24 @@ const MiFamiliaForm = () => {
             });
 
             // 4. Guardar Mi Familia
-            const familiaPayload = {
-                nombreCompleto: nombreCompleto || '',
-                idDomicilio: idDomicilio || null,
-                telefono: telefono || '',
-                nombreCompleto: nombreCompleto || '',
-                idDomicilio: idDomicilio || null,
-                telefono: telefono || '',
-                numHermanos: parseInt(numHermanos),
-                numHermanosEstudiando: parseInt(numHermanosEstudiando),
-                numHermanosNoEstudiando: parseInt(numHermanosNoEstudiando),
-                numHermanosLicenciatura: parseInt(numHermanosLicenciatura),
-                viviendaFamiliar: viviendaId,
-                mediosEstudio: mediosEstudioSeleccionados,
-                viviendaFamiliar: viviendaId,
-                mediosEstudio: mediosEstudioSeleccionados,
-                escolaridadPadre: parseInt(escolaridadPadre),
-                escolaridadMadre: parseInt(escolaridadMadre),
-            };
 
-            const miFamiliaResponse = await MiFamiliaService.create(familiaPayload);
-            console.log('Payload a enviar mi familia:', familiaPayload);
+            const payloadMiFamilia = {
+                nombre_completo: nombreCompleto,
+                id_domicilio: idDomicilio,
+                telefono: dataMiFamilia.telefono,
+                num_hermanos: dataMiFamilia.num_hermanos,
+                num_hermanos_estudiando: dataMiFamilia.num_hermanos_estudiando,
+                num_hermanos_no_estudiando: dataMiFamilia.num_hermanos_no_estudiando,
+                num_hermanos_licenciatura: dataMiFamilia.num_hermanos_licenciatura,
+                id_cat_vivienda_familiar: viviendaId,
+                id_medios_estudio: mediosEstudioSeleccionados.map(id => parseInt(id)),
+                id_escolaridad_padre: parseInt(escolaridadPadre),
+                id_escolaridad_madre: parseInt(escolaridadMadre),
+                // Si tienes otros campos relevantes, agregarlos aquí
+            };
+            console.log('Payload Mi Familia:', payloadMiFamilia);
+            const miFamiliaResponse = await MiFamiliaService.create(payloadMiFamilia);
+
             const miFamiliaId = miFamiliaResponse.id || miFamiliaResponse.params.id;
             if (!miFamiliaId) {
                 throw new Error('No se obtuvo el id de mi familia tras crearla');
@@ -390,7 +409,7 @@ const MiFamiliaForm = () => {
                                             <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
                                         </div>
                                     </div>
-                                    
+
                                     <div className='col-3 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
                                         <input className='form-control' type="text" name={"distrito"} value={dataDomicilio.distrito} onChange={actualizarCamposDomicilio} />
@@ -422,7 +441,7 @@ const MiFamiliaForm = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>  
+                            </div>
                         </div>
                     </div>
                     <div className="row mt-4 mx-0">
@@ -442,8 +461,9 @@ const MiFamiliaForm = () => {
                                             type="tel"
                                             className="form-control"
                                             placeholder="Ingresa el número de teléfono"
-                                            value={telefono}
-                                            onChange={(e) => setTelefono(e.target.value)}
+                                            name="telefono"
+                                            value={dataMiFamilia.telefono}
+                                            onChange={handleChange}
                                         />
                                     </div>
                                 </div>
@@ -657,9 +677,9 @@ const MiFamiliaForm = () => {
                                     <input
                                         type="number"
                                         className="form-control"
-                                        value={numHermanos}
-                                        onChange={(e) => setNumHermanos(parseInt(e.target.value) || 0)}
-
+                                        name="num_hermanos"
+                                        value={dataMiFamilia.num_hermanos ?? ""}
+                                        onChange={handleChange}
                                     />
                                 </div>
 
@@ -671,9 +691,9 @@ const MiFamiliaForm = () => {
                                     <input
                                         type="number"
                                         className="form-control"
-                                        value={numHermanosEstudiando}
-                                        onChange={(e) => setNumHermanosEstudiando(parseInt(e.target.value) || 0)}
-
+                                        name="num_hermanos_estudiando"
+                                        value={dataMiFamilia.num_hermanos_estudiando ?? ""}
+                                        onChange={handleChange}
                                     />
                                 </div>
 
@@ -685,8 +705,9 @@ const MiFamiliaForm = () => {
                                     <input
                                         type="number"
                                         className="form-control"
-                                        value={numHermanosNoEstudiando}
-                                        onChange={(e) => setNumHermanosNoEstudiando(parseInt(e.target.value) || 0)}
+                                        name="num_hermanos_no_estudiando"
+                                        value={dataMiFamilia.num_hermanos_no_estudiando ?? ""}
+                                        onChange={handleChange}
                                     />
                                 </div>
 
@@ -698,8 +719,9 @@ const MiFamiliaForm = () => {
                                     <input
                                         type="number"
                                         className="form-control"
-                                        value={numHermanosLicenciatura}
-                                        onChange={(e) => setNumHermanosLicenciatura(parseInt(e.target.value) || 0)}
+                                        name="num_hermanos_licenciatura"
+                                        value={dataMiFamilia.num_hermanos_licenciatura ?? ""}
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
