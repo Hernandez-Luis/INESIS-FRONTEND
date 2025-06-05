@@ -19,14 +19,14 @@ import CatMediosEstudioService from '../../../services/catMediosEstudioService';
 import CatServiciosOtro from '../../../services/CatServiciosOtro';
 
 
-import MiFamiliaService from '../../../services/MiFamiliaService';
+import MiFamiliaService from '../../../services/miFamiliaService';
 import PersonasDependientesService from '../../../services/personasDependientesService';
-import MediosEstudioService from '../../../services/MediosEstudiosService';
+import MediosEstudioService from '../../../services/mediosEstudiosService';
 import viviendaFamiliarService from '../../../services/viviendaFamiliarService';
 import serviciosViviendaService from '../../../services/serviciosViviendaService';
 import BienesHogarService from '../../../services/BienesHogarService';
 import personasDependientesService from '../../../services/personasDependientesService';
-import MediosEstudiosService from '../../../services/MediosEstudiosService';
+import DomicilioCpService from '../../../services/DomicilioCpService';
 
 const MiFamiliaForm = () => {
     // ********************************** DEFINICION DE VARIABLES  *****************************************
@@ -75,21 +75,51 @@ const MiFamiliaForm = () => {
     const [numDependientes, setNumDependientes] = useState(0);
     const [dependientes, setDependientes] = useState([]);
 
+    const formularioInicialDomicilio = {
+        estado: "",
+        municipio: "",
+        colonia: "",
+        localidad: "",
+        distrito: "",
+        region: "",
+        cp: "",
+    }
 
+    const [dataDomicilio, setDataDomicilio] = useState(formularioInicialDomicilio)
 
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
     const localStorageData = JSON.parse(localStorage.getItem('miFamilia'))
     const idMiFamilia = localStorageData?.id_mi_familia;
 
+    const [colonias, setColonias] = useState([]);
+    const handleBuscarCP = async (value) => {
+        const codigoPostal = value
+        console.log("Codigo postal: ", codigoPostal)
+        // Solo buscar si tiene 5 dígitos
+        try {
+            const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
+            console.log("Datos de la API: ", datos)
+            setColonias(datos.codigo_postal.colonias);
+
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
+                municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
+                cp: codigoPostal,
+            }))
+
+            console.log(dataDomicilio)
+        } catch (err) {
+            console.error('Error al buscar código postal:', err);
+            setColonias([]);
+        }
+    };
 
     // - No aplica en frontend directo, porque se consulta desde el backend por API.
-
     // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
     useEffect(() => {
         obtenerCatalogos();
     }, []);
-
-    //******************************* INICIALIZACION DE FORMULARIO *********************************** */
 
     // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
     const obtenerCatalogos = async () => {
@@ -119,6 +149,16 @@ const MiFamiliaForm = () => {
     };
 
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
+    const actualizarCamposDomicilio = (e) => {
+        const { name, value } = e.target;
+        //console.log("Nombre: ", name, " Valor: ", value)
+        if (name === "cp")
+            handleBuscarCP(value)
+        setDataDomicilio((prevData) => ({
+            ...prevData,
+            [name]: value
+        }))
+    }
     const handleChangeEscolaridadPadre = (e) => {
         setEscolaridadPadre(e.target.value);
     };
@@ -209,11 +249,12 @@ const MiFamiliaForm = () => {
     const handleSubmit = async () => {
         try {
             // 1. Guardar medios 
-            const mediosEstudioPayload = {
-                id_cat_medios_estudios: parseInt(mediosEstudioSeleccionados)
-            }
-            console.log('Payload a enviar:', mediosEstudioPayload);
-            await MediosEstudioService.create(mediosEstudioPayload)
+            const mediosEstudiosPayload = {
+                id_cat_medios_estudios: parseInt(mediosEstudioSeleccionados) // clave id (no id_medios)
+            };
+
+            console.log('Payload a enviar medio de estudio:', mediosEstudiosPayload);
+            await MediosEstudioService.create(mediosEstudiosPayload);
 
             // 2. guardar viviendas familiares
             const viviendaPayload = {
@@ -221,7 +262,7 @@ const MiFamiliaForm = () => {
                 id_cat_situacion_vivienda: parseInt(situacionViviendaSeleccionada),
                 id_cat_tipo_vivienda: parseInt(tipoViviendaSeleccionado),
                 id_cat_material_vivienda: parseInt(materialSeleccionado),
-                servicios_otro: otroServicioTexto 
+                servicios_otro: otroServicioTexto
             };
             console.log('Payload a enviar:', viviendaPayload);
             const viviendaResponse = await viviendaFamiliarService.create(viviendaPayload);
@@ -244,15 +285,15 @@ const MiFamiliaForm = () => {
 
             // 4. Guardar Mi Familia
             const familiaPayload = {
-                nombreCompleto: nombreCompleto || '', 
-                idDomicilio: idDomicilio || null,    
-                telefono: telefono || '',             
+                nombreCompleto: nombreCompleto || '',
+                idDomicilio: idDomicilio || null,
+                telefono: telefono || '',
                 numHermanos: parseInt(numHermanos),
                 numHermanosEstudiando: parseInt(numHermanosEstudiando),
                 numHermanosNoEstudiando: parseInt(numHermanosNoEstudiando),
                 numHermanosLicenciatura: parseInt(numHermanosLicenciatura),
-                viviendaFamiliar: viviendaId,       
-                mediosEstudio: mediosEstudioSeleccionados,  
+                viviendaFamiliar: viviendaId,
+                mediosEstudio: mediosEstudioSeleccionados,
                 escolaridadPadre: parseInt(escolaridadPadre),
                 escolaridadMadre: parseInt(escolaridadMadre),
             };
@@ -323,18 +364,56 @@ const MiFamiliaForm = () => {
                                 <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                                     ¿El domicilio de tu tutor coincide con el que te encuentras actualmente?
                                 </label>
+                                <div className='row'>
+                                    <div className="col-2 mt-2">
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
+                                    </div>
+                                    <div className='col-4 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                                        <div>
+                                            <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.estado} name='estado' disabled={true} />
+                                        </div>
+                                    </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                                        <div>
+                                            <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className='col-3 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
+                                        <input className='form-control' type="text" name={"distrito"} value={dataDomicilio.distrito} onChange={actualizarCamposDomicilio} />
+                                    </div>
+                                    <div className='col-3 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                        <div>
+                                            <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
 
-                            </div>
-
-                            {/* Contenedor para los selects */}
-                            <div className='row mt-3'>
-                                    /*comunidades*/
-                                <input
-                                    type="text"
-                                    value={nombreCompleto}
-                                    onChange={(e) => setNombreCompleto(e.target.value)}
-                                />
-                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-3 mt-2">
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región</label>
+                                        <input className='form-control' type="text" name={"region"} value={dataDomicilio.region} onChange={actualizarCamposDomicilio} />
+                                    </div>
+                                    <div className='col-3 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                                        <div>
+                                            <SeleccionarCombo
+                                                options={colonias.map(c => ({
+                                                    label: c,
+                                                    value: c
+                                                }))}
+                                                name={"colonia"}
+                                                value={dataDomicilio.colonia}
+                                                onChange={actualizarCamposDomicilio}
+                                                placeholder="Selecciona una opción" // Placeholder
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  
                         </div>
                     </div>
                     <div className="row mt-4 mx-0">
