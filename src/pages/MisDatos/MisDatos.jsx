@@ -114,7 +114,8 @@ export const MisDatos = ({ onAdd, update }) => {
           estadoCivil: dataAlumno?.misDatos.estadoCivil?.id,
           recursosSuficientes: dataAlumno?.misDatos.recursosSuficientes,
           nombreCasaHuesped: dataAlumno?.misDatos.nombreCasaHuesped || '',
-          llevaVehiculo: dataAlumno?.misDatos.llevaVehiculo,
+          llevaAutomovil: dataAlumno?.misDatos.llevaAutomovil,
+          llevaMotocicleta: dataAlumno?.misDatos.llevamotocicleta,
           familiarComunero: dataAlumno?.misDatos.familiarComunero,
           utilizaCelular: dataAlumno?.misDatos.utilizaCelular,
           tieneComputadora: dataAlumno?.misDatos.tieneComputadora,
@@ -135,8 +136,8 @@ export const MisDatos = ({ onAdd, update }) => {
           gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
           dependeEconomicamente: dataAlumno?.misDatos.gastosIngresos?.dependeEconomicamente || '',
           nombreQuienDependes: dataAlumno?.misDatos.gastosIngresos?.nombreQuienDependes || '',
-          solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia || '',
-          trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
+          solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia,
+          trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.catTipoTrabajo?.id || '',
           ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
         }))
         setDataTrabajo((prevData) => ({
@@ -147,12 +148,21 @@ export const MisDatos = ({ onAdd, update }) => {
           domicilioTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
         }))
         setTieneAutomovil(dataAlumno?.misDatos.llevaVehiculo)
+        setTieneMotocicleta(dataAlumno?.misDatos.llevamotocicleta);
         setDataTransporteAutomovil((prevData) => ({
           ...prevData,
           marca: dataAlumno?.misDatos.transporte?.marca || '',
           modelo: dataAlumno?.misDatos.transporte?.modelo || '',
           anio: dataAlumno?.misDatos.transporte?.anio || '',
           catTipoTransporte: dataAlumno?.misDatos.transporte?.catTipoTransporte?.idCatTipoTransporte || ''
+        }))
+        //todo:
+        setDataTransporteMotocicleta((prevData) => ({
+          ...prevData,
+          marca: dataAlumno?.misDatos.transporteMotocicleta?.marca || '',
+          modelo: dataAlumno?.misDatos.transporteMotocicleta?.modelo || '',
+          anio: dataAlumno?.misDatos.transporteMotocicleta?.anio || '',
+          catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         // Extraer los IDs de los medios seleccionados
         const mediosSeleccionadosIds = dataAlumno?.misDatos?.mediosTraslado?.map(
@@ -370,7 +380,7 @@ export const MisDatos = ({ onAdd, update }) => {
       [name]: value
     }))
   }
-  
+
 
   const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
   const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
@@ -382,7 +392,7 @@ export const MisDatos = ({ onAdd, update }) => {
       "llevaMotocicleta",
       "familiarComunero",
       "utilizaCelular",
-      "tieneComputadora"
+      "tieneComputadora",
     ];
     const { name, value } = e.target;
     console.log("Nombre: ", name, " Valor: ", value)
@@ -393,11 +403,11 @@ export const MisDatos = ({ onAdd, update }) => {
         [name]: siNoToBool(value)
       }));
       if (name === "llevaAutomovil") {
-      setTieneAutomovil(siNoToBool(value));
-      setDataTransporteAutomovil(formularioInicialTransporteAutomovil)
-    }
+        setTieneAutomovil(siNoToBool(value));
+        setDataTransporteAutomovil(formularioInicialTransporteAutomovil)
+      }
 
-    if (name === "llevaMotocicleta") {
+      if (name === "llevaMotocicleta") {
         setTieneMotocicleta(siNoToBool(value));
         setDataTransporteMotocicleta(formularioInicialTransporteMotocicleta);
       }
@@ -461,9 +471,9 @@ export const MisDatos = ({ onAdd, update }) => {
 
     try {
       let nuevosErrores = null;
-      if(datosAlumno.misDatos !== null){
+      if (datosAlumno.misDatos !== null) {
         let idMisDatos = datosAlumno.misDatos.id;
-        nuevosErrores = await update(idMisDatos,coleccionValores);
+        nuevosErrores = await update(idMisDatos, coleccionValores);
       } else {
         nuevosErrores = await onAdd(coleccionValores);
       }
@@ -706,7 +716,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       options={['Si', 'No']}
                       onChange={actualizarCampoGastosIngresos}
                       name="dependeEconomicamente"
-                      value={dataGastosIngresos.dependeEconomicamente}
+                      value={boolToSiNo(dataGastosIngresos.dependeEconomicamente)}
                     />
                     {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
                   </div>
@@ -819,7 +829,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     name="solicitaBecaAlimenticia"
                     options={['Si', 'No']}
                     onChange={actualizarCampoGastosIngresos}
-                    value={dataGastosIngresos.solicitaBecaAlimenticia}
+                    value={boolToSiNo(dataGastosIngresos.solicitaBecaAlimenticia)}
                   />
                   {errores.solicitaBecaAlimenticia && <div className="text-danger">{errores.solicitaBecaAlimenticia}</div>}
 
