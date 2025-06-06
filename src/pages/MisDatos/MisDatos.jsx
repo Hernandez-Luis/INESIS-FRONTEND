@@ -303,6 +303,7 @@ export const MisDatos = ({ onAdd, update }) => {
     const codigoPostal = value
     console.log("Codigo postal: ", codigoPostal)
     // Solo buscar si tiene 5 dígitos
+    if(value.length !== 5 ) return;
     try {
       const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
       console.log("Datos de la API: ", datos)
@@ -325,20 +326,30 @@ export const MisDatos = ({ onAdd, update }) => {
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
-    // console.log("Name: ", name, " Value: ", value)   
-    // ******  CONDICIONES *******
+    const camposBooleanos = [
+      "solicitaBecaAlimenticia",
+      "dependeEconomicamente",
+    ];
 
-    if (name === "dependeEconomicamente") {
-      setRecursos(value)
+    if (camposBooleanos.includes(name)) {
       setDataGastosIngresos((prevData) => ({
         ...prevData,
-        nombreQuienDependes: "",
-        trabajoTipo: "",
-        ocupacion: "",
-        otro: "",
-      }))
-      setDataTrabajo(formularioInicialTrabajo)
+        [name]: siNoToBool(value)
+      }));
+      if (name === "dependeEconomicamente") {
+        setRecursos(siNoToBool(value))
+        setDataGastosIngresos((prevData) => ({
+          ...prevData,
+          nombreQuienDependes: "",
+          trabajoTipo: "",
+          ocupacion: "",
+          otro: "",
+        }))
+        setDataTrabajo(formularioInicialTrabajo)
+      }      
+      return;
     }
+    // ******  CONDICIONES *******
 
     if (name === "ocupacion") {
       setDataGastosIngresos((prevData) => ({
@@ -495,17 +506,29 @@ export const MisDatos = ({ onAdd, update }) => {
   const validacionCamposGastosIngresos = () => {
     // Validación de los campos
     const erroresTemp = {};
+    const camposOpcionales = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
+    const camposBooleanos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
+    
     Object.keys(dataGastosIngresos).forEach((campo) => {
-      if (!dataGastosIngresos[campo] && campo !== "nombreQuienDependes" && campo !== "trabajoTipo" && campo !== "ocupacion" && campo !== "otro") {
-        erroresTemp[campo] = 'Este campo es obligatorio';
+      // Para campos booleanos, verificar que no sean null o undefined
+      if (camposBooleanos.includes(campo)) {
+        if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined) {
+          erroresTemp[campo] = 'Este campo es obligatorio';
+        }
+      }
+      // Para campos regulares, verificar que no estén vacíos
+      else if (!camposOpcionales.includes(campo)) {
+        if (!dataGastosIngresos[campo]) {
+          erroresTemp[campo] = 'Este campo es obligatorio';
+        }
       }
     });
-    //console.log("Validacion: ", erroresTemp)
+    
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
       return 0; // No enviar el formulario si hay errores
     }
-
+  
     return 1;
   }
 
@@ -722,7 +745,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   </div>
                 </div>
 
-                {recursos === 'Si' && (
+                {(recursos === 'Si') || recursos === true && (
                   <div className="row mt-3">
                     <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
@@ -777,7 +800,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   </div>
                 )}
 
-                {recursos === 'No' && (
+                {(recursos === 'No') || recursos === false && (
                   <div className="row mt-3">
                     <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-4">
