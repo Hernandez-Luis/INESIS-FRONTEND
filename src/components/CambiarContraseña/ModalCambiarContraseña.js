@@ -29,23 +29,23 @@ const ModalCambiarContraseña = ({ show, handleClose }) => {
   return (
     <Modal show={show} onHide={handleClose} centered dialogClassName="modal-cambiar-contraseña">
       <Modal.Body>
-        <div className="containerCambiarContraseña">
-          <h2 className="heading">Cambiar<br />Contraseña</h2>
-          <form className="form" onSubmit={handleSubmit}>
+        <div className="mcambiar-container">
+          <h2 className="mcambiar-heading">Cambiar<br />Contraseña</h2>
+          <form className="mcambiar-form" onSubmit={handleSubmit}>
             {/* Campo de contraseña actual */}
-            <div className="password-input-container">
-              <FiLock className="input-icon" />
+            <div className="mcambiar-password-input-container">
+              <FiLock className="mcambiar-input-icon" />
               <input
                 name="current"
                 type={showCurrentPassword ? "text" : "password"}
-                className="input"
+                className="mcambiar-input"
                 placeholder="Contraseña actual"
                 value={passwords.current}
                 onChange={handleChange}
               />
               <button
                 type="button"
-                className="password-toggle"
+                className="mcambiar-password-toggle"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               >
                 {showCurrentPassword ? <FiEyeOff /> : <FiEye />}
@@ -53,19 +53,20 @@ const ModalCambiarContraseña = ({ show, handleClose }) => {
             </div>
 
             {/* Campo de nueva contraseña */}
-            <div className="password-input-container">
-              <FiLock className="input-icon" />
+            
+            <div className="mcambiar-password-input-container">
+              <FiLock className="mcambiar-input-icon" />
               <input
                 name="new"
                 type={showNewPassword ? "text" : "password"}
-                className="input"
+                className="mcambiar-input"
                 placeholder="Nueva contraseña"
                 value={passwords.new}
                 onChange={handleChange}
               />
               <button
                 type="button"
-                className="password-toggle"
+                className="mcambiar-password-toggle"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
                 {showNewPassword ? <FiEyeOff /> : <FiEye />}
@@ -73,19 +74,19 @@ const ModalCambiarContraseña = ({ show, handleClose }) => {
             </div>
 
             {/* Campo de confirmación */}
-            <div className="password-input-container">
-              <FiLock className="input-icon" />
+            <div className="mcambiar-password-input-container">
+              <FiLock className="mcambiar-input-icon" />
               <input
                 name="confirm"
                 type={showConfirmPassword ? "text" : "password"}
-                className="input"
+                className="mcambiar-input"
                 placeholder="Confirmar nueva contraseña"
                 value={passwords.confirm}
                 onChange={handleChange}
               />
               <button
                 type="button"
-                className="password-toggle"
+                className="mcambiar-password-toggle"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
@@ -93,7 +94,7 @@ const ModalCambiarContraseña = ({ show, handleClose }) => {
             </div>
 
             {/* Indicador de fortaleza de contraseña */}
-            <div className="password-strength">
+            <div className="mcambiar-password-strength">
               <div className="strength-bar-container">
                 {[1, 2, 3, 4].map(i => (
                   <div
@@ -112,12 +113,12 @@ const ModalCambiarContraseña = ({ show, handleClose }) => {
 
             {/* Botones en disposición vertical */}
             <div className="buttons-container">
-              <button type="submit" className="login-button">
+              <button type="submit" className="mcambiar-login-button">
                 Guardar cambios
               </button>
               <button
                 type="button"
-                className="login-button cancel-button"
+                className="mcambiar-login-button mcambiar-cancel-button"
                 onClick={handleClose}
               >
                 Cancelar

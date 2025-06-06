@@ -8,7 +8,7 @@ import alumnoService from '../../../services/AlumnoService';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import UsuarioService from '../../../services/UsuarioService';
-
+import ModalCambiarContraseña from '../../../components/CambiarContraseña/ModalCambiarContraseña';
 
 const AlumnoRegistro = forwardRef((props, ref) => {
 
@@ -34,6 +34,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [listaSemestres, setListaSemestres] = useState([]);
   const [listaSexo, setListaSexo] = useState([]);
   const [alumnoId, setAlumnoId] = useState(props.id || null);
+  const [showModalCambiar, setShowModalCambiar] = useState(false);
   const esEdicion = !!props.alumno;
   const navigate = useNavigate();
 
@@ -552,13 +553,36 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
             <div className="col-md-6">
               <label className="formulario-etiqueta">Contraseña</label>
-              <input
-                type="text"
-                name="contrasena"
-                className="formulario-entrada readonly-style2"
-                value={formValues.contrasena}
-                readOnly
-              />
+              {props.alumno ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn-cambiar-pass w-100"
+                    onClick={() => setShowModalCambiar(true)}
+                  >
+                    <span className="btn-cambiar-pass-decor" />
+                    <span className="btn-cambiar-pass-content">
+                      <span className="btn-cambiar-pass-icon">
+                        <i className="bi bi-key"></i>
+                      </span>
+                      <span className="btn-cambiar-pass-text">Cambiar contraseña</span>
+                    </span>
+                  </button>
+                  <ModalCambiarContraseña
+                    show={showModalCambiar}
+                    handleClose={() => setShowModalCambiar(false)}
+                    requireCurrentPassword={false} // No pedir contraseña actual desde administración
+                  />
+                </>
+              ) : (
+                <input
+                  type="text"
+                  name="contrasena"
+                  className="formulario-entrada readonly-style2"
+                  value={formValues.contrasena}
+                  readOnly
+                />
+              )}
             </div>
             <div className="d-flex justify-content-center gap-3">
               <button type="submit" className="btn-agregar">

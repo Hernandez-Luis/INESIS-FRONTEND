@@ -301,3 +301,67 @@
     color: #dc3545;
     font-weight: bold;
 }
+
+/* ESTILOS PARA EL BOTON DE CAMBIAR CONRASEÑA*/
+
+/* Botón Cambiar Contraseña - estilos únicos */
+.btn-cambiar-pass {
+    text-decoration: none;
+    line-height: 1;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, .05);
+    background-color: #fff;
+    color: #121212;
+    border: none;
+    cursor: pointer;
+    margin-top: 11px;
+}
+
+.btn-cambiar-pass-decor {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-morado2);
+    transform: translateX(-100%);
+    transition: transform .3s;
+    z-index: 0;
+}
+
+.btn-cambiar-pass-content {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-cambiar-pass-icon {
+    width: 48px;
+    height: 40px;
+    background-color: var(--color-morado2);
+    display: grid;
+    place-items: center;
+    border-radius: 1.5rem 0 0 1.5rem;
+    color: #fff !important;
+}
+
+.btn-cambiar-pass-text {
+    display: inline-block;
+    transition: color .2s;
+    padding: 2px 1.5rem 2px;
+    padding-left: .75rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.btn-cambiar-pass:hover .btn-cambiar-pass-text {
+    color: #fff;
+}
+
+.btn-cambiar-pass:hover .btn-cambiar-pass-decor {
+    transform: translate(0);
+}
+
+/* FIN DE ESTILOS PARA EL BOTON DE CAMBIAR CONRASEÑA*/
