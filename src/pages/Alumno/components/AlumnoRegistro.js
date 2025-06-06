@@ -300,7 +300,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         grupo: formValues.grupo.id,
         usuario: formValues.usuario,
         contrasenia: formValues.contrasena,
-        estatus: 'Activo',
+        estatus: 1,
         idCatRol: 1
       };
 

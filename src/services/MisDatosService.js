@@ -11,6 +11,16 @@ const getAll = async () => {
     }
 };
 
+const getByIdAlumno = async (id) => {
+    try {
+        const response = await axiosInstance.get(`${API_URL}/alumno/${id}`);
+        return response.data;    
+    } catch (error) {
+        throw error.response?.data || 'Error al obtener datos del alumno';
+    }
+};
+
+
 const create = async (gastosIngresos) => {
     try {
         const response = await axiosInstance.post(API_URL, gastosIngresos);
@@ -42,5 +52,6 @@ export default {
     getAll,
     create,
     update,
-    deleteMisDatos
+    deleteMisDatos,
+    getByIdAlumno
 };
