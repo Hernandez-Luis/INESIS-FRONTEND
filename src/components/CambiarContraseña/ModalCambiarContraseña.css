@@ -134,7 +134,7 @@
 
 .buttons-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
   margin-top: 15px;
 }
@@ -191,4 +191,36 @@
 
 .modal-cambiar-contraseña .modal-content {
   animation: modalAppear 0.4s ease-out;
+}
+
+.mcambiar-password-info {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 6px;
+  font-size: 0.93em;
+  color: #444;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  max-width: 320px;
+  z-index: 10;
+  position: absolute;
+}
+
+.mcambiar-input,
+.mcambiar-input-error {
+  width: 100%;
+  background: #fff;
+  border: none;
+  padding: 15px 45px 15px 45px;
+  border-radius: 20px;
+  box-shadow: var(--color-morado4) 0px 10px 10px -5px;
+  border-inline: 2px solid transparent;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.mcambiar-input-error {
+  border-inline: 2px solid #e74c3c !important;
+  box-shadow: 0 0 0 2px #f8d7da !important;
 }

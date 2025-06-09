@@ -571,7 +571,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                   <ModalCambiarContraseña
                     show={showModalCambiar}
                     handleClose={() => setShowModalCambiar(false)}
-                    requireCurrentPassword={false} // No pedir contraseña actual desde administración
+                    requireCurrentPassword={false} 
                   />
                 </>
               ) : (

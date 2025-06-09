@@ -55,6 +55,17 @@ const getByAlumnoId = async (idAlumno) => {
   }
 };
 
+const verificarContrasena = async ({ usuario, contrasena }) => {
+  try {
+    const response = await axiosInstance.post(`${API_URL}/verificar-contrasena`, {
+      usuario,
+      contrasena
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || "Error al verificar la contraseña";
+  }
+};
 
 export default {
   getAll,
@@ -62,5 +73,6 @@ export default {
   create,
   update,
   deleteUsuario,
-  getByAlumnoId
+  getByAlumnoId,
+  verificarContrasena
 };
