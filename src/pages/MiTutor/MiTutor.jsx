@@ -35,6 +35,7 @@ export const MiTutor = () => {
         try {
             let catTipoTrabajo = await CatTipoTrabajoService.getAll();
             setCatTipoTrabajo(catTipoTrabajo)
+            // console.log(catTipoTrabajo)
         } catch (error) {
             console.log("Error al obtener la lista de CatTipoTrabajo: ", error)
         }
@@ -68,7 +69,7 @@ export const MiTutor = () => {
             }
             let datos = await MisDatosService.getByIdAlumno(alumnoId); // asegúrate de tener definido `id`
             setDatosAlumno(datos);
-            // console.log("Datos del alumno: ", datos);
+            console.log("Datos del alumno: ", datos);
         } catch (error) {
             console.log("Error al obtener datos del alumno: ", error);
         }
@@ -77,10 +78,11 @@ export const MiTutor = () => {
     const obtenerDatosTutorDeMisDatos = () => {
         let dependeEconomicamente = datosAlumno?.gastosIngresos?.dependeEconomicamente;
         // console.log('depende: ', dependeEconomicamente)
-        if (dependeEconomicamente === 'Si') {
+        // console.log('Datos dependeEconomicamente: ', datosAlumno?.gastosIngresos)
+        if (dependeEconomicamente === true) {
             setNombreTutor(datosAlumno?.gastosIngresos?.nombreQuienDependes);
             setTipoTrabajoMisDatos(datosAlumno?.gastosIngresos?.catTipoTrabajo?.id)
-            setOcupacionMisDatos(datosAlumno?.gastosIngresos?.ocupacionModel?.id)
+            setOcupacionMisDatos(datosAlumno?.gastosIngresos?.ocupacion?.id)
             setOcupacionOtroMisDatos(datosAlumno?.gastosIngresos?.otro)
         }
     }
@@ -102,7 +104,7 @@ export const MiTutor = () => {
         setDatosMiTutor(prev => ({
             ...prev,
             nombreTutor: nombreTutorMisDatos || '',
-            tipoTrabajo: tipoTrabajoMisDatos || '',
+            trabajoTipo: tipoTrabajoMisDatos || '',
             ocupacion: ocupacionMisDatos || '',
             ocupacionOtro: ocupacionOtroMisDatos || ''
         }));
@@ -127,7 +129,7 @@ export const MiTutor = () => {
         correo: '',
         trabajadorSuneo: '',
         comparteVivienda: '',
-        tipoTrabajo: '',
+        trabajoTipo: '',
         ocupacion: '',
         ocupacionOtro: null
     }
@@ -142,7 +144,7 @@ export const MiTutor = () => {
 
     const actualizarCamposMiTutor = (e) => {
         const { name, value } = e.target;
-        // console.log("Nombre: ", name, " Valor: ", value)
+        console.log("Nombre: ", name, " Valor: ", value)
 
         if (name == 'ocupacion') {
             setDatosMiTutor((prevData) => ({
@@ -238,15 +240,33 @@ export const MiTutor = () => {
                                 <div className="row mt-3">
                                     <div className="col">
                                         <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Telefono</label>
-                                        <input className='form-control' type="number" />
+                                        <input
+                                            className='form-control'
+                                            type="text"
+                                            onChange={actualizarCamposMiTutor}
+                                            name={"telefono"}
+                                            value={datosMiTutor.telefono}
+                                        />
                                     </div>
                                     <div className="col">
                                         <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
-                                        <input className='form-control' type="mail" />
+                                        <input
+                                            className='form-control'
+                                            type="mail"
+                                            onChange={actualizarCamposMiTutor}
+                                            name={"correo"}
+                                            value={datosMiTutor.correo}
+                                        />
                                     </div>
                                 </div>
                                 <label className='fs-5 mt-4 mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿Es trabajador de la UNSIJ o SUNEO?</label>
-                                <RadioSelect gris={true} options={['Si', 'No']} />
+                                <RadioSelect
+                                    gris={true}
+                                    options={['Si', 'No']}
+                                    onChange={actualizarCamposMiTutor}
+                                    name={"trabajadorSuneo"}
+                                    value={datosMiTutor.trabajadorSuneo}
+                                />
                                 <div className="row">
                                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                                     <RadioSelect
@@ -256,8 +276,8 @@ export const MiTutor = () => {
                                             value: t.id
                                         }))}
                                         onChange={actualizarCamposMiTutor}
-                                        name="tipoTrabajo"
-                                        value={datosMiTutor.tipoTrabajo}
+                                        name="trabajoTipo"
+                                        value={datosMiTutor.trabajoTipo}
                                     />
                                     {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
                                 </div>
@@ -302,7 +322,13 @@ export const MiTutor = () => {
                                 <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
                                 <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>
                                 <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente?</label>
-                                <RadioSelect gris={true} options={['Si', 'No']} />
+                                <RadioSelect
+                                    gris={true}
+                                    options={['Si', 'No']}
+                                    onChange={actualizarCamposMiTutor}
+                                    name={"comparteVivienda"}
+                                    value={datosMiTutor.comparteVivienda}
+                                />
                                 <div className='row'>
                                     <div className='col-6 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>

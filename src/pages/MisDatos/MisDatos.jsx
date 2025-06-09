@@ -96,10 +96,10 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerDatosAlumno = async () => {
     try {
       let dataAlumno = await AlumnoService.getById(idAlumno);
-      console.log("ALUMNO: ", dataAlumno)
-      console.log("materno: ", dataAlumno.apellidoMaterno)
+      // console.log("ALUMNO: ", dataAlumno)
+      // console.log("materno: ", dataAlumno.apellidoMaterno)
       setDatosAlumno(dataAlumno)
-      console.log(dataAlumno?.misDatos);
+      // console.log(dataAlumno?.misDatos);
       //setMisDatos(dataAlumno?.misDatos)
       setDataMisDatos((prevData) => ({
         ...prevData,
@@ -197,7 +197,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerCatTipoTrabajo = async () => {
     try {
       let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
-      console.log(tipoTrabajoLista)
+      // console.log(tipoTrabajoLista)
       setCatTipoTrabajo(tipoTrabajoLista)
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
@@ -301,12 +301,12 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const handleBuscarCP = async (value) => {
     const codigoPostal = value
-    console.log("Codigo postal: ", codigoPostal)
+    // console.log("Codigo postal: ", codigoPostal)
     // Solo buscar si tiene 5 dígitos
-    if(value.length !== 5 ) return;
+    if (value.length !== 5) return;
     try {
       const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-      console.log("Datos de la API: ", datos)
+      // console.log("Datos de la API: ", datos)
       setColonias(datos.codigo_postal.colonias);
 
       setDataDomicilio((prevData) => ({
@@ -316,7 +316,7 @@ export const MisDatos = ({ onAdd, update }) => {
         cp: codigoPostal,
       }))
 
-      console.log(dataDomicilio)
+      // console.log(dataDomicilio)
     } catch (err) {
       console.error('Error al buscar código postal:', err);
       setColonias([]);
@@ -346,7 +346,7 @@ export const MisDatos = ({ onAdd, update }) => {
           otro: "",
         }))
         setDataTrabajo(formularioInicialTrabajo)
-      }      
+      }
       return;
     }
     // ******  CONDICIONES *******
@@ -406,7 +406,7 @@ export const MisDatos = ({ onAdd, update }) => {
       "tieneComputadora",
     ];
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
+    // console.log("Nombre: ", name, " Valor: ", value)
 
     if (camposBooleanos.includes(name)) {
       setDataMisDatos((prevData) => ({
@@ -477,7 +477,6 @@ export const MisDatos = ({ onAdd, update }) => {
       domicilio: dataDomicilio
     };
 
-    console.log("Mostrando coleccion: ", coleccionValores)
 
 
     try {
@@ -508,7 +507,7 @@ export const MisDatos = ({ onAdd, update }) => {
     const erroresTemp = {};
     const camposOpcionales = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
     const camposBooleanos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
-    
+
     Object.keys(dataGastosIngresos).forEach((campo) => {
       // Para campos booleanos, verificar que no sean null o undefined
       if (camposBooleanos.includes(campo)) {
@@ -523,12 +522,12 @@ export const MisDatos = ({ onAdd, update }) => {
         }
       }
     });
-    
+
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
       return 0; // No enviar el formulario si hay errores
     }
-  
+
     return 1;
   }
 
@@ -661,6 +660,18 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
+                  <div className="col-3 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                    <input maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
+                  </div>
+                  <div className="col-3 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                    <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                  </div>
+                  <div className='col-6 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                    <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
+                  </div>
                   <div className='row'>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
@@ -678,7 +689,6 @@ export const MisDatos = ({ onAdd, update }) => {
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                       <div>
                         <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
-
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
@@ -695,18 +705,6 @@ export const MisDatos = ({ onAdd, update }) => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
-                    </div>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                      <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
-                    </div>
-                    <div className="col-3 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                      <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
-                    </div>
-                    <div className="col-3 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
                     </div>
                     <div className="col-12">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
