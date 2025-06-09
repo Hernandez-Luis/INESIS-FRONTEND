@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavInesis from "../../components/NavInesis/NavInesis";
 import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
 import MenuAdministrador from "../MenuAdministrador/MenuAdministrador";
+import carreraService from "../../services/CatCarreraService";
 
 const ListadoEstudioSocioeconomico = () => {
   const links = [
@@ -15,20 +16,31 @@ const ListadoEstudioSocioeconomico = () => {
     },
   ];
 
+  const [carreras, setCarreras] = useState([]);
+  const [selectedCarrera, setSelectedCarrera] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [selectedCarrera, setSelectedCarrera] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const carreras = [
-    "Forestal",
-    "Ciencias Ambientales",
-    "Informática",
-    "Biología",
-    "Tecnología de la Madera",
-    "M. Ciencias en Conservación de los Recursos Forestales",
-  ];
+  useEffect(() => {
+    const fetchCarreras = async () => {
+      try {
+        const data = await carreraService.getAll();
+        console.log("Respuesta de carreras:", data);
+        setCarreras(data);
+      } catch (error) {
+        console.error("Error al cargar carreras:", error);
+      }
+    };
+    fetchCarreras();
+  }, []);
+
+  // Transformacion de carreras para SeleccionarCombo
+  const opcionesCarreras = carreras.map((c) => ({
+    value: c.nombreCarrera,
+    label: c.nombreCarrera,
+  }));
 
   const data = [
     {
@@ -36,55 +48,22 @@ const ListadoEstudioSocioeconomico = () => {
       semestre: "Décimo",
       grupo: "103",
       estado: "Sin revisar",
+      carrera: "Forestal",
     },
     {
       nombre: "Adriana Hernández Ramírez",
       semestre: "Décimo",
       grupo: "103",
       estado: "Finalizado",
-    },
-    {
-      nombre: "Luis Alberto Hernández Ramírez",
-      semestre: "Tercero",
-      grupo: "103",
-      estado: "Sin revisar",
-    },
-    {
-      nombre: "Hipólito Javier Domínguez Hernández",
-      semestre: "Décimo",
-      grupo: "103",
-      estado: "Pendiente",
-    },
-    {
-      nombre: "Arturo Sánchez Barrera",
-      semestre: "Décimo",
-      grupo: "103",
-      estado: "Pendiente",
-    },
-    {
-      nombre: "Luis Jiménez Jiménez",
-      semestre: "Quinto",
-      grupo: "103",
-      estado: "Sin revisar",
-    },
-    {
-      nombre: "José Luis Brito Gato",
-      semestre: "Tercero",
-      grupo: "103",
-      estado: "Finalizado",
-    },
-    {
-      nombre: "Elías Hernández Marcial",
-      semestre: "Quinto",
-      grupo: "103",
-      estado: "Finalizado",
+      carrera: "Licenciatura en Informatica",
     },
   ];
 
   const filteredData = data.filter(
     (item) =>
       item.nombre.toLowerCase().includes(search.toLowerCase()) &&
-      (statusFilter === "" || item.estado === statusFilter)
+      (statusFilter === "" || item.estado === statusFilter) &&
+      (selectedCarrera === "" || item.carrera === selectedCarrera)
   );
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -104,8 +83,10 @@ const ListadoEstudioSocioeconomico = () => {
           </h1>
           <div className="mb-3" style={{ width: "50%" }}>
             <SeleccionarCombo
-              options={carreras}
-              onChange={setSelectedCarrera}
+              name="carrera"
+              options={opcionesCarreras}
+              onChange={(e) => setSelectedCarrera(e.target.value)}
+              value={selectedCarrera}
               placeholder="Selecciona una carrera"
             />
           </div>
