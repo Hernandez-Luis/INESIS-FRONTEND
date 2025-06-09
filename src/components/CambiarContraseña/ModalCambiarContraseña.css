@@ -1,0 +1,226 @@
+/* ModalCambiarContraseña.css */
+.mcambiar-container {
+  max-width: 350px !important;
+  background: linear-gradient(
+    0deg,
+    var(--color-gris2) 0%,
+    #fff 100%
+  ) !important;
+  border-radius: 40px !important;
+  padding: 25px 35px !important;
+  border: 5px solid #fff !important;
+  box-shadow: var(--color-morado4) 0px 30px 30px -20px !important;
+  margin: 0 auto !important;
+}
+
+.modal-cambiar-contraseña .modal-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.mcambiar-heading {
+  text-align: center;
+  font-weight: 900;
+  font-size: 30px;
+  color: var(--color-morado2);
+  margin-bottom: 20px;
+}
+
+.mcambiar-password-input-container{
+  position: relative;
+  margin-top: 20px;
+}
+
+.mcambiar-input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-morado1);
+  font-size: 18px;
+}
+
+.mcambiar-password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-morado1);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mcambiar-password-toggle:hover {
+  color: var(--color-morado2);
+}
+
+.mcambiar-form .mcambiar-input{
+  width: 100%;
+  background: #fff;
+  border: none;
+  padding: 15px 45px 15px 45px;
+  border-radius: 20px;
+  box-shadow: var(--color-morado4) 0px 10px 10px -5px;
+  border-inline: 2px solid transparent;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.mcambiar-form .mcambiar-input:focus {
+  outline: none;
+  border-inline: 2px solid var(--color-morado1);
+  box-shadow: var(--color-morado4) 0px 15px 15px -10px;
+}
+
+.mcambiar-form .mcambiar-input::-moz-placeholder {
+  color: var(--color-gris1);
+}
+
+.mcambiar-form .mcambiar-input::placeholder {
+  color: var(--color-gris1);
+}
+
+.mcambiar-password-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0 20px;
+}
+
+.strength-bar-container {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 5px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.strength-bar.active {
+  background-color: var(--color-morado1);
+}
+
+.strength-bar:nth-child(2).active {
+  background-color: var(--color-morado2);
+}
+
+.strength-bar:nth-child(3).active {
+  background-color: var(--color-morado3);
+}
+
+.strength-bar:nth-child(4).active {
+  background-color: var(--color-morado4);
+}
+
+.strength-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-morado1);
+  min-width: 60px;
+  text-align: right;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.mcambiar-form .mcambiar-login-button {
+  display: block;
+  width: 100%;
+  font-weight: bold;
+  background: linear-gradient(
+    45deg,
+    var(--color-morado1) 0%,
+    var(--color-morado2) 100%
+  );
+  color: #fff;
+  padding-block: 15px;
+  border-radius: 20px;
+  box-shadow: var(--color-morado4) 0px 20px 10px -15px;
+  border: none;
+  transition: all 0.2s ease-in-out;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.mcambiar-form .mcambiar-login-button.mcambiar-cancel-button {
+  background: linear-gradient(
+    45deg,
+    #a0a0a0 0%,
+    #7a7a7a 100%
+  );
+  box-shadow: #d0d0d0 0px 20px 10px -15px;
+}
+
+.form .login-button:hover {
+  transform: scale(1.03);
+  box-shadow: var(--color-morado4) 0px 23px 10px -20px;
+}
+
+.form .login-button:active {
+  transform: scale(0.95);
+  box-shadow: var(--color-morado4) 0px 15px 10px -10px;
+}
+
+/* Efecto de animación para el modal */
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-cambiar-contraseña .modal-content {
+  animation: modalAppear 0.4s ease-out;
+}
+
+.mcambiar-password-info {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 6px;
+  font-size: 0.93em;
+  color: #444;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  max-width: 320px;
+  z-index: 10;
+  position: absolute;
+}
+
+.mcambiar-input,
+.mcambiar-input-error {
+  width: 100%;
+  background: #fff;
+  border: none;
+  padding: 15px 45px 15px 45px;
+  border-radius: 20px;
+  box-shadow: var(--color-morado4) 0px 10px 10px -5px;
+  border-inline: 2px solid transparent;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.mcambiar-input-error {
+  border-inline: 2px solid #e74c3c !important;
+  box-shadow: 0 0 0 2px #f8d7da !important;
+}

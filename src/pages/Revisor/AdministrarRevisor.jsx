@@ -14,21 +14,18 @@ const AdministrarRevisor = () => {
 
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
-        //{ url: '/MenuRevisor', label: 'Menu' },
         { url: '/AdministrarRevisor', label: 'Revisores' }
     ];
 
     useEffect(() => {
         const fetchRevisor = async () => {
             try {
-                const response = await fetch("http://localhost:8000/api/revisor");
+                const response = await fetch("http://localhost:8000/api/revisor");//AQUI DEBES DE USAR EL SERVICE
                 if (!response.ok) {
                     throw new Error("Error al obtener los datos");
                 }
                 const dataBase = await response.json();
                 setRevisor(revisor);
-
-
 
             } catch (error) {
                 console.error("Error al cargar alumnos:", error);
@@ -52,11 +49,30 @@ const AdministrarRevisor = () => {
     const titulos = ["Matrícula", "Nombre Completo", "Departamento", "Num. Empleado"];
 
     const nombreData = "revisor";
+
+    const subTitulo = "Gestión de los revisores del estudio socioeconómico";
+
+    const columns = [
+        { header: 'Matrícula', accessor: 'matricula' },
+        { header: 'Nombre completo', accessor: 'nombre' },
+        { header: "Departamento", accessor: "Departamento" },
+        { header: "Num. Empleado", accessor: "NIP" },
+    ];
+
+    const rutaBoton = "/AgregarRevisor";
+
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <TablaRegistros data={revisor} titulos={titulos} nombreData={nombreData} />
+            <TablaRegistros
+                data={revisor}
+                titulos={titulos}
+                nombreData={nombreData}
+                subTitulo={subTitulo}
+                rutaBoton={rutaBoton}
+                columns={columns}
+            />
             <FooterInesis />
         </div>
 
