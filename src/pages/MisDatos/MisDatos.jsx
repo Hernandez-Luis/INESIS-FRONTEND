@@ -451,7 +451,6 @@ export const MisDatos = ({ onAdd, update }) => {
     }))
   }
 
-
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
