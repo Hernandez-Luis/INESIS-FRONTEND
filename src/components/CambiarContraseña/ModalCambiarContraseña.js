@@ -191,6 +191,8 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
                   className={`mcambiar-input${error.current ? " mcambiar-input-error" : ""}`} placeholder="Contraseña actual"
                   value={passwords.current}
                   onChange={handleChange}
+                  maxLength={18}
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -212,6 +214,8 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
                 placeholder="Nueva contraseña"
                 value={passwords.new}
                 onChange={handleChange}
+                maxLength={18}
+                minLength={8}
               />
               <button
                 type="button"
@@ -233,6 +237,8 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
                 placeholder="Confirmar nueva contraseña"
                 value={passwords.confirm}
                 onChange={handleChange}
+                maxLength={18}
+                minLength={8}
               />
               <button
                 type="button"

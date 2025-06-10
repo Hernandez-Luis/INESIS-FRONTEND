@@ -365,3 +365,78 @@
 }
 
 /* FIN DE ESTILOS PARA EL BOTON DE CAMBIAR CONRASEÑA*/
+/* Responsividad general */
+@media (max-width: 576px) {
+  .container.w-75 {
+    width: 100% !important;
+    padding: 0 5px;
+    margin: 0;
+  }
+
+  .mb-4.text-center,
+  .mb-5.text-center {
+    margin-bottom: 1rem !important;
+  }
+
+  .size-font-title {
+    font-size: 1.3rem !important;
+  }
+
+  .size-font-subtitle {
+    font-size: 1rem !important;
+  }
+
+  .btn-agregar {
+    width: 30%;
+    font-size: 0.6rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0rem;
+    margin-left: 1.5rem;
+  }
+
+  .row.mb-5.align-items-center {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .col-md-6,
+  .col-md-5 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+    padding: 0;
+  }
+
+  .filtro-container{
+    padding-left: 2rem;
+    width: 55%;
+    justify-content: flex-start;
+  }
+
+   .buscador-container {
+    padding-left: 2rem;
+    width: 80%;
+    justify-content: flex-start;
+  }
+
+  .input-buscar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .custom-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-table {
+    min-width: 600px;
+    font-size: 0.95rem;
+  }
+
+  .pagination-container {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+
