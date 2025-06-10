@@ -52,14 +52,13 @@
           return;
         }
 
-
         const data = await response.json();
 
         const usuarioData = {
           id: data.id,
           usuario: data.usuario,
           estatus: data.estatus,
-          rol: data.rol.nombreRol,
+          rol: data.rol.id,
           alumnoId: data.alumno?.id || null
         };
 

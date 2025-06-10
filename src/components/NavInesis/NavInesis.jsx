@@ -22,7 +22,7 @@ export const NavInesis = () => {
     localStorage.removeItem('usuario'); // Borra datos del usuario
     navigate('/'); // Redirige al login
   };
-  
+
 
   return (
     <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
@@ -50,19 +50,19 @@ export const NavInesis = () => {
               </NavItem>
 
               <NavDropdown className='me-5 no-caret custom-dropdown' title={<img src={perfilIcon} style={{ width: '40px' }} alt="Perfil" />}>
-              <NavDropdown.Item onClick={() => setShowProfileModal(true)}>Mi cuenta</NavDropdown.Item>
+                <NavDropdown.Item onClick={() => setShowProfileModal(true)}>Mi cuenta</NavDropdown.Item>
                 <NavDropdown.Item onClick={() => setModalShow(true)}>Cambiar contraseña</NavDropdown.Item>
                 <NavDropdown.Item onClick={handleLogout}>Cerrar sesión</NavDropdown.Item>
-                </NavDropdown>
+              </NavDropdown>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
       {/* Modal para cambiar contraseña */}
-      <ModalCambiarContraseña show={modalShow} handleClose={() => setModalShow(false)} />
+      <ModalCambiarContraseña show={modalShow} handleClose={() => setModalShow(false)} requireCurrentPassword={true} />
       {/* Modal para mostrar perfil */}
-      <ModalUsuario mostrar={showProfileModal} cerrarModal={() => setShowProfileModal(false)} usuario={{ nombre: 'Luis Alberto Hernández Ramírez', rol: 'Estudiante' }}/>
+      <ModalUsuario mostrar={showProfileModal} cerrarModal={() => setShowProfileModal(false)} usuario={{ nombre: 'Luis Alberto Hernández Ramírez', rol: 'Estudiante' }} />
 
 
     </div>

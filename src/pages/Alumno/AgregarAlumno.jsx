@@ -20,7 +20,7 @@ const AgregarAlumno = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-             <AlumnoRegistro alumno={alumno} />
+            <AlumnoRegistro alumno={alumno} />
             <FooterInesis />
         </div>
     );
