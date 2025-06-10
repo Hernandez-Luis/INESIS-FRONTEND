@@ -18,10 +18,11 @@ import DomicilioCpService from '../../services/DomicilioCpService'
 import CatOcupacionService from '../../services/CatOcupacionService'
 import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
-import { data } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 
 export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
+  const navigate = useNavigate();
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
     { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -130,7 +131,7 @@ export const MisDatos = ({ onAdd, update }) => {
           numero: dataAlumno?.misDatos.domicilio?.numero || '',
           colonia: dataAlumno?.misDatos.domicilio?.colonia || '',
         }))
-        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente ? 'Si' : 'No')
+        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente)
         setDataGastosIngresos((prevData) => ({
           ...prevData,
           gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
@@ -147,14 +148,14 @@ export const MisDatos = ({ onAdd, update }) => {
           telefonoTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.telefonoTrabajo || '',
           domicilioTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
         }))
-        setTieneAutomovil(dataAlumno?.misDatos.llevaVehiculo)
+        setTieneAutomovil(dataAlumno?.misDatos.llevaAutomovil)
         setTieneMotocicleta(dataAlumno?.misDatos.llevamotocicleta);
         setDataTransporteAutomovil((prevData) => ({
           ...prevData,
-          marca: dataAlumno?.misDatos.transporte?.marca || '',
-          modelo: dataAlumno?.misDatos.transporte?.modelo || '',
-          anio: dataAlumno?.misDatos.transporte?.anio || '',
-          catTipoTransporte: dataAlumno?.misDatos.transporte?.catTipoTransporte?.idCatTipoTransporte || ''
+          marca: dataAlumno?.misDatos.transporteAutomovil?.marca || '',
+          modelo: dataAlumno?.misDatos.transporteAutomovil?.modelo || '',
+          anio: dataAlumno?.misDatos.transporteAutomovil?.anio || '',
+          catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         //todo:
         setDataTransporteMotocicleta((prevData) => ({
@@ -497,6 +498,7 @@ export const MisDatos = ({ onAdd, update }) => {
         return;
       }
       mostrarExito("Los datos se guardaron correctamente")
+
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
@@ -570,6 +572,8 @@ export const MisDatos = ({ onAdd, update }) => {
       text: mensaje,
       icon: 'success',
       confirmButtonText: 'Aceptar',
+    }).then(() => {
+      navigate('/menuSolicitar')
     });
   };
 

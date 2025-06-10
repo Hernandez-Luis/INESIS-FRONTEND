@@ -61,8 +61,11 @@
           rol: data.rol.id,
           alumnoId: data.alumno?.id || null
         };
+
+
         localStorage.setItem('usuario', JSON.stringify(usuarioData));
     
+        console.log("Login exitoso:", data);
         navigate("/menuAlumno");
     
       } catch (error) {
