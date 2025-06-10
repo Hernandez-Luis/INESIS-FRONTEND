@@ -188,7 +188,12 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerCatSituacionVivienda = async () => {
     try {
       let situacionViviendaLista = await CatSituacionVivienda.getAll();
-      setCatSituacionVivienda(situacionViviendaLista)
+      // console.log("SITUACION VIVENDA: ", situacionViviendaLista)
+      let opcionesPermitidas = ['Rento cuarto', 'Rento casa', 'Vivo con familiares'];
+      let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
+        opcionesPermitidas.includes(item.nombreSituacion)
+      );
+      setCatSituacionVivienda(situacionViviendaFiltrada);
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
     }
@@ -406,7 +411,7 @@ export const MisDatos = ({ onAdd, update }) => {
       "tieneComputadora",
     ];
     const { name, value } = e.target;
-    // console.log("Nombre: ", name, " Valor: ", value)
+    console.log("Nombre: ", name, " Valor: ", value)
 
     if (camposBooleanos.includes(name)) {
       setDataMisDatos((prevData) => ({
