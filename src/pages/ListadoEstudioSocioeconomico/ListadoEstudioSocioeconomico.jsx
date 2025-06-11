@@ -4,70 +4,62 @@ import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
-import MenuAdministrador from "../MenuAdministrador/MenuAdministrador";
 import carreraService from "../../services/CatCarreraService";
+import Alumno from "../../services/AlumnoService";
 
 const ListadoEstudioSocioeconomico = () => {
   const links = [
     { url: "/MenuRevisor", label: "Inicio" },
-    {
-      url: "/ListadoEstudioSocioeconomico",
-      label: "Listado Estudios Socioeconomicos",
-    },
+    { url: "/ListadoEstudioSocioeconomico", label: "Listado Estudios Socioeconómicos" },
   ];
 
   const [carreras, setCarreras] = useState([]);
+  const [alumnos, setAlumnos] = useState([]);
   const [selectedCarrera, setSelectedCarrera] = useState("");
-  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
+  // 1. Cargar carreras para el combo
   useEffect(() => {
-    const fetchCarreras = async () => {
-      try {
-        const data = await carreraService.getAll();
-        console.log("Respuesta de carreras:", data);
-        setCarreras(data);
-      } catch (error) {
-        console.error("Error al cargar carreras:", error);
-      }
-    };
-    fetchCarreras();
+    carreraService.getAll()
+      .then(setCarreras)
+      .catch(err => console.error("Error al cargar carreras:", err));
   }, []);
 
-  // Transformacion de carreras para SeleccionarCombo
-  const opcionesCarreras = carreras.map((c) => ({
+  // 2. Cargar todos los alumnos
+  useEffect(() => {
+    Alumno.getAll()
+      .then(data => {
+        const lista = data.map(a => ({
+          id: a.id,
+          nombre: `${a.nombre} ${a.apellidoPaterno} ${a.apellidoMaterno}`,
+          semestre: a.semestre?.nombreSemestre || "Sin definir",
+          grupo: a.grupo?.nombreGrupo || "Sin definir",
+          estado: a.estado || "Sin revisar",
+          carrera: a.carrera?.nombreCarrera || "Sin definir",
+        }));
+        setAlumnos(lista);
+      })
+      .catch(err => console.error("Error al cargar alumnos:", err));
+  }, []);
+
+  // Opciones para el combo
+  const opcionesCarreras = carreras.map(c => ({
     value: c.nombreCarrera,
-    label: c.nombreCarrera,
+    label: c.nombreCarrera
   }));
 
-  const data = [
-    {
-      nombre: "Emmanuel Graciola Tapia",
-      semestre: "Décimo",
-      grupo: "103",
-      estado: "Sin revisar",
-      carrera: "Forestal",
-    },
-    {
-      nombre: "Adriana Hernández Ramírez",
-      semestre: "Décimo",
-      grupo: "103",
-      estado: "Finalizado",
-      carrera: "Licenciatura en Informatica",
-    },
-  ];
-
-  const filteredData = data.filter(
-    (item) =>
-      item.nombre.toLowerCase().includes(search.toLowerCase()) &&
-      (statusFilter === "" || item.estado === statusFilter) &&
-      (selectedCarrera === "" || item.carrera === selectedCarrera)
+  // Filtrar alumnos
+  const filtered = alumnos.filter(a =>
+    a.nombre.toLowerCase().includes(search.toLowerCase()) &&
+    (statusFilter === "" || a.estado === statusFilter) &&
+    (selectedCarrera === "" || a.carrera === selectedCarrera)
   );
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const displayedData = filteredData.slice(
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const displayed = filtered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -77,38 +69,47 @@ const ListadoEstudioSocioeconomico = () => {
       <div className="flex-grow-1">
         <NavInesis />
         <MigasRecorrido items={links} />
+
         <div className="container text-center mt-4">
           <h1 className="fw-bold" style={{ color: "#6658d3" }}>
-            Resultados Estudio Socioeconomico
+            Resultados Estudio Socioeconómico
           </h1>
+
+          {/* Combo de carreras */}
           <div className="mb-3" style={{ width: "50%" }}>
             <SeleccionarCombo
               name="carrera"
               options={opcionesCarreras}
-              onChange={(e) => setSelectedCarrera(e.target.value)}
               value={selectedCarrera}
+              onChange={e => setSelectedCarrera(e.target.value)}
               placeholder="Selecciona una carrera"
             />
           </div>
+
+          {/* Filtros */}
           <div className="d-flex justify-content-between align-items-center mb-3">
             <select
               className="form-select w-auto"
               style={{ width: "25%" }}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
             >
               <option value="">Mostrar todos</option>
               <option value="Sin revisar">Sin revisar</option>
               <option value="Finalizado">Finalizado</option>
               <option value="Pendiente">Pendiente</option>
             </select>
+
             <input
               type="text"
               className="form-control w-auto"
               placeholder="Buscar..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
             />
           </div>
+
+          {/* Tabla de resultados */}
           <table className="table table-striped text-center table-bordered border-2">
             <thead>
               <tr>
@@ -120,57 +121,50 @@ const ListadoEstudioSocioeconomico = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedData.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.nombre}</td>
-                  <td>{item.semestre}</td>
-                  <td>{item.grupo}</td>
-                  <td>
-                    <a href="/Revision">
-                      <i className="bi bi-file-earmark-text"></i>
-                    </a>
-                  </td>
-                  <td
-                    className={
-                      item.estado === "Finalizado"
-                        ? "text-success"
-                        : item.estado === "Pendiente"
-                        ? "text-danger"
-                        : "text-muted"
-                    }
-                  >
-                    {item.estado}
-                  </td>
+              {displayed.length > 0 ? (
+                displayed.map((a, idx) => (
+                  <tr key={idx}>
+                    <td>{a.nombre}</td>
+                    <td>{a.semestre}</td>
+                    <td>{a.grupo}</td>
+                    <td>
+                      <a href="/Revision">
+                        <i className="bi bi-file-earmark-text"></i>
+                      </a>
+                    </td>
+                    <td className={
+                      a.estado === "Finalizado" ? "text-success" :
+                      a.estado === "Pendiente" ? "text-danger" :
+                      "text-muted"
+                    }>
+                      {a.estado}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No hay datos disponibles</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
-          <div className="d-flex justify-content-center">
-            <nav>
-              <ul className="pagination">
-                {[...Array(totalPages).keys()].map((num) => (
-                  <li
-                    key={num}
-                    className={`page-item ${
-                      currentPage === num + 1 ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => setCurrentPage(num + 1)}
-                    >
-                      {num + 1}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
+
+          {/* Paginación */}
+          <nav className="d-flex justify-content-center">
+            <ul className="pagination">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <li key={i} className={`page-item ${currentPage === i+1 ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
+                    {i + 1}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
-      <div className="mt-md-5 mt-sm-3">
-        <FooterInesis />
-      </div>
+
+      <FooterInesis />
     </div>
   );
 };
