@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/misDatos';
+const API_URL = '/miTutor';
 
 const getAll = async () => {
     try {
@@ -11,28 +11,18 @@ const getAll = async () => {
     }
 };
 
-const getByIdAlumno = async (id) => {
+const create = async (miTutor) => {
     try {
-        const response = await axiosInstance.get(`${API_URL}/alumno/${id}`);
-        return response.data;    
-    } catch (error) {
-        throw error.response?.data || 'Error al obtener datos del alumno';
-    }
-};
-
-
-const create = async (misDatos) => {
-    try {
-        const response = await axiosInstance.post(API_URL, misDatos);
+        const response = await axiosInstance.post(API_URL, miTutor);
         return response.data;    
     } catch (error) {
         throw error.response.data;
     }
 }
 
-const update = async (id,misDatos) => {
+const update = async (id,miTutor) => {
     try {
-        const response = await axiosInstance.put(`${API_URL}/${id}`, misDatos);
+        const response = await axiosInstance.put(`${API_URL}/${id}`, miTutor);
     return response.data;
     } catch (error) {
         throw error.response.data;
@@ -40,7 +30,7 @@ const update = async (id,misDatos) => {
     
 }
 
-const deleteMisDatos = async (id) => {
+const deleteMiTutor = async (id) => {
     try {
         await axiosInstance.delete(`${API_URL}/${id}`);
     } catch (error) {
@@ -52,6 +42,5 @@ export default {
     getAll,
     create,
     update,
-    deleteMisDatos,
-    getByIdAlumno
+    deleteMiTutor,
 };

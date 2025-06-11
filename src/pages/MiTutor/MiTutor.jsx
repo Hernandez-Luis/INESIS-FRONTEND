@@ -11,7 +11,7 @@ import CatParentescoService from '../../services/CatParentescoService';
 import MisDatosService from '../../services/MisDatosService';
 import DomicilioCpService from '../../services/DomicilioCpService';
 
-export const MiTutor = () => {
+export const MiTutor = ({ onAdd }) => {
     const links = [
         { url: '/menuAlumno', label: 'Inicio' },
         { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -192,10 +192,10 @@ export const MiTutor = () => {
         const { name, value } = e.target;
         console.log("Nombre: ", name, " Valor: ", value)
 
-        if(name === "comparteVivienda" && value === "Si"){
+        if (name === "comparteVivienda" && value === "Si") {
             setDisabled(true)
             console.log("Datos alumno: ", datosAlumno)
-            setDatosDomicilio((prevData) =>({
+            setDatosDomicilio((prevData) => ({
                 ...prevData,
                 cp: datosAlumno?.domicilio?.cp,
                 numero: datosAlumno?.domicilio?.numero,
@@ -203,7 +203,8 @@ export const MiTutor = () => {
                 localidad: datosAlumno?.domicilio?.localidad,
                 colonia: datosAlumno?.domicilio?.colonia,
             }))
-        } else if(name === "comparteVivienda" && value === "No"){
+            // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
+        } else if (name === "comparteVivienda" && value === "No") {
             setDisabled(false)
             setDatosDomicilio(formularioInicialDomicilio)
         }
@@ -234,6 +235,39 @@ export const MiTutor = () => {
     }
 
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        let datosDomicilioEnviar = {};
+
+        if (datosMiTutor.comparteVivienda === 'Si') {
+            datosDomicilioEnviar = {
+                idDomicilio: datosAlumno?.domicilio?.idDomicilio
+            };
+        } else datosDomicilioEnviar = datosDomicilio;
+        
+        const coleccionValores = {
+            ...datosMiTutor,
+            datosDomicilio: datosDomicilioEnviar
+        }
+        console.log("VALORES MI TUTOR: ", coleccionValores)
+
+        try {
+            let nuevosErrores = null;
+
+            nuevosErrores = await onAdd(coleccionValores);
+
+            console.log("Error: ", nuevosErrores)
+            if (nuevosErrores && nuevosErrores.length > 0) {
+                mostrarError(nuevosErrores)
+                return;
+            }
+            mostrarExito("Los datos se guardaron correctamente")
+        } catch (error) {
+            console.error("Error al guardar miTutor: ", error);
+        }
+    };
 
     // ***********************************  VALIDACION DE CAMPOS  ******************************************
 
@@ -285,7 +319,7 @@ export const MiTutor = () => {
             <div className='d-flex flex-column min-vh-100'>
                 <div className='flex-grow-1 m-5 px-5' >
 
-                    <form action="">
+                    <form onSubmit={handleSubmit}>
                         <div className='row mx-5 mw-100'>
                             <p className='fs-3  d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
                             <p style={{ color: 'var(--color-gris1)' }}>Datos del padre, madre o tutor o familiar más cercano (preferiblemente, del que se depende económicamente)</p>

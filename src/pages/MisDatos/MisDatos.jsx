@@ -491,8 +491,6 @@ export const MisDatos = ({ onAdd, update }) => {
         mostrarError(nuevosErrores)
         return;
       }
-      // setDataGastosIngresos(formularioInicialGastosIngresos);
-      // setDataTrabajo(formularioInicialTrabajo)
       mostrarExito("Los datos se guardaron correctamente")
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
