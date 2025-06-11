@@ -363,7 +363,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               />
               {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 dobleColumna">
               <div>
                 <label className="formulario-etiqueta">
                   Apellido Paterno <span className="text-danger">*</span>
@@ -371,7 +371,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 <input
                   type="text"
                   name="apellidoPaterno"
-                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
+                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''} dobleColumnaInput`} 
                   placeholder="Ingrese el apellido paterno"
                   value={formValues.apellidoPaterno}
                   onChange={handleChange}
@@ -380,7 +380,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
               </div>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 dobleColumna">
               <div>
                 <label className="formulario-etiqueta">
                   Apellido Materno
@@ -428,7 +428,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
             </div>
 
-            <div className="col-md-6">
+            <div className="col-md-6 dobleColumna">
               <label className="formulario-etiqueta">
                 Sexo <span className="text-danger">*</span>
               </label>
@@ -447,7 +447,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               </select>
               {errors.sexo && <div className="invalid-feedback">{errors.sexo}</div>}
             </div>
-            <div className="col-md-6">
+
+            <div className="col-md-6 dobleColumna">
               <label className="formulario-etiqueta">
                 Teléfono <span className="text-danger">*</span>
               </label>
