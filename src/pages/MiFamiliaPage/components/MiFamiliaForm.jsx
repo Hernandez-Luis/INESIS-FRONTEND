@@ -18,7 +18,6 @@ import CatSituacionViviendaService from '../../../services/CatSituacionViviendaS
 import CatMediosEstudioService from '../../../services/catMediosEstudioService';
 import CatServiciosOtro from '../../../services/CatServiciosOtro';
 
-
 import MiFamiliaService from '../../../services/miFamiliaService';
 import MediosEstudioService from '../../../services/mediosEstudiosService';
 import viviendaFamiliarService from '../../../services/viviendaFamiliarService';
