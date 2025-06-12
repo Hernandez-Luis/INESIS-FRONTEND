@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
 import axiosInstance from '../../api/axiosConfig';
+import Swal from "sweetalert2";
 
 
 
@@ -15,6 +16,27 @@ const FinancialForm = () => {
     const [error, setError] = useState(""); // Para manejar el mensaje de error
     const [reciboFile, setReciboFile] = useState(null);
     const [observaciones, setObservaciones] = useState("");
+
+    const fieldNames = {
+        lightName: "Nombre del titular del recibo de luz",
+        periodoInicio: "Periodo de inicio",
+        periodoFin: "Periodo de fin",
+        ultimoPago: "Último pago",
+        promedioPago: "Promedio de pago",
+
+        'Alimentación': "Alimentación",
+        'Renta': "Renta",
+        'Servicios': "Servicios",
+        'Gastos escolares': "Gastos escolares",
+        'Ropa': "Ropa",
+        'Transporte': "Transporte",
+        'Otros': "Otros",
+        'totalGastos': "Total de gastos",
+
+        'Ingreso total:': "Ingreso total",
+        '¿Cuántas personas dependen de este ingreso mensual?': "Número de personas que dependen del ingreso"
+    };
+
 
     const handleNumPeopleChange = (e) => {
         const value = e.target.value;
@@ -80,7 +102,7 @@ const FinancialForm = () => {
         });
 
         // Recibo de luz
-        ["lightName", "lastPayment", "avgPayment"].forEach((field) => {
+        ["lightName", "periodoInicio", "periodoFin", "ultimoPago", "promedioPago"].forEach((field) => {
             const input = document.getElementById(field);
             const value = input?.value;
 
@@ -119,8 +141,16 @@ const FinancialForm = () => {
         });
 
         setEmptyFields(newEmptyFields);
-        setError(isValid ? "" : "Por favor, complete todos los campos obligatorios.");
+
+        if (!isValid) {
+            const missingFields = newEmptyFields.map(field => `- ${fieldNames[field] || field}`).join('\n');
+            setError(`Por favor, complete los siguientes campos obligatorios:\n${missingFields}`);
+        } else {
+            setError("");
+        }
+
         return isValid;
+
     };
 
     const parentescos = [
@@ -146,45 +176,87 @@ const FinancialForm = () => {
         if (!isFormValid) return;
 
         try {
+            // Obtener datos de las personas que aportan
+            const personasAportan = parseInt(document.getElementById("personasAportan")?.value || "0");
             const people = [...Array(numPeople)].map((_, index) => ({
-                name: document.getElementById(`person-${index}-nombrecompleto`).value,
-                relationship: document.getElementById(`person-${index}-parentesco`).value,
-                company: document.getElementById(`person-${index}-empresaolugardetrabajo`).value,
-                job: document.getElementById(`person-${index}-puestootipodetrabajo`).value,
-                gross: parseFloat(document.getElementById(`person-${index}-imbbruto`).value),
-                net: parseFloat(document.getElementById(`person-${index}-imnneto`).value),
+                name: document.getElementById(`person-${index}-nombrecompleto`)?.value || "",
+                relationship: document.getElementById(`person-${index}-parentesco`)?.value || "",
+                company: document.getElementById(`person-${index}-empresaolugardetrabajo`)?.value || "",
+                job: document.getElementById(`person-${index}-puestootipodetrabajo`)?.value || "",
+                gross: parseFloat(document.getElementById(`person-${index}-imbbruto`)?.value || "0"),
+                net: parseFloat(document.getElementById(`person-${index}-imnneto`)?.value || "0"),
             }));
 
-            const ingresoTotal = parseFloat(document.getElementById("Ingreso total:").value);
-            const personasDependen = parseInt(document.getElementById("¿Cuántas personas dependen de este ingreso mensual?").value);
-
-            const gastos = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
-                acc[label] = parseFloat(document.getElementById(label).value);
-                return acc;
-            }, {});
-            gastos.total = parseFloat(document.getElementById("totalGastos").value);
-
-            const reciboLuz = {
-                titular: document.getElementById("lightName").value,
-                ultimoPago: parseFloat(document.getElementById("lastPayment").value),
-                promedioPago: parseFloat(document.getElementById("avgPayment").value),
-                observaciones: observaciones || "",
-                contenidoBase64: "",
-            };
-
-            if (reciboFile) {
-                const base64Completo = await convertirArchivoABase64(reciboFile);
-                // Aquí guardamos solo la parte base64 sin metadata (opcional)
-                reciboLuz.contenidoBase64 = base64Completo.split(",")[1];
-            }
+            // Ingreso total y personas que dependen
+            const ingresoTotal = parseFloat(document.getElementById("Ingreso total:")?.value || "0");
+            const personasDependen = parseInt(document.getElementById("¿Cuántas personas dependen de este ingreso mensual?")?.value || "0");
 
             if (isNaN(ingresoTotal) || isNaN(personasDependen)) {
                 alert("Revisa los campos numéricos. Hay valores inválidos.");
                 return;
             }
 
+            // Obtener gastos mensuales
+        // Obtener gastos mensuales con nombres originales
+        const gastosOriginales = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
+            acc[label] = parseFloat(document.getElementById(label)?.value || "0");
+            return acc;
+        }, {});
+        gastosOriginales.total = parseFloat(document.getElementById("totalGastos")?.value || "0");
 
+        // Transformar nombres para el backend
+        const gastos = {
+            gastoAlimentacion: gastosOriginales["Alimentación"],
+            gastoRenta: gastosOriginales["Renta"],
+            gastoServicios: gastosOriginales["Servicios"],
+            gastoEscolares: gastosOriginales["Gastos escolares"],
+            gastoRopa: gastosOriginales["Ropa"],
+            gastoTransporte: gastosOriginales["Transporte"],
+            gastoOtros: gastosOriginales["Otros"],
+            totalGastos: gastosOriginales.total
+        };
+
+            // Recibo de luz
+            const reciboLuz = {
+                titular: document.getElementById("lightName")?.value || "",
+                periodoInicio: document.getElementById("periodoInicio")?.value || "",
+                periodoFin: document.getElementById("periodoFin")?.value || "",
+
+                ultimoPago: parseFloat(document.getElementById("ultimoPago")?.value || "0"),
+                promedioPago: parseFloat(document.getElementById("promedioPago")?.value || "0"),
+
+                observaciones: observaciones || "",
+                //contenidoBase64: "",
+                nombreOriginal: reciboFile?.name || "",
+                nombreArchivo: "ReciboLuzAlumno"
+
+            };
+
+            // Convertir archivo a base64 si existe
+            if (reciboFile) {
+                const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+
+                if (reciboFile.size > maxSizeInBytes) {
+                    Swal.fire({
+                        title: '¡Alto!',
+                        text: 'El archivo del recibo de luz excede el tamaño máximo permitido de 10MB.',
+                        icon: 'info',
+                        confirmButtonText: 'Aceptar',
+                        timer: 5000,
+                        timerProgressBar: true,
+                    });
+                    return;
+                }
+
+                const base64Completo = await convertirArchivoABase64(reciboFile);
+                reciboLuz.contenidoBase64 = base64Completo.split(",")[1]; // quitar metadata si aplica
+            }
+
+            console.log((document.getElementById("personasAportan")?.value));
+
+            // Armar payload
             const payload = {
+                personasAportan : personasAportan,
                 personas: people,
                 ingresoTotal,
                 personasDependen,
@@ -192,7 +264,7 @@ const FinancialForm = () => {
                 gastos,
             };
 
-            console.log("LO que se manda al back:", payload);
+            console.log("Payload al backend:", payload);
 
             const response = await axiosInstance.post('/gastosFamiliares', payload, {
                 headers: {
@@ -230,6 +302,7 @@ const FinancialForm = () => {
                     <Form.Group>
                         <Form.Label style={{ color: "#4F46E5" }}>¿Cuántas personas aportan al gasto familiar?</Form.Label>
                         <Form.Control
+                            id="personasAportan"
                             style={{ maxWidth: "350px" }}
                             type="number"
                             onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
@@ -241,69 +314,69 @@ const FinancialForm = () => {
                     </Form.Group>
                     <h4 className="mt-4" style={{ color: "#4F46E5" }}>Personas que aportan al gasto familiar:</h4>
                     {[...Array(numPeople)].map((_, index) => (
-    <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
-        {[
-            { label: "Nombre completo", placeholder: "Nombre completo", type: "text" },
-            { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text" },
-            { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text" },
-            { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text" },
-            { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text" }
-        ].map((field, idx) => {
-            // Insertar el campo "Parentesco" después de "Nombre completo"
-            if (idx === 1) {
-                return (
-                    <React.Fragment key={idx}>
-                        {/* Campo Parentesco */}
-                        <Col className="d-flex">
-                            <Form.Group className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                                <Form.Label style={{ fontSize: "18px", color: "#4F46E5" }}>Parentesco</Form.Label>
-                                <Form.Select
-                                    id={`person-${index}-parentesco`}
-                                    isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
-                                >
-                                    <option value="">Selecciona un parentesco</option>
-                                    {parentescos.map((item) => (
-                                        <option key={item.id} value={item.id}>
-                                            {item.nombre}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
+                        <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
+                            {[
+                                { label: "Nombre completo", placeholder: "Nombre completo", type: "text" },
+                                { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text" },
+                                { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text" },
+                                { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text" },
+                                { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text" }
+                            ].map((field, idx) => {
+                                // Insertar el campo "Parentesco" después de "Nombre completo"
+                                if (idx === 1) {
+                                    return (
+                                        <React.Fragment key={idx}>
+                                            {/* Campo Parentesco */}
+                                            <Col className="d-flex">
+                                                <Form.Group className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                                    <Form.Label style={{ fontSize: "18px", color: "#4F46E5" }}>Parentesco</Form.Label>
+                                                    <Form.Select
+                                                        id={`person-${index}-parentesco`}
+                                                        isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
+                                                    >
+                                                        <option value="">Selecciona un parentesco</option>
+                                                        {parentescos.map((item) => (
+                                                            <option key={item.id} value={item.id}>
+                                                                {item.nombre}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            </Col>
 
-                        {/* Campo original (Empresa o lugar de trabajo) */}
-                        <Col className="d-flex">
-                            <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                                <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
-                                <Form.Control
-                                    id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
-                                    type={field.type}
-                                    placeholder={field.placeholder}
-                                    isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
-                                />
-                            </div>
-                        </Col>
-                    </React.Fragment>
-                );
-            }
+                                            {/* Campo original (Empresa o lugar de trabajo) */}
+                                            <Col className="d-flex">
+                                                <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                                    <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
+                                                    <Form.Control
+                                                        id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
+                                                        type={field.type}
+                                                        placeholder={field.placeholder}
+                                                        isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
+                                                    />
+                                                </div>
+                                            </Col>
+                                        </React.Fragment>
+                                    );
+                                }
 
-            // Campos normales (Nombre completo, Puesto, IMB, IMN)
-            return (
-                <Col key={idx} className="d-flex">
-                    <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                        <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
-                        <Form.Control
-                            id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
-                            type={field.type}
-                            placeholder={field.placeholder}
-                            isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
-                        />
-                    </div>
-                </Col>
-            );
-        })}
-    </Row>
-))}
+                                // Campos normales (Nombre completo, Puesto, IMB, IMN)
+                                return (
+                                    <Col key={idx} className="d-flex">
+                                        <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                            <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
+                                            <Form.Control
+                                                id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
+                                                type={field.type}
+                                                placeholder={field.placeholder}
+                                                isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
+                                            />
+                                        </div>
+                                    </Col>
+                                );
+                            })}
+                        </Row>
+                    ))}
 
 
 
@@ -349,27 +422,46 @@ const FinancialForm = () => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Pago del último período (Agosto - Septiembre)</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de inicio</Form.Label>
                                 <Form.Control
-                                    id="lastPayment"
-                                    type="number"
-                                    onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
-                                    onInput={handleDecimalInput}
-                                    isInvalid={emptyFields.includes("lastPayment")}
+                                    id="periodoInicio"
+                                    type="month"
+                                    isInvalid={emptyFields.includes("periodoInicio")}
                                 />
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Paga mensual promedio</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de fin</Form.Label>
                                 <Form.Control
-                                    id="avgPayment"
-                                    type="number"
-                                    onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
-                                    onInput={handleDecimalInput}
-                                    placeholder="$"
-                                    isInvalid={emptyFields.includes("avgPayment")}
+                                    id="periodoFin"
+                                    type="month"
+                                    isInvalid={emptyFields.includes("periodoFin")}
                                 />
                             </Form.Group>
+
+
+                            <Form.Group>
+                                <Form.Label style={{ color: "#4F46E5" }}>Pago del último período</Form.Label>
+                                <Form.Control
+                                    id="ultimoPago"
+                                    type="number"
+                                    onKeyDown={handleKeyDown}
+                                    onInput={handleDecimalInput}
+                                    isInvalid={emptyFields.includes("ultimoPago")}
+                                />
+                            </Form.Group>
+
+                            <Form.Group>
+                                <Form.Label style={{ color: "#4F46E5" }}>Pago mensual promedio</Form.Label>
+                                <Form.Control
+                                    id="promedioPago"
+                                    type="number"
+                                    onKeyDown={handleKeyDown}
+                                    onInput={handleDecimalInput}
+                                    isInvalid={emptyFields.includes("promedioPago")}
+                                />
+                            </Form.Group>
+
                         </Form>
                         <RecibosDeLuz
                             onChangeFile={(e) => setReciboFile(e.target.files[0])}
@@ -418,7 +510,11 @@ const FinancialForm = () => {
             {/* Botón Guardar */}
             <div className="text-center" style={{ padding: "50px" }}>
                 <Button variant="primary" className="px-4" onClick={handleSave}>Guardar</Button>
-                {error && <div style={{ color: "red", textAlign: "center" }}>{error}</div>}
+                {error && (
+                    <div style={{ color: "red", textAlign: "center", whiteSpace: "pre-line" }}>
+                        {error}
+                    </div>
+                )}
             </div>
 
         </Container>

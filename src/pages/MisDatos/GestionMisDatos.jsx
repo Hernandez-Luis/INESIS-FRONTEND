@@ -9,9 +9,8 @@ import MisDatosService from '../../services/MisDatosService';
 export default function GestionMisDatos() {
 
   // *************  FUNCION PARA GUARDAR LOS DATOS OBTENIDOS DEL FORMULARIO ******************
-  const guardarDatosGastosIngresos = async (coleccionDatos) => {
+  const guardarMisDatos = async (coleccionDatos) => {
     try {
-      // await GastosIngresosService.create(nuevosGastosIngresos)
       await MisDatosService.create(coleccionDatos)
       return []
     } catch (error) {
@@ -35,7 +34,7 @@ export default function GestionMisDatos() {
   return (
     <div>
       <MisDatos
-        onAdd={guardarDatosGastosIngresos}
+        onAdd={guardarMisDatos}
         update={updateMisDatos}
       />
     </div>

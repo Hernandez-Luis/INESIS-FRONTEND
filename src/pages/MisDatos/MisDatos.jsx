@@ -18,10 +18,11 @@ import DomicilioCpService from '../../services/DomicilioCpService'
 import CatOcupacionService from '../../services/CatOcupacionService'
 import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
-import { data } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 
 export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
+  const navigate = useNavigate();
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
     { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -96,10 +97,10 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerDatosAlumno = async () => {
     try {
       let dataAlumno = await AlumnoService.getById(idAlumno);
-      console.log("ALUMNO: ", dataAlumno)
-      console.log("materno: ", dataAlumno.apellidoMaterno)
+      // console.log("ALUMNO: ", dataAlumno)
+      // console.log("materno: ", dataAlumno.apellidoMaterno)
       setDatosAlumno(dataAlumno)
-      console.log(dataAlumno?.misDatos);
+      // console.log(dataAlumno?.misDatos);
       //setMisDatos(dataAlumno?.misDatos)
       setDataMisDatos((prevData) => ({
         ...prevData,
@@ -130,7 +131,7 @@ export const MisDatos = ({ onAdd, update }) => {
           numero: dataAlumno?.misDatos.domicilio?.numero || '',
           colonia: dataAlumno?.misDatos.domicilio?.colonia || '',
         }))
-        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente ? 'Si' : 'No')
+        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente)
         setDataGastosIngresos((prevData) => ({
           ...prevData,
           gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
@@ -147,14 +148,14 @@ export const MisDatos = ({ onAdd, update }) => {
           telefonoTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.telefonoTrabajo || '',
           domicilioTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
         }))
-        setTieneAutomovil(dataAlumno?.misDatos.llevaVehiculo)
+        setTieneAutomovil(dataAlumno?.misDatos.llevaAutomovil)
         setTieneMotocicleta(dataAlumno?.misDatos.llevamotocicleta);
         setDataTransporteAutomovil((prevData) => ({
           ...prevData,
-          marca: dataAlumno?.misDatos.transporte?.marca || '',
-          modelo: dataAlumno?.misDatos.transporte?.modelo || '',
-          anio: dataAlumno?.misDatos.transporte?.anio || '',
-          catTipoTransporte: dataAlumno?.misDatos.transporte?.catTipoTransporte?.idCatTipoTransporte || ''
+          marca: dataAlumno?.misDatos.transporteAutomovil?.marca || '',
+          modelo: dataAlumno?.misDatos.transporteAutomovil?.modelo || '',
+          anio: dataAlumno?.misDatos.transporteAutomovil?.anio || '',
+          catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         //todo:
         setDataTransporteMotocicleta((prevData) => ({
@@ -188,7 +189,12 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerCatSituacionVivienda = async () => {
     try {
       let situacionViviendaLista = await CatSituacionVivienda.getAll();
-      setCatSituacionVivienda(situacionViviendaLista)
+      // console.log("SITUACION VIVENDA: ", situacionViviendaLista)
+      let opcionesPermitidas = ['Rento cuarto', 'Rento casa', 'Vivo con familiares'];
+      let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
+        opcionesPermitidas.includes(item.nombreSituacion)
+      );
+      setCatSituacionVivienda(situacionViviendaFiltrada);
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
     }
@@ -197,7 +203,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerCatTipoTrabajo = async () => {
     try {
       let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
-      console.log(tipoTrabajoLista)
+      // console.log(tipoTrabajoLista)
       setCatTipoTrabajo(tipoTrabajoLista)
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
@@ -301,12 +307,12 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const handleBuscarCP = async (value) => {
     const codigoPostal = value
-    console.log("Codigo postal: ", codigoPostal)
+    // console.log("Codigo postal: ", codigoPostal)
     // Solo buscar si tiene 5 dígitos
-    if(value.length !== 5 ) return;
+    if (value.length !== 5) return;
     try {
       const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-      console.log("Datos de la API: ", datos)
+      // console.log("Datos de la API: ", datos)
       setColonias(datos.codigo_postal.colonias);
 
       setDataDomicilio((prevData) => ({
@@ -316,7 +322,7 @@ export const MisDatos = ({ onAdd, update }) => {
         cp: codigoPostal,
       }))
 
-      console.log(dataDomicilio)
+      // console.log(dataDomicilio)
     } catch (err) {
       console.error('Error al buscar código postal:', err);
       setColonias([]);
@@ -346,7 +352,7 @@ export const MisDatos = ({ onAdd, update }) => {
           otro: "",
         }))
         setDataTrabajo(formularioInicialTrabajo)
-      }      
+      }
       return;
     }
     // ******  CONDICIONES *******
@@ -451,7 +457,6 @@ export const MisDatos = ({ onAdd, update }) => {
     }))
   }
 
-
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -477,7 +482,6 @@ export const MisDatos = ({ onAdd, update }) => {
       domicilio: dataDomicilio
     };
 
-    console.log("Mostrando coleccion: ", coleccionValores)
 
 
     try {
@@ -493,9 +497,8 @@ export const MisDatos = ({ onAdd, update }) => {
         mostrarError(nuevosErrores)
         return;
       }
-      // setDataGastosIngresos(formularioInicialGastosIngresos);
-      // setDataTrabajo(formularioInicialTrabajo)
       mostrarExito("Los datos se guardaron correctamente")
+
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
@@ -508,7 +511,7 @@ export const MisDatos = ({ onAdd, update }) => {
     const erroresTemp = {};
     const camposOpcionales = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
     const camposBooleanos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
-    
+
     Object.keys(dataGastosIngresos).forEach((campo) => {
       // Para campos booleanos, verificar que no sean null o undefined
       if (camposBooleanos.includes(campo)) {
@@ -523,12 +526,12 @@ export const MisDatos = ({ onAdd, update }) => {
         }
       }
     });
-    
+
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
       return 0; // No enviar el formulario si hay errores
     }
-  
+
     return 1;
   }
 
@@ -569,6 +572,8 @@ export const MisDatos = ({ onAdd, update }) => {
       text: mensaje,
       icon: 'success',
       confirmButtonText: 'Aceptar',
+    }).then(() => {
+      navigate('/menuSolicitar')
     });
   };
 
@@ -661,6 +666,18 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
+                  <div className="col-3 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                    <input maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
+                  </div>
+                  <div className="col-3 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                    <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                  </div>
+                  <div className='col-6 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                    <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
+                  </div>
                   <div className='row'>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
@@ -678,7 +695,6 @@ export const MisDatos = ({ onAdd, update }) => {
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                       <div>
                         <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
-
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
@@ -695,18 +711,6 @@ export const MisDatos = ({ onAdd, update }) => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
-                    </div>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                      <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
-                    </div>
-                    <div className="col-3 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                      <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
-                    </div>
-                    <div className="col-3 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
                     </div>
                     <div className="col-12">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
