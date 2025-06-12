@@ -19,8 +19,8 @@ import CatMediosEstudioService from '../../../services/catMediosEstudioService';
 import CatServiciosOtro from '../../../services/CatServiciosOtro';
 
 
-import MiFamiliaService from '../../../services/MiFamiliaService';
-import MediosEstudioService from '../../../services/MediosEstudiosService';
+import MiFamiliaService from '../../../services/miFamiliaService';
+import MediosEstudioService from '../../../services/mediosEstudiosService';
 import viviendaFamiliarService from '../../../services/viviendaFamiliarService';
 import serviciosViviendaService from '../../../services/serviciosViviendaService';
 import BienesHogarService from '../../../services/BienesHogarService';
