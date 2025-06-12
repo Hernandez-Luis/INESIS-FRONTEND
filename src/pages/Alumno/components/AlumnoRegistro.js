@@ -6,14 +6,16 @@ import sexoService from '../../../services/CatSexoService';
 import grupoService from '../../../services/CatGrupoService';
 import alumnoService from '../../../services/AlumnoService';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 import UsuarioService from '../../../services/UsuarioService';
-
+import ModalCambiarContraseña from '../../../components/CambiarContraseña/ModalCambiarContraseña';
 
 const AlumnoRegistro = forwardRef((props, ref) => {
 
   const initialForm = {
     nombre: '',
-    apellido: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
     curp: '',
     correo: '',
     telefono: '',
@@ -32,8 +34,9 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [listaSemestres, setListaSemestres] = useState([]);
   const [listaSexo, setListaSexo] = useState([]);
   const [alumnoId, setAlumnoId] = useState(props.id || null);
+  const [showModalCambiar, setShowModalCambiar] = useState(false);
   const esEdicion = !!props.alumno;
-
+  const navigate = useNavigate();
 
   // Obtener datos iniciales
   useEffect(() => {
@@ -67,11 +70,12 @@ const AlumnoRegistro = forwardRef((props, ref) => {
           // Petición para obtener el usuario relacionado con el alumno
           const usuario = await UsuarioService.getByAlumnoId(props.alumno.id);
 
-          console.log("ESTE ES EL USUARIO", usuario);
+          console.log("ESTE ES EL USUARIO", props.alumno);
           // Convertimos los datos al formato esperado por el formulario
           const alumnoEditar = {
             nombre: props.alumno.nombre || '',
-            apellido: props.alumno.apellido || '',
+            apellidoPaterno: props.alumno.apellidoPaterno || '',
+            apellidoMaterno: props.alumno.apellidoMaterno || '',
             curp: props.alumno.curp || '',
             correo: props.alumno.correo || '',
             telefono: props.alumno.telefono || '',
@@ -146,9 +150,9 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       let updatedForm = { ...prev, [name]: value };
 
       // Generar usuario automáticamente
-      if (name === 'nombre' || name === 'apellido') {
+      if (name === 'nombre' || name === 'apellidoPaterno') {
         const primerNombre = updatedForm.nombre.split(' ')[0] || '';
-        const primerApellido = updatedForm.apellido.split(' ')[0] || '';
+        const primerApellido = updatedForm.apellidoPaterno.split(' ')[0] || '';
         if (primerNombre && primerApellido) {
           updatedForm.usuario = `${primerNombre.toLowerCase()}.${primerApellido.toLowerCase()}`;
         }
@@ -285,7 +289,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
       const alumnoPayload = {
         nombre: formValues.nombre.trim(),
-        apellido: formValues.apellido.trim(),
+        apellidoPaterno: formValues.apellidoPaterno.trim(),
+        apellidoMaterno: formValues.apellidoMaterno.trim(),
         curp: formValues.curp.trim().toUpperCase(),
         correo: formValues.correo.trim(),
         telefono: formValues.telefono.trim(),
@@ -303,13 +308,11 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       // 4. Crear o actualizar
       let response;
       if (esEdicion) {
-        console.log("si se envian estos datos", props.alumno.id, "contenido: ", alumnoPayload)
         response = await alumnoService.update(props.alumno.id, alumnoPayload);
       } else {
         response = await alumnoService.create(alumnoPayload);
       }
 
-      // 5. Confirmar éxito
       // 5. Confirmar éxito
       if (response.status === 200 || response.status === 201 || response.status === 204) {
         mostrarAlerta({
@@ -321,7 +324,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         });
 
         setFormValues(initialForm);
-        //window.history.back(); // O props.onAlumnoGuardado?.()
+        navigate('/AdministrarAlumnos');
       } else {
         throw new Error('Error al guardar el alumno');
       }
@@ -360,23 +363,40 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               />
               {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
-
-            <div>
-              <label className="formulario-etiqueta">
-                Apellido(s) <span className="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                name="apellido"
-                className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
-                placeholder="Ingrese el apellido"
-                value={formValues.apellido}
-                onChange={handleChange}
-                maxLength={30}
-              />
-              {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+            <div className="col-md-6">
+              <div>
+                <label className="formulario-etiqueta">
+                  Apellido Paterno <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="apellidoPaterno"
+                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
+                  placeholder="Ingrese el apellido paterno"
+                  value={formValues.apellidoPaterno}
+                  onChange={handleChange}
+                  maxLength={30}
+                />
+                {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+              </div>
             </div>
-
+            <div className="col-md-6">
+              <div>
+                <label className="formulario-etiqueta">
+                  Apellido Materno
+                </label>
+                <input
+                  type="text"
+                  name="apellidoMaterno"
+                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
+                  placeholder="Ingrese el apellido materno"
+                  value={formValues.apellidoMaterno}
+                  onChange={handleChange}
+                  maxLength={30}
+                />
+                {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+              </div>
+            </div>
             <div>
               <label className="formulario-etiqueta">
                 CURP <span className="text-danger">*</span>
@@ -494,7 +514,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <label className="formulario-etiqueta">Grupo</label>
               <input
                 type="text"
-                className="formulario-entrada"
+                className="formulario-entrada readonly-style"
                 value={formValues.grupo.nombreGrupo}
                 readOnly
               />
@@ -525,7 +545,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <input
                 type="text"
                 name="usuario"
-                className="formulario-entrada"
+                className="formulario-entrada readonly-style2"
                 value={formValues.usuario}
                 readOnly
               />
@@ -533,13 +553,36 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
             <div className="col-md-6">
               <label className="formulario-etiqueta">Contraseña</label>
-              <input
-                type="text"
-                name="contrasena"
-                className="formulario-entrada"
-                value={formValues.contrasena}
-                readOnly
-              />
+              {props.alumno ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn-cambiar-pass w-100"
+                    onClick={() => setShowModalCambiar(true)}
+                  >
+                    <span className="btn-cambiar-pass-decor" />
+                    <span className="btn-cambiar-pass-content">
+                      <span className="btn-cambiar-pass-icon">
+                        <i className="bi bi-key"></i>
+                      </span>
+                      <span className="btn-cambiar-pass-text">Cambiar contraseña</span>
+                    </span>
+                  </button>
+                  <ModalCambiarContraseña
+                    show={showModalCambiar}
+                    handleClose={() => setShowModalCambiar(false)}
+                    requireCurrentPassword={false} 
+                  />
+                </>
+              ) : (
+                <input
+                  type="text"
+                  name="contrasena"
+                  className="formulario-entrada readonly-style2"
+                  value={formValues.contrasena}
+                  readOnly
+                />
+              )}
             </div>
             <div className="d-flex justify-content-center gap-3">
               <button type="submit" className="btn-agregar">

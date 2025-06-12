@@ -18,9 +18,11 @@ import DomicilioCpService from '../../services/DomicilioCpService'
 import CatOcupacionService from '../../services/CatOcupacionService'
 import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
+import { data, useNavigate } from 'react-router-dom'
 
-export const MisDatos = ({ onAdd }) => {
-
+export const MisDatos = ({ onAdd, update }) => {
+  const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
+  const navigate = useNavigate();
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
     { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -32,12 +34,13 @@ export const MisDatos = ({ onAdd }) => {
   const [medios, setMedios] = useState([]);
   const [estadoCivil, setEstadoCivil] = useState([]);
   const [recursos, setRecursos] = useState(null);
-  const [tieneVehiulo, setTieneVehiulo] = useState(null);
+  const [tieneAutomovil, setTieneAutomovil] = useState(null);
+  const [tieneMotocicleta, setTieneMotocicleta] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
   const [catSemestres, setCatSemestres] = useState([]);
   const [catOcupacion, setCatOcupacion] = useState([]);
   const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
-  const [catTipoTrabajo,setCatTipoTrabajo] = useState([]);
+  const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
@@ -93,16 +96,81 @@ export const MisDatos = ({ onAdd }) => {
 
   const obtenerDatosAlumno = async () => {
     try {
-      const idAlumno = localStorageData.alumnoId;
       let dataAlumno = await AlumnoService.getById(idAlumno);
+      // console.log("ALUMNO: ", dataAlumno)
+      // console.log("materno: ", dataAlumno.apellidoMaterno)
       setDatosAlumno(dataAlumno)
+      // console.log(dataAlumno?.misDatos);
+      //setMisDatos(dataAlumno?.misDatos)
       setDataMisDatos((prevData) => ({
         ...prevData,
-        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellido,
+        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellidoMaterno + " " + dataAlumno.apellidoPaterno,
         carrera: dataAlumno.carrera?.id,
         semestre: dataAlumno.semestre?.id,
         sexo: dataAlumno.sexo?.id,
       }))
+      if (dataAlumno?.misDatos) {
+        setDataMisDatos((prevData) => ({
+          ...prevData,
+          estadoCivil: dataAlumno?.misDatos.estadoCivil?.id,
+          recursosSuficientes: dataAlumno?.misDatos.recursosSuficientes,
+          nombreCasaHuesped: dataAlumno?.misDatos.nombreCasaHuesped || '',
+          llevaAutomovil: dataAlumno?.misDatos.llevaAutomovil,
+          llevaMotocicleta: dataAlumno?.misDatos.llevamotocicleta,
+          familiarComunero: dataAlumno?.misDatos.familiarComunero,
+          utilizaCelular: dataAlumno?.misDatos.utilizaCelular,
+          tieneComputadora: dataAlumno?.misDatos.tieneComputadora,
+          idioma: dataAlumno?.misDatos.idioma || '',
+          situacionVivienda: dataAlumno?.misDatos.situacionVivienda.id
+        }))
+        setDataDomicilio((prevData) => ({
+          ...prevData,
+          cp: dataAlumno?.misDatos.domicilio?.cp || '',
+          localidad: dataAlumno?.misDatos.domicilio?.localidad || '',
+          calle: dataAlumno?.misDatos.domicilio?.calle || '',
+          numero: dataAlumno?.misDatos.domicilio?.numero || '',
+          colonia: dataAlumno?.misDatos.domicilio?.colonia || '',
+        }))
+        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente)
+        setDataGastosIngresos((prevData) => ({
+          ...prevData,
+          gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
+          dependeEconomicamente: dataAlumno?.misDatos.gastosIngresos?.dependeEconomicamente || '',
+          nombreQuienDependes: dataAlumno?.misDatos.gastosIngresos?.nombreQuienDependes || '',
+          solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia,
+          trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.catTipoTrabajo?.id || '',
+          ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
+        }))
+        setDataTrabajo((prevData) => ({
+          ...prevData,
+          nombreTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.nombreTrabajo || '',
+          ingresoMensual: dataAlumno?.misDatos.gastosIngresos?.trabajo?.ingresoMensual || '',
+          telefonoTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.telefonoTrabajo || '',
+          domicilioTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
+        }))
+        setTieneAutomovil(dataAlumno?.misDatos.llevaAutomovil)
+        setTieneMotocicleta(dataAlumno?.misDatos.llevamotocicleta);
+        setDataTransporteAutomovil((prevData) => ({
+          ...prevData,
+          marca: dataAlumno?.misDatos.transporteAutomovil?.marca || '',
+          modelo: dataAlumno?.misDatos.transporteAutomovil?.modelo || '',
+          anio: dataAlumno?.misDatos.transporteAutomovil?.anio || '',
+          catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
+        }))
+        //todo:
+        setDataTransporteMotocicleta((prevData) => ({
+          ...prevData,
+          marca: dataAlumno?.misDatos.transporteMotocicleta?.marca || '',
+          modelo: dataAlumno?.misDatos.transporteMotocicleta?.modelo || '',
+          anio: dataAlumno?.misDatos.transporteMotocicleta?.anio || '',
+          catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
+        }))
+        // Extraer los IDs de los medios seleccionados
+        const mediosSeleccionadosIds = dataAlumno?.misDatos?.mediosTraslado?.map(
+          (medio) => medio.catMediosTransporte.id
+        ) || [];
+        setMediosSeleccionados(mediosSeleccionadosIds);
+      }
     } catch (error) {
       console.log("Error al obtener datos del alumno: ", error)
     }
@@ -121,7 +189,12 @@ export const MisDatos = ({ onAdd }) => {
   const obtenerCatSituacionVivienda = async () => {
     try {
       let situacionViviendaLista = await CatSituacionVivienda.getAll();
-      setCatSituacionVivienda(situacionViviendaLista)
+      // console.log("SITUACION VIVENDA: ", situacionViviendaLista)
+      let opcionesPermitidas = ['Rento cuarto', 'Rento casa', 'Vivo con familiares'];
+      let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
+        opcionesPermitidas.includes(item.nombreSituacion)
+      );
+      setCatSituacionVivienda(situacionViviendaFiltrada);
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
     }
@@ -130,6 +203,7 @@ export const MisDatos = ({ onAdd }) => {
   const obtenerCatTipoTrabajo = async () => {
     try {
       let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
+      // console.log(tipoTrabajoLista)
       setCatTipoTrabajo(tipoTrabajoLista)
     } catch (error) {
       console.log("Error al obtener la lista de SituacionVivienda: ", error)
@@ -167,7 +241,14 @@ export const MisDatos = ({ onAdd }) => {
     domicilioTrabajo: ""
   }
 
-  const formularioInicialTransporte = {
+  const formularioInicialTransporteAutomovil = {
+    marca: '',
+    modelo: '',
+    anio: '',
+    catTipoTransporte: ''
+  }
+
+  const formularioInicialTransporteMotocicleta = {
     marca: '',
     modelo: '',
     anio: '',
@@ -175,7 +256,7 @@ export const MisDatos = ({ onAdd }) => {
   }
 
   const formularioInicialMisDatos = {
-    nombreCompleto: datosAlumno.nombre + " " + datosAlumno.apellido,
+    nombreCompleto: "",
     carrera: "",
     semestre: "",
     sexo: "",
@@ -185,11 +266,13 @@ export const MisDatos = ({ onAdd }) => {
     utilizaCelular: "",
     tieneComputadora: "",
     idioma: "",
-    transporte: "",
+    transporteAutomovil: "",
+    transporteMotocicleta: "",
     mediosTraslado: "",
     situacionVivienda: "",
     nombreCasaHuesped: "",
-    llevaVehiculo: '',
+    llevaAutomovil: '',
+    llevaMotocicleta: '',
   }
 
   const formularioInicialDomicilio = {
@@ -204,12 +287,19 @@ export const MisDatos = ({ onAdd }) => {
 
   const [dataGastosIngresos, setDataGastosIngresos] = useState(formularioInicialGastosIngresos)
   const [dataTrabajo, setDataTrabajo] = useState(formularioInicialTrabajo)
-  const [dataTransporte, setDataTransporte] = useState(formularioInicialTransporte)
+  const [dataTransporteAutomovil, setDataTransporteAutomovil] = useState(formularioInicialTransporteAutomovil)
+  const [dataTransporteMotocicleta, setDataTransporteMotocicleta] = useState(formularioInicialTransporteMotocicleta)
   const [dataMisDatos, setDataMisDatos] = useState(formularioInicialMisDatos)
   const [dataDomicilio, setDataDomicilio] = useState(formularioInicialDomicilio)
 
   const [errores, setErrores] = useState({})
 
+  // *********************************  BUSCAR CP DE LOS DATOS DEL BACK  ***********************************
+  useEffect(() => {
+    if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
+      handleBuscarCP(dataDomicilio.cp);
+    }
+  }, [dataDomicilio.cp]);
 
   // ***************************  OBTENIENDO DATOS DE LA API  ********************************
 
@@ -217,11 +307,12 @@ export const MisDatos = ({ onAdd }) => {
 
   const handleBuscarCP = async (value) => {
     const codigoPostal = value
-    console.log("Codigo postal: ", codigoPostal)
+    // console.log("Codigo postal: ", codigoPostal)
     // Solo buscar si tiene 5 dígitos
+    if (value.length !== 5) return;
     try {
       const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-      console.log("Datos de la API: ", datos)
+      // console.log("Datos de la API: ", datos)
       setColonias(datos.codigo_postal.colonias);
 
       setDataDomicilio((prevData) => ({
@@ -231,7 +322,7 @@ export const MisDatos = ({ onAdd }) => {
         cp: codigoPostal,
       }))
 
-      console.log(dataDomicilio)
+      // console.log(dataDomicilio)
     } catch (err) {
       console.error('Error al buscar código postal:', err);
       setColonias([]);
@@ -241,20 +332,30 @@ export const MisDatos = ({ onAdd }) => {
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
     const { name, value } = e.target;
-    // console.log("Name: ", name, " Value: ", value)   
-    // ******  CONDICIONES *******
+    const camposBooleanos = [
+      "solicitaBecaAlimenticia",
+      "dependeEconomicamente",
+    ];
 
-    if (name === "dependeEconomicamente") {
-      setRecursos(value)
+    if (camposBooleanos.includes(name)) {
       setDataGastosIngresos((prevData) => ({
         ...prevData,
-        nombreQuienDependes: "",
-        trabajoTipo: "",
-        ocupacion: "",
-        otro: "",
-      }))
-      setDataTrabajo(formularioInicialTrabajo)
+        [name]: siNoToBool(value)
+      }));
+      if (name === "dependeEconomicamente") {
+        setRecursos(siNoToBool(value))
+        setDataGastosIngresos((prevData) => ({
+          ...prevData,
+          nombreQuienDependes: "",
+          trabajoTipo: "",
+          ocupacion: "",
+          otro: "",
+        }))
+        setDataTrabajo(formularioInicialTrabajo)
+      }
+      return;
     }
+    // ******  CONDICIONES *******
 
     if (name === "ocupacion") {
       setDataGastosIngresos((prevData) => ({
@@ -280,24 +381,55 @@ export const MisDatos = ({ onAdd }) => {
     }))
   }
 
-  const actualizarCamposTransporte = (e) => {
+  const actualizarCamposTransporteAutomovil = (e) => {
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
-    setDataTransporte((prevData) => ({
+    setDataTransporteAutomovil((prevData) => ({
       ...prevData,
       [name]: value
     }))
   }
 
+  const actualizarCamposTransporteMotocicleta = (e) => {
+    const { name, value } = e.target;
+    // console.log("Nombre: ", name, " Valor: ", value)
+    setDataTransporteMotocicleta((prevData) => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
+
+  const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
+  const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
+
   const actualizarCamposMisDatos = (e) => {
+    const camposBooleanos = [
+      "recursosSuficientes",
+      "llevaAutomovil",
+      "llevaMotocicleta",
+      "familiarComunero",
+      "utilizaCelular",
+      "tieneComputadora",
+    ];
     const { name, value } = e.target;
     console.log("Nombre: ", name, " Valor: ", value)
 
-    if (name === "llevaVehiculo") {
-      setTieneVehiulo(value)
-      setDataTransporte(formularioInicialTransporte)
-    }
+    if (camposBooleanos.includes(name)) {
+      setDataMisDatos((prevData) => ({
+        ...prevData,
+        [name]: siNoToBool(value)
+      }));
+      if (name === "llevaAutomovil") {
+        setTieneAutomovil(siNoToBool(value));
+        setDataTransporteAutomovil(formularioInicialTransporteAutomovil)
+      }
 
+      if (name === "llevaMotocicleta") {
+        setTieneMotocicleta(siNoToBool(value));
+        setDataTransporteMotocicleta(formularioInicialTransporteMotocicleta);
+      }
+      return;
+    }
     setDataMisDatos((prevData) => ({
       ...prevData,
       [name]: value
@@ -325,7 +457,6 @@ export const MisDatos = ({ onAdd }) => {
     }))
   }
 
-
   // ******************************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************************
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -341,7 +472,8 @@ export const MisDatos = ({ onAdd }) => {
     const coleccionValores = {
       alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
       ...dataMisDatos,
-      transporte: dataTransporte,
+      transporteAutomovil: dataTransporteAutomovil,
+      transporteMotocicleta: dataTransporteMotocicleta,
       gastosIngresos: {
         ...dataGastosIngresos,
         trabajo: dataTrabajo
@@ -350,19 +482,23 @@ export const MisDatos = ({ onAdd }) => {
       domicilio: dataDomicilio
     };
 
-    console.log("Mostrando coleccion: ", coleccionValores)
 
 
     try {
-      const nuevosErrores = await onAdd(coleccionValores);
+      let nuevosErrores = null;
+      if (datosAlumno.misDatos !== null) {
+        let idMisDatos = datosAlumno.misDatos.id;
+        nuevosErrores = await update(idMisDatos, coleccionValores);
+      } else {
+        nuevosErrores = await onAdd(coleccionValores);
+      }
       console.log("Error: ", nuevosErrores)
       if (nuevosErrores && nuevosErrores.length > 0) {
         mostrarError(nuevosErrores)
         return;
       }
-      // setDataGastosIngresos(formularioInicialGastosIngresos);
-      // setDataTrabajo(formularioInicialTrabajo)
       mostrarExito("Los datos se guardaron correctamente")
+
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
@@ -373,12 +509,24 @@ export const MisDatos = ({ onAdd }) => {
   const validacionCamposGastosIngresos = () => {
     // Validación de los campos
     const erroresTemp = {};
+    const camposOpcionales = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
+    const camposBooleanos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
+
     Object.keys(dataGastosIngresos).forEach((campo) => {
-      if (!dataGastosIngresos[campo] && campo !== "nombreQuienDependes" && campo !== "trabajoTipo" && campo !== "ocupacion" && campo !== "otro") {
-        erroresTemp[campo] = 'Este campo es obligatorio';
+      // Para campos booleanos, verificar que no sean null o undefined
+      if (camposBooleanos.includes(campo)) {
+        if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined) {
+          erroresTemp[campo] = 'Este campo es obligatorio';
+        }
+      }
+      // Para campos regulares, verificar que no estén vacíos
+      else if (!camposOpcionales.includes(campo)) {
+        if (!dataGastosIngresos[campo]) {
+          erroresTemp[campo] = 'Este campo es obligatorio';
+        }
       }
     });
-    //console.log("Validacion: ", erroresTemp)
+
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
       return 0; // No enviar el formulario si hay errores
@@ -424,6 +572,8 @@ export const MisDatos = ({ onAdd }) => {
       text: mensaje,
       icon: 'success',
       confirmButtonText: 'Aceptar',
+    }).then(() => {
+      navigate('/menuSolicitar')
     });
   };
 
@@ -457,7 +607,7 @@ export const MisDatos = ({ onAdd }) => {
                           value: s.id
                         }))}
                         placeholder="Selecciona una opción"
-                        value={datosAlumno.semestre?.id || ''}
+                        value={dataMisDatos.semestre || ''}
                         onChange={actualizarCamposMisDatos}
                       />
                     </div>
@@ -490,7 +640,7 @@ export const MisDatos = ({ onAdd }) => {
                       options={['Si', 'No']}
                       onChange={actualizarCamposMisDatos}
                       name="recursosSuficientes"
-                      value={dataMisDatos.recursosSuficientes}
+                      value={boolToSiNo(dataMisDatos.recursosSuficientes)}
                     />
                   </div>
                 </div>
@@ -516,6 +666,18 @@ export const MisDatos = ({ onAdd }) => {
                     />
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
+                  <div className="col-3 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                    <input maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
+                  </div>
+                  <div className="col-3 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                    <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                  </div>
+                  <div className='col-6 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                    <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
+                  </div>
                   <div className='row'>
                     <div className='col-6 mt-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
@@ -533,7 +695,6 @@ export const MisDatos = ({ onAdd }) => {
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                       <div>
                         <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
-
                       </div>
                     </div>
                     <div className='col-6 mt-2'>
@@ -550,18 +711,6 @@ export const MisDatos = ({ onAdd }) => {
                           placeholder="Selecciona una opción" // Placeholder
                         />
                       </div>
-                    </div>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                      <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
-                    </div>
-                    <div className="col-3 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                      <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
-                    </div>
-                    <div className="col-3 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
                     </div>
                     <div className="col-12">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
@@ -594,13 +743,13 @@ export const MisDatos = ({ onAdd }) => {
                       options={['Si', 'No']}
                       onChange={actualizarCampoGastosIngresos}
                       name="dependeEconomicamente"
-                      value={dataGastosIngresos.dependeEconomicamente}
+                      value={boolToSiNo(dataGastosIngresos.dependeEconomicamente)}
                     />
                     {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
                   </div>
                 </div>
 
-                {recursos === 'Si' && (
+                {(recursos === 'Si') || recursos === true && (
                   <div className="row mt-3">
                     <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
@@ -612,7 +761,7 @@ export const MisDatos = ({ onAdd }) => {
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                       <RadioSelect
                         gris={true}
-                        options={catTipoTrabajo.map (t => ({
+                        options={catTipoTrabajo.map(t => ({
                           label: t.nombreTipo,
                           value: t.id
                         }))}
@@ -655,7 +804,7 @@ export const MisDatos = ({ onAdd }) => {
                   </div>
                 )}
 
-                {recursos === 'No' && (
+                {(recursos === 'No') || recursos === false && (
                   <div className="row mt-3">
                     <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-4">
@@ -707,7 +856,7 @@ export const MisDatos = ({ onAdd }) => {
                     name="solicitaBecaAlimenticia"
                     options={['Si', 'No']}
                     onChange={actualizarCampoGastosIngresos}
-                    value={dataGastosIngresos.solicitaBecaAlimenticia}
+                    value={boolToSiNo(dataGastosIngresos.solicitaBecaAlimenticia)}
                   />
                   {errores.solicitaBecaAlimenticia && <div className="text-danger">{errores.solicitaBecaAlimenticia}</div>}
 
@@ -720,16 +869,16 @@ export const MisDatos = ({ onAdd }) => {
               {/* MODULO TRANSPORTE */}
               <div className="col tarjeta-border me-4 p-5">
                 <p className='fs-2 ' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
-                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil o motocicleta cotidianamente a la universidad?</label>
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil cotidianamente a la universidad?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
                   onChange={actualizarCamposMisDatos}
-                  name={"llevaVehiculo"}
-                  value={dataMisDatos.llevaVehiculo}
+                  name={"llevaAutomovil"}
+                  value={boolToSiNo(dataMisDatos.llevaAutomovil)}
                 />
 
-                {tieneVehiulo === 'Si' && (
+                {(tieneAutomovil === 'Si') || tieneAutomovil === true && (
                   <div>
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
                     <div className='w-50'>
@@ -740,8 +889,8 @@ export const MisDatos = ({ onAdd }) => {
                         }))}
                         placeholder="Selecciona una opción" // Placeholder
                         name={'catTipoTransporte'}
-                        value={dataTransporte.catTipoTransporte}
-                        onChange={actualizarCamposTransporte}
+                        value={dataTransporteAutomovil.catTipoTransporte}
+                        onChange={actualizarCamposTransporteAutomovil}
                       />
                     </div>
                     <div className="row mt-4">
@@ -751,8 +900,8 @@ export const MisDatos = ({ onAdd }) => {
                           className='form-control w-75'
                           type="text"
                           name={'marca'}
-                          value={dataTransporte.marca}
-                          onChange={actualizarCamposTransporte}
+                          value={dataTransporteAutomovil.marca}
+                          onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
                       <div className="col">
@@ -761,8 +910,8 @@ export const MisDatos = ({ onAdd }) => {
                           className='form-control w-75'
                           type="text"
                           name={'modelo'}
-                          value={dataTransporte.modelo}
-                          onChange={actualizarCamposTransporte}
+                          value={dataTransporteAutomovil.modelo}
+                          onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
                       <div className="col">
@@ -771,13 +920,74 @@ export const MisDatos = ({ onAdd }) => {
                           className='form-control w-75'
                           type="text"
                           name={'anio'}
-                          value={dataTransporte.anio}
-                          onChange={actualizarCamposTransporte}
+                          value={dataTransporteAutomovil.anio}
+                          onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
                     </div>
                   </div>
                 )}
+                <div className="line mx-auto mt-3 mb-3"></div>
+
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas motocicleta cotidianamente a la universidad?</label>
+                <RadioSelect
+                  gris={true}
+                  options={['Si', 'No']}
+                  onChange={actualizarCamposMisDatos}
+                  name={"llevaMotocicleta"}
+                  value={boolToSiNo(dataMisDatos.llevaMotocicleta)}
+                />
+
+                {(tieneMotocicleta === 'Si') || tieneMotocicleta === true && (
+                  <div>
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
+                    <div className='w-50'>
+                      <SeleccionarCombo
+                        options={catTipoTransporte.map(t => ({
+                          label: t.nombreTipo,
+                          value: t.idCatTipoTransporte
+                        }))}
+                        placeholder="Selecciona una opción" // Placeholder
+                        name={'catTipoTransporte'}
+                        value={dataTransporteMotocicleta.catTipoTransporte}
+                        onChange={actualizarCamposTransporteMotocicleta}
+                      />
+                    </div>
+                    <div className="row mt-4">
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'marca'}
+                          value={dataTransporteMotocicleta.marca}
+                          onChange={actualizarCamposTransporteMotocicleta}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'modelo'}
+                          value={dataTransporteMotocicleta.modelo}
+                          onChange={actualizarCamposTransporteMotocicleta}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
+                        <input
+                          className='form-control w-75'
+                          type="text"
+                          name={'anio'}
+                          value={dataTransporteMotocicleta.anio}
+                          onChange={actualizarCamposTransporteMotocicleta}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="line mx-auto mt-3 mb-3"></div>
                 <div className="row mt-4">
                   <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
                   {medios.map((medio) => (
@@ -802,9 +1012,9 @@ export const MisDatos = ({ onAdd }) => {
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
-                  value={dataMisDatos.familiarComunero}
                   onChange={actualizarCamposMisDatos}
                   name="familiarComunero"
+                  value={boolToSiNo(dataMisDatos.familiarComunero)}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
@@ -812,8 +1022,8 @@ export const MisDatos = ({ onAdd }) => {
                   gris={true}
                   options={['Si', 'No']}
                   name={"utilizaCelular"}
-                  value={dataMisDatos.utilizaCelular}
                   onChange={actualizarCamposMisDatos}
+                  value={boolToSiNo(dataMisDatos.utilizaCelular)}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
@@ -821,8 +1031,8 @@ export const MisDatos = ({ onAdd }) => {
                   gris={true}
                   options={['Si', 'No']}
                   name={"tieneComputadora"}
-                  value={dataMisDatos.tieneComputadora}
                   onChange={actualizarCamposMisDatos}
+                  value={boolToSiNo(dataMisDatos.tieneComputadora)}
                 />
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
