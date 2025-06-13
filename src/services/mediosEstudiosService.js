@@ -1,4 +1,4 @@
-import axiosInstance from './api/axiosConfig';
+import axiosInstance from '../api/axiosConfig';
 
 const API_URL = '/medios_estudios';
 

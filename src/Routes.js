@@ -29,6 +29,7 @@ import MenuAlumno from './pages/MenuAlumno/MenuAlumno';
 import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico';
 import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
 import GestionMisDatos from './pages/MisDatos/GestionMisDatos';
+import { GestionMiTutor } from './pages/MiTutor/GestionMiTutor';
 
 const AppRoutes = () => {
   return (
@@ -49,7 +50,7 @@ const AppRoutes = () => {
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
         <Route path="/MenuAdministrador" element={<MenuAdministrador />} />   
-        <Route path="/MiTutor" element={<MiTutor />} />
+        <Route path="/MiTutor" element={<GestionMiTutor />} />
         <Route path="/AdministrarAlumnos" element={<AdministrarAlumnos />} />
         <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
         <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
