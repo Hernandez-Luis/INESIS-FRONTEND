@@ -4,41 +4,69 @@ import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import PdfVisor from '../../components/pdf/PdfVisor'; // Asegúrate de que coincida con la capitalización
 import { generarPdfAlumno } from '../../services/pdfService';
+import { useLocation } from 'react-router-dom';
 
 export default function RevisionSolicitud() {
-    
+
     const [comentario, setComentario] = useState("");
     const [pdfData, setPdfData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const location = useLocation();
+    const { estudiante } = location.state || {};
 
-
-      const alumnoId = "123"; 
+    console.log("Datos recibidos:", location.state);
+    console.log("Estudiante recibido:", estudiante);
+    const alumnoId = estudiante?.id;
 
     const links = [
         { url: '/MenuRevisor', label: 'Inicio' },
         { url: '/ListadoEstudioSocioeconomico', label: 'Solicitudes' },
         { url: '/Revision', label: 'Revisión' }
     ];
-   
-        useEffect(() => {
+
+    const base64ToBlob = (base64) => {
+        const byteCharacters = atob(base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray], { type: 'application/pdf' });
+    };
+
+    useEffect(() => {
         const fetchPdf = async () => {
-            try {
-                const pdfBase64 = await generarPdfAlumno(alumnoId);
-                // Crear una URL de objeto para el PDF
-                const pdfUrl = `data:application/pdf;base64,${pdfBase64}`;
-                setPdfData([pdfUrl]);
+            if (!alumnoId) {
+                console.log("id del alumno", alumnoId);
+                setError('No se pudo obtener el ID del alumno');
                 setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                const pdfBase64 = await generarPdfAlumno(alumnoId);
+
+                const pdfBlob = base64ToBlob(pdfBase64);
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                setPdfData([pdfUrl]);
             } catch (err) {
                 setError(err.message || 'Error al cargar el PDF');
+            } finally {
                 setLoading(false);
             }
         };
 
         fetchPdf();
+        return () => {
+            if (pdfData) {
+            pdfData.forEach(url => URL.revokeObjectURL(url));
+            }
+        };
     }, [alumnoId]);
 
-       const handleEnviarCorreccion = () => {
+    const handleEnviarCorreccion = () => {
         console.log("Enviando corrección:", comentario);
     };
 
@@ -65,7 +93,11 @@ export default function RevisionSolicitud() {
                         <div className="row d-flex justify-content-center gap-4">
                             {/* Sección del PDF */}
                             <div className="col-12 col-md-5 d-flex justify-content-center">
-                                <PdfVisor archivosUrl={["/BECA-COLEGIATURApdf.pdf", "/Impresion3.1.pdf"]} />
+                                {pdfData && pdfData.length > 0 ?(
+                                    <PdfVisor archivosUrl={pdfData} />  
+                                ) : (  
+                                    <div className='alert alert-info'> Documento no disponible </div>
+                                )}
 
                             </div>
 
@@ -81,7 +113,7 @@ export default function RevisionSolicitud() {
                                     value={comentario}
                                     onChange={(e) => setComentario(e.target.value)}
                                 />
-                                
+
                                 <div className="mt-4 text-center">
                                     <div className="d-flex justify-content-center gap-3">
                                         <button className="btn btn-primary btn-lg" onClick={handleEnviarCorreccion}>

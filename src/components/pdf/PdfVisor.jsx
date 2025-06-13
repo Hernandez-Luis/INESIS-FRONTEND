@@ -7,17 +7,29 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 const PdfVisor = ({ archivosUrl }) => {
     const [error, setError] = useState(null);
     const [cargando, setCargando] = useState(true);
+    const [pdfFiles, setPdfFiles] = useState([]);
     const pluginDeDiseño = defaultLayoutPlugin();
 
     useEffect(() => {
-        const verificarPdf = async () => {
+        const procesarArchivos = async () => {
             try {
-                for (let url of archivosUrl) {
-                    const response = await fetch(url, { method: "HEAD" });
-                    if (!response.ok) {
-                        throw new Error(`Error ${response.status}: No se puede cargar ${url}`);
-                    }
-                }
+                const archivosProcesados = await Promise.all(
+                    archivosUrl.map(async (url) => {
+                        // Si es una Blob URL (comienza con 'blob:') o data URL (base64)
+                        if (url.startsWith('blob:') || url.startsWith('data:application/pdf')) {
+                            return url; // No necesita verificación
+                        }
+                        
+                        // Verificar solo para URLs estáticas
+                        const response = await fetch(url, { method: "HEAD" });
+                        if (!response.ok) {
+                            throw new Error(`Error ${response.status}: No se puede cargar ${url}`);
+                        }
+                        return url;
+                    })
+                );
+                
+                setPdfFiles(archivosProcesados);
                 setError(null);
             } catch (err) {
                 setError(err.message);
@@ -26,17 +38,24 @@ const PdfVisor = ({ archivosUrl }) => {
             }
         };
 
-        verificarPdf();
+        procesarArchivos();
     }, [archivosUrl]);
 
     if (cargando) {
-        return <div>Cargando PDFs...</div>;
+        return (
+            <div style={{ textAlign: "center", padding: "20px" }}>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p>Cargando documentos...</p>
+            </div>
+        );
     }
 
     if (error) {
         return (
             <div style={{ textAlign: "center", padding: "20px", color: "red" }}>
-                <h3>📄 PDFs no disponibles</h3>
+                <h3>📄 Error al cargar PDFs</h3>
                 <p>{error}</p>
             </div>
         );
@@ -53,10 +72,10 @@ const PdfVisor = ({ archivosUrl }) => {
             border: "2px solid #ccc",
             borderRadius: "8px",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-            overflowY: "auto" // Habilita el scroll vertical
+            overflowY: "auto"
         }}>
             <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.worker.min.js">
-                {archivosUrl.map((url, index) => (
+                {pdfFiles.map((url, index) => (
                     <div key={index} style={{
                         width: "100%",
                         background: "#fff",
@@ -64,7 +83,12 @@ const PdfVisor = ({ archivosUrl }) => {
                         borderRadius: "5px",
                         marginBottom: "10px"
                     }}>
-                        <Viewer fileUrl={url} plugins={[pluginDeDiseño]} />
+                        <Viewer 
+                            fileUrl={url} 
+                            plugins={[pluginDeDiseño]} 
+                            onDocumentLoad={() => console.log(`PDF ${index} cargado correctamente`)}
+                            onDocumentError={() => console.error(`Error al cargar PDF ${index}`)}
+                        />
                     </div>
                 ))}
             </Worker>
