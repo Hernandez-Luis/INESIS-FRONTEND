@@ -307,6 +307,7 @@ const MiFamiliaForm = () => {
             // 4. Guardar Mi Familia
 
             const payloadMiFamilia = {
+                alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
                 nombre_completo: nombreCompleto,
                 id_domicilio: idDomicilio,
                 telefono: dataMiFamilia.telefono,
