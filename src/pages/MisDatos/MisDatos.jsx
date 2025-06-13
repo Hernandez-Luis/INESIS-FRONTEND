@@ -666,56 +666,54 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
-                  <div className="col-3 mt-2">
+                  <div className="col-4 mt-2">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                     <input maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
                   </div>
-                  <div className="col-3 mt-2">
-                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                    <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                  <div className='col-3 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                    <div>
+                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.estado} name='estado' disabled={true} />
+                    </div>
+                  </div>
+                  <div className='col-5 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                    <div>
+                      <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
+                    </div>
                   </div>
                   <div className='col-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                     <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
                   </div>
-                  <div className='row'>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                      <div>
-                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.estado} name='estado' disabled={true} />
-                      </div>
+                  <div className="col-6 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                    <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                  </div>
+                  <div className='col-6 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                    <div>
+                      <SeleccionarCombo
+                        options={colonias.map(c => ({
+                          label: c,
+                          value: c
+                        }))}
+                        name={"colonia"}
+                        value={dataDomicilio.colonia}
+                        onChange={actualizarCamposDomicilio}
+                        placeholder="Selecciona una opción" // Placeholder
+                      />
                     </div>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                      <div>
-                        <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
-                      </div>
+                  </div>
+                  <div className='col-6 mt-2'>
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                    <div>
+                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
                     </div>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                      <div>
-                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
-                      </div>
-                    </div>
-                    <div className='col-6 mt-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                      <div>
-                        <SeleccionarCombo
-                          options={colonias.map(c => ({
-                            label: c,
-                            value: c
-                          }))}
-                          name={"colonia"}
-                          value={dataDomicilio.colonia}
-                          onChange={actualizarCamposDomicilio}
-                          placeholder="Selecciona una opción" // Placeholder
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
-                      <input className='form-control' type="text" value={dataMisDatos.nombreCasaHuesped} name={"nombreCasaHuesped"} onChange={actualizarCamposMisDatos} />
-                    </div>
+                  </div>
+                  <div className="col-12">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
+                    <input className='form-control' type="text" value={dataMisDatos.nombreCasaHuesped} name={"nombreCasaHuesped"} onChange={actualizarCamposMisDatos} />
                   </div>
                 </div>
               </div>
