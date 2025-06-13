@@ -1,18 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import PdfVisor from '../../components/pdf/PdfVisor'; // Asegúrate de que coincida con la capitalización
+import { generarPdfAlumno } from '../../services/pdfService';
 
 export default function RevisionSolicitud() {
+    
     const [comentario, setComentario] = useState("");
+    const [pdfData, setPdfData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+
+      const alumnoId = "123"; 
+
     const links = [
         { url: '/MenuRevisor', label: 'Inicio' },
         { url: '/ListadoEstudioSocioeconomico', label: 'Solicitudes' },
         { url: '/Revision', label: 'Revisión' }
     ];
+   
+        useEffect(() => {
+        const fetchPdf = async () => {
+            try {
+                const pdfBase64 = await generarPdfAlumno(alumnoId);
+                // Crear una URL de objeto para el PDF
+                const pdfUrl = `data:application/pdf;base64,${pdfBase64}`;
+                setPdfData([pdfUrl]);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message || 'Error al cargar el PDF');
+                setLoading(false);
+            }
+        };
 
-    const handleEnviarCorreccion = () => {
+        fetchPdf();
+    }, [alumnoId]);
+
+       const handleEnviarCorreccion = () => {
         console.log("Enviando corrección:", comentario);
     };
 
@@ -24,6 +50,8 @@ export default function RevisionSolicitud() {
         console.log("Regresando...");
     };
 
+    if (loading) return <div>Cargando PDF...</div>;
+    if (error) return <div>Error: {error}</div>;
     return (
         <div>
             <NavInesis />
