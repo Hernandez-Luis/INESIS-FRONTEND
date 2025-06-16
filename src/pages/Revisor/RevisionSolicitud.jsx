@@ -92,7 +92,7 @@ export default function RevisionSolicitud() {
                     <div className="container-fluid py-3">
                         <div className="row d-flex justify-content-center gap-4">
                             {/* Sección del PDF */}
-                            <div className="col-12 col-md-5 d-flex justify-content-center">
+                            <div className="col-12 col-md-7 d-flex justify-content-center">
                                 {pdfData && pdfData.length > 0 ?(
                                     <PdfVisor archivosUrl={pdfData} />  
                                 ) : (  
@@ -102,7 +102,7 @@ export default function RevisionSolicitud() {
                             </div>
 
                             {/* Sección de Comentarios */}
-                            <div className="col-12 col-md-5">
+                            <div className="col-12 col-md-3">
                                 <h3 className="text-center" style={{ color: 'var(--color-morado1)' }}>Comentario de observación</h3>
                                 <textarea
                                     className="form-control"
