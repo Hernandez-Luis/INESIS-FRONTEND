@@ -6,6 +6,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo";
 import carreraService from "../../services/CatCarreraService";
 import Alumno from "../../services/AlumnoService";
+import { Link } from "react-router-dom";
 
 const ListadoEstudioSocioeconomico = () => {
   const links = [
@@ -128,9 +129,15 @@ const ListadoEstudioSocioeconomico = () => {
                     <td>{a.semestre}</td>
                     <td>{a.grupo}</td>
                     <td>
-                      <a href="/Revision">
+                      <Link 
+                        to="/Revision" 
+                        state={{ estudiante: a }} 
+                      >
                         <i className="bi bi-file-earmark-text"></i>
-                      </a>
+                      </Link>
+                      {/*<a href="/Revision">
+                        <i className="bi bi-file-earmark-text"></i>
+                      </a>*/}
                     </td>
                     <td className={
                       a.estado === "Finalizado" ? "text-success" :

@@ -10,6 +10,7 @@ import CatOcupacionService from '../../services/CatOcupacionService';
 import CatParentescoService from '../../services/CatParentescoService';
 import MisDatosService from '../../services/MisDatosService';
 import DomicilioCpService from '../../services/DomicilioCpService';
+import AlumnoService from '../../services/AlumnoService';
 
 export const MiTutor = ({ onAdd }) => {
     const links = [
@@ -69,24 +70,57 @@ export const MiTutor = ({ onAdd }) => {
                 console.error('No se encontró el alumnoId en el localStorage.');
                 return;
             }
-            let datos = await MisDatosService.getByIdAlumno(alumnoId); // asegúrate de tener definido `id`
-            setDatosAlumno(datos);
+            let datos = await AlumnoService.getById(alumnoId); // asegúrate de tener definido `id`
             console.log("Datos del alumno: ", datos);
+            setDatosAlumno(datos);
+            if(datos.miTutor){
+                console.log("Datos de mi tutor: ", datos.miTutor)
+                setDatosMiTutorAlumno(datos.miTutor);
+            }else{
+                obtenerDatosTutorDeMisDatos(datos.misDatos);
+            }
         } catch (error) {
             console.log("Error al obtener datos del alumno: ", error);
         }
     };
 
-    const obtenerDatosTutorDeMisDatos = () => {
-        let dependeEconomicamente = datosAlumno?.gastosIngresos?.dependeEconomicamente;
-        // console.log('depende: ', dependeEconomicamente)
-        // console.log('Datos dependeEconomicamente: ', datosAlumno?.gastosIngresos)
+    const obtenerDatosTutorDeMisDatos = (datos) => {
+        console.log("Datos de gastos e ingresos: ", datos);
+        let dependeEconomicamente = datos?.gastosIngresos?.dependeEconomicamente;
         if (dependeEconomicamente === true) {
-            setNombreTutor(datosAlumno?.gastosIngresos?.nombreQuienDependes);
-            setTipoTrabajoMisDatos(datosAlumno?.gastosIngresos?.catTipoTrabajo?.id)
-            setOcupacionMisDatos(datosAlumno?.gastosIngresos?.ocupacion?.id)
-            setOcupacionOtroMisDatos(datosAlumno?.gastosIngresos?.otro)
+            setDatosMiTutor((prevData) => ({
+                ...prevData,
+                nombreTutor: datos?.gastosIngresos?.nombreQuienDependes || '',
+                trabajoTipo: datos?.gastosIngresos?.catTipoTrabajo?.id || '',
+                ocupacion: datos?.gastosIngresos?.ocupacion?.id || '',
+                ocupacionOtro: datos?.gastosIngresos?.otro || ''
+            }));
         }
+    }
+
+    const setDatosMiTutorAlumno = (data) => {
+        setDatosMiTutor((prevData) => ({
+            ...prevData,
+            nombreTutor: data?.nombreTutor || '',
+            telefono: data?.telefono || '',
+            correo: data?.correo || '',
+            parentesco: data?.parentesco?.id || '',
+            trabajadorSuneo: data?.trabajadorSuneo,
+            comparteVivienda: data?.comparteVivienda,
+            trabajoTipo: data?.catTipoTrabajo?.id || '',
+            ocupacion: data?.ocupacion?.id || '',
+            ocupacionOtro: data?.otro || ''
+        }));
+        setDatosDomicilio((prevData) => ({
+            ...prevData,
+            estado: data?.domicilio?.estado || '',
+            municipio: data?.domicilio?.municipio || '',
+            colonia: data?.domicilio?.colonia || '',
+            localidad: data?.domicilio?.localidad || '',
+            calle: data?.domicilio?.calle || '',
+            numero: data?.domicilio?.numero || '',
+            cp: data?.domicilio?.cp || ''
+        }));
     }
 
     useEffect(() => {
@@ -96,12 +130,15 @@ export const MiTutor = ({ onAdd }) => {
         obtenerDatosPorAlumno();
     }, []);
 
-    useEffect(() => {
+    const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
+    const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
+
+/*     useEffect(() => {
         if (datosAlumno) {
             obtenerDatosTutorDeMisDatos();
         }
     }, [datosAlumno]);
-
+ */
     useEffect(() => {
         setDatosMiTutor(prev => ({
             ...prev,
@@ -113,17 +150,6 @@ export const MiTutor = ({ onAdd }) => {
     }, [nombreTutorMisDatos, tipoTrabajoMisDatos, ocupacionMisDatos, ocupacionOtroMisDatos]);
 
 
-    // useEffect(() => {
-    //     if (nombreTutorMisDatos || tipoTrabajoMisDatos || ocupacionMisDatos || ocupacionOtroMisDatos) {
-    //         console.log("📌 Datos del tutor actualizados:");
-    //         console.log("Tutor:", nombreTutorMisDatos);
-    //         console.log("Tipo de trabajo:", tipoTrabajoMisDatos);
-    //         console.log("Ocupación:", ocupacionMisDatos);
-    //         console.log("Ocupación otro:", ocupacionOtroMisDatos);
-    //     }
-    // }, [nombreTutorMisDatos, tipoTrabajoMisDatos, ocupacionMisDatos, ocupacionOtroMisDatos]);
-
-    // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
 
     const formularioInicialMitTutor = {
         nombreTutor: nombreTutorMisDatos ? nombreTutorMisDatos : '',
@@ -133,6 +159,7 @@ export const MiTutor = ({ onAdd }) => {
         comparteVivienda: '',
         trabajoTipo: '',
         ocupacion: '',
+        parentesco: '',
         ocupacionOtro: null
     }
 
@@ -371,7 +398,7 @@ export const MiTutor = ({ onAdd }) => {
                                     options={['Si', 'No']}
                                     onChange={actualizarCamposMiTutor}
                                     name={"trabajadorSuneo"}
-                                    value={datosMiTutor.trabajadorSuneo}
+                                    value={boolToSiNo(datosMiTutor.trabajadorSuneo)}
                                 />
                                 <div className="row">
                                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
@@ -433,7 +460,7 @@ export const MiTutor = ({ onAdd }) => {
                                     options={['Si', 'No']}
                                     onChange={actualizarCamposMiTutor}
                                     name={"comparteVivienda"}
-                                    value={datosMiTutor.comparteVivienda}
+                                    value={boolToSiNo(datosMiTutor.comparteVivienda) }
                                 />
                                 <div className='row'>
                                     <div className="col-3 mt-2">
