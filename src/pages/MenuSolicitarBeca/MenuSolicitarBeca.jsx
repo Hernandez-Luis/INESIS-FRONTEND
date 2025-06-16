@@ -35,13 +35,26 @@ export const MenuSolicitarBeca = () => {
     if (!idAlumno) return;
     const response = await AlumnoService.getById(idAlumno);
     console.log(response);
-    if (response.misDatos !== null && response.misDatos.completo === true) {
+    if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
       setCardClasses({
         misDatos: 'completo',
         miTutor: '',
         miFamilia: '',
         gastosFamiliares: '',
       });
+    }
+    if (response.miTutor !== null && response.miTutor.moduloCompleto === true) {
+      setCardClasses(prev => ({
+        ...prev,
+        miTutor: 'completo',
+      }));
+
+    }
+    if(response.miFamilia !== null && response.miFamilia.moduloCompleto === true) {
+      setCardClasses(prev => ({
+        ...prev,
+        miFamilia: 'completo',
+      }));
     }
   }
 

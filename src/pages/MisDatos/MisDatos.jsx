@@ -97,11 +97,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const obtenerDatosAlumno = async () => {
     try {
       let dataAlumno = await AlumnoService.getById(idAlumno);
-      // console.log("ALUMNO: ", dataAlumno)
-      // console.log("materno: ", dataAlumno.apellidoMaterno)
       setDatosAlumno(dataAlumno)
-      // console.log(dataAlumno?.misDatos);
-      //setMisDatos(dataAlumno?.misDatos)
       setDataMisDatos((prevData) => ({
         ...prevData,
         nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellidoMaterno + " " + dataAlumno.apellidoPaterno,
@@ -537,7 +533,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
   // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  *******************
   const mostrarAlerta = (config) => {
-    Swal.fire({
+    return Swal.fire({
       ...config,
       timer: 5000,
       timerProgressBar: true,
