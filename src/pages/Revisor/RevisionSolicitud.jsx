@@ -4,7 +4,8 @@ import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import PdfVisor from '../../components/pdf/PdfVisor'; // Asegúrate de que coincida con la capitalización
 import { generarPdfAlumno } from '../../services/pdfService';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import AlumnoService from '../../services/AlumnoService';
 
 export default function RevisionSolicitud() {
 
@@ -14,6 +15,7 @@ export default function RevisionSolicitud() {
     const [error, setError] = useState(null);
     const location = useLocation();
     const { estudiante } = location.state || {};
+    const navigate = useNavigate();
 
     console.log("Datos recibidos:", location.state);
     console.log("Estudiante recibido:", estudiante);
@@ -66,16 +68,31 @@ export default function RevisionSolicitud() {
         };
     }, [alumnoId]);
 
-    const handleEnviarCorreccion = () => {
-        console.log("Enviando corrección:", comentario);
-    };
+const handleEnviarCorreccion = async () => {
+    try {
+        if (!comentario.trim()) {
+            alert("Por favor escribe un comentario de corrección.");
+            return;
+        }
 
-    const handleMarcarFinalizado = () => {
-        console.log("Marcado como finalizado");
-    };
+        await AlumnoService.enviarRevisionAlumno(alumnoId, comentario, false);
+        alert("Corrección enviada correctamente");
+    } catch (error) {
+        alert("Error al enviar la corrección: " + error);
+    }
+};
+
+const handleMarcarFinalizado = async () => {
+    try {
+        await AlumnoService.enviarRevisionAlumno(alumnoId, "", true);
+        alert("Alumno marcado como finalizado correctamente");
+    } catch (error) {
+        alert("Error al marcar como finalizado: " + error);
+    }
+};
 
     const handleRegresar = () => {
-        console.log("Regresando...");
+         navigate('/ListadoEstudioSocioeconomico');
     };
 
     if (loading) return <div>Cargando PDF...</div>;

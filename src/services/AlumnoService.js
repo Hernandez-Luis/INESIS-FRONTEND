@@ -69,6 +69,20 @@ const checkIfExists = async (curp, matricula, correo) => {
 };
 
 
+const enviarRevisionAlumno = async (id, observaciones, estado) => {
+  try {
+    const response = await axiosInstance.patch(`${API_URL}/${id}/revision`, {
+      observaciones,
+      estado,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || 'Error al enviar la revisión';
+  }
+};
+
+
+
 export default {
   getAll,
   getById,
@@ -76,5 +90,6 @@ export default {
   update,
   updateAlumnoConUsuario,
   deleteAlumno,
-  checkIfExists
+  checkIfExists,
+  enviarRevisionAlumno
 };
