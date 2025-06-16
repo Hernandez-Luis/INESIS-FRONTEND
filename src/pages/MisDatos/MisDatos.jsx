@@ -19,6 +19,7 @@ import CatOcupacionService from '../../services/CatOcupacionService'
 import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
 import { data, useNavigate } from 'react-router-dom'
+import '../../styles/BordeInputsError/BordeInputsError.css'
 
 export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -408,7 +409,7 @@ export const MisDatos = ({ onAdd, update }) => {
       "tieneComputadora",
     ];
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
+    // console.log("Nombre: ", name, " Valor: ", value)
 
     if (camposBooleanos.includes(name)) {
       setDataMisDatos((prevData) => ({
@@ -457,6 +458,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setErrores({})
     if (validacionCamposGastosIngresos() === 0) {
       return
     }
@@ -505,21 +507,43 @@ export const MisDatos = ({ onAdd, update }) => {
   const validacionCamposGastosIngresos = () => {
     // Validación de los campos
     const erroresTemp = {};
-    const camposOpcionales = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
-    const camposBooleanos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
+    let camposOpcionalesGastosIngresos = []
+    if (dataGastosIngresos?.dependeEconomicamente === true) {
+      camposOpcionalesGastosIngresos = ["nombreTrabajo", "ingresoMensual", "telefonoTrabajo", "domicilioTrabajo"];
+    } else if (dataGastosIngresos?.dependeEconomicamente === false) {
+      camposOpcionalesGastosIngresos = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
+    }
+    const camposOpcionalesDomicilio = ["estado", "municipio"]
+
+    const camposBooleanosGastosIngresos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
 
     Object.keys(dataGastosIngresos).forEach((campo) => {
-      // Para campos booleanos, verificar que no sean null o undefined
-      if (camposBooleanos.includes(campo)) {
-        if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined) {
+      if (!camposOpcionalesGastosIngresos.includes(campo)) {
+        if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined || dataGastosIngresos[campo] === '') {
           erroresTemp[campo] = 'Este campo es obligatorio';
         }
       }
-      // Para campos regulares, verificar que no estén vacíos
-      else if (!camposOpcionales.includes(campo)) {
-        if (!dataGastosIngresos[campo]) {
+    });
+
+    Object.keys(dataTrabajo).forEach((campo) => {
+      if (!camposOpcionalesGastosIngresos.includes(campo)) {
+        if (dataTrabajo[campo] === null || dataTrabajo[campo] === undefined || dataTrabajo[campo] === '') {
           erroresTemp[campo] = 'Este campo es obligatorio';
         }
+      }
+    })
+
+    Object.keys(dataDomicilio).forEach((campo) => {
+      if (!camposOpcionalesDomicilio.includes(campo)) {
+        if (dataDomicilio[campo] === null || dataDomicilio[campo] === undefined || dataDomicilio[campo] === '') {
+          erroresTemp[campo] = 'Este campo es obligatorio';
+        }
+      }
+    });
+
+    Object.keys(dataMisDatos).forEach((campo) => {
+      if (dataMisDatos[campo] === null || dataMisDatos[campo] === undefined || dataMisDatos[campo] === '') {
+        erroresTemp[campo] = 'Este campo es obligatorio';
       }
     });
 
@@ -628,6 +652,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       value={dataMisDatos.estadoCivil}
                     />
                   </div>
+                  {errores.estadoCivil && <div style={{ color: 'orange' }}>{errores.estadoCivil}</div>}
 
                   <div className='mt-4'>
                     <label className='fs-5' style={{ fontWeight: 'bold' }}>¿Tienes los recursos económicos necesarios para tus actividades académicas?</label>
@@ -639,6 +664,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       value={boolToSiNo(dataMisDatos.recursosSuficientes)}
                     />
                   </div>
+                  {errores.recursosSuficientes && <div style={{ color: 'orange' }}>{errores.recursosSuficientes}</div>}
                 </div>
               </div>
               {/* FIN MODULO INFORMACION GENERAl */}
@@ -660,31 +686,69 @@ export const MisDatos = ({ onAdd, update }) => {
                       value={dataMisDatos.situacionVivienda}
                       onChange={actualizarCamposMisDatos}
                     />
+                    {errores.situacionVivienda && <div className='text-danger'>{errores.situacionVivienda}</div>}
                   </div>
                   <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
                   <div className="col-4 mt-2">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                    <input maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
+                    <input
+                      maxLength={5}
+                      className={`form-control ${errores.cp ? 'input-error' : ''}`}
+                      type="text"
+                      onChange={actualizarCamposDomicilio}
+                      value={dataDomicilio.cp}
+                      name={"cp"}
+                    />
+                    {errores.cp && <div className='text-danger'>{errores.cp}</div>}
                   </div>
                   <div className='col-3 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
                     <div>
-                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.estado} name='estado' disabled={true} />
+                      <input
+                        className='form-control'
+                        type="text"
+                        onChange={actualizarCamposDomicilio}
+                        value={dataDomicilio.estado}
+                        name='estado'
+                        disabled={true}
+                      />
+                      {errores.estado && <div className='text-danger'>{errores.estado}</div>}
                     </div>
                   </div>
                   <div className='col-5 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                     <div>
-                      <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
+                      <input
+                        className='form-control'
+                        type="text"
+                        value={dataDomicilio.municipio}
+                        name='municipio'
+                        disabled={true}
+                      />
+                      {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
                     </div>
                   </div>
                   <div className='col-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                    <input className='form-control' type="text" name={"calle"} value={dataDomicilio.calle} onChange={actualizarCamposDomicilio} />
+                    <input
+                      className={`form-control ${errores.calle ? 'input-error' : ''}`}
+                      type="text"
+                      name={"calle"}
+                      value={dataDomicilio.calle}
+                      onChange={actualizarCamposDomicilio}
+                    />
+                    {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                   </div>
                   <div className="col-6 mt-2">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                    <input className='form-control' type="text" name={"numero"} value={dataDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                    <input
+                      className={`form-control ${errores.numero ? 'input-error' : ''}`}
+                      type="text"
+                      name={"numero"}
+                      value={dataDomicilio.numero}
+                      onChange={actualizarCamposDomicilio}
+                    />
+                    {errores.numero && <div className='text-danger'>{errores.numero}</div>}
                   </div>
                   <div className='col-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
@@ -704,12 +768,26 @@ export const MisDatos = ({ onAdd, update }) => {
                   <div className='col-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                     <div>
-                      <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
+                      <input
+                        className={`form-control ${errores.localidad ? 'input-error' : ''}`}
+                        type="text"
+                        onChange={actualizarCamposDomicilio}
+                        value={dataDomicilio.localidad}
+                        name='localidad'
+                      />
+                      {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
                     </div>
                   </div>
                   <div className="col-12">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
-                    <input className='form-control' type="text" value={dataMisDatos.nombreCasaHuesped} name={"nombreCasaHuesped"} onChange={actualizarCamposMisDatos} />
+                    <input
+                      className={`form-control ${errores.nombreCasaHuesped ? 'input-error' : ''}`}
+                      type="text"
+                      value={dataMisDatos.nombreCasaHuesped}
+                      name={"nombreCasaHuesped"}
+                      onChange={actualizarCamposMisDatos}
+                    />
+                    {errores.nombreCasaHuesped && <div className='text-danger'>{errores.nombreCasaHuesped}</div>}
                   </div>
                 </div>
               </div>
@@ -724,7 +802,14 @@ export const MisDatos = ({ onAdd, update }) => {
                 <div className="row">
                   <div className="col">
                     <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
-                    <input className='form-control w-25' type="number" name="gastoMensual" onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.gastoMensual} />
+                    <input
+                      className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
+                      type="number"
+                      name="gastoMensual"
+                      onChange={actualizarCampoGastosIngresos}
+                      value={dataGastosIngresos.gastoMensual}
+                      isInvalid={!!errores.gastoMensual}
+                    />
                     {errores.gastoMensual && <div className="text-danger">{errores.gastoMensual}</div>}
 
                   </div>
@@ -748,7 +833,13 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
-                      <input className='form-control w-25' type="text" name='nombreQuienDependes' onChange={actualizarCampoGastosIngresos} value={dataGastosIngresos.nombreQuienDependes} />
+                      <input
+                        className='form-control w-25'
+                        type="text"
+                        name='nombreQuienDependes'
+                        onChange={actualizarCampoGastosIngresos}
+                        value={dataGastosIngresos.nombreQuienDependes}
+                      />
                       {errores.nombreQuienDependes && <div className="text-danger">{errores.nombreQuienDependes}</div>}
                     </div>
                     <div className="col-3">
@@ -804,41 +895,46 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
                       <input
-                        className='form-control w-50'
+                        className={`form-control w-50 ${errores.nombreTrabajo ? 'input-error' : ''}`}
                         type="text"
                         name='nombreTrabajo'
                         value={dataTrabajo.nombreTrabajo}
                         onChange={actualizarCamposTrabajo}
                       />
+                      {errores.nombreTrabajo && <div className='text-danger'>{errores.nombreTrabajo}</div>}
                     </div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Menciona el ingreso mensual que recibes</p>
                       <input
-                        className='form-control w-50'
+                        className={`form-control w-50 ${errores.ingresoMensual ? 'input-error' : ''}`}
                         type="text"
                         name='ingresoMensual'
                         onChange={actualizarCamposTrabajo}
-                        value={dataTrabajo.ingresoMensual} />
+                        value={dataTrabajo.ingresoMensual}
+                      />
+                      {errores.ingresoMensual && <div className='text-danger'>{errores.ingresoMensual}</div>}
                     </div>
                     <div className="col-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Telefono celular del lugar donde trabajas</p>
                       <input
-                        className='form-control w-50'
+                        className={`form-control w-50 ${errores.telefonoTrabajo ? 'input-error' : ''}`}
                         type="text"
                         value={dataTrabajo.telefonoTrabajo}
                         onChange={actualizarCamposTrabajo}
                         name='telefonoTrabajo'
                       />
+                      {errores.telefonoTrabajo && <div className='text-danger'>{errores.telefonoTrabajo}</div>}
                     </div>
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas</p>
                       <input
-                        className='form-control w-50'
+                        className={`form-control w-50 ${errores.domicilioTrabajo ? 'input-error' : ''}`}
                         type="text"
                         value={dataTrabajo.domicilioTrabajo}
                         onChange={actualizarCamposTrabajo}
                         name='domicilioTrabajo'
                       />
+                      {errores.domicilioTrabajo && <div className='text-danger'>{errores.domicilioTrabajo}</div>}
                     </div>
                     <div className="line mx-auto mt-5 mb-4"></div>
                   </div>
@@ -1010,6 +1106,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   name="familiarComunero"
                   value={boolToSiNo(dataMisDatos.familiarComunero)}
                 />
+                {errores.familiarComunero && <div className='text-danger'>{errores.familiarComunero}</div>}
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
                 <RadioSelect
@@ -1019,6 +1116,8 @@ export const MisDatos = ({ onAdd, update }) => {
                   onChange={actualizarCamposMisDatos}
                   value={boolToSiNo(dataMisDatos.utilizaCelular)}
                 />
+                {errores.utilizaCelular && <div className='text-danger'>{errores.utilizaCelular}</div>}
+
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
                 <RadioSelect
@@ -1028,9 +1127,17 @@ export const MisDatos = ({ onAdd, update }) => {
                   onChange={actualizarCamposMisDatos}
                   value={boolToSiNo(dataMisDatos.tieneComputadora)}
                 />
+                {errores.tieneComputadora && <div className='text-danger'>{errores.tieneComputadora}</div>}
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
-                <input className='form-control w-75' type="text" name='idioma' value={dataMisDatos.idioma} onChange={actualizarCamposMisDatos} />
+                <input
+                  className={`form-control w-75 ${errores.idioma ? 'input-error' : ''}`}
+                  type="text"
+                  name='idioma'
+                  value={dataMisDatos.idioma}
+                  onChange={actualizarCamposMisDatos}
+                />
+                {errores.idioma && <div className='text-danger'>{errores.idioma}</div>}
               </div>
               {/* FIN INFORMACION COMPLEMENTARIA */}
             </div>
