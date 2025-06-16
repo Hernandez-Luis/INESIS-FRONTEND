@@ -11,8 +11,11 @@ import CatParentescoService from '../../services/CatParentescoService';
 import MisDatosService from '../../services/MisDatosService';
 import DomicilioCpService from '../../services/DomicilioCpService';
 import AlumnoService from '../../services/AlumnoService';
+import { useNavigate } from 'react-router-dom';
 
-export const MiTutor = ({ onAdd }) => {
+export const MiTutor = ({ onAdd, update }) => {
+    const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
+    const navigate = useNavigate();
     const links = [
         { url: '/menuAlumno', label: 'Inicio' },
         { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -70,13 +73,13 @@ export const MiTutor = ({ onAdd }) => {
                 console.error('No se encontró el alumnoId en el localStorage.');
                 return;
             }
-            let datos = await AlumnoService.getById(alumnoId); // asegúrate de tener definido `id`
+            let datos = await AlumnoService.getById(alumnoId);
             console.log("Datos del alumno: ", datos);
             setDatosAlumno(datos);
-            if(datos.miTutor){
+            if (datos.miTutor) {
                 console.log("Datos de mi tutor: ", datos.miTutor)
                 setDatosMiTutorAlumno(datos.miTutor);
-            }else{
+            } else {
                 obtenerDatosTutorDeMisDatos(datos.misDatos);
             }
         } catch (error) {
@@ -121,6 +124,9 @@ export const MiTutor = ({ onAdd }) => {
             numero: data?.domicilio?.numero || '',
             cp: data?.domicilio?.cp || ''
         }));
+        if (data?.comparteVivienda === true || data?.comparteVivienda === 'Si') {
+            setDisabled(true);
+        }
     }
 
     useEffect(() => {
@@ -133,12 +139,12 @@ export const MiTutor = ({ onAdd }) => {
     const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
     const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
 
-/*     useEffect(() => {
-        if (datosAlumno) {
-            obtenerDatosTutorDeMisDatos();
-        }
-    }, [datosAlumno]);
- */
+    /*     useEffect(() => {
+            if (datosAlumno) {
+                obtenerDatosTutorDeMisDatos();
+            }
+        }, [datosAlumno]);
+     */
     useEffect(() => {
         setDatosMiTutor(prev => ({
             ...prev,
@@ -219,21 +225,34 @@ export const MiTutor = ({ onAdd }) => {
         const { name, value } = e.target;
         console.log("Nombre: ", name, " Valor: ", value)
 
-        if (name === "comparteVivienda" && value === "Si") {
-            setDisabled(true)
-            console.log("Datos alumno: ", datosAlumno)
-            setDatosDomicilio((prevData) => ({
+        const camposBooleanos = [
+            "trabajadorSuneo",
+            "comparteVivienda",
+        ];
+
+        if (camposBooleanos.includes(name)) {
+            setDatosMiTutor((prevData) => ({
                 ...prevData,
-                cp: datosAlumno?.domicilio?.cp,
-                numero: datosAlumno?.domicilio?.numero,
-                calle: datosAlumno?.domicilio?.calle,
-                localidad: datosAlumno?.domicilio?.localidad,
-                colonia: datosAlumno?.domicilio?.colonia,
-            }))
-            // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
-        } else if (name === "comparteVivienda" && value === "No") {
-            setDisabled(false)
-            setDatosDomicilio(formularioInicialDomicilio)
+                [name]: siNoToBool(value)
+            }));
+
+            if (name === "comparteVivienda" && (value === "Si" || value === true)) {
+                setDisabled(true)
+                console.log("Datos alumno: ", datosAlumno)
+                setDatosDomicilio((prevData) => ({
+                    ...prevData,
+                    cp: datosAlumno?.misDatos?.domicilio?.cp,
+                    numero: datosAlumno?.misDatos?.domicilio?.numero,
+                    calle: datosAlumno?.misDatos?.domicilio?.calle,
+                    localidad: datosAlumno?.misDatos?.domicilio?.localidad,
+                    colonia: datosAlumno?.misDatos?.domicilio?.colonia,
+                }))
+                // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
+            } else if (name === "comparteVivienda" && (value === "No" || value === false)) {
+                setDisabled(false)
+                setDatosDomicilio(formularioInicialDomicilio)
+            }
+            return;
         }
 
         if (name == 'ocupacion') {
@@ -267,14 +286,16 @@ export const MiTutor = ({ onAdd }) => {
         e.preventDefault();
 
         let datosDomicilioEnviar = {};
+        console.log("Datos del domicilio: ", datosAlumno)
 
-        if (datosMiTutor.comparteVivienda === 'Si') {
+        if (datosMiTutor.comparteVivienda === 'Si' || datosMiTutor.comparteVivienda === true) {
             datosDomicilioEnviar = {
-                idDomicilio: datosAlumno?.domicilio?.idDomicilio
+                idDomicilio: datosAlumno?.misDatos?.domicilio?.id
             };
         } else datosDomicilioEnviar = datosDomicilio;
 
         const coleccionValores = {
+            alumnoId: alumnoId,
             ...datosMiTutor,
             datosDomicilio: datosDomicilioEnviar
         }
@@ -282,8 +303,12 @@ export const MiTutor = ({ onAdd }) => {
 
         try {
             let nuevosErrores = null;
-
-            nuevosErrores = await onAdd(coleccionValores);
+            if(datosAlumno.miTutor !== null){
+                let idMiTutor = datosAlumno.miTutor.idTutor;
+                nuevosErrores = await update(idMiTutor,coleccionValores);
+            } else{
+                nuevosErrores = await onAdd(coleccionValores);
+            } 
 
             console.log("Error: ", nuevosErrores)
             if (nuevosErrores && nuevosErrores.length > 0) {
@@ -300,7 +325,7 @@ export const MiTutor = ({ onAdd }) => {
 
     // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  ******************************
     const mostrarAlerta = (config) => {
-        Swal.fire({
+        return Swal.fire({
             ...config,
             timer: 5000,
             timerProgressBar: true,
@@ -335,6 +360,8 @@ export const MiTutor = ({ onAdd }) => {
             text: mensaje,
             icon: 'success',
             confirmButtonText: 'Aceptar',
+        }).then(() => {
+            navigate('/menuSolicitar')
         });
     };
 
@@ -460,7 +487,7 @@ export const MiTutor = ({ onAdd }) => {
                                     options={['Si', 'No']}
                                     onChange={actualizarCamposMiTutor}
                                     name={"comparteVivienda"}
-                                    value={boolToSiNo(datosMiTutor.comparteVivienda) }
+                                    value={boolToSiNo(datosMiTutor.comparteVivienda)}
                                 />
                                 <div className="line mx-auto mt-5 mb-4"></div>
                                 <div className='row'>

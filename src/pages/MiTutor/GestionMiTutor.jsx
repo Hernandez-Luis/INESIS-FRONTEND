@@ -16,11 +16,22 @@ export const GestionMiTutor = () => {
             return errores
         }
     }
+
+    const updateMiTutor = async(id, coleccionDatos) => {
+        try {
+            await MiTutorService.update(id, coleccionDatos)
+            return []
+        } catch (error) {
+            console.error("Error al actualizar Mi Tutor:", error);
+            return error;
+        }
+    }
     
   return (
     <div>
         <MiTutor
             onAdd={guardarMiTutor}
+            update={updateMiTutor}
         />
     </div>
   )
