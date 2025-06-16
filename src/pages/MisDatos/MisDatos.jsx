@@ -100,7 +100,7 @@ export const MisDatos = ({ onAdd, update }) => {
       setDatosAlumno(dataAlumno)
       setDataMisDatos((prevData) => ({
         ...prevData,
-        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellidoMaterno + " " + dataAlumno.apellidoPaterno,
+        nombreCompleto: dataAlumno.nombre + " " + dataAlumno.apellidoPaterno + " " + dataAlumno.apellidoMaterno,
         carrera: dataAlumno.carrera?.id,
         semestre: dataAlumno.semestre?.id,
         sexo: dataAlumno.sexo?.id,
