@@ -369,7 +369,7 @@
 @media (max-width: 576px) {
   .container.w-75 {
     width: 100% !important;
-    padding: 0 5px;
+    padding: 0 15px;
     margin: 0;
   }
 
@@ -409,13 +409,13 @@
 
   .filtro-container{
     padding-left: 2rem;
-    width: 55%;
+    width: 65%;
     justify-content: flex-start;
   }
 
    .buscador-container {
     padding-left: 2rem;
-    width: 80%;
+    width: 90%;
     justify-content: flex-start;
   }
 
