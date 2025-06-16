@@ -55,15 +55,28 @@ const getByAlumnoId = async (idAlumno) => {
   }
 };
 
-const verificarContrasena = async ({ usuario, contrasena }) => {
+
+const verificarYActualizarContrasena = async ({ usuario, contrasena, nuevaContrasena }) => {
   try {
+    // Verificar contraseña actual
     const response = await axiosInstance.post(`${API_URL}/verificar-contrasena`, {
       usuario,
       contrasena
     });
-    return response.data;
+
+    console.log("Respuesta de verificación:", response.data.verificado);
+    // Si la verificación es exitosa, cambiar la contraseña
+    if (response.data) {
+      const cambioResponse = await axiosInstance.post(`${API_URL}/cambiar-contrasena`, {
+        usuario,
+        nuevaContrasena
+      });
+      return cambioResponse.data;
+    } else {
+      throw "La contraseña actual es incorrecta";
+    }
   } catch (error) {
-    throw error.response?.data || "Error al verificar la contraseña";
+    throw error.response?.data || "Error al verificar o cambiar la contraseña";
   }
 };
 
@@ -74,5 +87,5 @@ export default {
   update,
   deleteUsuario,
   getByAlumnoId,
-  verificarContrasena
+  verificarYActualizarContrasena
 };

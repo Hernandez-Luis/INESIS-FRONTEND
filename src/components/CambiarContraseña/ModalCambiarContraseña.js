@@ -141,36 +141,37 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
     if (requireCurrentPassword) {
       try {
         const usuario = JSON.parse(localStorage.getItem("usuario"));
-        console.log("Usuario actual:", usuario);
-        const data = await UsuarioService.verificarContrasena({
+        console.log("Usuario actual:", passwords.new);
+
+        // Llama a la nueva función
+        const data = await UsuarioService.verificarYActualizarContrasena({
           usuario: usuario.usuario,
-          contrasena: passwords.current
+          contrasena: passwords.current,
+          nuevaContrasena: passwords.new
         });
-        console.log("Verificación de contraseña:", data);
-        if (!data.valida) {
-          mostrarAlerta({
-            icon: 'warning',
-            title: 'Advertencia ⚠️',
-            text: 'La contraseña actual es incorrecta.'
-          });
-          return;
-        }
+
+     
+        Swal.fire({
+          icon: 'success',
+          title: '¡Contraseña cambiada con éxito!',
+          text: 'La contraseña ha sido cambiada correctamente.'
+        }).then(() => {
+          localStorage.removeItem("usuario");
+      
+          window.location.href = "/"; 
+        });
+      
+        return;
       } catch (err) {
         mostrarAlerta({
           icon: 'error',
           title: 'Error',
-          text: 'Error al verificar la contraseña.'
+          text: err?.mensaje || 'Error al verificar o cambiar la contraseña.'
         });
         return;
       }
     }
 
-    // Aquí iría la lógica para cambiar la contraseña (otro fetch al backend)
-    mostrarAlerta({
-      icon: 'success',
-      title: '¡Contraseña cambiada con éxito!',
-      text: 'La contraseña ha sido cambiada correctamente.'
-    });
     handleClose();
   };
 
