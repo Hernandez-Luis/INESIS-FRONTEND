@@ -1,10 +1,17 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-import imagenPerfil from "../../assets/perfilIcon.png";  // Imagen estática
-
+import imagenPerfil from "../../assets/perfilIcon.png";
 
 // Componente ModalUsuario
-export const ModalUsuario = ({ mostrar, cerrarModal, usuario }) => {
+export const ModalUsuario = ({ mostrar, cerrarModal }) => {
+  // Recuperar los datos del usuario desde el localStorage
+  const usuarioGuardado = JSON.parse(localStorage.getItem('usuario'));
+
+  // Por si no hay datos (precaución)
+  const nombreUsuario = usuarioGuardado?.usuario || 'Nombre no disponible';
+  const idUsuario = usuarioGuardado?.id || 'ID no disponible';
+  const rolUsuario = usuarioGuardado?.rol || 'Alumno';
+
   return (
     <Modal show={mostrar} onHide={cerrarModal} centered>
       {/* Encabezado del modal */}
@@ -18,25 +25,28 @@ export const ModalUsuario = ({ mostrar, cerrarModal, usuario }) => {
         }}
       >
         <h5 style={{ margin: 0, color: 'white', fontWeight: 'bold' }}>
-          Usuario: {usuario.rol || 'Alumno'}  {/* Usando el rol del usuario, por defecto 'Alumno' */}
+          Rol: {rolUsuario}
         </h5>
       </div>
 
       {/* Cuerpo del modal */}
       <Modal.Body style={{ textAlign: 'center', padding: '30px 20px' }}>
         <img
-          src={imagenPerfil}  // Aquí usamos la misma imagen estática de perfil
+          src={imagenPerfil}
           alt="Perfil"
           style={{
             width: '80px',
             height: '80px',
-            borderRadius: '50%',  // Esto hace que la imagen sea circular
-            marginBottom: '15px',  // Espaciado abajo
+            borderRadius: '50%',
+            marginBottom: '15px',
           }}
         />
         <h5 style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-          Usuario: {usuario.nombre || 'Luis Alberto Hernández Ramírez'}  {/* Usando el nombre del usuario */}
+          Usuario: {nombreUsuario}
         </h5>
+        <p style={{ marginBottom: 0 }}>
+          ID: {idUsuario}
+        </p>
       </Modal.Body>
     </Modal>
   );

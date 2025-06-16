@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react'; 
 import NavInesis from "../../components/NavInesis/NavInesis";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import { CardMenu } from '../MenuSolicitarBeca/components/CardMenu';
-import ResultadoEstudioSocioeconomicoCorrecto from '../ResultadosSolicitud/ResultadoEstudioCoreccto';
-//import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud';
 
 import rellenarEstudio from '../../assets/rellenarEstudio.jpg';
 import resultadoEstudiO from '../../assets/resultadoEstudio.jpg';
@@ -11,6 +9,15 @@ import resultadoEstudiO from '../../assets/resultadoEstudio.jpg';
 import '../../App.css';
 
 const MenuAlumno = () => {
+  const [nombreAlumno, setNombreAlumno] = useState('');
+
+  useEffect(() => {
+    const usuarioStr = localStorage.getItem("usuario");
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      setNombreAlumno(usuario.nombreCompleto || usuario.usuario || 'Alumno');
+    }
+  }, []);
 
   return (
     <div>
@@ -19,11 +26,14 @@ const MenuAlumno = () => {
         <div className="flex-grow-1 p-2">
           {/*inicio contenido*/}
           <div className="text-center mt-4">
-            <h1 style={{ color: "var(--color-morado2)" }}>Bienvenido Emmanuel</h1>
+            <h1 style={{ color: "var(--color-morado2)" }}>
+              Bienvenido {nombreAlumno}
+            </h1>
             <p className="recordatorio">
               ¡Recuerda que tienes hasta el día <b>10 de octubre</b> a las <b>23:59:59</b> para realizar tu estudio socioeconómico!
             </p>
           </div>
+
           <div className='container-fluid align-items-center justify-content-center text-center mb-5'>
             <div className='row d-flex justify-content-center'>
               <CardMenu 
@@ -38,7 +48,6 @@ const MenuAlumno = () => {
                 description="En esta sección, podrás ver tus resultados y observaciones."
                 link={"/ResultadoEstudioSocioeconomicoCorrecto"}
               />
-              
             </div>
           </div>
           {/*fin contenido*/}
