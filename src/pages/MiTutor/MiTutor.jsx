@@ -13,6 +13,7 @@ import DomicilioCpService from '../../services/DomicilioCpService';
 import AlumnoService from '../../services/AlumnoService';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/BordeInputsError/BordeInputsError.css'
+import { soloCorreo, soloFormatoDirecciones, soloLetras, soloNumerosPositivos } from '../../utils/Validaciones/Validaciones';
 
 export const MiTutor = ({ onAdd, update }) => {
     const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -420,6 +421,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                 <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
                                 <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo</label>
                                 <input
+                                    onBeforeInput={soloLetras}
                                     className={`form-control  ${errores.nombreTutor ? 'input-error' : ''}`}
                                     type="text"
                                     value={datosMiTutor.nombreTutor}
@@ -448,6 +450,8 @@ export const MiTutor = ({ onAdd, update }) => {
                                     <div className="col">
                                         <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Telefono</label>
                                         <input
+                                            onBeforeInput={soloNumerosPositivos}
+                                            maxLength={10}
                                             className={`form-control ${errores.telefono ? 'input-error' : ''}`}
                                             type="text"
                                             onChange={actualizarCamposMiTutor}
@@ -459,6 +463,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     <div className="col">
                                         <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
                                         <input
+                                            onBeforeInput={soloCorreo}
                                             className={`form-control ${errores.correo ? 'input-error' : ''}`}
                                             type="mail"
                                             onChange={actualizarCamposMiTutor}
@@ -511,6 +516,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             <div className="row-5">
                                                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                                                 <input
+                                                    onBeforeInput={soloLetras}
                                                     className='form-control w-50'
                                                     name='ocupacionOtro'
                                                     type="text"
@@ -545,6 +551,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     <div className="col-4 mt-2">
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                                         <input
+                                            onBeforeInput={soloNumerosPositivos}
                                             disabled={disabled}
                                             maxLength={5}
                                             className={`form-control ${errores.cp ? 'input-error' : ''}`}
@@ -584,6 +591,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     <div className='col-6 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                                         <input
+                                            onBeforeInput={soloFormatoDirecciones}
                                             disabled={disabled}
                                             className={`form-control ${errores.calle ? 'input-error' : ''}`}
                                             type="text"
@@ -596,6 +604,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     <div className="col-6 mt-2">
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
                                         <input
+                                            onBeforeInput={soloFormatoDirecciones}
                                             disabled={disabled}
                                             className={`form-control ${errores.numero ? 'input-error' : ''}`}
                                             type="text"
@@ -625,6 +634,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                                         <div>
                                             <input
+                                                onBeforeInput={soloLetras}
                                                 disabled={disabled}
                                                 className={`form-control ${errores.localidad ? 'input-error' : ''}`}
                                                 type="text"

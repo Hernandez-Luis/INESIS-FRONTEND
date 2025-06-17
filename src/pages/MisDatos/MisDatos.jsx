@@ -20,6 +20,7 @@ import CatSituacionVivienda from '../../services/CatSituacionVivienda'
 import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
 import { data, useNavigate } from 'react-router-dom'
 import '../../styles/BordeInputsError/BordeInputsError.css'
+import { soloFormatoDirecciones, soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales } from '../../utils/Validaciones/Validaciones'
 
 export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -700,6 +701,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                     <input
                       maxLength={5}
+                      onBeforeInput={soloNumerosPositivos}
                       className={`form-control ${errores.cp ? 'input-error' : ''}`}
                       type="text"
                       onChange={actualizarCamposDomicilio}
@@ -740,6 +742,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <input
                       className={`form-control ${errores.calle ? 'input-error' : ''}`}
                       type="text"
+                      onBeforeInput={soloFormatoDirecciones}
                       name={"calle"}
                       value={dataDomicilio.calle}
                       onChange={actualizarCamposDomicilio}
@@ -749,6 +752,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   <div className="col-6 mt-2">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
                     <input
+                      onBeforeInput={soloLetrasYNumeros}
                       className={`form-control ${errores.numero ? 'input-error' : ''}`}
                       type="text"
                       name={"numero"}
@@ -776,6 +780,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                     <div>
                       <input
+                        onBeforeInput={soloLetras}
                         className={`form-control ${errores.localidad ? 'input-error' : ''}`}
                         type="text"
                         onChange={actualizarCamposDomicilio}
@@ -788,6 +793,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   <div className="col-12">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
                     <input
+                      onBeforeInput={soloLetras}
                       className={`form-control ${errores.nombreCasaHuesped ? 'input-error' : ''}`}
                       type="text"
                       value={dataMisDatos.nombreCasaHuesped}
@@ -810,8 +816,9 @@ export const MisDatos = ({ onAdd, update }) => {
                   <div className="col">
                     <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
                     <input
+                      onBeforeInput={soloNumerosPositivosConDosDecimales}
                       className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
-                      type="number"
+                      type="text"
                       name="gastoMensual"
                       onChange={actualizarCampoGastosIngresos}
                       value={dataGastosIngresos.gastoMensual}
@@ -841,6 +848,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                       <input
+                        onBeforeInput={soloLetras}
                         className='form-control w-25'
                         type="text"
                         name='nombreQuienDependes'
@@ -881,6 +889,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col-5">
                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                         <input
+                          onBeforeInput={soloLetras}
                           className='form-control w-50'
                           name='otro'
                           type="text"
@@ -993,6 +1002,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col">
                         <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
                         <input
+                          onBeforeInput={soloFormatoDirecciones}
                           className='form-control w-75'
                           type="text"
                           name={'marca'}
@@ -1003,6 +1013,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col">
                         <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
                         <input
+                          onBeforeInput={soloFormatoDirecciones}
                           className='form-control w-75'
                           type="text"
                           name={'modelo'}
@@ -1013,6 +1024,8 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col">
                         <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
                         <input
+                          onBeforeInput={soloNumerosPositivos}
+                          maxLength={4}
                           className='form-control w-75'
                           type="text"
                           name={'anio'}
@@ -1053,6 +1066,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col">
                         <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
                         <input
+                          onBeforeInput={soloFormatoDirecciones}
                           className='form-control w-75'
                           type="text"
                           name={'marca'}
@@ -1063,6 +1077,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col">
                         <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
                         <input
+                          onBeforeInput={soloFormatoDirecciones}
                           className='form-control w-75'
                           type="text"
                           name={'modelo'}
@@ -1073,6 +1088,8 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col">
                         <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
                         <input
+                          onBeforeInput={soloNumerosPositivos}
+                          maxLength={4}
                           className='form-control w-75'
                           type="text"
                           name={'anio'}
@@ -1138,6 +1155,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 <br />
                 <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
                 <input
+                  onBeforeInput={soloLetras}
                   className={`form-control w-75 ${errores.idioma ? 'input-error' : ''}`}
                   type="text"
                   name='idioma'
