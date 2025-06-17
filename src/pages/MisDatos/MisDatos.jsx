@@ -612,7 +612,7 @@ export const MisDatos = ({ onAdd, update }) => {
       <div className='d-flex flex-column min-vh-100'>
         <div className='flex-grow-1 mt-5 mx-lg-5 px-5'>
           <form onSubmit={handleSubmit}>
-            <div style={{backgroundColor: "black"}} className='row mx-lg-5 mt-4 d-flex justify-content-center'>
+            <div style={{ backgroundColor: "black" }} className='row mx-lg-5 mt-4 d-flex justify-content-center'>
               {/* INICIO MODULO INFORMACION GENERAL */}
               <div className='col-xs-12 col-lg-6 tarjeta-border p-4 d-flex flex-column mb-4' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                 <div className='row me-lg-5'>
@@ -815,7 +815,7 @@ export const MisDatos = ({ onAdd, update }) => {
             </div>
 
             {/* MODULO GASTOS E INGRESOS  */}
-            <div style={{backgroundColor: "black"}} className='row mx-lg-5 mt-4'>
+            <div style={{ backgroundColor: "black" }} className='row mx-lg-5 mt-4'>
               <div className='tarjeta-border p-3 p-md-5'>
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto ascienden tus gastos mensuales de manutención?</p>
@@ -990,11 +990,12 @@ export const MisDatos = ({ onAdd, update }) => {
 
             {/* FIN MODULO GASTOS E INGRESOS  */}
 
-            <div className="row mx-5 mt-4 mb-5">
+            <div className="row  mx-md-5 mt-4 mb-5 gy-4">
               {/* MODULO TRANSPORTE */}
-              <div className="col tarjeta-border me-4 p-5">
-                <p className='fs-2 ' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
-                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas automóvil cotidianamente a la universidad?</label>
+              <div className="col-12 col-md-6 tarjeta-border p-4">
+                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
+
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas automóvil cotidianamente a la universidad?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
@@ -1003,50 +1004,52 @@ export const MisDatos = ({ onAdd, update }) => {
                   value={boolToSiNo(dataMisDatos.llevaAutomovil)}
                 />
                 {errores.llevaAutomovil && <div className='text-danger'>{errores.llevaAutomovil}</div>}
-                {(tieneAutomovil === 'Si') || tieneAutomovil === true && (
+
+                {(tieneAutomovil === 'Si' || tieneAutomovil === true) && (
                   <div>
-                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
-                    <div className='w-50'>
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Selecciona tu tipo de vehículo:</label>
+                    <div className='w-100 mb-3'>
                       <SeleccionarCombo
                         options={catTipoTransporte.map(t => ({
                           label: t.nombreTipo,
                           value: t.idCatTipoTransporte
                         }))}
-                        placeholder="Selecciona una opción" // Placeholder
+                        placeholder="Selecciona una opción"
                         name={'catTipoTransporte'}
                         value={dataTransporteAutomovil.catTipoTransporte}
                         onChange={actualizarCamposTransporteAutomovil}
                       />
                     </div>
-                    <div className="row mt-4">
-                      <div className="col">
-                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
+
+                    <div className="row mt-4 gy-3">
+                      <div className="col-12 col-md-4">
+                        <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca</label>
                         <input
                           onBeforeInput={soloFormatoDirecciones}
-                          className='form-control w-75'
+                          className='form-control w-100'
                           type="text"
                           name={'marca'}
                           value={dataTransporteAutomovil.marca}
                           onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
-                      <div className="col">
-                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
+                      <div className="col-12 col-md-4">
+                        <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo</label>
                         <input
                           onBeforeInput={soloFormatoDirecciones}
-                          className='form-control w-75'
+                          className='form-control w-100'
                           type="text"
                           name={'modelo'}
                           value={dataTransporteAutomovil.modelo}
                           onChange={actualizarCamposTransporteAutomovil}
                         />
                       </div>
-                      <div className="col">
-                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
+                      <div className="col-12 col-md-4">
+                        <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año</label>
                         <input
                           onBeforeInput={soloNumerosPositivos}
                           maxLength={4}
-                          className='form-control w-75'
+                          className='form-control w-100'
                           type="text"
                           name={'anio'}
                           value={dataTransporteAutomovil.anio}
@@ -1056,9 +1059,10 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
                   </div>
                 )}
-                <div className="line mx-auto mt-3 mb-3"></div>
 
-                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Llevas motocicleta cotidianamente a la universidad?</label>
+                <div className="line mx-auto mt-4 mb-4"></div>
+
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas motocicleta cotidianamente a la universidad?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
@@ -1067,50 +1071,52 @@ export const MisDatos = ({ onAdd, update }) => {
                   value={boolToSiNo(dataMisDatos.llevaMotocicleta)}
                 />
                 {errores.llevaMotocicleta && <div className='text-danger'>{errores.llevaMotocicleta}</div>}
-                {(tieneMotocicleta === 'Si') || tieneMotocicleta === true && (
+
+                {(tieneMotocicleta === 'Si' || tieneMotocicleta === true) && (
                   <div>
-                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
-                    <div className='w-50'>
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Selecciona tu tipo de vehículo:</label>
+                    <div className='w-100 mb-3'>
                       <SeleccionarCombo
                         options={catTipoTransporte.map(t => ({
                           label: t.nombreTipo,
                           value: t.idCatTipoTransporte
                         }))}
-                        placeholder="Selecciona una opción" // Placeholder
+                        placeholder="Selecciona una opción"
                         name={'catTipoTransporte'}
                         value={dataTransporteMotocicleta.catTipoTransporte}
                         onChange={actualizarCamposTransporteMotocicleta}
                       />
                     </div>
-                    <div className="row mt-4">
-                      <div className="col">
-                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Marca</label>
+
+                    <div className="row mt-4 gy-3">
+                      <div className="col-12 col-md-4">
+                        <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca</label>
                         <input
                           onBeforeInput={soloFormatoDirecciones}
-                          className='form-control w-75'
+                          className='form-control w-100'
                           type="text"
                           name={'marca'}
                           value={dataTransporteMotocicleta.marca}
                           onChange={actualizarCamposTransporteMotocicleta}
                         />
                       </div>
-                      <div className="col">
-                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Modelo</label>
+                      <div className="col-12 col-md-4">
+                        <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo</label>
                         <input
                           onBeforeInput={soloFormatoDirecciones}
-                          className='form-control w-75'
+                          className='form-control w-100'
                           type="text"
                           name={'modelo'}
                           value={dataTransporteMotocicleta.modelo}
                           onChange={actualizarCamposTransporteMotocicleta}
                         />
                       </div>
-                      <div className="col">
-                        <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Año</label>
+                      <div className="col-12 col-md-4">
+                        <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año</label>
                         <input
                           onBeforeInput={soloNumerosPositivos}
                           maxLength={4}
-                          className='form-control w-75'
+                          className='form-control w-100'
                           type="text"
                           name={'anio'}
                           value={dataTransporteMotocicleta.anio}
@@ -1120,9 +1126,11 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
                   </div>
                 )}
-                <div className="line mx-auto mt-3 mb-3"></div>
-                <div className="row mt-4">
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
+
+                <div className="line mx-auto mt-4 mb-4"></div>
+
+                <div className="row mt-4 gy-2">
+                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Qué otros medios utilizas para trasladarte a la universidad?</label>
                   {errores.mediosTraslado && <div className='text-danger'>{errores.mediosTraslado}</div>}
                   {medios.map((medio) => (
                     <CheckBox
@@ -1131,7 +1139,6 @@ export const MisDatos = ({ onAdd, update }) => {
                       opcion={medio.nombreMedio}
                       onChange={actualizarMediosTraslado}
                       checked={mediosSeleccionados.includes(medio.id)}
-                      // value={dataMisDatos.mediosTraslado}
                       name={"mediosTraslado"}
                     />
                   ))}
@@ -1140,9 +1147,10 @@ export const MisDatos = ({ onAdd, update }) => {
               {/* FIN MODULO TRANSPORTE */}
 
               {/* INFORMACION COMPLEMENTARIA */}
-              <div className="col tarjeta-border p-5">
+              <div className="col-12 col-md-6 tarjeta-border p-4">
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
-                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Eres hijo o nieto de comunero de Ixtlán de Juárez?</label>
+
+                <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Eres hijo o nieto de comunero de Ixtlán de Juárez?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
@@ -1151,8 +1159,9 @@ export const MisDatos = ({ onAdd, update }) => {
                   value={boolToSiNo(dataMisDatos.familiarComunero)}
                 />
                 {errores.familiarComunero && <div className='text-danger'>{errores.familiarComunero}</div>}
+
                 <br />
-                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Utilizas teléfono celular en la universidad?</label>
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Utilizas teléfono celular en la universidad?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
@@ -1163,7 +1172,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 {errores.utilizaCelular && <div className='text-danger'>{errores.utilizaCelular}</div>}
 
                 <br />
-                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Tienes computadora personal y/o portátil?</label>
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Tienes computadora personal y/o portátil?</label>
                 <RadioSelect
                   gris={true}
                   options={['Si', 'No']}
@@ -1172,11 +1181,12 @@ export const MisDatos = ({ onAdd, update }) => {
                   value={boolToSiNo(dataMisDatos.tieneComputadora)}
                 />
                 {errores.tieneComputadora && <div className='text-danger'>{errores.tieneComputadora}</div>}
+
                 <br />
-                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
+                <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
                 <input
                   onBeforeInput={soloLetras}
-                  className={`form-control w-75 ${errores.idioma ? 'input-error' : ''}`}
+                  className={`form-control w-100 ${errores.idioma ? 'input-error' : ''}`}
                   type="text"
                   name='idioma'
                   value={dataMisDatos.idioma}
@@ -1186,6 +1196,7 @@ export const MisDatos = ({ onAdd, update }) => {
               </div>
               {/* FIN INFORMACION COMPLEMENTARIA */}
             </div>
+
             <div className='d-flex justify-content-center mb-5'>
               <button className='btn btn-midDatos'>Guardar</button>
             </div>
