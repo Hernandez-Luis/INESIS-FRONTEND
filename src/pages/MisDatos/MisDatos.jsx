@@ -37,7 +37,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [tieneAutomovil, setTieneAutomovil] = useState(null);
   const [tieneMotocicleta, setTieneMotocicleta] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
-  const [catSemestres, setCatSemestres] = useState([]);
+  const [catSemestres, setCatSemestres] = useState([]); 
   const [catOcupacion, setCatOcupacion] = useState([]);
   const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
   const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);

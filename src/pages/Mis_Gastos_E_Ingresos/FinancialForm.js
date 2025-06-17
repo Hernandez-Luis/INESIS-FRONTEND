@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
 import axiosInstance from '../../api/axiosConfig';
 import Swal from "sweetalert2";
+import CatParentescoService from "../../services/CatParentescoService";
+import { useEffect } from "react";
 
 
 
@@ -16,6 +18,12 @@ const FinancialForm = () => {
     const [error, setError] = useState(""); // Para manejar el mensaje de error
     const [reciboFile, setReciboFile] = useState(null);
     const [observaciones, setObservaciones] = useState("");
+    const [catParentesco, setParentesco] = useState([]);
+
+
+    useEffect(() => {
+        obtenerParentesco();
+    }, []);
 
     const fieldNames = {
         lightName: "Nombre del titular del recibo de luz",
@@ -153,14 +161,17 @@ const FinancialForm = () => {
 
     };
 
-    const parentescos = [
-        { id: 1, nombre: "Padre" },
-        { id: 2, nombre: "Madre" },
-        { id: 3, nombre: "Hermano/a" },
-        { id: 4, nombre: "Tío/a" },
-        { id: 5, nombre: "Abuelo/a" },
-        { id: 6, nombre: "Otro" }
-    ];
+    const obtenerParentesco = async () => {
+        try {
+            let catParentesco = await CatParentescoService.getAll();
+            setParentesco(catParentesco)
+            console.log("catParentesco:", catParentesco);
+
+        } catch (error) {
+            console.log("Error al obtener la lista de CatSemestre: ", error)
+
+        }
+    }
 
     const convertirArchivoABase64 = (file) => {
         return new Promise((resolve, reject) => {
@@ -197,24 +208,24 @@ const FinancialForm = () => {
             }
 
             // Obtener gastos mensuales
-        // Obtener gastos mensuales con nombres originales
-        const gastosOriginales = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
-            acc[label] = parseFloat(document.getElementById(label)?.value || "0");
-            return acc;
-        }, {});
-        gastosOriginales.total = parseFloat(document.getElementById("totalGastos")?.value || "0");
+            // Obtener gastos mensuales con nombres originales
+            const gastosOriginales = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
+                acc[label] = parseFloat(document.getElementById(label)?.value || "0");
+                return acc;
+            }, {});
+            gastosOriginales.total = parseFloat(document.getElementById("totalGastos")?.value || "0");
 
-        // Transformar nombres para el backend
-        const gastos = {
-            gastoAlimentacion: gastosOriginales["Alimentación"],
-            gastoRenta: gastosOriginales["Renta"],
-            gastoServicios: gastosOriginales["Servicios"],
-            gastoEscolares: gastosOriginales["Gastos escolares"],
-            gastoRopa: gastosOriginales["Ropa"],
-            gastoTransporte: gastosOriginales["Transporte"],
-            gastoOtros: gastosOriginales["Otros"],
-            totalGastos: gastosOriginales.total
-        };
+            // Transformar nombres para el backend
+            const gastos = {
+                gastoAlimentacion: gastosOriginales["Alimentación"],
+                gastoRenta: gastosOriginales["Renta"],
+                gastoServicios: gastosOriginales["Servicios"],
+                gastoEscolares: gastosOriginales["Gastos escolares"],
+                gastoRopa: gastosOriginales["Ropa"],
+                gastoTransporte: gastosOriginales["Transporte"],
+                gastoOtros: gastosOriginales["Otros"],
+                totalGastos: gastosOriginales.total
+            };
 
             // Recibo de luz
             const reciboLuz = {
@@ -256,7 +267,7 @@ const FinancialForm = () => {
 
             // Armar payload
             const payload = {
-                personasAportan : personasAportan,
+                personasAportan: personasAportan,
                 personas: people,
                 ingresoTotal,
                 personasDependen,
@@ -280,11 +291,6 @@ const FinancialForm = () => {
             alert("Error al guardar datos");
         }
     };
-
-
-
-
-
 
 
     const cardStyle = {
@@ -333,14 +339,16 @@ const FinancialForm = () => {
                                                     <Form.Select
                                                         id={`person-${index}-parentesco`}
                                                         isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
+                                                        defaultValue=""  // para que el option vacío sea el seleccionado inicialmente
                                                     >
-                                                        <option value="">Selecciona un parentesco</option>
-                                                        {parentescos.map((item) => (
+                                                        <option value="" disabled>Selecciona un parentesco</option>
+                                                        {catParentesco.map((item) => (
                                                             <option key={item.id} value={item.id}>
-                                                                {item.nombre}
+                                                                {item.nombreParentesco}  {/* Aquí el texto visible */}
                                                             </option>
                                                         ))}
                                                     </Form.Select>
+
                                                 </Form.Group>
                                             </Col>
 
