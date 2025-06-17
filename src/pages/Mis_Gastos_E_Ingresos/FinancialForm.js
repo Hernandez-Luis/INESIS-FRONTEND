@@ -6,6 +6,7 @@ import axiosInstance from '../../api/axiosConfig';
 import Swal from "sweetalert2";
 import CatParentescoService from "../../services/CatParentescoService";
 import { useEffect } from "react";
+import { soloNumerosPositivosConDosDecimales } from "../../utils/Validaciones/Validaciones";
 
 
 
@@ -299,6 +300,31 @@ const FinancialForm = () => {
         boxShadow: "0 6px 15px rgba(0, 0, 0, 0.4)"
     };
 
+
+
+    const actualizarTotalGastos = () => {
+    const gastoLabels = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'];
+    let total = 0;
+    gastoLabels.forEach(label => {
+        const val = parseFloat(document.getElementById(label)?.value || "0");
+        total += isNaN(val) ? 0 : val;
+    });
+    document.getElementById("totalGastos").value = total.toFixed(2);
+};
+
+const actualizarIngresoTotal = () => {
+    let total = 0;
+    for (let i = 0; i < numPeople; i++) {
+        const val = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
+        total += isNaN(val) ? 0 : val;
+    }
+    document.getElementById("Ingreso total:").value = total.toFixed(2);
+};
+
+
+
+
+
     return (
         <Container className="mt-3" style={{ maxWidth: "1400px" }}>
             {/* Ingresos Mensuales */}
@@ -493,15 +519,18 @@ const FinancialForm = () => {
                                     <Form.Control
                                         id={label}
                                         type="number"
-                                        onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                                        onKeyDown={handleKeyDown}
                                         onInput={handleDecimalInput}
                                         isInvalid={emptyFields.includes(label)}
+                                        onChange={actualizarTotalGastos}
                                     />
+
                                 </Form.Group>
                             ))}
                             <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales</Form.Label>
                                 <Form.Control
+                                    onBeforeInput={soloNumerosPositivosConDosDecimales}   
                                     id="totalGastos"
                                     type="number"
                                     onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
