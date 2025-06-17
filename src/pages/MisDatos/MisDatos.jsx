@@ -268,8 +268,8 @@ export const MisDatos = ({ onAdd, update }) => {
     mediosTraslado: "",
     situacionVivienda: "",
     nombreCasaHuesped: "",
-    llevaAutomovil: '',
-    llevaMotocicleta: '',
+    llevaAutomovil: "",
+    llevaMotocicleta: "",
   }
 
   const formularioInicialDomicilio = {
@@ -409,7 +409,7 @@ export const MisDatos = ({ onAdd, update }) => {
       "tieneComputadora",
     ];
     const { name, value } = e.target;
-    // console.log("Nombre: ", name, " Valor: ", value)
+    console.log("Nombre: ", name, " Valor: ", value)
 
     if (camposBooleanos.includes(name)) {
       setDataMisDatos((prevData) => ({
@@ -459,7 +459,7 @@ export const MisDatos = ({ onAdd, update }) => {
     e.preventDefault();
 
     setErrores({})
-    if (validacionCamposGastosIngresos() === 0) {
+    if (validacionCampos() === 0) {
       return
     }
 
@@ -479,8 +479,6 @@ export const MisDatos = ({ onAdd, update }) => {
       mediosTraslado: nuevosMedios,
       domicilio: dataDomicilio
     };
-
-
 
     try {
       let nuevosErrores = null;
@@ -504,18 +502,17 @@ export const MisDatos = ({ onAdd, update }) => {
 
   // ***************************  VALIDACION DE CAMPOS  *****************************
 
-  const validacionCamposGastosIngresos = () => {
+  const validacionCampos = () => {
     // Validación de los campos
     const erroresTemp = {};
+    const camposOpcionalesMisDatos = ["transporteAutomovil", "transporteMotocicleta"]
     let camposOpcionalesGastosIngresos = []
     if (dataGastosIngresos?.dependeEconomicamente === true) {
-      camposOpcionalesGastosIngresos = ["nombreTrabajo", "ingresoMensual", "telefonoTrabajo", "domicilioTrabajo"];
+      camposOpcionalesGastosIngresos = ["nombreTrabajo", "ingresoMensual", "telefonoTrabajo", "domicilioTrabajo", "otro"];
     } else if (dataGastosIngresos?.dependeEconomicamente === false) {
       camposOpcionalesGastosIngresos = ["nombreQuienDependes", "trabajoTipo", "ocupacion", "otro"];
     }
-    const camposOpcionalesDomicilio = ["estado", "municipio"]
-
-    const camposBooleanosGastosIngresos = ["solicitaBecaAlimenticia", "dependeEconomicamente"];
+    const camposOpcionalesDomicilio = ["estado", "municipio", "colonia"]
 
     Object.keys(dataGastosIngresos).forEach((campo) => {
       if (!camposOpcionalesGastosIngresos.includes(campo)) {
@@ -542,13 +539,23 @@ export const MisDatos = ({ onAdd, update }) => {
     });
 
     Object.keys(dataMisDatos).forEach((campo) => {
-      if (dataMisDatos[campo] === null || dataMisDatos[campo] === undefined || dataMisDatos[campo] === '') {
-        erroresTemp[campo] = 'Este campo es obligatorio';
+      if (!camposOpcionalesMisDatos.includes(campo)) {
+        if (campo === 'mediosTraslado') {
+          if (mediosSeleccionados.length === 0) { // Medios de traslado no seleccionados
+            erroresTemp[campo] = 'Debes seleccionar al menos un medio de traslado';
+          }
+        } else {
+          if (dataMisDatos[campo] === null || dataMisDatos[campo] === undefined || dataMisDatos[campo] === '') {
+            erroresTemp[campo] = 'Este campo es obligatorio';
+          }
+        }
       }
     });
 
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
+      console.log("FALTA: ", erroresTemp)
+      mostrarCuidado("Tienes que llenar todos los campos requeridos")
       return 0; // No enviar el formulario si hay errores
     }
 
@@ -579,7 +586,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const mostrarCuidado = (mensaje) => {
     mostrarAlerta({
-      title: '¡Cuidado!',
+      title: '!Alerta!',
       text: mensaje,
       icon: 'warning',
       confirmButtonText: 'Aceptar',
@@ -881,7 +888,6 @@ export const MisDatos = ({ onAdd, update }) => {
                           value={dataGastosIngresos.otro}
                         />
                         {errores.otro && <div className="text-danger">{errores.otro}</div>}
-
                       </div>
                     )}
 
@@ -967,7 +973,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   name={"llevaAutomovil"}
                   value={boolToSiNo(dataMisDatos.llevaAutomovil)}
                 />
-
+                {errores.llevaAutomovil && <div className='text-danger'>{errores.llevaAutomovil}</div>}
                 {(tieneAutomovil === 'Si') || tieneAutomovil === true && (
                   <div>
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
@@ -1027,7 +1033,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   name={"llevaMotocicleta"}
                   value={boolToSiNo(dataMisDatos.llevaMotocicleta)}
                 />
-
+                {errores.llevaMotocicleta && <div className='text-danger'>{errores.llevaMotocicleta}</div>}
                 {(tieneMotocicleta === 'Si') || tieneMotocicleta === true && (
                   <div>
                     <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">Selecciona tu tipo de vehículo:</label>
@@ -1080,6 +1086,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 <div className="line mx-auto mt-3 mb-3"></div>
                 <div className="row mt-4">
                   <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }} htmlFor="">¿Qué otros medios utilizas para trasladarte a la universidad?</label>
+                  {errores.mediosTraslado && <div className='text-danger'>{errores.mediosTraslado}</div>}
                   {medios.map((medio) => (
                     <CheckBox
                       key={medio.id}
@@ -1087,7 +1094,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       opcion={medio.nombreMedio}
                       onChange={actualizarMediosTraslado}
                       checked={mediosSeleccionados.includes(medio.id)}
-                      //value={dataMisDatos.mediosTraslado}
+                      // value={dataMisDatos.mediosTraslado}
                       name={"mediosTraslado"}
                     />
                   ))}
