@@ -6,6 +6,8 @@ import PdfVisor from '../../components/pdf/PdfVisor'; // Asegúrate de que coinc
 import { generarPdfAlumno } from '../../services/pdfService';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AlumnoService from '../../services/AlumnoService';
+import Swal from 'sweetalert2';
+
 
 export default function RevisionSolicitud() {
 
@@ -71,29 +73,68 @@ export default function RevisionSolicitud() {
 const handleEnviarCorreccion = async () => {
     try {
         if (!comentario.trim()) {
-            alert("Por favor escribe un comentario de corrección.");
+            mostrarAlerta({
+                icon: 'warning',
+                title: 'Por favor escribe un comentario de corrección.'
+                });
+            //alert("Por favor escribe un comentario de corrección.");
             return;
         }
 
         await AlumnoService.enviarRevisionAlumno(alumnoId, comentario, false);
-        alert("Corrección enviada correctamente");
+        mostrarAlerta({
+          icon: 'success',
+          title: 'Corrección enviada correctamente'
+        });
+         setComentario(""); // Limpiar campo
+        navigate('/ListadoEstudioSocioeconomico');
+       // alert("Corrección enviada correctamente");
     } catch (error) {
-        alert("Error al enviar la corrección: " + error);
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Error al enviar la corrección'
+        });
+        //alert("Error al enviar la corrección: " + error);
     }
 };
 
 const handleMarcarFinalizado = async () => {
     try {
         await AlumnoService.enviarRevisionAlumno(alumnoId, "", true);
-        alert("Alumno marcado como finalizado correctamente");
+        mostrarAlerta({
+          icon: 'success',
+          title: 'Alumno marcado como finalizado correctamente'
+        });
+         setComentario(""); // Limpiar campo
+        navigate('/ListadoEstudioSocioeconomico');
+        //alert("Alumno marcado como finalizado correctamente");
     } catch (error) {
-        alert("Error al marcar como finalizado: " + error);
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Error al marcar como finalizado'
+        });
+       // alert("Error al marcar como finalizado: " + error);
     }
 };
 
-    const handleRegresar = () => {
+    const handleRegresar = () => {;
          navigate('/ListadoEstudioSocioeconomico');
     };
+
+  const mostrarAlerta = (config) => {
+    Swal.fire({
+      ...config,
+      timer: 3000,
+      timerProgressBar: true,
+      showConfirmButton: true,
+      confirmButtonText: 'OK',
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = '#28a745'; // Verde tipo Bootstrap
+        confirmButton.style.color = 'white';
+      },
+    });
+  };
 
     if (loading) return <div>Cargando PDF...</div>;
     if (error) return <div>Error: {error}</div>;
