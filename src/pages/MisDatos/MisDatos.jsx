@@ -610,24 +610,26 @@ export const MisDatos = ({ onAdd, update }) => {
       <NavInesis></NavInesis>
       <MigasRecorrido items={links}></MigasRecorrido>
       <div className='d-flex flex-column min-vh-100'>
-        <div className='flex-grow-1 mt-5 mx-5 px-5'>
+        <div className='flex-grow-1 mt-5 mx-lg-5 px-5'>
           <form onSubmit={handleSubmit}>
-            <div className='row mx-5 mt-4  mw-100'>
+            <div style={{backgroundColor: "black"}} className='row mx-lg-5 mt-4 d-flex justify-content-center'>
               {/* INICIO MODULO INFORMACION GENERAL */}
-              <div className='col tarjeta-border px-5 d-flex justify-content-start me-3' style={{ background: 'var(--color-morado2)', color: 'white' }}>
-                <div className='row'>
+              <div className='col-xs-12 col-lg-6 tarjeta-border p-4 d-flex flex-column mb-4' style={{ background: 'var(--color-morado2)', color: 'white' }}>
+                <div className='row me-lg-5'>
                   <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
-                  <div className='d-flex align-items-center'>
-                    <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Nombre:</label>
+                  <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3 p-2'>
+                    <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Nombre:</label>
                     <label>{dataMisDatos.nombreCompleto}</label>
                   </div>
-                  <div className='mt-4 d-flex align-items-center'>
-                    <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Carrera:</label>
+
+                  <div className='mt-3 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
+                    <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Carrera:</label>
                     <label>{datosAlumno.carrera?.nombreCarrera || ''}</label>
                   </div>
-                  <div className='mt-4 d-flex align-items-center'>
-                    <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Semestre:</label>
-                    <div>
+
+                  <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
+                    <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Semestre:</label>
+                    <div className='w-100 w-md-auto'>
                       <SeleccionarCombo
                         name="semestre"
                         options={catSemestres.map(s => ({
@@ -640,19 +642,21 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                     </div>
                   </div>
-                  <div className='mt-4 d-flex align-items-center'>
-                    <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Sexo:</label>
+
+                  <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
+                    <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Sexo:</label>
                     <div>
                       <RadioSelect
                         options={catSexo.map(s => ({ label: s.nombreSexo, value: s.id }))}
                         name="sexo"
                         onChange={actualizarCamposMisDatos}
-                        value={datosAlumno.sexo?.id || ''}  // <-- asegura que sea string
+                        value={datosAlumno.sexo?.id || ''}
                       />
                     </div>
                   </div>
-                  <div className='mt-4 d-flex align-items-center'>
-                    <label className='fs-5 me-3' style={{ fontWeight: 'bold' }}>Estado civil:</label>
+
+                  <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
+                    <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Estado civil:</label>
                     <RadioSelect
                       options={estadoCivil.map(s => ({ label: s.nombreEstadoCivil, value: s.id }))}
                       name="estadoCivil"
@@ -678,10 +682,11 @@ export const MisDatos = ({ onAdd, update }) => {
               {/* FIN MODULO INFORMACION GENERAl */}
 
               {/* INICIO MODULO DOMICILIO */}
-              <div className='col tarjeta-border d-flex justify-content-start ms-3 px-5'>
-
+              <div className='col-xs-12 col-lg-6 tarjeta-border d-flex flex-column p-4 mb-4'>
                 <div className='row'>
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
+
+                  {/* Situación de vivienda */}
                   <div className='mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:</label>
                     <RadioSelect
@@ -696,8 +701,11 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                     {errores.situacionVivienda && <div className='text-danger'>{errores.situacionVivienda}</div>}
                   </div>
-                  <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
-                  <div className="col-4 mt-2">
+
+                  {/* Dirección */}
+                  <label className='fs-5 mt-4' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
+
+                  <div className="col-12 col-md-4 mt-2">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                     <input
                       maxLength={5}
@@ -710,34 +718,33 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                     {errores.cp && <div className='text-danger'>{errores.cp}</div>}
                   </div>
-                  <div className='col-3 mt-2'>
+
+                  <div className='col-12 col-md-4 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                    <div>
-                      <input
-                        className='form-control'
-                        type="text"
-                        onChange={actualizarCamposDomicilio}
-                        value={dataDomicilio.estado}
-                        name='estado'
-                        disabled={true}
-                      />
-                      {errores.estado && <div className='text-danger'>{errores.estado}</div>}
-                    </div>
+                    <input
+                      className='form-control'
+                      type="text"
+                      onChange={actualizarCamposDomicilio}
+                      value={dataDomicilio.estado}
+                      name='estado'
+                      disabled={true}
+                    />
+                    {errores.estado && <div className='text-danger'>{errores.estado}</div>}
                   </div>
-                  <div className='col-5 mt-2'>
+
+                  <div className='col-12 col-md-4 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                    <div>
-                      <input
-                        className='form-control'
-                        type="text"
-                        value={dataDomicilio.municipio}
-                        name='municipio'
-                        disabled={true}
-                      />
-                      {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
-                    </div>
+                    <input
+                      className='form-control'
+                      type="text"
+                      value={dataDomicilio.municipio}
+                      name='municipio'
+                      disabled={true}
+                    />
+                    {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
                   </div>
-                  <div className='col-6 mt-2'>
+
+                  <div className='col-12 col-md-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                     <input
                       className={`form-control ${errores.calle ? 'input-error' : ''}`}
@@ -749,8 +756,9 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                     {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                   </div>
-                  <div className="col-6 mt-2">
-                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+
+                  <div className="col-12 col-md-6 mt-2">
+                    <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número</label>
                     <input
                       onBeforeInput={soloLetrasYNumeros}
                       className={`form-control ${errores.numero ? 'input-error' : ''}`}
@@ -761,36 +769,35 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                     {errores.numero && <div className='text-danger'>{errores.numero}</div>}
                   </div>
-                  <div className='col-6 mt-2'>
+
+                  <div className='col-12 col-md-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                    <div>
-                      <SeleccionarCombo
-                        options={colonias.map(c => ({
-                          label: c,
-                          value: c
-                        }))}
-                        name={"colonia"}
-                        value={dataDomicilio.colonia}
-                        onChange={actualizarCamposDomicilio}
-                        placeholder="Selecciona una opción" // Placeholder
-                      />
-                    </div>
+                    <SeleccionarCombo
+                      options={colonias.map(c => ({
+                        label: c,
+                        value: c
+                      }))}
+                      name={"colonia"}
+                      value={dataDomicilio.colonia}
+                      onChange={actualizarCamposDomicilio}
+                      placeholder="Selecciona una opción"
+                    />
                   </div>
-                  <div className='col-6 mt-2'>
+
+                  <div className='col-12 col-md-6 mt-2'>
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                    <div>
-                      <input
-                        onBeforeInput={soloLetras}
-                        className={`form-control ${errores.localidad ? 'input-error' : ''}`}
-                        type="text"
-                        onChange={actualizarCamposDomicilio}
-                        value={dataDomicilio.localidad}
-                        name='localidad'
-                      />
-                      {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
-                    </div>
+                    <input
+                      onBeforeInput={soloLetras}
+                      className={`form-control ${errores.localidad ? 'input-error' : ''}`}
+                      type="text"
+                      onChange={actualizarCamposDomicilio}
+                      value={dataDomicilio.localidad}
+                      name='localidad'
+                    />
+                    {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
                   </div>
-                  <div className="col-12">
+
+                  <div className="col-12 mt-2">
                     <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
                     <input
                       onBeforeInput={soloLetras}
@@ -808,16 +815,19 @@ export const MisDatos = ({ onAdd, update }) => {
             </div>
 
             {/* MODULO GASTOS E INGRESOS  */}
-            <div className='row mx-5 mt-4'>
-              <div className='tarjeta-border p-5'>
+            <div style={{backgroundColor: "black"}} className='row mx-lg-5 mt-4'>
+              <div className='tarjeta-border p-3 p-md-5'>
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
-                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto hacienden tus gastos mensuales de manutención?</p>
+                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto ascienden tus gastos mensuales de manutención?</p>
+
                 <div className="row">
-                  <div className="col">
-                    <p style={{ color: 'var(--color-gris1)' }}>Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)</p>
+                  <div className="col-12 col-md-8 mb-4">
+                    <p style={{ color: 'var(--color-gris1)' }}>
+                      Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)
+                    </p>
                     <input
                       onBeforeInput={soloNumerosPositivosConDosDecimales}
-                      className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
+                      className={`form-control ${errores.gastoMensual ? 'input-error' : ''}`}
                       type="text"
                       name="gastoMensual"
                       onChange={actualizarCampoGastosIngresos}
@@ -825,9 +835,9 @@ export const MisDatos = ({ onAdd, update }) => {
                       isInvalid={!!errores.gastoMensual}
                     />
                     {errores.gastoMensual && <div className="text-danger">{errores.gastoMensual}</div>}
-
                   </div>
-                  <div className='col d-flex flex-column align-items-center text-center'>
+
+                  <div className='col-12 col-md-4 d-flex flex-column align-items-center text-center mb-4'>
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                       ¿Dependes económicamente?
                     </p>
@@ -842,14 +852,15 @@ export const MisDatos = ({ onAdd, update }) => {
                   </div>
                 </div>
 
-                {(recursos === 'Si') || recursos === true && (
+                {(recursos === 'Si' || recursos === true) && (
                   <div className="row mt-3">
                     <div className="line mx-auto mt-5 mb-4"></div>
-                    <div className="col-12">
+
+                    <div className="col-12 w-50 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
                       <input
                         onBeforeInput={soloLetras}
-                        className='form-control w-25'
+                        className='form-control'
                         type="text"
                         name='nombreQuienDependes'
                         onChange={actualizarCampoGastosIngresos}
@@ -857,7 +868,8 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                       {errores.nombreQuienDependes && <div className="text-danger">{errores.nombreQuienDependes}</div>}
                     </div>
-                    <div className="col-3">
+
+                    <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
                       <RadioSelect
                         gris={true}
@@ -871,26 +883,28 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                       {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
                     </div>
-                    <div className="col-3">
+
+                    <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
                       <SeleccionarCombo
                         name="ocupacion"
                         options={catOcupacion.map(ocupacion => ({
                           label: ocupacion.nombreOcupacion,
                           value: ocupacion.id
-                        }))} // Opciones disponibles
-                        placeholder="Selecciona una opción" // Placeholder
+                        }))}
+                        placeholder="Selecciona una opción"
                         value={dataGastosIngresos.ocupacion}
                         onChange={actualizarCampoGastosIngresos}
                       />
                       {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                     </div>
+
                     {dataGastosIngresos.ocupacion === '8' && (
-                      <div className="col-5">
+                      <div className="col-12 col-md-4 mb-4">
                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
                         <input
                           onBeforeInput={soloLetras}
-                          className='form-control w-50'
+                          className='form-control'
                           name='otro'
                           type="text"
                           onChange={actualizarCampoGastosIngresos}
@@ -904,13 +918,14 @@ export const MisDatos = ({ onAdd, update }) => {
                   </div>
                 )}
 
-                {(recursos === 'No') || recursos === false && (
+                {(recursos === 'No' || recursos === false) && (
                   <div className="row mt-3">
                     <div className="line mx-auto mt-5 mb-4"></div>
-                    <div className="col-4">
+
+                    <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
                       <input
-                        className={`form-control w-50 ${errores.nombreTrabajo ? 'input-error' : ''}`}
+                        className={`form-control ${errores.nombreTrabajo ? 'input-error' : ''}`}
                         type="text"
                         name='nombreTrabajo'
                         value={dataTrabajo.nombreTrabajo}
@@ -918,10 +933,11 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                       {errores.nombreTrabajo && <div className='text-danger'>{errores.nombreTrabajo}</div>}
                     </div>
-                    <div className="col-4">
+
+                    <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Menciona el ingreso mensual que recibes</p>
                       <input
-                        className={`form-control w-50 ${errores.ingresoMensual ? 'input-error' : ''}`}
+                        className={`form-control ${errores.ingresoMensual ? 'input-error' : ''}`}
                         type="text"
                         name='ingresoMensual'
                         onChange={actualizarCamposTrabajo}
@@ -929,10 +945,11 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                       {errores.ingresoMensual && <div className='text-danger'>{errores.ingresoMensual}</div>}
                     </div>
-                    <div className="col-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Telefono celular del lugar donde trabajas</p>
+
+                    <div className="col-12 col-md-4 mb-4">
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Teléfono celular del lugar donde trabajas</p>
                       <input
-                        className={`form-control w-50 ${errores.telefonoTrabajo ? 'input-error' : ''}`}
+                        className={`form-control ${errores.telefonoTrabajo ? 'input-error' : ''}`}
                         type="text"
                         value={dataTrabajo.telefonoTrabajo}
                         onChange={actualizarCamposTrabajo}
@@ -940,10 +957,11 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                       {errores.telefonoTrabajo && <div className='text-danger'>{errores.telefonoTrabajo}</div>}
                     </div>
-                    <div className="col-12">
+
+                    <div className="col-12 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas</p>
                       <input
-                        className={`form-control w-50 ${errores.domicilioTrabajo ? 'input-error' : ''}`}
+                        className={`form-control ${errores.domicilioTrabajo ? 'input-error' : ''}`}
                         type="text"
                         value={dataTrabajo.domicilioTrabajo}
                         onChange={actualizarCamposTrabajo}
@@ -951,9 +969,11 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                       {errores.domicilioTrabajo && <div className='text-danger'>{errores.domicilioTrabajo}</div>}
                     </div>
+
                     <div className="line mx-auto mt-5 mb-4"></div>
                   </div>
                 )}
+
                 <div className="row">
                   <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
                   <RadioSelect
@@ -964,10 +984,10 @@ export const MisDatos = ({ onAdd, update }) => {
                     value={boolToSiNo(dataGastosIngresos.solicitaBecaAlimenticia)}
                   />
                   {errores.solicitaBecaAlimenticia && <div className="text-danger">{errores.solicitaBecaAlimenticia}</div>}
-
                 </div>
               </div>
             </div>
+
             {/* FIN MODULO GASTOS E INGRESOS  */}
 
             <div className="row mx-5 mt-4 mb-5">
