@@ -24,7 +24,7 @@ const AdministrarAlumnos = () => {
                 const data = await alumnoService.getAll();
                 const alumnosConNombreCompleto = data.map(alumno => ({
                     ...alumno,
-                    nombreCompleto: `${alumno.nombre} ${alumno.apellido}`
+                    nombreCompleto: `${alumno.nombre} ${alumno.apellidoPaterno} ${alumno.apellidoMaterno}`
                 }));
                 setAlumnos(alumnosConNombreCompleto);
             } catch (error) {
