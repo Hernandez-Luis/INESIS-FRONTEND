@@ -489,53 +489,52 @@ export const MiTutor = ({ onAdd, update }) => {
                                     name={"comparteVivienda"}
                                     value={boolToSiNo(datosMiTutor.comparteVivienda)}
                                 />
+                                <div className="line mx-auto mt-5 mb-4"></div>
                                 <div className='row'>
-                                    <div className="col-3 mt-2">
+                                    <div className="col-4 mt-2">
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                                         <input disabled={disabled} maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.cp} name={"cp"} />
                                     </div>
-                                    <div className="col-3 mt-2">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                                        <input disabled={disabled} className='form-control' type="text" name={"numero"} value={datosDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                                    <div className='col-3 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                                        <div>
+                                            <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.estado} name='estado' disabled={true} />
+                                        </div>
+                                    </div>
+                                    <div className='col-5 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                                        <div>
+                                            <input className='form-control' type="text" value={datosDomicilio.municipio} name='municipio' disabled={true} />
+                                        </div>
                                     </div>
                                     <div className='col-6 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                                         <input disabled={disabled} className='form-control' type="text" name={"calle"} value={datosDomicilio.calle} onChange={actualizarCamposDomicilio} />
                                     </div>
-                                    <div className='row'>
-                                        <div className='col-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                                            <div>
-                                                <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.estado} name='estado' disabled={true} />
-                                            </div>
+                                    <div className="col-6 mt-2">
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                                        <input disabled={disabled} className='form-control' type="text" name={"numero"} value={datosDomicilio.numero} onChange={actualizarCamposDomicilio} />
+                                    </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                                        <div>
+                                            <SeleccionarCombo
+                                                options={colonias.map(c => ({
+                                                    label: c,
+                                                    value: c
+                                                }))}
+                                                name={"colonia"}
+                                                value={datosDomicilio.colonia}
+                                                onChange={actualizarCamposDomicilio}
+                                                placeholder="Selecciona una opción" // Placeholder
+                                                disabled={disabled}
+                                            />
                                         </div>
-                                        <div className='col-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                                            <div>
-                                                <input className='form-control' type="text" value={datosDomicilio.municipio} name='municipio' disabled={true} />
-                                            </div>
-                                        </div>
-                                        <div className='col-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                                            <div>
-                                                <input disabled={disabled} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.localidad} name='localidad' />
-                                            </div>
-                                        </div>
-                                        <div className='col-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                                            <div>
-                                                <SeleccionarCombo
-                                                    options={colonias.map(c => ({
-                                                        label: c,
-                                                        value: c
-                                                    }))}
-                                                    name={"colonia"}
-                                                    value={datosDomicilio.colonia}
-                                                    onChange={actualizarCamposDomicilio}
-                                                    placeholder="Selecciona una opción" // Placeholder
-                                                    disabled={disabled}
-                                                />
-                                            </div>
+                                    </div>
+                                    <div className='col-6 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                        <div>
+                                            <input disabled={disabled} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.localidad} name='localidad' />
                                         </div>
                                     </div>
                                 </div>
