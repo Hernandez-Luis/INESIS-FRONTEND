@@ -77,7 +77,6 @@ const handleEnviarCorreccion = async () => {
                 icon: 'warning',
                 title: 'Por favor escribe un comentario de corrección.'
                 });
-            //alert("Por favor escribe un comentario de corrección.");
             return;
         }
 
@@ -86,15 +85,14 @@ const handleEnviarCorreccion = async () => {
           icon: 'success',
           title: 'Corrección enviada correctamente'
         });
-         setComentario(""); // Limpiar campo
+         setComentario(""); 
         navigate('/ListadoEstudioSocioeconomico');
-       // alert("Corrección enviada correctamente");
+      
     } catch (error) {
         mostrarAlerta({
           icon: 'error',
           title: 'Error al enviar la corrección'
         });
-        //alert("Error al enviar la corrección: " + error);
     }
 };
 
@@ -107,13 +105,11 @@ const handleMarcarFinalizado = async () => {
         });
          setComentario(""); // Limpiar campo
         navigate('/ListadoEstudioSocioeconomico');
-        //alert("Alumno marcado como finalizado correctamente");
     } catch (error) {
         mostrarAlerta({
           icon: 'error',
           title: 'Error al marcar como finalizado'
         });
-       // alert("Error al marcar como finalizado: " + error);
     }
 };
 
@@ -130,7 +126,7 @@ const handleMarcarFinalizado = async () => {
       confirmButtonText: 'OK',
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
-        confirmButton.style.backgroundColor = '#28a745'; // Verde tipo Bootstrap
+        confirmButton.style.backgroundColor = '#28a745'; 
         confirmButton.style.color = 'white';
       },
     });
