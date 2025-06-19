@@ -44,9 +44,7 @@ export const ModalUsuario = ({ mostrar, cerrarModal }) => {
         <h5 style={{ fontWeight: 'bold', marginBottom: '5px' }}>
           Usuario: {nombreUsuario}
         </h5>
-        <p style={{ marginBottom: 0 }}>
-          ID: {idUsuario}
-        </p>
+        
       </Modal.Body>
     </Modal>
   );
