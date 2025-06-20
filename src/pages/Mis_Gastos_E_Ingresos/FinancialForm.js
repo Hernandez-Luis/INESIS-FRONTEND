@@ -4,6 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
 import axiosInstance from '../../api/axiosConfig';
 import Swal from "sweetalert2";
+import CatParentescoService from "../../services/CatParentescoService";
+import { useEffect } from "react";
+import { soloNumerosPositivosConDosDecimales } from "../../utils/Validaciones/Validaciones";
 
 
 
@@ -16,6 +19,12 @@ const FinancialForm = () => {
     const [error, setError] = useState(""); // Para manejar el mensaje de error
     const [reciboFile, setReciboFile] = useState(null);
     const [observaciones, setObservaciones] = useState("");
+    const [catParentesco, setParentesco] = useState([]);
+
+
+    useEffect(() => {
+        obtenerParentesco();
+    }, []);
 
     const fieldNames = {
         lightName: "Nombre del titular del recibo de luz",
@@ -153,14 +162,17 @@ const FinancialForm = () => {
 
     };
 
-    const parentescos = [
-        { id: 1, nombre: "Padre" },
-        { id: 2, nombre: "Madre" },
-        { id: 3, nombre: "Hermano/a" },
-        { id: 4, nombre: "Tío/a" },
-        { id: 5, nombre: "Abuelo/a" },
-        { id: 6, nombre: "Otro" }
-    ];
+    const obtenerParentesco = async () => {
+        try {
+            let catParentesco = await CatParentescoService.getAll();
+            setParentesco(catParentesco)
+            console.log("catParentesco:", catParentesco);
+
+        } catch (error) {
+            console.log("Error al obtener la lista de CatSemestre: ", error)
+
+        }
+    }
 
     const convertirArchivoABase64 = (file) => {
         return new Promise((resolve, reject) => {
@@ -197,24 +209,24 @@ const FinancialForm = () => {
             }
 
             // Obtener gastos mensuales
-        // Obtener gastos mensuales con nombres originales
-        const gastosOriginales = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
-            acc[label] = parseFloat(document.getElementById(label)?.value || "0");
-            return acc;
-        }, {});
-        gastosOriginales.total = parseFloat(document.getElementById("totalGastos")?.value || "0");
+            // Obtener gastos mensuales con nombres originales
+            const gastosOriginales = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].reduce((acc, label) => {
+                acc[label] = parseFloat(document.getElementById(label)?.value || "0");
+                return acc;
+            }, {});
+            gastosOriginales.total = parseFloat(document.getElementById("totalGastos")?.value || "0");
 
-        // Transformar nombres para el backend
-        const gastos = {
-            gastoAlimentacion: gastosOriginales["Alimentación"],
-            gastoRenta: gastosOriginales["Renta"],
-            gastoServicios: gastosOriginales["Servicios"],
-            gastoEscolares: gastosOriginales["Gastos escolares"],
-            gastoRopa: gastosOriginales["Ropa"],
-            gastoTransporte: gastosOriginales["Transporte"],
-            gastoOtros: gastosOriginales["Otros"],
-            totalGastos: gastosOriginales.total
-        };
+            // Transformar nombres para el backend
+            const gastos = {
+                gastoAlimentacion: gastosOriginales["Alimentación"],
+                gastoRenta: gastosOriginales["Renta"],
+                gastoServicios: gastosOriginales["Servicios"],
+                gastoEscolares: gastosOriginales["Gastos escolares"],
+                gastoRopa: gastosOriginales["Ropa"],
+                gastoTransporte: gastosOriginales["Transporte"],
+                gastoOtros: gastosOriginales["Otros"],
+                totalGastos: gastosOriginales.total
+            };
 
             // Recibo de luz
             const reciboLuz = {
@@ -256,7 +268,7 @@ const FinancialForm = () => {
 
             // Armar payload
             const payload = {
-                personasAportan : personasAportan,
+                personasAportan: personasAportan,
                 personas: people,
                 ingresoTotal,
                 personasDependen,
@@ -282,16 +294,36 @@ const FinancialForm = () => {
     };
 
 
-
-
-
-
-
     const cardStyle = {
         backgroundColor: "#F5F5F5",
         borderRadius: "1rem",
         boxShadow: "0 6px 15px rgba(0, 0, 0, 0.4)"
     };
+
+
+
+    const actualizarTotalGastos = () => {
+    const gastoLabels = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'];
+    let total = 0;
+    gastoLabels.forEach(label => {
+        const val = parseFloat(document.getElementById(label)?.value || "0");
+        total += isNaN(val) ? 0 : val;
+    });
+    document.getElementById("totalGastos").value = total.toFixed(2);
+};
+
+const actualizarIngresoTotal = () => {
+    let total = 0;
+    for (let i = 0; i < numPeople; i++) {
+        const val = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
+        total += isNaN(val) ? 0 : val;
+    }
+    document.getElementById("Ingreso total:").value = total.toFixed(2);
+};
+
+
+
+
 
     return (
         <Container className="mt-3" style={{ maxWidth: "1400px" }}>
@@ -333,14 +365,16 @@ const FinancialForm = () => {
                                                     <Form.Select
                                                         id={`person-${index}-parentesco`}
                                                         isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
+                                                        defaultValue=""  // para que el option vacío sea el seleccionado inicialmente
                                                     >
-                                                        <option value="">Selecciona un parentesco</option>
-                                                        {parentescos.map((item) => (
+                                                        <option value="" disabled>Selecciona un parentesco</option>
+                                                        {catParentesco.map((item) => (
                                                             <option key={item.id} value={item.id}>
-                                                                {item.nombre}
+                                                                {item.nombreParentesco}  {/* Aquí el texto visible */}
                                                             </option>
                                                         ))}
                                                     </Form.Select>
+
                                                 </Form.Group>
                                             </Col>
 
@@ -485,15 +519,18 @@ const FinancialForm = () => {
                                     <Form.Control
                                         id={label}
                                         type="number"
-                                        onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
+                                        onKeyDown={handleKeyDown}
                                         onInput={handleDecimalInput}
                                         isInvalid={emptyFields.includes(label)}
+                                        onChange={actualizarTotalGastos}
                                     />
+
                                 </Form.Group>
                             ))}
                             <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales</Form.Label>
                                 <Form.Control
+                                    onBeforeInput={soloNumerosPositivosConDosDecimales}   
                                     id="totalGastos"
                                     type="number"
                                     onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
