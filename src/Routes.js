@@ -30,6 +30,7 @@ import ListadoEstudioSocioeconomico from './pages/ListadoEstudioSocioeconomico/L
 import ResultadoEstudioSocioeconomicoCorrecto from './pages/ResultadosSolicitud/ResultadoEstudioCoreccto';
 import GestionMisDatos from './pages/MisDatos/GestionMisDatos';
 import { GestionMiTutor } from './pages/MiTutor/GestionMiTutor';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRoutes = () => {
   return (
@@ -37,16 +38,17 @@ const AppRoutes = () => {
         <Route path="/" element={<Login />} />
 
 
-        <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
-        <Route path="/MisDatos" element={<GestionMisDatos />} />
-        <Route path="/NavInesis" element={<NavInesis />} />
+        <Route path="/menuSolicitar" element={<ProtectedRoute allowedRoles={[1]}><MenuSolicitarBeca /></ProtectedRoute>}/>
+        <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1]}><GestionMisDatos /></ProtectedRoute>} />
+        <Route path="/NavInesis" element={<ProtectedRoute allowedRoles={[1]}><NavInesis /></ProtectedRoute>} />
+
         <Route path="/Migas" element={<MigasRecorrido />} />
         <Route path="/Revision" element={<RevisionSolicitud />} />
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
         <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
         <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ResultadoEstudioSocioeconomicoCorrecto />}/>
         <Route path="/ListadoEstudioSocioeconomico" element={<ListadoEstudioSocioeconomico />}/>
-        <Route path="/MenuAlumno" element={<MenuAlumno/>} />
+        <Route path="/MenuAlumno" element={<ProtectedRoute allowedRoles={[1]}><MenuAlumno/></ProtectedRoute>} />
         <Route path="/Lineamientos" element={<LIneamientos />} />
         <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
         <Route path="/MenuAdministrador" element={<MenuAdministrador />} />   
