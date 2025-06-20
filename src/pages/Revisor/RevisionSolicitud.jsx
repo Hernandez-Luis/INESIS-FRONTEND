@@ -100,22 +100,32 @@ const handleEnviarCorreccion = async () => {
 
 const handleMarcarFinalizado = async () => {
     try {
-        await AlumnoService.enviarRevisionAlumno(alumnoId, "", true);
+      if (comentario.trim() !== "") {
         mostrarAlerta({
-          icon: 'success',
-          title: 'Alumno marcado como finalizado correctamente'
-        });
-         setComentario(""); // Limpiar campo
-        navigate('/ListadoEstudioSocioeconomico');
-        //alert("Alumno marcado como finalizado correctamente");
+            icon: 'warning',
+            title: 'No se puede finalizar si hay un comentario en observaciones'
+          });
+        return; // Detiene la ejecución si hay comentario
+      }
+  
+      await AlumnoService.enviarRevisionAlumno(alumnoId, "", true);
+  
+      mostrarAlerta({
+        icon: 'success',
+        title: 'Alumno marcado como finalizado correctamente'
+      });
+  
+      setComentario(""); // Limpiar campo
+      navigate('/ListadoEstudioSocioeconomico');
+  
     } catch (error) {
-        mostrarAlerta({
-          icon: 'error',
-          title: 'Error al marcar como finalizado'
-        });
-       // alert("Error al marcar como finalizado: " + error);
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error al marcar como finalizado'
+      });
     }
-};
+  };
+  
 
     const handleRegresar = () => {;
          navigate('/ListadoEstudioSocioeconomico');
@@ -127,7 +137,7 @@ const handleMarcarFinalizado = async () => {
       timer: 3000,
       timerProgressBar: true,
       showConfirmButton: true,
-      confirmButtonText: 'OK',
+      confirmButtonText: 'Aceptar',
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
         confirmButton.style.backgroundColor = '#28a745'; // Verde tipo Bootstrap
@@ -136,8 +146,27 @@ const handleMarcarFinalizado = async () => {
     });
   };
 
-    if (loading) return <div>Cargando PDF...</div>;
-    if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <h1 style={{ fontSize: '1.8rem', marginBottom: '20px', color: 'var(--color-morado1)', fontWeight: 'bold' }}>Cargando PDF...</h1>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <h1 style={{ fontSize: '1.8rem', marginBottom: '20px', color: 'red', fontWeight: 'bold' }}>Error al cragar el pdf</h1>
+        <div className="spinner-border text-danger" role="status">
+          <span className="visually-hidden">Error</span>
+        </div>
+      </div>
+    );
+  }
     return (
         <div>
             <NavInesis />
