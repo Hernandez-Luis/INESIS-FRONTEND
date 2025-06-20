@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import NavInesis from "../../components/NavInesis/NavInesis";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import { CardMenu } from '../MenuSolicitarBeca/components/CardMenu';
-import ResultadoEstudioSocioeconomicoCorrecto from '../ResultadosSolicitud/ResultadoEstudioCoreccto';
-//import ResultadosSolicitud from './pages/ResultadosSolicitud/ResultadosSolicitud';
+import ServicioAlumno from '../../services/AlumnoService';
 
 import rellenarEstudio from '../../assets/rellenarEstudio.jpg';
 import resultadoEstudiO from '../../assets/resultadoEstudio.jpg';
@@ -11,15 +10,46 @@ import resultadoEstudiO from '../../assets/resultadoEstudio.jpg';
 import '../../App.css';
 
 const MenuAlumno = () => {
+  const [nombreUsuario, setNombreUsuario] = useState('');
+  const [linkResultado, setLinkResultado] = useState('/ResultadoEstudioSocioeconomicoCorrecto');
+
+  useEffect(() => {
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      setNombreUsuario(usuario.usuario || 'Alumno');
+
+      const alumnoId = usuario?.alumno?.id || usuario?.alumnoId;
+
+      if (alumnoId) {
+        ServicioAlumno.getById(alumnoId)
+          .then((alumno) => {
+            // Si Alumno tiene observaciones : ResultadoSolicitud, o no : ResultadoEstudioSocioeconomicoCorrecto
+            if (alumno.observaciones && alumno.observaciones.trim() !== '') {
+              setLinkResultado('/ResultadosSolicitud');
+            } else if (alumno.estado === true) {
+              setLinkResultado('/ResultadoEstudioSocioeconomicoCorrecto');
+            } else {
+              // Si aún no está finalizado y no hay observaciones
+              setLinkResultado('/MenuAlumno'); 
+            }
+          })
+          .catch((error) => {
+            console.error("Error al obtener datos del alumno:", error);
+          });
+      }
+    }
+  }, []);
 
   return (
     <div>
       <NavInesis />
       <div className='container-fluid d-flex flex-column min-vh-100'>
         <div className="flex-grow-1 p-2">
-          {/*inicio contenido*/}
           <div className="text-center mt-4">
-            <h1 style={{ color: "var(--color-morado2)" }}>Bienvenido Emmanuel</h1>
+            <h1 style={{ color: "var(--color-morado2)" }}>
+              Bienvenido {nombreUsuario}
+            </h1>
             <p className="recordatorio">
               ¡Recuerda que tienes hasta el día <b>10 de octubre</b> a las <b>23:59:59</b> para realizar tu estudio socioeconómico!
             </p>
@@ -36,12 +66,10 @@ const MenuAlumno = () => {
                 title="Resultados del Estudio Socioeconómico"
                 imgSrc={resultadoEstudiO}
                 description="En esta sección, podrás ver tus resultados y observaciones."
-                link={"/ResultadoEstudioSocioeconomicoCorrecto"}
+                link={linkResultado}
               />
-              
             </div>
           </div>
-          {/*fin contenido*/}
         </div>
         <FooterInesis />
       </div>

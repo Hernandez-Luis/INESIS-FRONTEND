@@ -1,0 +1,12 @@
+/* Borde rojo cuando hay error */
+.input-error {
+  border: 1px solid rgb(255, 76, 76) !important;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+/* Efecto de iluminación cuando el input está en foco */
+.input-error:focus {
+  border-color: rgb(255, 37, 37) !important;
+  box-shadow: 0 0 8px rgba(255, 66, 66, 0.7);
+  outline: none;
+}

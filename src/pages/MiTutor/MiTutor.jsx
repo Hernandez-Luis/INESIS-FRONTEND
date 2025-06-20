@@ -11,8 +11,13 @@ import CatParentescoService from '../../services/CatParentescoService';
 import MisDatosService from '../../services/MisDatosService';
 import DomicilioCpService from '../../services/DomicilioCpService';
 import AlumnoService from '../../services/AlumnoService';
+import { useNavigate } from 'react-router-dom';
+import '../../styles/BordeInputsError/BordeInputsError.css'
+import { soloCorreo, soloFormatoDirecciones, soloLetras, soloNumerosPositivos } from '../../utils/Validaciones/Validaciones';
 
-export const MiTutor = ({ onAdd }) => {
+export const MiTutor = ({ onAdd, update }) => {
+    const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
+    const navigate = useNavigate();
     const links = [
         { url: '/menuAlumno', label: 'Inicio' },
         { url: '/menuSolicitar', label: 'Estudio socioeconómico' },
@@ -31,6 +36,7 @@ export const MiTutor = ({ onAdd }) => {
     const [tipoTrabajoMisDatos, setTipoTrabajoMisDatos] = useState();
     const [ocupacionMisDatos, setOcupacionMisDatos] = useState();
     const [ocupacionOtroMisDatos, setOcupacionOtroMisDatos] = useState();
+
 
     // **********************************  OBTENER DATOS DE LA BD  *****************************************
 
@@ -70,13 +76,13 @@ export const MiTutor = ({ onAdd }) => {
                 console.error('No se encontró el alumnoId en el localStorage.');
                 return;
             }
-            let datos = await AlumnoService.getById(alumnoId); // asegúrate de tener definido `id`
+            let datos = await AlumnoService.getById(alumnoId);
             console.log("Datos del alumno: ", datos);
             setDatosAlumno(datos);
-            if(datos.miTutor){
+            if (datos.miTutor) {
                 console.log("Datos de mi tutor: ", datos.miTutor)
                 setDatosMiTutorAlumno(datos.miTutor);
-            }else{
+            } else {
                 obtenerDatosTutorDeMisDatos(datos.misDatos);
             }
         } catch (error) {
@@ -121,6 +127,9 @@ export const MiTutor = ({ onAdd }) => {
             numero: data?.domicilio?.numero || '',
             cp: data?.domicilio?.cp || ''
         }));
+        if (data?.comparteVivienda === true || data?.comparteVivienda === 'Si') {
+            setDisabled(true);
+        }
     }
 
     useEffect(() => {
@@ -133,12 +142,12 @@ export const MiTutor = ({ onAdd }) => {
     const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
     const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
 
-/*     useEffect(() => {
-        if (datosAlumno) {
-            obtenerDatosTutorDeMisDatos();
-        }
-    }, [datosAlumno]);
- */
+    /*     useEffect(() => {
+            if (datosAlumno) {
+                obtenerDatosTutorDeMisDatos();
+            }
+        }, [datosAlumno]);
+     */
     useEffect(() => {
         setDatosMiTutor(prev => ({
             ...prev,
@@ -219,21 +228,34 @@ export const MiTutor = ({ onAdd }) => {
         const { name, value } = e.target;
         console.log("Nombre: ", name, " Valor: ", value)
 
-        if (name === "comparteVivienda" && value === "Si") {
-            setDisabled(true)
-            console.log("Datos alumno: ", datosAlumno)
-            setDatosDomicilio((prevData) => ({
+        const camposBooleanos = [
+            "trabajadorSuneo",
+            "comparteVivienda",
+        ];
+
+        if (camposBooleanos.includes(name)) {
+            setDatosMiTutor((prevData) => ({
                 ...prevData,
-                cp: datosAlumno?.domicilio?.cp,
-                numero: datosAlumno?.domicilio?.numero,
-                calle: datosAlumno?.domicilio?.calle,
-                localidad: datosAlumno?.domicilio?.localidad,
-                colonia: datosAlumno?.domicilio?.colonia,
-            }))
-            // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
-        } else if (name === "comparteVivienda" && value === "No") {
-            setDisabled(false)
-            setDatosDomicilio(formularioInicialDomicilio)
+                [name]: siNoToBool(value)
+            }));
+
+            if (name === "comparteVivienda" && (value === "Si" || value === true)) {
+                setDisabled(true)
+                console.log("Datos alumno: ", datosAlumno)
+                setDatosDomicilio((prevData) => ({
+                    ...prevData,
+                    cp: datosAlumno?.misDatos?.domicilio?.cp,
+                    numero: datosAlumno?.misDatos?.domicilio?.numero,
+                    calle: datosAlumno?.misDatos?.domicilio?.calle,
+                    localidad: datosAlumno?.misDatos?.domicilio?.localidad,
+                    colonia: datosAlumno?.misDatos?.domicilio?.colonia,
+                }))
+                // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
+            } else if (name === "comparteVivienda" && (value === "No" || value === false)) {
+                setDisabled(false)
+                setDatosDomicilio(formularioInicialDomicilio)
+            }
+            return;
         }
 
         if (name == 'ocupacion') {
@@ -266,15 +288,23 @@ export const MiTutor = ({ onAdd }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        let datosDomicilioEnviar = {};
+        setErrores({})
+        if (validacionCampos() === 0) {
+            return
+        }
 
-        if (datosMiTutor.comparteVivienda === 'Si') {
+
+        let datosDomicilioEnviar = {};
+        console.log("Datos del domicilio: ", datosAlumno)
+
+        if (datosMiTutor.comparteVivienda === 'Si' || datosMiTutor.comparteVivienda === true) {
             datosDomicilioEnviar = {
-                idDomicilio: datosAlumno?.domicilio?.idDomicilio
+                idDomicilio: datosAlumno?.misDatos?.domicilio?.id
             };
         } else datosDomicilioEnviar = datosDomicilio;
-        
+
         const coleccionValores = {
+            alumnoId: alumnoId,
             ...datosMiTutor,
             datosDomicilio: datosDomicilioEnviar
         }
@@ -282,8 +312,12 @@ export const MiTutor = ({ onAdd }) => {
 
         try {
             let nuevosErrores = null;
-
-            nuevosErrores = await onAdd(coleccionValores);
+            if (datosAlumno.miTutor !== null) {
+                let idMiTutor = datosAlumno.miTutor.idTutor;
+                nuevosErrores = await update(idMiTutor, coleccionValores);
+            } else {
+                nuevosErrores = await onAdd(coleccionValores);
+            }
 
             console.log("Error: ", nuevosErrores)
             if (nuevosErrores && nuevosErrores.length > 0) {
@@ -298,9 +332,39 @@ export const MiTutor = ({ onAdd }) => {
 
     // ***********************************  VALIDACION DE CAMPOS  ******************************************
 
+    const validacionCampos = () => {
+        const erroresTemp = {};
+        const camposOpcionalesDomicilio = ["colonia", "estado", "municipio"]
+        const camposOpcionalesMiTutor = ["ocupacionOtro"]
+        Object.keys(datosMiTutor).forEach((campo) => {
+            if (!camposOpcionalesMiTutor.includes(campo)) {
+                if (datosMiTutor[campo] === null || datosMiTutor[campo] === undefined || datosMiTutor[campo] === '') {
+                    erroresTemp[campo] = 'Este campo es obligatorio';
+                }
+            }
+        });
+
+        Object.keys(datosDomicilio).forEach((campo) => {
+            if (!camposOpcionalesDomicilio.includes(campo)) {
+                if (datosDomicilio[campo] === null || datosDomicilio[campo] === undefined || datosDomicilio[campo] === '') {
+                    erroresTemp[campo] = 'Este campo es obligatorio';
+                }
+            }
+        });
+
+        if (Object.keys(erroresTemp).length > 0) {
+            setErrores(erroresTemp);
+            console.log("FALTA: ", erroresTemp)
+            mostrarCuidado("Tienes que llenar todos los campos requeridos")
+            return 0; // No enviar el formulario si hay errores
+        }
+
+        return 1;
+    }
+
     // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  ******************************
     const mostrarAlerta = (config) => {
-        Swal.fire({
+        return Swal.fire({
             ...config,
             timer: 5000,
             timerProgressBar: true,
@@ -322,7 +386,7 @@ export const MiTutor = ({ onAdd }) => {
 
     const mostrarCuidado = (mensaje) => {
         mostrarAlerta({
-            title: '¡Cuidado!',
+            title: '¡Alerta!',
             text: mensaje,
             icon: 'warning',
             confirmButtonText: 'Aceptar',
@@ -335,6 +399,8 @@ export const MiTutor = ({ onAdd }) => {
             text: mensaje,
             icon: 'success',
             confirmButtonText: 'Aceptar',
+        }).then(() => {
+            navigate('/menuSolicitar')
         });
     };
 
@@ -344,157 +410,225 @@ export const MiTutor = ({ onAdd }) => {
             <NavInesis></NavInesis>
             <MigasRecorrido items={links}></MigasRecorrido>
             <div className='d-flex flex-column min-vh-100'>
-                <div className='flex-grow-1 m-5 px-5' >
-
+                <div className='flex-grow-1 px-5 m-lg-5 ' >
                     <form onSubmit={handleSubmit}>
-                        <div className='row mx-5 mw-100'>
-                            <p className='fs-3  d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
+                        <div className='row'>
+                            <p className='fs-3 d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
                             <p style={{ color: 'var(--color-gris1)' }}>Datos del padre, madre o tutor o familiar más cercano (preferiblemente, del que se depende económicamente)</p>
                             {/* DATOS PERSONALES */}
-                            <div className="col tarjeta-border me-4 p-5">
-                                <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
-                                <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo</label>
-                                <input className='form-control' type="text" value={datosMiTutor.nombreTutor} onChange={actualizarCamposMiTutor} name='nombreTutor' />
-                                <div className='w-25'>
-                                    <label className='fs-5 mt-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco</label>
-                                    <SeleccionarCombo
-                                        name="parentesco"
-                                        options={catParentesco.map(parentesco => ({
-                                            label: parentesco.nombreParentesco,
-                                            value: parentesco.id
-                                        }))} // Opciones disponibles
-                                        placeholder="Selecciona una opción" // Placeholder
-                                        value={datosMiTutor.parentesco}
+                            <div className="col-xs-12 col-lg-6" style={{ backgroundColor: "blue" }}>
+                                <div className="tarjeta-border h-100 w-100 p-4 p-lg-5 mb-4">
+                                    <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
+                                    {/* Nombre completo */}
+                                    <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo</label>
+                                    <input
+                                        onBeforeInput={soloLetras}
+                                        className={`form-control ${errores.nombreTutor ? 'input-error' : ''}`}
+                                        type="text"
+                                        value={datosMiTutor.nombreTutor}
                                         onChange={actualizarCamposMiTutor}
+                                        name='nombreTutor'
                                     />
-                                </div>
+                                    {errores.nombreTutor && <div className='text-danger'>{errores.nombreTutor}</div>}
 
-                                <div className="line mx-auto mt-5 mb-4"></div>
-                                <div className="row mt-3">
-                                    <div className="col">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Telefono</label>
-                                        <input
-                                            className='form-control'
-                                            type="text"
+                                    {/* Parentesco */}
+                                    <div className='w-100 w-lg-50 mt-3'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco</label>
+                                        <SeleccionarCombo
+                                            name="parentesco"
+                                            options={catParentesco.map(parentesco => ({
+                                                label: parentesco.nombreParentesco,
+                                                value: parentesco.id
+                                            }))}
+                                            placeholder="Selecciona una opción"
+                                            value={datosMiTutor.parentesco}
                                             onChange={actualizarCamposMiTutor}
-                                            name={"telefono"}
-                                            value={datosMiTutor.telefono}
                                         />
+                                        {errores.parentesco && <div className='text-danger'>{errores.parentesco}</div>}
                                     </div>
-                                    <div className="col">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
-                                        <input
-                                            className='form-control'
-                                            type="mail"
-                                            onChange={actualizarCamposMiTutor}
-                                            name={"correo"}
-                                            value={datosMiTutor.correo}
-                                        />
+
+                                    {/* Línea divisoria */}
+                                    <div className="line mx-auto mt-5 mb-4"></div>
+
+                                    {/* Teléfono y Correo */}
+                                    <div className="row mt-3">
+                                        <div className="col-12 col-md-6 mb-3">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Teléfono</label>
+                                            <input
+                                                onBeforeInput={soloNumerosPositivos}
+                                                maxLength={10}
+                                                className={`form-control ${errores.telefono ? 'input-error' : ''}`}
+                                                type="text"
+                                                onChange={actualizarCamposMiTutor}
+                                                name={"telefono"}
+                                                value={datosMiTutor.telefono}
+                                            />
+                                            {errores.telefono && <div className='text-danger'>{errores.telefono}</div>}
+                                        </div>
+
+                                        <div className="col-12 col-md-6 mb-3">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
+                                            <input
+                                                onBeforeInput={soloCorreo}
+                                                className={`form-control ${errores.correo ? 'input-error' : ''}`}
+                                                type="mail"
+                                                onChange={actualizarCamposMiTutor}
+                                                name={"correo"}
+                                                value={datosMiTutor.correo}
+                                            />
+                                            {errores.correo && <div className='text-danger'>{errores.correo}</div>}
+                                        </div>
                                     </div>
-                                </div>
-                                <label className='fs-5 mt-4 mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿Es trabajador de la UNSIJ o SUNEO?</label>
-                                <RadioSelect
-                                    gris={true}
-                                    options={['Si', 'No']}
-                                    onChange={actualizarCamposMiTutor}
-                                    name={"trabajadorSuneo"}
-                                    value={boolToSiNo(datosMiTutor.trabajadorSuneo)}
-                                />
-                                <div className="row">
-                                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
+
+                                    {/* ¿Es trabajador de la UNSIJ o SUNEO? */}
+                                    <label className='fs-5 mt-4 mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿Es trabajador de la UNSIJ o SUNEO?</label>
                                     <RadioSelect
                                         gris={true}
-                                        options={catTipoTrabajo.map(t => ({
-                                            label: t.nombreTipo,
-                                            value: t.id
-                                        }))}
+                                        options={['Si', 'No']}
                                         onChange={actualizarCamposMiTutor}
-                                        name="trabajoTipo"
-                                        value={datosMiTutor.trabajoTipo}
+                                        name={"trabajadorSuneo"}
+                                        value={boolToSiNo(datosMiTutor.trabajadorSuneo)}
                                     />
-                                    {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
-                                </div>
-                                <div className='row'>
-                                    <div className="col">
-                                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
-                                        <SeleccionarCombo
-                                            name="ocupacion"
-                                            options={catOcupacion.map(ocupacion => ({
-                                                label: ocupacion.nombreOcupacion,
-                                                value: ocupacion.id
-                                            }))} // Opciones disponibles
-                                            placeholder="Selecciona una opción" // Placeholder
-                                            value={datosMiTutor.ocupacion}
+                                    {errores.trabajadorSuneo && <div className='text-danger'>{errores.trabajadorSuneo}</div>}
+
+                                    {/* Trabajo de quien dependes */}
+                                    <div className="row mt-4">
+                                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
+                                        <RadioSelect
+                                            gris={true}
+                                            options={catTipoTrabajo.map(t => ({
+                                                label: t.nombreTipo,
+                                                value: t.id
+                                            }))}
                                             onChange={actualizarCamposMiTutor}
+                                            name="trabajoTipo"
+                                            value={datosMiTutor.trabajoTipo}
                                         />
-                                        {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
-                                    </div>
-                                    <div className="col">
-                                        {datosMiTutor?.ocupacion == 8 && (
-                                            <div className="row-5">
-                                                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
-                                                <input
-                                                    className='form-control w-50'
-                                                    name='ocupacionOtro'
-                                                    type="text"
-                                                    onChange={actualizarCamposMiTutor}
-                                                    value={datosMiTutor.ocupacionOtro}
-                                                />
-                                                {errores.otro && <div className="text-danger">{errores.otro}</div>}
-
-                                            </div>
-                                        )}
+                                        {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
                                     </div>
 
+                                    {/* Ocupación y otro */}
+                                    <div className='row mt-4'>
+                                        <div className="col-12 col-md-6 mb-3">
+                                            <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
+                                            <SeleccionarCombo
+                                                name="ocupacion"
+                                                options={catOcupacion.map(ocupacion => ({
+                                                    label: ocupacion.nombreOcupacion,
+                                                    value: ocupacion.id
+                                                }))}
+                                                placeholder="Selecciona una opción"
+                                                value={datosMiTutor.ocupacion}
+                                                onChange={actualizarCamposMiTutor}
+                                            />
+                                            {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
+                                        </div>
+
+                                        <div className="col-12 col-md-6">
+                                            {datosMiTutor?.ocupacion == 8 && (
+                                                <div className="mb-3">
+                                                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                                                    <input
+                                                        onBeforeInput={soloLetras}
+                                                        className='form-control'
+                                                        name='ocupacionOtro'
+                                                        type="text"
+                                                        onChange={actualizarCamposMiTutor}
+                                                        value={datosMiTutor.ocupacionOtro}
+                                                    />
+                                                    {errores.otro && <div className="text-danger">{errores.otro}</div>}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
                             {/* FIN DATOS PERSONALES */}
 
                             {/* DOMICILIO */}
-                            <div className="col tarjeta-border ms-4 p-5">
-                                <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
-                                <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>
-                                <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente?</label>
-                                <RadioSelect
-                                    gris={true}
-                                    options={['Si', 'No']}
-                                    onChange={actualizarCamposMiTutor}
-                                    name={"comparteVivienda"}
-                                    value={boolToSiNo(datosMiTutor.comparteVivienda) }
-                                />
-                                <div className='row'>
-                                    <div className="col-3 mt-2">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                                        <input disabled={disabled} maxLength={5} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.cp} name={"cp"} />
-                                    </div>
-                                    <div className="col-3 mt-2">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
-                                        <input disabled={disabled} className='form-control' type="text" name={"numero"} value={datosDomicilio.numero} onChange={actualizarCamposDomicilio} />
-                                    </div>
-                                    <div className='col-6 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
-                                        <input disabled={disabled} className='form-control' type="text" name={"calle"} value={datosDomicilio.calle} onChange={actualizarCamposDomicilio} />
-                                    </div>
+                            <div className="col-12 col-lg-6" style={{backgroundColor: "black"}}>
+                                <div className="tarjeta-border h-100 p-5">
+                                    <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
+                                    <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>
+                                    <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente?</label>
+                                    <RadioSelect
+                                        gris={true}
+                                        options={['Si', 'No']}
+                                        onChange={actualizarCamposMiTutor}
+                                        name={"comparteVivienda"}
+                                        value={boolToSiNo(datosMiTutor.comparteVivienda)}
+                                    />
+                                    {errores.comparteVivienda && <div className='text-danger'>{errores.comparteVivienda}</div>}
+                                    <div className="line mx-auto mt-5 mb-4"></div>
                                     <div className='row'>
-                                        <div className='col-6 mt-2'>
+                                        <div className="col-lg-4 mt-2">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                                            <input
+                                                onBeforeInput={soloNumerosPositivos}
+                                                disabled={disabled}
+                                                maxLength={5}
+                                                className={`form-control ${errores.cp ? 'input-error' : ''}`}
+                                                type="text"
+                                                onChange={actualizarCamposDomicilio}
+                                                value={datosDomicilio.cp}
+                                                name={"cp"}
+                                            />
+                                            {errores.cp && <div className='text-danger'>{errores.cp}</div>}
+
+                                        </div>
+                                        <div className='col-lg-4 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
                                             <div>
-                                                <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.estado} name='estado' disabled={true} />
+                                                <input
+                                                    className='form-control'
+                                                    type="text"
+                                                    onChange={actualizarCamposDomicilio}
+                                                    value={datosDomicilio.estado}
+                                                    name='estado'
+                                                    disabled={true}
+                                                />
                                             </div>
                                         </div>
-                                        <div className='col-6 mt-2'>
+                                        <div className='col-lg-4 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                                             <div>
-                                                <input className='form-control' type="text" value={datosDomicilio.municipio} name='municipio' disabled={true} />
+                                                <input
+                                                    className='form-control'
+                                                    type="text"
+                                                    value={datosDomicilio.municipio}
+                                                    name='municipio'
+                                                    disabled={true}
+                                                />
                                             </div>
                                         </div>
-                                        <div className='col-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                                            <div>
-                                                <input disabled={disabled} className='form-control' type="text" onChange={actualizarCamposDomicilio} value={datosDomicilio.localidad} name='localidad' />
-                                            </div>
+                                        <div className='col-lg-6 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                                            <input
+                                                onBeforeInput={soloFormatoDirecciones}
+                                                disabled={disabled}
+                                                className={`form-control ${errores.calle ? 'input-error' : ''}`}
+                                                type="text"
+                                                name={"calle"}
+                                                value={datosDomicilio.calle}
+                                                onChange={actualizarCamposDomicilio}
+                                            />
+                                            {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                                         </div>
-                                        <div className='col-6 mt-2'>
+                                        <div className="col-lg-6 mt-2">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                                            <input
+                                                onBeforeInput={soloFormatoDirecciones}
+                                                disabled={disabled}
+                                                className={`form-control ${errores.numero ? 'input-error' : ''}`}
+                                                type="text"
+                                                name={"numero"}
+                                                value={datosDomicilio.numero}
+                                                onChange={actualizarCamposDomicilio}
+                                            />
+                                            {errores.numero && <div className='text-danger'>{errores.numero}</div>}
+                                        </div>
+                                        <div className='col-lg-6 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
                                             <div>
                                                 <SeleccionarCombo
@@ -508,6 +642,21 @@ export const MiTutor = ({ onAdd }) => {
                                                     placeholder="Selecciona una opción" // Placeholder
                                                     disabled={disabled}
                                                 />
+                                            </div>
+                                        </div>
+                                        <div className='col-lg-6 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                            <div>
+                                                <input
+                                                    onBeforeInput={soloLetras}
+                                                    disabled={disabled}
+                                                    className={`form-control ${errores.localidad ? 'input-error' : ''}`}
+                                                    type="text"
+                                                    onChange={actualizarCamposDomicilio}
+                                                    value={datosDomicilio.localidad}
+                                                    name='localidad'
+                                                />
+                                                {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
                                             </div>
                                         </div>
                                     </div>

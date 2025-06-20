@@ -1,16 +1,24 @@
 export const soloLetras = (e) => {
-    const regex = /^[A-Za-zÀ-ÿ\s]+$/;
+    const regex = /^[A-Za-zÀ-ÿ\s,.]+$/;
     if (!regex.test(e.data)) {
       e.preventDefault();
     }
 };
 
 export const soloLetrasYNumeros = (e) => {
-    const regex = /^[A-Za-z0-9À-ÿ\s]+$/;
+    const regex = /^[A-Za-z0-9À-ÿ\s,]+$/;
     if (!regex.test(e.data)) {
       e.preventDefault();
     }
 };
+
+export const soloCorreo = (e) => {
+    const regex = /^[A-Za-z0-9@._-]+$/; // Permite letras, números, arroba, punto, guión y guión bajo
+    if (!regex.test(e.data)) {
+      e.preventDefault();
+    }
+};
+
 
 export const soloCurp = (e) => {
     const key = e.data;

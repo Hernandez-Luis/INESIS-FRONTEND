@@ -36,10 +36,13 @@ const ListadoEstudioSocioeconomico = () => {
         const lista = data.map(a => ({
           id: a.id,
           nombre: `${a.nombre} ${a.apellidoPaterno} ${a.apellidoMaterno}`,
-          semestre: a.semestre?.nombreSemestre || "Sin definir",
-          grupo: a.grupo?.nombreGrupo || "Sin definir",
-          estado: a.estado || "Sin revisar",
-          carrera: a.carrera?.nombreCarrera || "Sin definir",
+          semestre: a.semestre?.nombreSemestre,
+          grupo: a.grupo?.nombreGrupo,
+          estado: a.completo
+    ? "Sin revisar"
+    : (a.estado ? "Finalizado" : "Pendiente"),
+
+          carrera: a.carrera?.nombreCarrera ,
         }));
         setAlumnos(lista);
       })
