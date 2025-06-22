@@ -55,6 +55,14 @@ const getByAlumnoId = async (idAlumno) => {
   }
 };
 
+const getByRevisorId = async (idRevisor) => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/byRevisor/${idRevisor}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || "Error al obtener el usuario por revisor";
+  }
+};
 
 const verificarYActualizarContrasena = async ({ usuario, contrasena, nuevaContrasena }) => {
   try {
@@ -80,6 +88,18 @@ const verificarYActualizarContrasena = async ({ usuario, contrasena, nuevaContra
   }
 };
 
+const cambiarContrasena = async ({ usuario, nuevaContrasena }) => {
+  try {
+    const response = await axiosInstance.post(`${API_URL}/cambiar-contrasena`, {
+      usuario,
+      nuevaContrasena
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || "Error al cambiar la contraseña";
+  }
+};
+
 export default {
   getAll,
   getById,
@@ -87,5 +107,7 @@ export default {
   update,
   deleteUsuario,
   getByAlumnoId,
-  verificarYActualizarContrasena
+  verificarYActualizarContrasena,
+  getByRevisorId,
+  cambiarContrasena
 };
