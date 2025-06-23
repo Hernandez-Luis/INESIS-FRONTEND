@@ -416,7 +416,7 @@ export const MiTutor = ({ onAdd, update }) => {
                             <p className='fs-3 d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
                             <p style={{ color: 'var(--color-gris1)' }}>Datos del padre, madre o tutor o familiar más cercano (preferiblemente, del que se depende económicamente)</p>
                             {/* DATOS PERSONALES */}
-                            <div className="col-xs-12 col-lg-6" style={{ backgroundColor: "blue" }}>
+                            <div className="col-xs-12 col-lg-6">
                                 <div className="tarjeta-border h-100 w-100 p-4 p-lg-5 mb-4">
                                     <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
                                     {/* Nombre completo */}
@@ -547,7 +547,7 @@ export const MiTutor = ({ onAdd, update }) => {
                             {/* FIN DATOS PERSONALES */}
 
                             {/* DOMICILIO */}
-                            <div className="col-12 col-lg-6" style={{backgroundColor: "black"}}>
+                            <div className="col-12 col-lg-6">
                                 <div className="tarjeta-border h-100 p-5">
                                     <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
                                     <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>

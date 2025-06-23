@@ -1,8 +1,5 @@
-import React from 'react'
+
 import { MisDatos } from './MisDatos'
-import GastosIngresosService from '../../services/GastosIngresosService';
-import Swal from 'sweetalert2';
-import TransporteService from '../../services/TransporteService';
 import MisDatosService from '../../services/MisDatosService';
 
 

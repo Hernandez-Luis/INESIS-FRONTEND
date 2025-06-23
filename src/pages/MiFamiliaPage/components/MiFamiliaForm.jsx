@@ -25,6 +25,11 @@ import serviciosViviendaService from '../../../services/serviciosViviendaService
 import BienesHogarService from '../../../services/BienesHogarService';
 import personasDependientesService from '../../../services/personasDependientesService';
 import DomicilioCpService from '../../../services/DomicilioCpService';
+import AlumnoService from '../../../services/AlumnoService';
+import CatRegionDistritoService from '../../../services/CatRegionDistritoService';
+import CatParentescoService from '../../../services/CatParentescoService';
+import { useNavigate } from 'react-router-dom';
+
 
 const MiFamiliaForm = () => {
     // ********************************** DEFINICION DE VARIABLES  *****************************************
@@ -59,9 +64,31 @@ const MiFamiliaForm = () => {
     const [idDomicilio, setIdDomicilio] = useState(null);
     const [viviendaFamiliarSeleccionada, setViviendaFamiliarSeleccionada] = useState(null);
 
+    const [datosAlumno, setDatosAlumno] = useState(null);
+    const [domicilioCoincide, setDomicilioCoincide] = useState('');
+    const [disabled, setDisabled] = useState(false);
+
+    const [regiones, setRegiones] = useState([]);
+    const [distritos, setDistritos] = useState([]);
+
+    const [regionSeleccionada, setRegionSeleccionada] = useState('');
+    const [distritoSeleccionado, setDistritoSeleccionado] = useState('');
+
+    // Agregar estados para "Otro"
+    const [otroRegionTexto, setOtroRegionTexto] = useState('');
+    const [otroDistritoTexto, setOtroDistritoTexto] = useState('');
+    const [parentescos, setParentescos] = useState([]);
+
+
+    const OTRO_REGION_ID = "9"; // ID que identifica la opción "Otro" en regiones
+    const OTRO_DISTRITO_ID = "26"; // ID que identifica la opción "Otro" en distritos
+    const navigate = useNavigate(); // Añadir esta línea
+
+
+
     // ********************************* RELACION CON CATALOGOS *******************************************
     const [numPersonasHabitan, setNumPersonasHabitan] = useState('');
-    const OTRO_ID = 5;
+    const OTRO_ID = "5";
     const [otroServicioTexto, setOtroServicioTexto] = useState('');
 
     const [numDependientes, setNumDependientes] = useState(0);
@@ -124,11 +151,212 @@ const MiFamiliaForm = () => {
         }
     };
 
+    // Agregar función para cargar datos existentes de Mi Familia
+    const setDatosMiFamiliaAlumno = (data) => {
+        console.log("=== FUNCIÓN EJECUTÁNDOSE ===");
+        console.log("Datos de mi familia del alumno: ", data);
+
+        // Cargar datos básicos de Mi Familia
+        setDataMiFamilia({
+            telefono: data?.telefono || '',
+            num_hermanos: data?.numHermanos ?? '',
+            num_hermanos_estudiando: data?.numHermanosEstudiando ?? '',
+            num_hermanos_no_estudiando: data?.numHermanosNoEstudiando ?? '',
+            num_hermanos_licenciatura: data?.numHermanosLicenciatura ?? '',
+        });
+
+        // Cargar escolaridades de padres
+        setEscolaridadPadre(data?.escolaridadPadre?.id || '');
+        setEscolaridadMadre(data?.escolaridadMadre?.id || '');
+
+        // Cargar datos de vivienda
+        if (data?.viviendaFamiliar) {
+            setNumPersonasHabitan(data.viviendaFamiliar.numPersonasHabitan || '');
+            setSituacionViviendaSeleccionada(data.viviendaFamiliar.situacionVivienda?.id || '');
+            setTipoViviendaSeleccionado(data.viviendaFamiliar.tipoVivienda?.id || '');
+            setMaterialSeleccionado(data.viviendaFamiliar.materialVivienda?.id || '');
+
+            // Cargar región y distrito
+            setRegionSeleccionada(data.viviendaFamiliar.region || '');
+            setDistritoSeleccionado(data.viviendaFamiliar.distrito || '');
+
+            // Cargar servicios de vivienda
+            if (data.viviendaFamiliar.serviciosVivienda && data.viviendaFamiliar.serviciosVivienda.length > 0) {
+                const serviciosIds = data.viviendaFamiliar.serviciosVivienda.map(servicio => String(servicio.catServiciosVivienda.id));
+                setServiciosOtroSelecciondo(serviciosIds);
+
+                // Si hay texto "otro" en serviciosOtro
+                if (data.viviendaFamiliar.serviciosOtro) {
+                    setOtroServicioTexto(data.viviendaFamiliar.serviciosOtro);
+                }
+            }
+        }
+
+        // Cargar información de internet
+        if (data?.catInternet) {
+            setInternetSeleccionado(data.catInternet.id || '');
+        }
+
+        // Cargar bienes del hogar seleccionados
+        if (data?.bienesHogar && data.bienesHogar.length > 0) {
+            const bienesIds = data.bienesHogar.map(bien => String(bien.catBienHogar.id));
+            setSelectedBienesHogar(bienesIds);
+        }
+
+        // Cargar medios de estudio seleccionados
+        if (data?.mediosEstudio && data.mediosEstudio.length > 0) {
+            const mediosIds = data.mediosEstudio
+                .map(medio => medio.catMediosEstudio?.id)
+                .filter(id => id !== undefined && id !== null)
+                .map(id => String(id));
+            setMediosEstudioSeleccionados(mediosIds);
+        }
+
+        // Cargar servicios de vivienda seleccionados
+        if (data?.serviciosVivienda && data.serviciosVivienda.length > 0) {
+            const serviciosIds = data.serviciosVivienda.map(servicio => String(servicio.servicioViviendaId));
+            setServiciosOtroSelecciondo(serviciosIds);
+
+            // Verificar si hay servicio "Otro" y cargar su texto
+            const servicioOtro = data.serviciosVivienda.find(servicio => servicio.esOtro === true);
+            if (servicioOtro && servicioOtro.textoOtro) {
+                setOtroServicioTexto(servicioOtro.textoOtro);
+            }
+        }
+
+        // Cargar datos del domicilio
+        if (data?.domicilio) {
+            setDataDomicilio({
+                estado: data.domicilio.estado || '',
+                municipio: data.domicilio.municipio || '',
+                colonia: data.domicilio.colonia || '',
+                localidad: data.domicilio.localidad || '',
+                distrito: data.domicilio.distrito || '',
+                region: data.domicilio.region || '',
+                cp: data.domicilio.cp || ''
+            });
+
+            // Establecer región y distrito seleccionados
+            if (data.viviendaFamiliar?.region) {
+                setRegionSeleccionada(data.viviendaFamiliar.region);
+            }
+            if (data.viviendaFamiliar?.distrito) {
+                setDistritoSeleccionado(data.viviendaFamiliar.distrito);
+            }
+
+            // Por defecto, si ya tiene domicilio registrado, asumir que no coincide con el del alumno
+            // a menos que sea exactamente el mismo ID
+            if (data.domicilio.id === datosAlumno?.misDatos?.domicilio?.id) {
+                setDomicilioCoincide('Si');
+                setDisabled(true);
+            } else {
+                setDomicilioCoincide('No');
+                setDisabled(false);
+            }
+        }
+
+        // Cargar personas dependientes - CORREGIDO
+        if (data?.personasDependientes && data.personasDependientes.length > 0) {
+            setNumDependientes(data.personasDependientes.length);
+            setDependientes(data.personasDependientes.map(persona => ({
+                nombrePersona: persona.nombrePersona || '',
+                edad: persona.edad || '',
+                parentesco: persona.parentesco?.id || '',
+                archivo: null, // Los archivos no se pueden precargar por seguridad
+                nombreArchivo: persona.nombreArchivo || '', // Para mostrar el nombre del archivo existente
+                rutaArchivo: persona.rutaArchivo || '' // Para referencia del archivo existente
+            })));
+        } else if (data?.numPersonasDependen) {
+            // Si no hay personas dependientes pero sí el número, establecer solo el número
+            setNumDependientes(data.numPersonasDependen);
+        }
+
+    };
+
+    // **********************************  OBTENER DATOS DEL ALUMNO  *****************************************
+
+    const obtenerDatosPorAlumno = async () => {
+        try {
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+            const alumnoId = usuario?.alumnoId;
+            if (!alumnoId) {
+                console.error('No se encontró el alumnoId en el localStorage.');
+                return;
+            }
+            let datos = await AlumnoService.getById(alumnoId);
+            console.log("Datos del alumno: ", datos);
+            setDatosAlumno(datos);
+
+            // Verificar si ya tiene datos de Mi Familia
+            if (datos.miFamilia) {
+                console.log("Datos de mi familia existentes: ", datos.miFamilia);
+                setDatosMiFamiliaAlumno(datos.miFamilia);
+            }
+        } catch (error) {
+            console.log("Error al obtener datos del alumno: ", error);
+        }
+    };
+
+    // Funciones de conversión booleano a Si/No y viceversa
+    const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
+    const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
+
+    const handleDomicilioCoincide = (e) => {
+        const { value } = e.target;
+        setDomicilioCoincide(value);
+
+        if (value === "Si" || value === true) {
+            setDisabled(true);
+            if (datosAlumno?.misDatos?.domicilio) {
+                setDataDomicilio({
+                    cp: datosAlumno.misDatos.domicilio.cp || '',
+                    estado: datosAlumno.misDatos.domicilio.estado || '',
+                    municipio: datosAlumno.misDatos.domicilio.municipio || '',
+                    colonia: datosAlumno.misDatos.domicilio.colonia || '',
+                    localidad: datosAlumno.misDatos.domicilio.localidad || '',
+                    distrito: datosAlumno.misDatos.domicilio.distrito || '',
+                    region: datosAlumno.misDatos.domicilio.region || ''
+                });
+                setRegionSeleccionada(datosAlumno.misDatos.domicilio.region);
+                setDistritoSeleccionado(datosAlumno.misDatos.domicilio.distrito);
+                setIdDomicilio(datosAlumno.misDatos.domicilio.id);
+            }
+        } else if (value === "No" || value === false) {
+            setDisabled(false);
+            setDataDomicilio(formularioInicialDomicilio);
+
+            // Limpiar también los valores de los combos
+            setRegionSeleccionada('');
+            setDistritoSeleccionado('');
+
+            setIdDomicilio(null);
+            setColonias([]);
+        }
+    };
+
     // - No aplica en frontend directo, porque se consulta desde el backend por API.
     // *********************************  INICIALIZANDO FORMULARIOS  ***************************************
     useEffect(() => {
-        obtenerCatalogos();
+        const cargarDatos = async () => {
+            await obtenerCatalogos();
+            await obtenerDatosPorAlumno();
+        };
+        cargarDatos();
     }, []);
+
+    // useEffect para buscar CP cuando se carga desde datos del alumno:
+    useEffect(() => {
+        if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
+            handleBuscarCP(dataDomicilio.cp);
+        }
+    }, [dataDomicilio.cp]);
+
+
+    useEffect(() => {
+        if (regionSeleccionada && regionSeleccionada !== OTRO_REGION_ID) {
+            filtrarDistritosPorRegion(regionSeleccionada);
+        }
+    }, [regionSeleccionada]);
 
     // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
     const obtenerCatalogos = async () => {
@@ -142,6 +370,12 @@ const MiFamiliaForm = () => {
             const medios = await CatMediosEstudioService.getAll();
             const serviciosOtro = await CatServiciosOtro.getAll();
 
+            const regiones = await CatRegionDistritoService.getAllRegions();
+            const distritos = await CatRegionDistritoService.getAllDistricts();
+            const parentescos = await CatParentescoService.getAll();
+
+
+
             setBienesHogar(bienes);
             setEscolaridades(escolaridad);
             setMaterialesVivienda(materiales);
@@ -151,6 +385,11 @@ const MiFamiliaForm = () => {
             setSituacionesVivienda(situaciones);
             setMediosEstudio(medios);
             setServiciosOtro(serviciosOtro);
+
+            setRegiones(regiones);
+            setDistritos(distritos);
+            setParentescos(parentescos); // Establecer parentescos
+
         } catch (error) {
             console.error('Error al obtener los catálogos', error);
             mostrarMensajeError('Hubo un error al cargar los catálogos');
@@ -161,13 +400,127 @@ const MiFamiliaForm = () => {
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
         //console.log("Nombre: ", name, " Valor: ", value)
-        if (name === "cp")
+        if (name === "cp" && value.length === 5) {
             handleBuscarCP(value)
+        }
         setDataDomicilio((prevData) => ({
             ...prevData,
             [name]: value
-        }))
+        }));
     }
+
+    //  manejador para cambio de región
+    const handleChangeRegion = (e) => {
+        const regionId = e.target.value;
+        setRegionSeleccionada(regionId);
+
+        // Actualizar el domicilio
+        if (regionId === OTRO_REGION_ID) {
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                region: otroRegionTexto // Si es "Otro", usar el texto
+            }));
+        } else {
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                region: regionId
+            }));
+            setOtroRegionTexto(''); // Limpiar texto si no es "Otro"
+        }
+
+        // Limpiar distrito cuando cambie región
+        setDistritoSeleccionado('');
+        setDataDomicilio((prevData) => ({
+            ...prevData,
+            distrito: ''
+        }));
+
+        // Filtrar distritos por región si se necesita
+        if (regionId) {
+            filtrarDistritosPorRegion(regionId);
+        } else {
+            // Si no hay región seleccionada, mostrar todos los distritos
+            obtenerTodosLosDistritos();
+        }
+
+        if (regionId === OTRO_REGION_ID) {
+            setDistritoSeleccionado(OTRO_DISTRITO_ID);
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                distrito: otroDistritoTexto // Usar el texto de otro distrito
+            }));
+        }
+    };
+
+    // Función para filtrar distritos por región
+    const filtrarDistritosPorRegion = async (regionId) => {
+        try {
+            const distritosFilterados = await CatRegionDistritoService.getDistrictsByRegion(regionId);
+            setDistritos(distritosFilterados);
+        } catch (error) {
+            console.error('Error al filtrar distritos por región:', error);
+            // En caso de error, mantener todos los distritos
+            obtenerTodosLosDistritos();
+        }
+    };
+
+    // Función para obtener todos los distritos
+    const obtenerTodosLosDistritos = async () => {
+        try {
+            const todosLosDistritos = await CatRegionDistritoService.getAllDistricts();
+            setDistritos(todosLosDistritos);
+        } catch (error) {
+            console.error('Error al obtener todos los distritos:', error);
+        }
+    };
+
+    // Agregar manejador para cambio de distrito
+    const handleChangeDistrito = (e) => {
+        const distritoId = e.target.value;
+        setDistritoSeleccionado(distritoId); // Setear el valor del combo
+
+        // Actualizar el domicilio
+        if (distritoId === OTRO_DISTRITO_ID) {
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                distrito: otroDistritoTexto // Si es "Otro", usar el texto
+            }));
+        } else {
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                distrito: distritoId
+            }));
+            setOtroDistritoTexto(''); // Limpiar texto si no es "Otro"
+        }
+    };
+
+    const handleOtroRegionTexto = (e) => {
+        const texto = e.target.value;
+        setOtroRegionTexto(texto);
+
+        // Si está seleccionado "Otro", actualizar el domicilio inmediatamente
+        if (regionSeleccionada === OTRO_REGION_ID) {
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                region: texto
+            }));
+        }
+    };
+
+    const handleOtroDistritoTexto = (e) => {
+        const texto = e.target.value;
+        setOtroDistritoTexto(texto);
+
+        // Si está seleccionado "Otro", actualizar el domicilio inmediatamente
+        if (distritoSeleccionado === OTRO_DISTRITO_ID) {
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                distrito: texto
+            }));
+        }
+    };
+
+
     const handleChangeEscolaridadPadre = (e) => {
         setEscolaridadPadre(e.target.value);
     };
@@ -242,15 +595,64 @@ const MiFamiliaForm = () => {
     const handleFileUpload = (index, file) => {
         const nuevos = [...dependientes];
         nuevos[index].archivo = file;
+        nuevos[index].nombreArchivo = file ? file.name : ""; // <-- Guarda el nombre
         setDependientes(nuevos);
     };
 
+    // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  ******************************
+
+    const mostrarAlerta = (config) => {
+        return Swal.fire({
+            ...config,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: () => {
+                const confirmButton = Swal.getConfirmButton();
+                confirmButton.style.backgroundColor = 'var(--color-verde)';
+            },
+        });
+    };
+
+    const mostrarError = (mensajeHTML) => {
+        mostrarAlerta({
+            title: 'Error',
+            html: mensajeHTML, // Usa HTML para mostrar los errores sin viñetas
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+        });
+    };
+
+    const mostrarCuidado = (mensaje) => {
+        mostrarAlerta({
+            title: '¡Alerta!',
+            text: mensaje,
+            icon: 'warning',
+            confirmButtonText: 'Aceptar',
+        });
+    };
+
+    const mostrarExito = (mensaje) => {
+        mostrarAlerta({
+            title: 'Éxito',
+            text: mensaje,
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+        }).then(() => {
+            navigate('/menuSolicitar')
+        });
+    };
+
+
     const mostrarMensajeErrorAlGuardar = (mensaje) => {
-        Swal.fire('Error', mensaje, 'error');
+        mostrarError(mensaje);
     };
 
     const mostrarMensajeExito = (mensaje) => {
-        Swal.fire('Éxito', mensaje, 'success');
+        mostrarExito(mensaje);
+    };
+
+    const mostrarMensajeError = (mensaje) => {
+        mostrarError(mensaje);
     };
 
     const handleChange = (e) => {
@@ -268,134 +670,175 @@ const MiFamiliaForm = () => {
 
     const handleSubmit = async () => {
         try {
-            // 1. Guardar medios 
-            const mediosEstudiosPayload = {
-                id_cat_medios_estudios: parseInt(mediosEstudioSeleccionados) // clave id (no id_medios)
-            };
-
-            console.log('Payload a enviar medio de estudio:', mediosEstudiosPayload);
-            await MediosEstudioService.create(mediosEstudiosPayload);
-
-            // 2. guardar viviendas familiares
-            const viviendaPayload = {
-                num_personas_habitan: parseInt(numPersonasHabitan),
-                id_cat_situacion_vivienda: parseInt(situacionViviendaSeleccionada),
-                id_cat_tipo_vivienda: parseInt(tipoViviendaSeleccionado),
-                id_cat_material_vivienda: parseInt(materialSeleccionado),
-                id_servicio_otro: parseInt(servicioOtroSeleccionado),
-                servicios_otro: otroServicioTexto
-            };
-            console.log('Payload a enviar:', viviendaPayload);
-            const viviendaResponse = await viviendaFamiliarService.create(viviendaPayload);
-            const viviendaId = viviendaResponse.id || viviendaResponse.data.id;
-            if (!viviendaId) {
-                throw new Error('No se obtuvo el id de vivienda familiar tras crearla');
-            }
-
-            // 3. Guardar servicios vivienda, ahora con id_vivienda_familiar incluido
-            const serviciosPromises = servicioOtroSeleccionado.map((id) => {
-                const payload = {
-                    servicioViviendaId: parseInt(id),
-                    id_vivienda_familiar: viviendaId
+            // Preparar datos de domicilio
+            let datosDomicilio = {};
+            if (domicilioCoincide === 'Si' || domicilioCoincide === true) {
+                datosDomicilio = {
+                    usarDomicilioAlumno: true,
+                    idDomicilioAlumno: datosAlumno?.misDatos?.domicilio?.id,
+                    region: datosAlumno?.misDatos?.domicilio?.region || regionSeleccionada,
+                    distrito: datosAlumno?.misDatos?.domicilio?.distrito || distritoSeleccionado
                 };
-                if (parseInt(id) === OTRO_ID && otroServicioTexto.trim() !== '') {
-                    payload.otro = otroServicioTexto;
-                }
-                return serviciosViviendaService.create(payload);
-            });
+            } else {
+                datosDomicilio = {
+                    usarDomicilioAlumno: false,
+                    ...dataDomicilio,
+                    calle: dataDomicilio.calle || "N/A",
+                    numero: dataDomicilio.numero || "N/A",
+                };
+            }
 
-            // 4. Guardar Mi Familia
-
-            const payloadMiFamilia = {
-                alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
-                nombre_completo: nombreCompleto,
-                id_domicilio: idDomicilio,
-                telefono: dataMiFamilia.telefono,
-                num_hermanos: dataMiFamilia.num_hermanos,
-                num_hermanos_estudiando: dataMiFamilia.num_hermanos_estudiando,
-                num_hermanos_no_estudiando: dataMiFamilia.num_hermanos_no_estudiando,
-                num_hermanos_licenciatura: dataMiFamilia.num_hermanos_licenciatura,
-                id_cat_vivienda_familiar: viviendaId,
-                id_medios_estudio: mediosEstudioSeleccionados.map(id => parseInt(id)),
-                id_escolaridad_padre: parseInt(escolaridadPadre),
-                id_escolaridad_madre: parseInt(escolaridadMadre),
-                // Si tienes otros campos relevantes, agregarlos aquí
+            // Función para convertir archivo a base64
+            const convertirArchivoABase64 = (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        // Extraer solo la parte base64 (sin el prefijo "data:tipo;base64,")
+                        const base64 = reader.result.split(',')[1];
+                        resolve(base64);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
             };
-            console.log('Payload Mi Familia:', payloadMiFamilia);
-            const miFamiliaResponse = await MiFamiliaService.create(payloadMiFamilia);
 
-            const miFamiliaId = miFamiliaResponse.id || miFamiliaResponse.params.id;
-            if (!miFamiliaId) {
-                throw new Error('No se obtuvo el id de mi familia tras crearla');
+            // Preparar dependientes con archivos convertidos a base64
+            const dependientesData = await Promise.all(
+                dependientes.map(async (dependiente) => {
+                    let archivoBase64 = null;
+
+                    if (dependiente.archivo) {
+                        try {
+                            const base64 = await convertirArchivoABase64(dependiente.archivo);
+                            archivoBase64 = {
+                                name: dependiente.archivo.name,
+                                size: dependiente.archivo.size,
+                                type: dependiente.archivo.type,
+                                contenido: base64 // Aquí está el contenido del archivo en base64
+                            };
+                        } catch (error) {
+                            console.error('Error al convertir archivo a base64:', error);
+                            // Si hay error, enviar sin archivo
+                            archivoBase64 = null;
+                        }
+                    }
+
+                    return {
+                        nombrePersona: dependiente.nombrePersona,
+                        edad: parseInt(dependiente.edad),
+                        parentesco: dependiente.parentesco,
+                        archivo: archivoBase64
+                    };
+                })
+            );
+
+            const tieneInternet = () => {
+                return internetSeleccionado !== "1";
+            };
+
+            // Crear el payload único con toda la información
+            const payloadCompleto = {
+                // Información del alumno
+                alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
+
+                // Datos del domicilio
+                domicilio: datosDomicilio,
+
+                // Datos de Mi Familia
+                miFamilia: {
+                    telefono: dataMiFamilia.telefono,
+                    num_hermanos: dataMiFamilia.num_hermanos,
+                    num_hermanos_estudiando: dataMiFamilia.num_hermanos_estudiando,
+                    num_hermanos_no_estudiando: dataMiFamilia.num_hermanos_no_estudiando,
+                    num_hermanos_licenciatura: dataMiFamilia.num_hermanos_licenciatura,
+                    id_escolaridad_padre: parseInt(escolaridadPadre),
+                    id_escolaridad_madre: parseInt(escolaridadMadre),
+                    num_personas_dependen: parseInt(numDependientes) || 0
+                },
+
+                // Datos de la vivienda
+                vivienda: {
+                    num_personas_habitan: parseInt(numPersonasHabitan),
+                    id_cat_situacion_vivienda: parseInt(situacionViviendaSeleccionada),
+                    id_cat_tipo_vivienda: parseInt(tipoViviendaSeleccionado),
+                    id_cat_material_vivienda: parseInt(materialSeleccionado),
+                    id_cat_internet: parseInt(internetSeleccionado),
+                    tieneInternet: tieneInternet(), // false si ID es "1", true para otros IDs
+                },
+
+                // Servicios de la vivienda
+                serviciosVivienda: servicioOtroSeleccionado.map(id => ({
+                    servicioViviendaId: parseInt(id),
+                    esOtro: parseInt(id) === OTRO_ID,
+                    textoOtro: parseInt(id) === OTRO_ID ? otroServicioTexto : null
+                })),
+
+                // Bienes del hogar
+                bienesHogar: selectedBienesHogar.map(id => ({
+                    id_cat_bienes_hogar: parseInt(id)
+                })),
+
+                // Medios de estudio
+                mediosEstudio: mediosEstudioSeleccionados
+                    .filter(id => id && !isNaN(Number(id)))
+                    .map(id => ({
+                        id_cat_medios_estudios: parseInt(id)
+                    })),
+
+                // Personas dependientes
+                personasDependientes: dependientesData
+            };
+
+            console.log('Payload completo a enviar:', payloadCompleto);
+
+            let response;
+            // Verificar si es actualización o creación
+            if (datosAlumno.miFamilia !== null) {
+                console.log(datosAlumno);
+                // Actualizar datos existentes
+                const idMiFamilia = datosAlumno.miFamilia.id;
+                response = await MiFamiliaService.update(idMiFamilia, payloadCompleto);
+                console.log('Datos actualizados:', response);
+                mostrarExito('Datos actualizados correctamente');
+            } else {
+                // Crear nuevos datos
+                response = await MiFamiliaService.create(payloadCompleto);
+                console.log('Datos creados:', response);
+                mostrarExito('Datos guardados correctamente');
             }
-
-            // 5. Guardar dependientes
-            // 4. Guardar personas dependientes
-            for (const dependiente of dependientes) {
-                const formData = new FormData();
-                formData.append('nombre_persona', dependiente.nombrePersona);
-                formData.append('edad', dependiente.edad);
-                formData.append('parentesco', dependiente.parentesco);
-                formData.append('id_mi_familia', idMiFamilia);
-
-                if (dependiente.archivo) {
-                    formData.append('nombre_archivo', dependiente.archivo);
-                }
-
-                try {
-                    await personasDependientesService.create(formData);
-                } catch (error) {
-                    console.error('Error al guardar dependiente:', error);
-                    mostrarMensajeErrorAlGuardar('Hubo un error al guardar uno de los dependientes. Verifica los datos e inténtalo nuevamente.');
-                    return; // Cancelar si uno falla
-                }
-            }
-
-            // 6. Guardar bienes hogar
-            const bienesHogarPayload = selectedBienesHogar.map(selectedBien => ({
-                id_mi_familia: miFamiliaId,
-                id_cat_bienes_hogar: parseInt(selectedBien)
-            }));
-
-            console.log('Payload bienes hogar:', bienesHogarPayload);
-
-            for (const bien of bienesHogarPayload) {
-                try {
-                    await BienesHogarService.create(bien);
-                } catch (error) {
-                    console.error('Error al guardar bien del hogar:', bien, error);
-                    mostrarMensajeErrorAlGuardar(`Error al guardar un bien del hogar con ID ${bien.id_cat_bienes_hogar}`);
-                }
-            }
-            // Ejecutar todas las promesas en paralelo
-            await Promise.all(serviciosPromises);
-            mostrarMensajeExito('Datos guardados correctamente');
         } catch (error) {
-            mostrarMensajeErrorAlGuardar('Ocurrió un error al guardar la información');
+            console.error('Error al guardar:', error);
+            mostrarError('Ocurrió un error al guardar la información');
         }
     };
 
-    // **************************  FUNCIONES PARA MOSTRAR MENSAJES AL USUARIO  ******************************
-    const mostrarMensajeError = (mensaje) => {
-        alert(mensaje);
-    };
 
     // ******************************************************************************************************
     return (
-        <div>
-            <div className='d-flex flex-column min-vh-100 mt-3 mb-4 ms-4 me-4'>
+        <div className='px-1'>
+            <div className='d-flex flex-column min-vh-100 mt-3 mb-4 ms-4 me-4 px-5'>
                 <form onSubmit={(e) => { e.preventDefault(); }}>
                     <div className='tarjeta-border p-4 mb-2'>
                         <div className='row'>
                             <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                             <div className='mt-2'>
-                                <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>
-                                    ¿El domicilio de tu tutor coincide con el que te encuentras actualmente?
-                                </label>
+                                <div className='d-flex justify-content-start align-items-center'>
+                                    <label className='fs-5 me-5' style={{ color: 'var(--color-morado3)' }}>
+                                        ¿El domicilio de tu familia coincide con el que te encuentras actualmente?
+                                    </label>
+                                    <RadioSelect
+                                        gris={true}
+                                        options={['Si', 'No']}
+                                        onChange={handleDomicilioCoincide}
+                                        name={"domicilioCoincide"}
+                                        value={domicilioCoincide}
+                                    />
+                                </div>
+                                <div className="line mx-auto mt-4 mb-4"></div>
                                 <div className='row'>
                                     <div className="col-2 mt-2">
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} />
+                                        <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.cp} name={"cp"} disabled={disabled} />
                                     </div>
                                     <div className='col-4 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
@@ -410,20 +853,70 @@ const MiFamiliaForm = () => {
                                         </div>
                                     </div>
 
-                                    <div className='col-3 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
-                                        <input className='form-control' type="text" name={"distrito"} value={dataDomicilio.distrito} onChange={actualizarCamposDomicilio} />
+                                    <div className="col-3 mt-2">
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región</label>
+                                        <SeleccionarCombo
+                                            name="region"
+                                            options={regiones.map((region) => ({
+                                                value: region.id,
+                                                label: region.nombre || region.nombreRegion
+                                            }))}
+                                            value={regionSeleccionada}
+                                            onChange={handleChangeRegion}
+                                            placeholder="Selecciona una región"
+                                        />
+                                        {/* Input para "Otro" en región */}
+                                        {regionSeleccionada === OTRO_REGION_ID && (
+                                            <div className="mt-2">
+                                                <label className='fs-6' style={{ color: 'var(--color-morado3)' }}>
+                                                    Especifique otra región:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={otroRegionTexto}
+                                                    onChange={handleOtroRegionTexto}
+                                                    placeholder="Escriba la región"
+                                                    disabled={disabled}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                     <div className='col-3 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                                         <div>
-                                            <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' />
+                                            <input className='form-control' type="text" onChange={actualizarCamposDomicilio} value={dataDomicilio.localidad} name='localidad' disabled={disabled} />
 
                                         </div>
                                     </div>
-                                    <div className="col-3 mt-2">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región</label>
-                                        <input className='form-control' type="text" name={"region"} value={dataDomicilio.region} onChange={actualizarCamposDomicilio} />
+                                    <div className='col-3 mt-2'>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
+                                        <SeleccionarCombo
+                                            name="distrito"
+                                            options={distritos.map((distrito) => ({
+                                                value: distrito.id,
+                                                label: distrito.nombre || distrito.nombreDistrito
+                                            }))}
+                                            value={distritoSeleccionado}
+                                            onChange={handleChangeDistrito}
+                                            placeholder="Selecciona un distrito"
+                                        />
+                                        {/* Input para "Otro" en distrito */}
+                                        {distritoSeleccionado === OTRO_DISTRITO_ID && (
+                                            <div className="mt-2">
+                                                <label className='fs-6' style={{ color: 'var(--color-morado3)' }}>
+                                                    Especifique otro distrito:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={otroDistritoTexto}
+                                                    onChange={handleOtroDistritoTexto}
+                                                    placeholder="Escriba el distrito"
+                                                    disabled={disabled}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                     <div className='col-3 mt-2'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
@@ -437,6 +930,7 @@ const MiFamiliaForm = () => {
                                                 value={dataDomicilio.colonia}
                                                 onChange={actualizarCamposDomicilio}
                                                 placeholder="Selecciona una opción" // Placeholder
+                                                disabled={disabled}
                                             />
                                         </div>
                                     </div>
@@ -556,6 +1050,7 @@ const MiFamiliaForm = () => {
                                                             style={{ color: 'var(--color-morado3)' }}
                                                             key={otro.id}
                                                             id={otro.id}
+                                                            prefix="servicios-"
                                                             opcion={otro.nombreServicio}
                                                             checked={servicioOtroSeleccionado.includes(String(otro.id))}
                                                             onChange={handleCheckServiciosOtro}
@@ -563,8 +1058,8 @@ const MiFamiliaForm = () => {
                                                     ))}
                                             </div>
                                         ))}
-                                        {servicioOtroSeleccionado.includes(OTRO_ID) && (
-                                            <div className="col-md-4 mb-3">
+                                        {servicioOtroSeleccionado.includes(String(OTRO_ID)) && (
+                                            <div className="col-md-12 mb-2 mt-2">
                                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                     Especifique otro servicio:
                                                 </label>
@@ -596,6 +1091,7 @@ const MiFamiliaForm = () => {
                                                             style={{ color: 'var(--color-morado3)' }}
                                                             key={bien.id}
                                                             id={bien.id}
+                                                            prefix="bienes-"
                                                             opcion={bien.nombreBien}
                                                             checked={selectedBienesHogar.includes(String(bien.id))}
                                                             onChange={handleCheckBienesHogar}
@@ -639,6 +1135,7 @@ const MiFamiliaForm = () => {
                                                             style={{ color: 'var(--color-morado3)' }}
                                                             key={item.id}
                                                             id={item.id}
+                                                            prefix="medios-"
                                                             opcion={item.nombreMedios}
                                                             checked={mediosEstudioSeleccionados.includes(String(item.id))}
                                                             onChange={handleCheckMediosEstudio}
@@ -730,7 +1227,7 @@ const MiFamiliaForm = () => {
 
                         <div className="container">
                             <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                <p className="fs-2 px-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
+                                <p className="fs-2" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
                                     Personas dependientes
                                 </p>
                                 <div className="col-12 col-md-8 mb-3 px-4">
@@ -773,11 +1270,15 @@ const MiFamiliaForm = () => {
 
                                             <div className="col-md-2">
                                                 <label>Parentesco:</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
+                                                <SeleccionarCombo
+                                                    name={`parentesco-${index}`}
+                                                    options={parentescos.map((parentesco) => ({
+                                                        value: parentesco.id,
+                                                        label: parentesco.nombre || parentesco.nombreParentesco
+                                                    }))}
                                                     value={dep.parentesco}
                                                     onChange={(e) => handleChangeDependiente(index, 'parentesco', e.target.value)}
+                                                    placeholder="Selecciona parentesco"
                                                 />
                                             </div>
 
@@ -786,9 +1287,16 @@ const MiFamiliaForm = () => {
                                                 <input
                                                     type="file"
                                                     className="form-control"
-                                                    onChange={(e) => handleFileUpload(index, 'nombreArchivo', e.target.files[0])}
+                                                    onChange={(e) => handleFileUpload(index, e.target.files[0])}
                                                     accept=".jpg,.jpeg,.png,.pdf"
                                                 />
+                                                {dep.nombreArchivo && (
+                                                    <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
+                                                        Archivo enviado: {dep.nombreArchivo}
+                                                        <br />
+                                                        <small>Si subes un nuevo archivo, reemplazará al anterior</small>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

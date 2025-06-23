@@ -1,11 +1,12 @@
-export const CheckBox = ({ id, opcion, onChange, checked }) => {
+export const CheckBox = ({ id, opcion, onChange, checked, prefix }) => {
+    const uniqueId = prefix ? `${prefix}${id}` : id; 
     return (
         <div className="d-flex align-items-center">
             <input
                 style={{ width: '1.8em', height: '1.8em' }}
                 className="form-check-input"
                 type="checkbox"
-                id={id}
+                id={uniqueId}
                 value={id} 
                 onChange={onChange}
                 checked={checked}
