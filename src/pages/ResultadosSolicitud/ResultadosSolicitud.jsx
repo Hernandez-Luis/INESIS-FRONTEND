@@ -4,27 +4,55 @@ import NavInesis from "../../components/NavInesis/NavInesis";
 import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import ServicioAlumno from "../../services/AlumnoService";
+import fechaService from "../../services/FechasRegistradasService";
 
 import "./components/Resultados.css";
 import "../../../src/App.css";
 
 const ResultadosSolicitud = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Vistas
+
+  // Estado observaciones del alumno
   const [observaciones, setObservaciones] = useState("");
 
+  // Estado fecha límite de correcciones 
+  const [fechaFin, setFechaFin] = useState("");
+
+  // Rutas de navegación
   const links = [
     { url: "/MenuAlumno", label: "Inicio" },
     { url: "/ResultadosSolicitud", label: "Resultados Estudio" },
   ];
 
   useEffect(() => {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
-    const alumnoId = usuario?.alumnoId;
+    const usuario = JSON.parse(localStorage.getItem("usuario")); // Usuario localStorage
+    const alumnoId = usuario?.alumnoId; // ID del alumno
 
     if (alumnoId) {
       ServicioAlumno.getById(alumnoId)
         .then((data) => {
+          // Observaciones o un mensaje por defecto
           setObservaciones(data.observaciones || "Sin observaciones registradas.");
+
+          // ID de la carrera del alumno
+          const carreraId = data?.carrera?.id;
+
+          // Carrera asociada, consulta la fecha de corrección
+          if (carreraId) {
+            fechaService.getByCarrera(carreraId)
+              .then((fechaCarrera) => {
+                // Si se obtiene una fechaFin
+                if (fechaCarrera && fechaCarrera.fechaFin) {
+                  const fecha = new Date(fechaCarrera.fechaFin);
+                  const opciones = { day: '2-digit', month: 'long', year: 'numeric' };
+                  const fechaFormateada = fecha.toLocaleDateString('es-MX', opciones);
+                  setFechaFin(fechaFormateada);
+                }
+              })
+              .catch((error) => {
+                console.error("Error al obtener la fecha por carrera:", error);
+              });
+          }
         })
         .catch((error) => {
           console.error("Error al obtener observaciones del alumno:", error);
@@ -42,18 +70,21 @@ const ResultadosSolicitud = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
-        <NavInesis />
-        <MigasRecorrido items={links} />
+        <NavInesis /> 
+        <MigasRecorrido items={links} /> 
         <div className="container text-center mt-4">
           <h1 className="titulo-resultado">Resultado Estudio Socioeconómico</h1>
+
           <p className="mensaje-alerta">
             ¡Ups!, al parecer tienes detalles en tu Estudio
           </p>
+
           <p className="mensaje-fecha">
-            Recuerda que tienes hasta el día 10 de octubre a las 23:59:59 para entregar tus correcciones.
+            {fechaFin
+              ? <>Recuerda que tienes hasta el día <b>{fechaFin}</b> a las <b>23:59:59</b> para entregar tus correcciones.</>
+              : <>Aún no tienes asignada una fecha para entregar tus correcciones.</>}
           </p>
 
-          {/* Sección de Comentarios / Observaciones */}
           <div className="mt-4">
             <h5 className="subtitulo-observaciones">Observaciones</h5>
             <div className="observacion-cuadro rounded p-4">
@@ -66,6 +97,7 @@ const ResultadosSolicitud = () => {
           </button>
         </div>
       </div>
+
       <div className="mt-md-5 mt-sm-3">
         <FooterInesis />
       </div>
