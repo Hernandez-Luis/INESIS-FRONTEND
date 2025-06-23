@@ -167,3 +167,34 @@
   color: #dc3545 !important;
   font-weight: bold !important;
 }
+
+
+/* Responsividad para el modal de agregar contraseña */
+@media (max-width: 576px) {
+  .modal-fechas .modal-content {
+    border-radius: 8px;
+    padding: 0 5px;
+    width: 98vw;
+    min-width: unset;
+  }
+  .modal-header-fechas,
+  .modal-body-fechas,
+  .modal-footer-fechas {
+    padding: 12px !important;
+  }
+  .modal-title-fechas {
+    font-size: 1rem;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .form-control-fechas,
+  .form-select-fechas {
+    font-size: 0.95rem;
+    padding: 10px 12px !important;
+  }
+  .btn-fechas {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1rem;
+  }
+}

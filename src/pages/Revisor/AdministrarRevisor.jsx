@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
-import '../Alumno/components/AdministrarAlumnos.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
 import TablaRegistros from '../../components/Tablas/TablaRegistros';
-import { useNavigate } from "react-router-dom";
-
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import revisorService from '../../services/RevisorService';
+import Swal from 'sweetalert2';
+import '../Alumno/components/AdministrarAlumnos.css';
 
 const AdministrarRevisor = () => {
-    const [revisores, setRevisor] = useState([]);
+    const [revisores, setRevisores] = useState([]);
     const navigate = useNavigate();
 
     const links = [
@@ -18,64 +19,80 @@ const AdministrarRevisor = () => {
     ];
 
     useEffect(() => {
-        const fetchRevisor = async () => {
+        const fetchRevisores = async () => {
             try {
-                const response = await fetch("http://localhost:8000/api/revisor");//AQUI DEBES DE USAR EL SERVICE
-                if (!response.ok) {
-                    throw new Error("Error al obtener los datos");
-                }
-                const dataBase = await response.json();
-                setRevisor(revisor);
-
+                const data = await revisorService.getAll();
+                const revisoresConNombreCompleto = data.map(r => ({
+                    ...r,
+                    nombreCompleto: r.nombre && r.apellidoPaterno && r.apellidoMaterno
+                        ? `${r.nombre} ${r.apellidoPaterno} ${r.apellidoMaterno}`
+                        : r.nombre || '' 
+                }));
+                setRevisores(revisoresConNombreCompleto);
             } catch (error) {
-                console.error("Error al cargar alumnos:", error);
+                console.error("Error al cargar revisores:", error);
             }
         };
 
-        fetchRevisor();
+        fetchRevisores();
     }, []);
 
-
-    const revisor = [
-        { matricula: 34533, nombre: "Magdiel Pascual", Departamento: "Cubo 102", NIP: "1234456" },
-        { matricula: 23453, nombre: "Leobardo Santiago Paz", Departamento: "Instituto de Ciencias Ambientales", NIP: "12345678" },
-        { matricula: 23433, nombre: "Juan Gabriel Ruiz", Departamento: "Jefatura", NIP: "123423478" },
-        { matricula: 7665, nombre: "Alberto Barbosa", Departamento: "Cubo 167", NIP: "12237678" },
-        { matricula: 24563, nombre: "Luis Alberto Hernandez", Departamento: "Cubo 103", NIP: "12345234" },
-        { matricula: 45687, nombre: "Ramiro Hernandez", Departamento: "Cubo 113", NIP: "234678" },
-        { matricula: 75633, nombre: "Efren David", Departamento: "Instituto de Idiomas", NIP: "1232342" },
+    // Columnas para la tabla
+    const columns = [
+        { header: 'Matrícula', accessor: 'matricula' },
+        { header: 'Nombre completo', accessor: 'nombreCompleto' },
+        { header: "Departamento", accessor: "departamento" },
     ];
-
-    const titulos = ["Matrícula", "Nombre Completo", "Departamento", "Num. Empleado"];
 
     const nombreData = "revisor";
 
     const subTitulo = "Gestión de los revisores del estudio socioeconómico";
 
-    const columns = [
-        { header: 'Matrícula', accessor: 'matricula' },
-        { header: 'Nombre completo', accessor: 'nombre' },
-        { header: "Departamento", accessor: "Departamento" },
-        { header: "Num. Empleado", accessor: "NIP" },
-    ];
-
     const rutaBoton = "/AgregarRevisor";
+
+    // Función para editar revisor
+    const editarRevisor = (revisor) => {
+        navigate('/AgregarRevisor', { state: { revisor } });
+    };
+
+    // Función para eliminar revisor
+    const eliminarRevisor = async (revisor) => {
+        const result = await Swal.fire({
+            title: `¿Eliminar a ${revisor.nombreCompleto || revisor.nombre}?`,
+            text: "Esta acción no se puede deshacer.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await revisorService.deleteRevisor(revisor.id);
+                setRevisores(prev => prev.filter(r => r.id !== revisor.id));
+                Swal.fire('Eliminado', 'El revisor fue eliminado correctamente', 'success');
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+                Swal.fire('Error', 'No se pudo eliminar el revisor', 'error');
+            }
+        }
+    };
 
     return (
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
             <TablaRegistros
-                data={revisor}
-                titulos={titulos}
+                data={revisores}
+                columns={columns}
                 nombreData={nombreData}
                 subTitulo={subTitulo}
                 rutaBoton={rutaBoton}
-                columns={columns}
+                onEdit={editarRevisor}
+                onDelete={eliminarRevisor}
             />
             <FooterInesis />
         </div>
-
     );
 };
 

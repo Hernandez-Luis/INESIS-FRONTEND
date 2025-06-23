@@ -5,7 +5,7 @@ import '../CambiarContraseña/ModalCambiarContraseña.css';
 import UsuarioService from '../../services/UsuarioService';
 import Swal from 'sweetalert2';
 
-const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) => {
+const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, usuario }) => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -102,7 +102,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
       newErrors.confirm = true;
     }
 
-    // Si hay campos vacíos, mostrar alerta y marcar solo los vacíos
+    // Si hay campos vacíos, mostrar alerta
     if (Object.keys(newErrors).length > 0) {
       setError(newErrors);
       mostrarAlerta({
@@ -132,46 +132,55 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
       mostrarAlerta({
         icon: 'info',
         title: '¡Ups! Verifica los campos',
-        text: firstError + ' Apoyate de la ayuda para crear una contraseña segura.'
+        text: firstError + ' Apóyate de la ayuda para crear una contraseña segura.'
       });
       return;
     }
 
-    // Si se requiere la contraseña actual, verificarla con el backend
-    if (requireCurrentPassword) {
-      try {
-        const usuario = JSON.parse(localStorage.getItem("usuario"));
-        console.log("Usuario actual:", usuario);
-        const data = await UsuarioService.verificarContrasena({
-          usuario: usuario.usuario,
-          contrasena: passwords.current
-        });
-        console.log("Verificación de contraseña:", data);
-        if (!data.valida) {
-          mostrarAlerta({
-            icon: 'warning',
-            title: 'Advertencia ⚠️',
-            text: 'La contraseña actual es incorrecta.'
-          });
-          return;
-        }
-      } catch (err) {
-        mostrarAlerta({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error al verificar la contraseña.'
-        });
-        return;
-      }
-    }
+    try {
+      const usuarioStorage = JSON.parse(localStorage.getItem("usuario"));
 
-    // Aquí iría la lógica para cambiar la contraseña (otro fetch al backend)
-    mostrarAlerta({
-      icon: 'success',
-      title: '¡Contraseña cambiada con éxito!',
-      text: 'La contraseña ha sido cambiada correctamente.'
-    });
-    handleClose();
+      if (requireCurrentPassword) {
+        // Verificar contraseña actual y luego actualizar
+        await UsuarioService.verificarYActualizarContrasena({
+          usuario: usuarioStorage.usuario,
+          contrasena: passwords.current,
+          nuevaContrasena: passwords.new
+        });
+      } else {
+        // Solo actualizar sin verificar contraseña actual
+        console.log("Usuario sin contraseña actual:", usuario);
+        console.log("Nueva contraseña:", passwords.new);
+        await UsuarioService.cambiarContrasena({
+          usuario: usuario,
+          nuevaContrasena: passwords.new
+        });
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Contraseña cambiada con éxito!',
+        text: 'La contraseña ha sido cambiada correctamente.',
+        confirmButtonText: 'OK',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: true
+      }).then(() => {
+        if (requireCurrentPassword) {
+          localStorage.removeItem("usuario");
+          window.location.href = "/";
+        } else {
+          handleClose();
+        }
+      });
+
+    } catch (err) {
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error',
+        text: err?.mensaje || 'Error al cambiar la contraseña.'
+      });
+    }
   };
 
   return (
@@ -191,6 +200,8 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
                   className={`mcambiar-input${error.current ? " mcambiar-input-error" : ""}`} placeholder="Contraseña actual"
                   value={passwords.current}
                   onChange={handleChange}
+                  maxLength={18}
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -212,6 +223,8 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
                 placeholder="Nueva contraseña"
                 value={passwords.new}
                 onChange={handleChange}
+                maxLength={18}
+                minLength={8}
               />
               <button
                 type="button"
@@ -233,6 +246,8 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword }) 
                 placeholder="Confirmar nueva contraseña"
                 value={passwords.confirm}
                 onChange={handleChange}
+                maxLength={18}
+                minLength={8}
               />
               <button
                 type="button"

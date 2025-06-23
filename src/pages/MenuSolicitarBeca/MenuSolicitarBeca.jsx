@@ -56,6 +56,12 @@ export const MenuSolicitarBeca = () => {
         miFamilia: 'completo',
       }));
     }
+    if (response.gastosIngresosFamiliares !== null && response.gastosIngresosFamiliares.moduloCompleto === true) {
+      setCardClasses(prev => ({
+        ...prev,
+        gastosFamiliares: 'completo',
+      }));
+    }
   }
 
   return (

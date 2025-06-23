@@ -9,56 +9,69 @@ import Alumno from "../../services/AlumnoService";
 import { Link } from "react-router-dom";
 
 const ListadoEstudioSocioeconomico = () => {
+
   const links = [
     { url: "/MenuRevisor", label: "Inicio" },
     { url: "/ListadoEstudioSocioeconomico", label: "Listado Estudios Socioeconómicos" },
   ];
 
-  const [carreras, setCarreras] = useState([]);
-  const [alumnos, setAlumnos] = useState([]);
-  const [selectedCarrera, setSelectedCarrera] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [search, setSearch] = useState("");
+  const [carreras, setCarreras] = useState([]); // Lista de carreras
+  const [alumnos, setAlumnos] = useState([]); // Lista de alumnos filtrados
+  const [selectedCarrera, setSelectedCarrera] = useState(""); // Filtro por carrera
+  const [statusFilter, setStatusFilter] = useState(""); // Filtro por estado
+  const [search, setSearch] = useState(""); // Filtro por búsqueda de nombre
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 8; // Elementos por página
 
-  // 1. Cargar carreras para el combo
   useEffect(() => {
     carreraService.getAll()
       .then(setCarreras)
       .catch(err => console.error("Error al cargar carreras:", err));
   }, []);
 
-  // 2. Cargar todos los alumnos
   useEffect(() => {
     Alumno.getAll()
       .then(data => {
-        const lista = data.map(a => ({
-          id: a.id,
-          nombre: `${a.nombre} ${a.apellidoPaterno} ${a.apellidoMaterno}`,
-          semestre: a.semestre?.nombreSemestre || "Sin definir",
-          grupo: a.grupo?.nombreGrupo || "Sin definir",
-          estado: a.estado || "Sin revisar",
-          carrera: a.carrera?.nombreCarrera || "Sin definir",
-        }));
+        const lista = data
+          .filter(a => a.completo === true) // Mostrar solo si 'completo' es true
+          .map(a => {
+            // Determinar estado: null = "Sin revisar", false = "Pendiente", true = "Finalizado"
+            let estadoTexto = "Sin revisar";
+            if (a.estado === false) {
+              estadoTexto = "Pendiente";
+            } else if (a.estado === true) {
+              estadoTexto = "Finalizado";
+            }
+
+            return {
+              id: a.id,
+              nombre: `${a.nombre} ${a.apellidoPaterno} ${a.apellidoMaterno}`,
+              semestre: a.semestre?.nombreSemestre,
+              grupo: a.grupo?.nombreGrupo,
+              carrera: a.carrera?.nombreCarrera,
+              estado: estadoTexto,
+            };
+          });
+
         setAlumnos(lista);
       })
       .catch(err => console.error("Error al cargar alumnos:", err));
   }, []);
 
-  // Opciones para el combo
+  // Opciones del combo de carreras
   const opcionesCarreras = carreras.map(c => ({
     value: c.nombreCarrera,
     label: c.nombreCarrera
   }));
 
-  // Filtrar alumnos
+  // Filtros sobre la lista de alumnos
   const filtered = alumnos.filter(a =>
     a.nombre.toLowerCase().includes(search.toLowerCase()) &&
     (statusFilter === "" || a.estado === statusFilter) &&
     (selectedCarrera === "" || a.carrera === selectedCarrera)
   );
 
+  // Paginacion
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const displayed = filtered.slice(
     (currentPage - 1) * itemsPerPage,
@@ -76,7 +89,7 @@ const ListadoEstudioSocioeconomico = () => {
             Resultados Estudio Socioeconómico
           </h1>
 
-          {/* Combo de carreras */}
+          {/* Combo carrera */}
           <div className="mb-3" style={{ width: "50%" }}>
             <SeleccionarCombo
               name="carrera"
@@ -87,7 +100,7 @@ const ListadoEstudioSocioeconomico = () => {
             />
           </div>
 
-          {/* Filtros */}
+          {/* Filtros por estado y búsqueda */}
           <div className="d-flex justify-content-between align-items-center mb-3">
             <select
               className="form-select w-auto"
@@ -110,7 +123,7 @@ const ListadoEstudioSocioeconomico = () => {
             />
           </div>
 
-          {/* Tabla de resultados */}
+          {/* Tabla con resultados filtrados */}
           <table className="table table-striped text-center table-bordered border-2">
             <thead>
               <tr>
@@ -135,9 +148,6 @@ const ListadoEstudioSocioeconomico = () => {
                       >
                         <i className="bi bi-file-earmark-text"></i>
                       </Link>
-                      {/*<a href="/Revision">
-                        <i className="bi bi-file-earmark-text"></i>
-                      </a>*/}
                     </td>
                     <td className={
                       a.estado === "Finalizado" ? "text-success" :
@@ -156,7 +166,6 @@ const ListadoEstudioSocioeconomico = () => {
             </tbody>
           </table>
 
-          {/* Paginación */}
           <nav className="d-flex justify-content-center">
             <ul className="pagination">
               {Array.from({ length: totalPages }, (_, i) => (
