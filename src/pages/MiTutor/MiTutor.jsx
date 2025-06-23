@@ -312,10 +312,12 @@ export const MiTutor = ({ onAdd, update }) => {
 
         try {
             let nuevosErrores = null;
+            console.log("Datos del alumno: ", datosAlumno)
             if (datosAlumno.miTutor !== null) {
                 let idMiTutor = datosAlumno.miTutor.idTutor;
                 nuevosErrores = await update(idMiTutor, coleccionValores);
             } else {
+                console.log("Datos del alumno: ", datosAlumno)
                 nuevosErrores = await onAdd(coleccionValores);
             }
 

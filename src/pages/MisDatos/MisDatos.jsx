@@ -133,7 +133,7 @@ export const MisDatos = ({ onAdd, update }) => {
         setDataGastosIngresos((prevData) => ({
           ...prevData,
           gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
-          dependeEconomicamente: dataAlumno?.misDatos.gastosIngresos?.dependeEconomicamente || '',
+          dependeEconomicamente: dataAlumno?.misDatos.gastosIngresos?.dependeEconomicamente,
           nombreQuienDependes: dataAlumno?.misDatos.gastosIngresos?.nombreQuienDependes || '',
           solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia,
           trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.catTipoTrabajo?.id || '',

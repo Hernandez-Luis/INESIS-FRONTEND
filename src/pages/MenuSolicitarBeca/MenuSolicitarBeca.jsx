@@ -12,8 +12,11 @@ import misDocumentosImg from '../../assets/misDocumentos.jpg'
 
 import '../../App.css';
 import AlumnoService from '../../services/AlumnoService';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 export const MenuSolicitarBeca = () => {
+  const navigate = useNavigate();
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
   const [cardClasses, setCardClasses] = useState({
     misDatos: '',
@@ -21,6 +24,8 @@ export const MenuSolicitarBeca = () => {
     miFamilia: 'deshabilitado',
     gastosFamiliares: 'deshabilitado',
   });
+  const [estudioCompleto, setEstudioCompleto] = useState(false);
+  const [estadoRevision, setEstadoRevision] = useState(null);
 
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
@@ -34,7 +39,9 @@ export const MenuSolicitarBeca = () => {
   const getInfoAlumno = async () => {
     if (!idAlumno) return;
     const response = await AlumnoService.getById(idAlumno);
-    console.log(response);
+    setEstudioCompleto(response.estudioCompleto === true);
+    setEstadoRevision(response.estadoRevision); // Puede ser null, true o false
+    // ...tu lógica para setCardClasses...
     if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
       setCardClasses({
         misDatos: 'completo',
@@ -48,9 +55,8 @@ export const MenuSolicitarBeca = () => {
         ...prev,
         miTutor: 'completo',
       }));
-
     }
-    if(response.miFamilia !== null && response.miFamilia.moduloCompleto === true) {
+    if (response.miFamilia !== null && response.miFamilia.moduloCompleto === true) {
       setCardClasses(prev => ({
         ...prev,
         miFamilia: 'completo',
@@ -63,6 +69,72 @@ export const MenuSolicitarBeca = () => {
       }));
     }
   }
+
+  const handleEnviar = async () => {
+    try {
+      await AlumnoService.setEstudioSocioeconomicoCompleto(idAlumno);
+      mostrarExito('¡Estudio socioeconómico enviado correctamente!');
+    } catch (error) {
+      mostrarError('Error al enviar el estudio socioeconómico');
+      console.error(error);
+    }
+  };
+
+  const isAllComplete = () => {
+    return (
+      cardClasses.misDatos === 'completo' &&
+      cardClasses.miTutor === 'completo' &&
+      cardClasses.miFamilia === 'completo' &&
+      cardClasses.gastosFamiliares === 'completo'
+    );
+  };
+
+  const mostrarAlerta = (config) => {
+    return Swal.fire({
+      ...config,
+      timer: 5000,
+      timerProgressBar: true,
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = 'var(--color-verde)';
+      },
+    });
+  };
+
+  const mostrarError = (mensajeHTML) => {
+    mostrarAlerta({
+      title: 'Error',
+      html: mensajeHTML,
+      icon: 'error',
+      confirmButtonText: 'Aceptar',
+    });
+  };
+
+  const mostrarExito = (mensaje) => {
+    mostrarAlerta({
+      title: 'Éxito',
+      text: mensaje,
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    }).then(() => {
+      navigate('/menuSolicitar');
+    });
+  };
+
+  // Mensaje según estadoRevision
+  const renderEstadoRevision = () => {
+    if (!estudioCompleto) return null;
+    if (estadoRevision === null) {
+      return <div className="mt-3 text-warning fw-bold">Tu estudio socioeconómico está pendiente de revisión.</div>;
+    }
+    if (estadoRevision === true) {
+      return <div className="mt-3 text-success fw-bold">¡Tu estudio socioeconómico fue aprobado!</div>;
+    }
+    if (estadoRevision === false) {
+      return <div className="mt-3 text-danger fw-bold">Tu estudio socioeconómico fue rechazado, realiza las correcciones necesarias.</div>;
+    }
+    return null;
+  };
 
   return (
     <div>
@@ -105,7 +177,19 @@ export const MenuSolicitarBeca = () => {
             </div>
           </div>
           <div className='text-center'>
-            <button className='btn btn-primary btn-lg'>Enviar</button>
+            <button
+              className='btn btn-primary btn-lg'
+              disabled={!isAllComplete() || estudioCompleto}
+              onClick={handleEnviar}
+            >
+              Enviar
+            </button>
+            {estudioCompleto && (
+              <div className="mt-3 text-success fw-bold">
+                Ya enviaste tu estudio socioeconómico.
+              </div>
+            )}
+            {renderEstadoRevision()}
           </div>
           {/*fin contenido*/}
         </div>
