@@ -6,10 +6,7 @@ import axiosInstance from '../../api/axiosConfig';
 import Swal from "sweetalert2";
 import CatParentescoService from "../../services/CatParentescoService";
 import { useEffect } from "react";
-import { soloNumerosPositivosConDosDecimales } from "../../utils/Validaciones/Validaciones";
-
-
-
+import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales } from "../../utils/Validaciones/Validaciones";
 
 
 const FinancialForm = () => {
@@ -20,11 +17,25 @@ const FinancialForm = () => {
     const [reciboFile, setReciboFile] = useState(null);
     const [observaciones, setObservaciones] = useState("");
     const [catParentesco, setParentesco] = useState([]);
+    const [desigualdadMensaje, setDesigualdadMensaje] = useState("");
 
 
     useEffect(() => {
         obtenerParentesco();
     }, []);
+
+
+    const validarIgualdadIngresosGastos = () => {
+        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
+        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
+
+        if (Math.abs(ingreso - gastos) > 0.01) {
+            setDesigualdadMensaje("⚠️ El total de gastos no coincide con el ingreso total.");
+        } else {
+            setDesigualdadMensaje("");
+        }
+    };
+
 
     const fieldNames = {
         lightName: "Nombre del titular del recibo de luz",
@@ -42,8 +53,8 @@ const FinancialForm = () => {
         'Otros': "Otros",
         'totalGastos': "Total de gastos",
 
-        'Ingreso total:': "Ingreso total",
-        '¿Cuántas personas dependen de este ingreso mensual?': "Número de personas que dependen del ingreso"
+        'ingresoTotal': "Ingreso total",
+        'personasDependenIngreso': "Número de personas que dependen del ingreso"
     };
 
 
@@ -140,7 +151,7 @@ const FinancialForm = () => {
         });
 
         // Ingresos mensuales: Validar "Ingreso total" y "¿Cuántas personas dependen?"
-        const ingresosFields = ['Ingreso total:', '¿Cuántas personas dependen de este ingreso mensual?'];
+        const ingresosFields = ['ingresoTotal', 'personasDependenIngreso'];
         ingresosFields.forEach((field) => {
             const value = document.getElementById(field)?.value;
             if (!value || value.trim() === "") {
@@ -200,8 +211,8 @@ const FinancialForm = () => {
             }));
 
             // Ingreso total y personas que dependen
-            const ingresoTotal = parseFloat(document.getElementById("Ingreso total:")?.value || "0");
-            const personasDependen = parseInt(document.getElementById("¿Cuántas personas dependen de este ingreso mensual?")?.value || "0");
+            const ingresoTotal = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
+            const personasDependen = parseInt(document.getElementById("personasDependenIngreso")?.value || "0");
 
             if (isNaN(ingresoTotal) || isNaN(personasDependen)) {
                 alert("Revisa los campos numéricos. Hay valores inválidos.");
@@ -302,24 +313,30 @@ const FinancialForm = () => {
 
 
 
-    const actualizarTotalGastos = () => {
-    const gastoLabels = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'];
-    let total = 0;
-    gastoLabels.forEach(label => {
-        const val = parseFloat(document.getElementById(label)?.value || "0");
-        total += isNaN(val) ? 0 : val;
-    });
-    document.getElementById("totalGastos").value = total.toFixed(2);
-};
+    const actualizarIngresoTotal = () => {
+        let total = 0;
+        for (let i = 0; i < numPeople; i++) {
+            const val = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
+            total += isNaN(val) ? 0 : val;
+        }
+        const input = document.getElementById("ingresoTotal");
+        if (input) input.value = total.toFixed(2);
 
-const actualizarIngresoTotal = () => {
-    let total = 0;
-    for (let i = 0; i < numPeople; i++) {
-        const val = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
-        total += isNaN(val) ? 0 : val;
-    }
-    document.getElementById("Ingreso total:").value = total.toFixed(2);
-};
+        validarIgualdadIngresosGastos();
+    };
+
+    const actualizarTotalGastos = () => {
+        const gastoLabels = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'];
+        let total = 0;
+        gastoLabels.forEach(label => {
+            const val = parseFloat(document.getElementById(label)?.value || "0");
+            total += isNaN(val) ? 0 : val;
+        });
+        const input = document.getElementById("totalGastos");
+        if (input) input.value = total.toFixed(2);
+
+        validarIgualdadIngresosGastos();
+    };
 
 
 
@@ -334,6 +351,7 @@ const actualizarIngresoTotal = () => {
                     <Form.Group>
                         <Form.Label style={{ color: "#4F46E5" }}>¿Cuántas personas aportan al gasto familiar?</Form.Label>
                         <Form.Control
+                            onBeforeInput={soloNumerosPositivos}
                             id="personasAportan"
                             style={{ maxWidth: "350px" }}
                             type="number"
@@ -387,7 +405,16 @@ const actualizarIngresoTotal = () => {
                                                         type={field.type}
                                                         placeholder={field.placeholder}
                                                         isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
+                                                        onChange={field.label === "IMN (Neto)" ? actualizarIngresoTotal : undefined}
+                                                        onBeforeInput={
+                                                            field.label === "Nombre completo" ? soloLetras :
+                                                                field.label === "Empresa o lugar de trabajo" ? soloLetrasYNumeros :
+                                                                    field.label === "Puesto o tipo de trabajo" ? soloLetras :
+                                                                        field.label === "IMB (Bruto)" || field.label === "IMN (Neto)" ? soloNumerosPositivosConDosDecimales :
+                                                                            undefined
+                                                        }
                                                     />
+
                                                 </div>
                                             </Col>
                                         </React.Fragment>
@@ -416,25 +443,25 @@ const actualizarIngresoTotal = () => {
 
 
                     <Form.Group className="mt-4 d-flex justify-content-end align-items-center">
-                        <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>Ingreso total:</Form.Label>
+                        <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>ingresoTotal</Form.Label>
                         <Form.Control
                             style={{ maxWidth: "200px" }} type="number" placeholder="$"
                             onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
                             onInput={handleDecimalInput}
-                            id="Ingreso total:"
-                            isInvalid={emptyFields.includes("Ingreso total:")}
+                            id="ingresoTotal"
+                            isInvalid={emptyFields.includes("ingresoTotal")}
                         />
                     </Form.Group>
 
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
-                        <Form.Label>¿Cuántas personas dependen de este ingreso mensual?</Form.Label>
+                        <Form.Label>personasDependenIngreso</Form.Label>
                         <Form.Control
                             style={{ maxWidth: "400px" }}
                             type="number"
                             onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
                             onInput={handleDecimalInput}
-                            id="¿Cuántas personas dependen de este ingreso mensual?"
-                            isInvalid={emptyFields.includes("¿Cuántas personas dependen de este ingreso mensual?")}
+                            id="personasDependenIngreso"
+                            isInvalid={emptyFields.includes("personasDependenIngreso")}
                         />
                     </Form.Group>
                 </Form>
@@ -530,7 +557,7 @@ const actualizarIngresoTotal = () => {
                             <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales</Form.Label>
                                 <Form.Control
-                                    onBeforeInput={soloNumerosPositivosConDosDecimales}   
+                                    onBeforeInput={soloNumerosPositivosConDosDecimales}
                                     id="totalGastos"
                                     type="number"
                                     onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
@@ -539,6 +566,12 @@ const actualizarIngresoTotal = () => {
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
                             </Form.Group>
+                            {desigualdadMensaje && (
+                                <div style={{ color: "red", textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
+                                    {desigualdadMensaje}
+                                </div>
+                            )}
+
                         </Form>
                     </Card>
                 </Col>

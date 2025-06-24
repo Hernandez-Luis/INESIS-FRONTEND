@@ -38,7 +38,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Login />} />
 
 
-        <Route path="/menuSolicitar" element={<ProtectedRoute allowedRoles={[1]}><MenuSolicitarBeca /></ProtectedRoute>}/>
+        <Route path="/menuSolicitar" element={<ProtectedRoute allowedRoles={[1,2,3]}><MenuSolicitarBeca /></ProtectedRoute>}/>
         <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1]}><GestionMisDatos /></ProtectedRoute>} />
         <Route path="/NavInesis" element={<ProtectedRoute allowedRoles={[1]}><NavInesis /></ProtectedRoute>} />
 
@@ -50,7 +50,7 @@ const AppRoutes = () => {
         <Route path="/ListadoEstudioSocioeconomico" element={<ProtectedRoute allowedRoles={[1]}> <ListadoEstudioSocioeconomico /> </ProtectedRoute>}/>
         <Route path="/MenuAlumno" element={<ProtectedRoute allowedRoles={[1]}><MenuAlumno/></ProtectedRoute>} />
         <Route path="/Lineamientos" element={<ProtectedRoute allowedRoles={[1]}> <LIneamientos /> </ProtectedRoute>} />
-        <Route path="/MenuRevisor" element={<ProtectedRoute allowedRoles={[1]}> <MenuPrincipalRevisor /> </ProtectedRoute>} />
+        <Route path="/MenuRevisor" element={<ProtectedRoute allowedRoles={[1,2]}> <MenuPrincipalRevisor /> </ProtectedRoute>} />
         <Route path="/MenuAdministrador" element={<ProtectedRoute allowedRoles={[1]}> <MenuAdministrador /> </ProtectedRoute>} />   
         <Route path="/MiTutor" element={<ProtectedRoute allowedRoles={[1]}> <GestionMiTutor /> </ProtectedRoute>} />
         <Route path="/AdministrarAlumnos" element={<ProtectedRoute allowedRoles={[1]}> <AdministrarAlumnos /> </ProtectedRoute>} />
@@ -60,7 +60,7 @@ const AppRoutes = () => {
         <Route path="/AdministrarRevisor" element={<ProtectedRoute allowedRoles={[1]}> <AdministrarRevisor/> </ProtectedRoute>} />
         <Route path='/AgregarRevisor' element={<ProtectedRoute allowedRoles={[1]}> <AgregarRevisor/> </ProtectedRoute>}></Route>        
         <Route path="/FooterInesis" element={<ProtectedRoute allowedRoles={[1]}> <FooterInesis /> </ProtectedRoute>} />
-        <Route path="/GastosIngresos" element={<ProtectedRoute allowedRoles={[1]}> <GastosIngresos /> </ProtectedRoute>} />
+        <Route path="/GastosIngresos" element={<ProtectedRoute allowedRoles={[1,2,3]}> <GastosIngresos /> </ProtectedRoute>} />
     </Routes>
   )
 }
