@@ -42,25 +42,25 @@ const AppRoutes = () => {
         <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1]}><GestionMisDatos /></ProtectedRoute>} />
         <Route path="/NavInesis" element={<ProtectedRoute allowedRoles={[1]}><NavInesis /></ProtectedRoute>} />
 
-        <Route path="/Migas" element={<MigasRecorrido />} />
-        <Route path="/Revision" element={<RevisionSolicitud />} />
-        <Route path="/MisDocumentos" element={<MisDocumentos />} />
-        <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
-        <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ResultadoEstudioSocioeconomicoCorrecto />}/>
-        <Route path="/ListadoEstudioSocioeconomico" element={<ListadoEstudioSocioeconomico />}/>
+        <Route path="/Migas" element={<ProtectedRoute allowedRoles={[1]}> <MigasRecorrido /> </ProtectedRoute>} />
+        <Route path="/Revision" element={<ProtectedRoute allowedRoles={[1]}> <RevisionSolicitud /></ProtectedRoute>} />
+        <Route path="/MisDocumentos" element={<ProtectedRoute allowedRoles={[1]}> <MisDocumentos /> </ProtectedRoute>} />
+        <Route path="/ResultadosSolicitud" element={<ProtectedRoute allowedRoles={[1]}> <ResultadosSolicitud /> </ProtectedRoute>}/>
+        <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ProtectedRoute allowedRoles={[1]}> <ResultadoEstudioSocioeconomicoCorrecto /> </ProtectedRoute>}/>
+        <Route path="/ListadoEstudioSocioeconomico" element={<ProtectedRoute allowedRoles={[1]}> <ListadoEstudioSocioeconomico /> </ProtectedRoute>}/>
         <Route path="/MenuAlumno" element={<ProtectedRoute allowedRoles={[1]}><MenuAlumno/></ProtectedRoute>} />
-        <Route path="/Lineamientos" element={<LIneamientos />} />
-        <Route path="/MenuRevisor" element={<MenuPrincipalRevisor />} />
-        <Route path="/MenuAdministrador" element={<MenuAdministrador />} />   
-        <Route path="/MiTutor" element={<GestionMiTutor />} />
-        <Route path="/AdministrarAlumnos" element={<AdministrarAlumnos />} />
-        <Route path="/AgregarAlumno" element={<AgregarAlumno/>} />
-        <Route path="/AdministrarFechas" element={<AdministrarFechas/>} />
-        <Route path="/MiFamilia" element={<MiFamilia/>} />
-        <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
-        <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        
-        <Route path="/FooterInesis" element={<FooterInesis />} />
-        <Route path="/GastosIngresos" element={<GastosIngresos />} />
+        <Route path="/Lineamientos" element={<ProtectedRoute allowedRoles={[1]}> <LIneamientos /> </ProtectedRoute>} />
+        <Route path="/MenuRevisor" element={<ProtectedRoute allowedRoles={[1]}> <MenuPrincipalRevisor /> </ProtectedRoute>} />
+        <Route path="/MenuAdministrador" element={<ProtectedRoute allowedRoles={[1]}> <MenuAdministrador /> </ProtectedRoute>} />   
+        <Route path="/MiTutor" element={<ProtectedRoute allowedRoles={[1]}> <GestionMiTutor /> </ProtectedRoute>} />
+        <Route path="/AdministrarAlumnos" element={<ProtectedRoute allowedRoles={[1]}> <AdministrarAlumnos /> </ProtectedRoute>} />
+        <Route path="/AgregarAlumno" element={<ProtectedRoute allowedRoles={[1]}> <AgregarAlumno/> </ProtectedRoute>} />
+        <Route path="/AdministrarFechas" element={<ProtectedRoute allowedRoles={[1]}> <AdministrarFechas/> </ProtectedRoute>} />
+        <Route path="/MiFamilia" element={<ProtectedRoute allowedRoles={[1]}> <MiFamilia/> </ProtectedRoute>} />
+        <Route path="/AdministrarRevisor" element={<ProtectedRoute allowedRoles={[1]}> <AdministrarRevisor/> </ProtectedRoute>} />
+        <Route path='/AgregarRevisor' element={<ProtectedRoute allowedRoles={[1]}> <AgregarRevisor/> </ProtectedRoute>}></Route>        
+        <Route path="/FooterInesis" element={<ProtectedRoute allowedRoles={[1]}> <FooterInesis /> </ProtectedRoute>} />
+        <Route path="/GastosIngresos" element={<ProtectedRoute allowedRoles={[1]}> <GastosIngresos /> </ProtectedRoute>} />
     </Routes>
   )
 }
