@@ -32,14 +32,15 @@ const ListadoEstudioSocioeconomico = () => {
   useEffect(() => {
     Alumno.getAll()
       .then(data => {
+        console.log("Datos de alumnos:", data);
         const lista = data
-          .filter(a => a.completo === true) // Mostrar solo si 'completo' es true
+          .filter(a => a.estudioCompleto === true) // Mostrar solo si 'completo' es true
           .map(a => {
             // Determinar estado: null = "Sin revisar", false = "Pendiente", true = "Finalizado"
             let estadoTexto = "Sin revisar";
-            if (a.estado === false) {
+            if (a.estadoRevision === false) {
               estadoTexto = "Pendiente";
-            } else if (a.estado === true) {
+            } else if (a.estadoRevision === true) {
               estadoTexto = "Finalizado";
             }
 

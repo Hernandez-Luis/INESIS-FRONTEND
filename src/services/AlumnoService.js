@@ -82,6 +82,15 @@ const enviarRevisionAlumno = async (id, observaciones, estado) => {
 };
 
 
+const setEstudioSocioeconomicoCompleto = async (id) => {
+  try {
+    const response = await axiosInstance.patch(`${API_URL}/completarEstudio/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
 
 export default {
   getAll,
@@ -91,5 +100,6 @@ export default {
   updateAlumnoConUsuario,
   deleteAlumno,
   checkIfExists,
-  enviarRevisionAlumno
+  enviarRevisionAlumno,
+  setEstudioSocioeconomicoCompleto
 };
