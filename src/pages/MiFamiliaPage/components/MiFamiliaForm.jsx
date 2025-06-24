@@ -74,6 +74,10 @@ const MiFamiliaForm = () => {
     const [regionSeleccionada, setRegionSeleccionada] = useState('');
     const [distritoSeleccionado, setDistritoSeleccionado] = useState('');
 
+    const [errores, setErrores] = useState({})
+    const [erroresFormulario, setErroresFormulario] = useState({});
+
+
     // Agregar estados para "Otro"
     const [otroRegionTexto, setOtroRegionTexto] = useState('');
     const [otroDistritoTexto, setOtroDistritoTexto] = useState('');
@@ -573,17 +577,54 @@ const MiFamiliaForm = () => {
     };
     //Actualizar dinamicamente el num de personas dependientes
     const handleNumDependientesChange = (e) => {
-        const value = parseInt(e.target.value, 10);
-        setNumDependientes(value);
+        const value = parseInt(e.target.value);
+        // Si está vacío o no es un número válido, solo actualiza el input y no toques el arreglo
+        if (value === '' || isNaN(parseInt(value))) {
+            setNumDependientes(value); // Mantiene lo que el usuario escribe (aunque sea temporal)
+            return;
+        }
+        const parsedValue = parseInt(value, 10);
 
-        const nuevosDependientes = Array.from({ length: value }, (_, i) => ({
-            nombrePersona: '',
-            edad: '',
-            parentesco: '',
-            archivo: null,
-        }));
+        setNumDependientes(parsedValue);
 
-        setDependientes(nuevosDependientes);
+        setDependientes((prev) => {
+            const copia = [...prev];
+
+            if (parsedValue > copia.length) {
+                const adicionales = Array.from({ length: parsedValue - copia.length }, () => ({
+                    nombrePersona: '',
+                    edad: '',
+                    parentesco: '',
+                    archivo: null,
+                    nombreArchivo: ''
+                }));
+                return [...copia, ...adicionales];
+            } else {
+                return copia.slice(0, parsedValue);
+            }
+        });
+
+        setErroresFormulario((prev) => {
+            const nuevos = [...(prev.dependientes || [])];
+
+            if (parsedValue > nuevos.length) {
+                const adicionales = Array.from({ length: parsedValue - nuevos.length }, () => ({
+                    nombrePersona: false,
+                    edad: false,
+                    parentesco: false,
+                    archivo: false
+                }));
+                return {
+                    ...prev,
+                    dependientes: [...nuevos, ...adicionales]
+                };
+            } else {
+                return {
+                    ...prev,
+                    dependientes: nuevos.slice(0, parsedValue)
+                };
+            }
+        });
     };
 
     const handleChangeDependiente = (index, field, value) => {
@@ -662,13 +703,233 @@ const MiFamiliaForm = () => {
             ...prevState,
             [name]: type === "number" ? (value === "" ? null : parseInt(value)) : value,
         }));
+
+        setErroresFormulario((prev) => ({
+            ...prev,
+            [name === "num_hermanos" ? "numHermanos" :
+                name === "num_hermanos_estudiando" ? "numHermanosEstudiando" :
+                    name === "num_hermanos_no_estudiando" ? "numHermanosNoEstudiando" :
+                        name === "num_hermanos_licenciatura" ? "numHermanosLicenciatura" : name]: false
+        }));
+
+        setErroresFormulario((prev) => {
+            const nuevos = [...(prev.dependientes || [])];
+
+            if (value > nuevos.length) {
+                const adicionales = Array.from({ length: value - nuevos.length }, () => ({
+                    nombrePersona: false,
+                    edad: false,
+                    parentesco: false,
+                    archivo: false
+                }));
+                return {
+                    ...prev,
+                    dependientes: [...nuevos, ...adicionales]
+                };
+            } else {
+                return {
+                    ...prev,
+                    dependientes: nuevos.slice(0, value)
+                };
+            }
+        });
+
+        // Limpiar error si el usuario escribe algo válido
+        setErroresFormulario((prev) => ({
+            ...prev,
+            [name]: false,
+        }));
     };
+
+    const validarFormulario = () => {
+        const errores = {};
+        const erroresSwal = [];
+
+        // Teléfono
+        if (!dataMiFamilia.telefono || !/^\d{10}$/.test(dataMiFamilia.telefono)) {
+            errores.telefono = true;
+            erroresSwal.push('Teléfono (10 dígitos)');
+        }
+
+        // Escolaridad
+        if (!escolaridadPadre) {
+            errores.escolaridadPadre = true;
+            erroresSwal.push('Escolaridad del padre');
+        }
+        if (!escolaridadMadre) {
+            errores.escolaridadMadre = true;
+            erroresSwal.push('Escolaridad de la madre');
+        }
+
+        if (!situacionViviendaSeleccionada) {
+            errores.situacionVivienda = true;
+            erroresSwal.push('Situación de vivienda');
+        }
+
+        if (!tipoViviendaSeleccionado) {
+            errores.tipoVivienda = true;
+            erroresSwal.push('Tipo de vivienda');
+        }
+
+        if (!materialSeleccionado) {
+            errores.materialVivienda = true;
+            erroresSwal.push('Material de construcción');
+        }
+
+        if (!servicioOtroSeleccionado || servicioOtroSeleccionado.length === 0) {
+            errores.serviciosVivienda = true;
+            erroresSwal.push('Selecciona al menos un servicio con el que cuenta la vivienda');
+        }
+
+        if (servicioOtroSeleccionado.includes(String(OTRO_ID)) && !otroServicioTexto.trim()) {
+            errores.otroServicioTexto = true;
+            erroresSwal.push('Especifica el otro servicio');
+        }
+
+        if (!selectedBienesHogar || selectedBienesHogar.length === 0) {
+            errores.bienesHogar = true;
+            erroresSwal.push('Selecciona al menos un bien del hogar');
+        }
+
+        if (!mediosEstudioSeleccionados || mediosEstudioSeleccionados.length === 0) {
+            errores.mediosEstudio = true;
+            erroresSwal.push('Selecciona al menos un medio para estudiar en casa');
+        }
+
+        if (!internetSeleccionado || internetSeleccionado === '') {
+            errores.accesoInternet = true;
+            erroresSwal.push('Selecciona una opción sobre el acceso a internet');
+        }
+
+        if (
+            !dataMiFamilia.num_hermanos &&
+            !dataMiFamilia.num_hermanos_estudiando &&
+            !dataMiFamilia.num_hermanos_no_estudiando
+        ) {
+            erroresSwal.push('Información de hermanos');
+        }
+
+        if (dataMiFamilia.num_hermanos === null || dataMiFamilia.num_hermanos < 0) {
+            errores.numHermanos = true;
+            erroresSwal.push('Número total de hermanos');
+        }
+
+        if (dataMiFamilia.num_hermanos_estudiando === null || dataMiFamilia.num_hermanos_estudiando < 0) {
+            errores.numHermanosEstudiando = true;
+            erroresSwal.push('Número de hermanos estudiando');
+        }
+
+        if (dataMiFamilia.num_hermanos_no_estudiando === null || dataMiFamilia.num_hermanos_no_estudiando < 0) {
+            errores.numHermanosNoEstudiando = true;
+            erroresSwal.push('Número de hermanos no estudiando');
+        }
+
+        if (dataMiFamilia.num_hermanos_licenciatura === null || dataMiFamilia.num_hermanos_licenciatura < 0) {
+            errores.numHermanosLicenciatura = true;
+            erroresSwal.push('Número de hermanos con licenciatura');
+        }
+
+        // Validación cruzada opcional
+        const suma =
+            (dataMiFamilia.num_hermanos_estudiando || 0) +
+            (dataMiFamilia.num_hermanos_no_estudiando || 0) +
+            (dataMiFamilia.num_hermanos_licenciatura || 0);
+
+        if (dataMiFamilia.num_hermanos !== null && suma > dataMiFamilia.num_hermanos) {
+            errores.numHermanos = true;
+            erroresSwal.push('La suma de hermanos estudiando/no estudiando/licenciatura no puede superar al total');
+        }
+
+        if (!numDependientes || parseInt(numDependientes) < 0) {
+            errores.numDependientes = true;
+            erroresSwal.push('Número de personas que dependen económicamente');
+        }
+
+        if (!numPersonasHabitan || parseInt(numPersonasHabitan) <= 0) {
+            errores.numPersonasHabitan = true;
+            erroresSwal.push('Número de personas que habitan la vivienda');
+        }
+
+
+        if (!mediosEstudioSeleccionados || mediosEstudioSeleccionados.length === 0) {
+            errores.mediosEstudio = true;
+            erroresSwal.push('Medios de estudio');
+        }
+
+        dependientes.forEach((d, i) => {
+            if (!d.nombrePersona || !d.edad || !d.parentesco) {
+                errores[`dependiente_${i}`] = true;
+                erroresSwal.push(`Datos incompletos del dependiente ${i + 1}`);
+            }
+        });
+
+        errores.dependientes = [];
+
+        dependientes.forEach((dep, index) => {
+            const errDep = {};
+
+            if (!dep.nombrePersona || dep.nombrePersona.trim() === "") {
+                errDep.nombrePersona = true;
+                erroresSwal.push(`El nombre completo del dependiente #${index + 1} es obligatorio.`);
+            }
+
+            if (!dep.edad || isNaN(dep.edad) || parseInt(dep.edad) < 0) {
+                errDep.edad = true;
+                erroresSwal.push(`La edad del dependiente #${index + 1} no es válida.`);
+            }
+
+            if (!dep.parentesco || dep.parentesco === "") {
+                errDep.parentesco = true;
+                erroresSwal.push(`Selecciona el parentesco del dependiente #${index + 1}.`);
+            }
+
+            if (!dep.archivo) {
+                errDep.archivo = true;
+                erroresSwal.push(`Debes subir un archivo para el dependiente #${index + 1}.`);
+            }
+
+            errores.dependientes.push(errDep);
+        });
+
+
+        setErroresFormulario(errores);
+        return erroresSwal;
+    };
+
 
 
 
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
 
     const handleSubmit = async () => {
+        const errores = validarFormulario();
+
+        if (errores.length > 0) {
+            // Mostrar mensaje de error con lista
+            const mensajeHTML = `
+            <ul style="text-align: left;">
+                ${errores.map(err => `<li>${err}</li>`).join('')}
+            </ul>
+        `;
+            mostrarError(mensajeHTML);
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: '¿Deseas guardar el formulario?',
+            text: 'Asegúrate de haber revisado todos los datos antes de continuar.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--color-verde)',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Quiero revisar',
+        });
+
+        // Si el usuario cancela, detenemos la ejecución
+        if (!result.isConfirmed) {
+            return;
+        }
         try {
             // Preparar datos de domicilio
             let datosDomicilio = {};
@@ -953,12 +1214,17 @@ const MiFamiliaForm = () => {
                                         </label>
                                         <input
                                             type="tel"
-                                            className="form-control"
+                                            className={`form-control ${erroresFormulario.telefono ? 'is-invalid' : ''}`}
                                             placeholder="Ingresa el número de teléfono"
                                             name="telefono"
                                             value={dataMiFamilia.telefono}
                                             onChange={handleChange}
                                         />
+                                        {erroresFormulario.telefono && (
+                                            <div className="invalid-feedback">
+                                                Ingresa un número de teléfono válido de 10 dígitos.
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 {/* ESCOLARIDAD */}
@@ -971,25 +1237,47 @@ const MiFamiliaForm = () => {
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                 Escolaridad del padre
                                             </label>
-                                            <SeleccionarCombo
+                                            <select
                                                 name="escolaridadPadre"
-                                                options={escolaridades.map((e) => ({ value: e.id, label: e.nombreEscolaridad }))}
+                                                className={`form-select ${erroresFormulario.escolaridadPadre ? 'is-invalid' : ''}`}
                                                 value={escolaridadPadre}
                                                 onChange={handleChangeEscolaridadPadre}
-                                                placeholder="Selecciona una opción"
-                                            />
+                                            >
+                                                <option value="">Selecciona una opción</option>
+                                                {escolaridades.map((e) => (
+                                                    <option key={e.id} value={e.id}>
+                                                        {e.nombreEscolaridad}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {erroresFormulario.escolaridadPadre && (
+                                                <div className="invalid-feedback">
+                                                    Selecciona la escolaridad del padre.
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="col-6">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                 Escolaridad de la madre
                                             </label>
-                                            <SeleccionarCombo
+                                            <select
                                                 name="escolaridadMadre"
-                                                options={escolaridades.map((e) => ({ value: e.id, label: e.nombreEscolaridad }))}
+                                                className={`form-select ${erroresFormulario.escolaridadMadre ? 'is-invalid' : ''}`}
                                                 value={escolaridadMadre}
                                                 onChange={handleChangeEscolaridadMadre}
-                                                placeholder="Selecciona una opción"
-                                            />
+                                            >
+                                                <option value="">Selecciona una opción</option>
+                                                {escolaridades.map((e) => (
+                                                    <option key={e.id} value={e.id}>
+                                                        {e.nombreEscolaridad}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {erroresFormulario.escolaridadMadre && (
+                                                <div className="invalid-feedback">
+                                                    Selecciona la escolaridad de la madre.
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -1004,40 +1292,67 @@ const MiFamiliaForm = () => {
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         La casa donde tu familia es:
                                     </label>
-                                    <select className="form-select" value={situacionViviendaSeleccionada} onChange={handleChangeSituacionVivienda}>
+                                    <select
+                                        name="situacionVivienda"
+                                        className={`form-select ${erroresFormulario.situacionVivienda ? 'is-invalid' : ''}`}
+                                        value={situacionViviendaSeleccionada}
+                                        onChange={handleChangeSituacionVivienda}
+                                    >
                                         <option value="">Selecciona una opción</option>
                                         {situacionesVivienda.map((item) => (
                                             <option key={item.id} value={item.id}>{item.nombreSituacion}</option>
                                         ))}
                                     </select>
+                                    {erroresFormulario.situacionVivienda && (
+                                        <div className="invalid-feedback">
+                                            Selecciona la situación de la vivienda.
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Tipo de vivienda
                                     </label>
-                                    <select className="form-select" value={tipoViviendaSeleccionado} onChange={handleChangeTipoVivienda}>
+                                    <select
+                                        className={`form-select ${erroresFormulario.tipoVivienda ? 'is-invalid' : ''}`}
+                                        value={tipoViviendaSeleccionado}
+                                        onChange={handleChangeTipoVivienda}>
                                         <option value="">Selecciona una opción</option>
                                         {tiposVivienda.map((item) => (
                                             <option key={item.id} value={item.id}>{item.nombreTipo}</option>
                                         ))}
                                     </select>
+                                    {erroresFormulario.tipoVivienda && (
+                                        <div className="invalid-feedback">
+                                            Selecciona un tipo de vivienda.
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Material de construcción
                                     </label>
-                                    <SeleccionarCombo
+                                    <select
                                         name="materialVivienda"
-                                        options={materialesVivienda.map((e) => ({ value: e.id, label: e.nombreMaterial }))}
+                                        className={`form-select ${erroresFormulario.materialVivienda ? 'is-invalid' : ''}`}
                                         value={materialSeleccionado}
                                         onChange={handleChangeMaterial}
-                                        placeholder="Selecciona el material"
-                                    />
+                                    >
+                                        <option value="">Selecciona una opción</option>
+                                        {materialesVivienda.map((item) => (
+                                            <option key={item.id} value={item.id}>{item.nombreMaterial}</option>
+                                        ))}
+                                    </select>
+                                    {erroresFormulario.materialVivienda && (
+                                        <div className="invalid-feedback">
+                                            Selecciona un material de construcción.
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="col-12 col-md-3 mb-3 ">
-                                    <label className="fs-5 mb-2" style={{ color: 'var(--color-morado3)' }}>
+                                <div className={`col-12 col-md-8 ${erroresFormulario.serviciosVivienda ? 'border-danger' : 'border-secondary'}`}>
+                                    <label className="fs-5 mb-2 d-block" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Con qué servicios cuenta la vivienda?
                                     </label>
                                     <div className="row">
@@ -1058,26 +1373,39 @@ const MiFamiliaForm = () => {
                                                     ))}
                                             </div>
                                         ))}
+                                        {erroresFormulario.serviciosVivienda && (
+                                            <div className="col-12">
+                                                <div className="text-danger mt-2">
+                                                    Debes seleccionar al menos un servicio.
+                                                </div>
+                                            </div>
+                                        )}
                                         {servicioOtroSeleccionado.includes(String(OTRO_ID)) && (
-                                            <div className="col-md-12 mb-2 mt-2">
+                                            <div className="col-md-6 mb-2 mt-2">
                                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                     Especifique otro servicio:
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    className="form-control"
+                                                    className={`form-control ${erroresFormulario.otroServicioTexto ? 'is-invalid' : ''}`}
                                                     value={otroServicioTexto}
                                                     onChange={(e) => setOtroServicioTexto(e.target.value)}
                                                 />
+                                                {erroresFormulario.otroServicioTexto && (
+                                                    <div className="invalid-feedback">
+                                                        Por favor especifica el otro servicio.
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
+
                                     </div>
 
 
                                 </div>
                             </div>
                             <div className='row gap-3 px-4'>
-                                <div className="col-12 col-md-12">
+                                <div className={`col-12 col-md-12 ${erroresFormulario.bienesHogar ? 'border-danger' : 'border-secondary'}`}>
                                     <label className="fs-5 mb-3 d-block" style={{ color: 'var(--color-morado3)' }}>
                                         ¿En la casa donde vive tu familia hay?
                                     </label>
@@ -1101,6 +1429,11 @@ const MiFamiliaForm = () => {
                                         ))}
                                     </div>
                                 </div>
+                                {erroresFormulario.bienesHogar && (
+                                    <div className="text-danger mt-2">
+                                        Debes seleccionar al menos un bien del hogar.
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -1115,13 +1448,18 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <input
                                         type="number"
-                                        className="form-control"
+                                        className={`form-control ${erroresFormulario.numPersonasHabitan ? 'is-invalid' : ''}`}
                                         min="1"
                                         value={numPersonasHabitan}
                                         onChange={(e) => setNumPersonasHabitan(e.target.value)}
                                     />
+                                    {erroresFormulario.numPersonasHabitan && (
+                                        <div className="invalid-feedback">
+                                            Debes ingresar un número válido de personas.
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="col-12 col-md-8 mb-3">
+                                <div className={`col-12 col-md-8 mb-3 ${erroresFormulario.mediosEstudio ? 'border-danger' : 'border-secondary'}`}>
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Medios para estudiar en casa (marca tantas opciones como sea necesario):
                                     </label>
@@ -1143,6 +1481,11 @@ const MiFamiliaForm = () => {
                                                     ))}
                                             </div>
                                         ))}
+                                        {erroresFormulario.mediosEstudio && (
+                                            <div className="text-danger mt-2">
+                                                Debes seleccionar al menos un medio de estudio.
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -1151,13 +1494,26 @@ const MiFamiliaForm = () => {
                                     ¿Cuenta con acceso a internet?
                                 </label>
                                 <div className="col-md-6">
-                                    <SeleccionarCombo
+                                    <select
                                         name="accesoInternet"
+                                        className={`form-select ${erroresFormulario.accesoInternet ? 'is-invalid' : ''}`}
                                         options={opcionesInternet.map((e) => ({ value: e.id, label: e.nombreInternet }))}
                                         value={internetSeleccionado}
                                         onChange={handleChangeInternet}
                                         placeholder="Seleccione una opción"
-                                    />
+                                    >
+                                        <option value="">Seleccione una opción</option>
+                                        {opcionesInternet.map((e) => (
+                                            <option key={e.id} value={e.id}>
+                                                {e.nombreInternet}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {erroresFormulario.accesoInternet && (
+                                        <div className="invalid-feedback">
+                                            Selecciona una opción sobre el acceso a internet.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1173,11 +1529,17 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <input
                                         type="number"
-                                        className="form-control"
                                         name="num_hermanos"
+                                        className={`form-control ${erroresFormulario.numHermanos ? 'is-invalid' : ''}`}
+                                        placeholder="Número de hermanos"
                                         value={dataMiFamilia.num_hermanos ?? ""}
                                         onChange={handleChange}
                                     />
+                                    {erroresFormulario.numHermanos && (
+                                        <div className="invalid-feedback">
+                                            Debes ingresar un número válido de hermanos.
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* ¿Cuántos están estudiando? */}
@@ -1187,11 +1549,16 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <input
                                         type="number"
-                                        className="form-control"
+                                        className={`form-control ${erroresFormulario.numHermanosEstudiando ? 'is-invalid' : ''}`}
                                         name="num_hermanos_estudiando"
                                         value={dataMiFamilia.num_hermanos_estudiando ?? ""}
                                         onChange={handleChange}
                                     />
+                                    {erroresFormulario.numHermanosEstudiando && (
+                                        <div className="invalid-feedback">
+                                            Debes ingresar un número válido de hermanos que están estudiando.
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* ¿Cuántos dejaron de estudiar? */}
@@ -1201,11 +1568,16 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <input
                                         type="number"
-                                        className="form-control"
+                                        className={`form-control ${erroresFormulario.numHermanosNoEstudiando ? 'is-invalid' : ''}`}
                                         name="num_hermanos_no_estudiando"
                                         value={dataMiFamilia.num_hermanos_no_estudiando ?? ""}
                                         onChange={handleChange}
                                     />
+                                    {erroresFormulario.numHermanosNoEstudiando && (
+                                        <div className="invalid-feedback">
+                                            Debes ingresar un número válido de hermanos que dejaron de estudiar.
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* ¿Cuántos tienen licenciatura? */}
@@ -1215,11 +1587,16 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <input
                                         type="number"
-                                        className="form-control"
+                                        className={`form-control ${erroresFormulario.numHermanosLicenciatura ? 'is-invalid' : ''}`}
                                         name="num_hermanos_licenciatura"
                                         value={dataMiFamilia.num_hermanos_licenciatura ?? ""}
                                         onChange={handleChange}
                                     />
+                                    {erroresFormulario.numHermanosLicenciatura && (
+                                        <div className="invalid-feedback">
+                                            Debes ingresar un número válido de hermanos que tienen licenciatura.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1251,45 +1628,65 @@ const MiFamiliaForm = () => {
                                                 <label>Nombre completo:</label>
                                                 <input
                                                     type="text"
-                                                    className="form-control"
+                                                    className={`form-control ${erroresFormulario.dependientes?.[index]?.nombrePersona ? 'is-invalid' : ''}`}
                                                     value={dep.nombrePersona}
-                                                    onChange={(e) => handleChangeDependiente(index, 'nombrePersona', e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleChangeDependiente(index, 'nombrePersona', e.target.value)
+                                                    }
                                                     placeholder="Nombre completo"
                                                 />
+                                                {erroresFormulario.dependientes?.[index]?.nombrePersona && (
+                                                    <div className="invalid-feedback">Este campo es obligatorio.</div>
+                                                )}
                                             </div>
 
                                             <div className="col-md-2">
                                                 <label>Edad:</label>
                                                 <input
                                                     type="number"
-                                                    className="form-control"
+                                                    className={`form-control ${erroresFormulario.dependientes?.[index]?.edad ? 'is-invalid' : ''}`}
                                                     value={dep.edad}
                                                     onChange={(e) => handleChangeDependiente(index, 'edad', e.target.value)}
                                                 />
+                                                {erroresFormulario.dependientes?.[index]?.edad && (
+                                                    <div className="invalid-feedback">Este campo de edad es obligatorio.</div>
+                                                )}
                                             </div>
 
                                             <div className="col-md-2">
                                                 <label>Parentesco:</label>
-                                                <SeleccionarCombo
+                                                <select
+                                                    className={`form-select ${erroresFormulario.dependientes?.[index]?.parentesco ? 'is-invalid' : ''}`}
                                                     name={`parentesco-${index}`}
-                                                    options={parentescos.map((parentesco) => ({
-                                                        value: parentesco.id,
-                                                        label: parentesco.nombre || parentesco.nombreParentesco
-                                                    }))}
                                                     value={dep.parentesco}
                                                     onChange={(e) => handleChangeDependiente(index, 'parentesco', e.target.value)}
                                                     placeholder="Selecciona parentesco"
-                                                />
+                                                >
+                                                    <option value="">Selecciona parentesco</option>
+                                                    {parentescos.map((parentesco) => (
+                                                        <option key={parentesco.id} value={parentesco.id}>
+                                                            {parentesco.nombre || parentesco.nombreParentesco}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {erroresFormulario.dependientes?.[index]?.parentesco && (
+                                                    <div className="invalid-feedback">Es obligatorio el parentesco.</div>
+                                                )}
                                             </div>
 
                                             <div className="col-md-5">
                                                 <label>Comprobante (CURP, Acta, etc.):</label>
                                                 <input
                                                     type="file"
-                                                    className="form-control"
+                                                    className={`form-control ${erroresFormulario.dependientes?.[index]?.archivo ? 'is-invalid' : ''}`}
                                                     onChange={(e) => handleFileUpload(index, e.target.files[0])}
                                                     accept=".jpg,.jpeg,.png,.pdf"
                                                 />
+                                                {erroresFormulario.dependientes?.[index]?.archivo && (
+                                                    <div className="invalid-feedback">
+                                                        Debes subir un archivo válido.
+                                                    </div>
+                                                )}
                                                 {dep.nombreArchivo && (
                                                     <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
                                                         Archivo enviado: {dep.nombreArchivo}
