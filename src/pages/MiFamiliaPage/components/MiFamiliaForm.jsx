@@ -1,11 +1,9 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
-import MigasRecorrido from '../../../components/MigasDePan/MigasRecorrido';
 import RadioSelect from '../../../components/RadioSelect/RadioSelect';
 import SeleccionarCombo from '../../../components/ComboSeleccionar/SeleccionarCombo';
 import { CheckBox } from '../../../components/CheckBox/CheckBox'
-import ValidationError from './ValidacionFamilia';
 
 //Servicios cat
 import CatBienesHogarService from '../../../services/CatBienesHogarService';
@@ -19,11 +17,6 @@ import CatMediosEstudioService from '../../../services/catMediosEstudioService';
 import CatServiciosOtro from '../../../services/CatServiciosOtro';
 
 import MiFamiliaService from '../../../services/miFamiliaService';
-import MediosEstudioService from '../../../services/mediosEstudiosService';
-import viviendaFamiliarService from '../../../services/viviendaFamiliarService';
-import serviciosViviendaService from '../../../services/serviciosViviendaService';
-import BienesHogarService from '../../../services/BienesHogarService';
-import personasDependientesService from '../../../services/personasDependientesService';
 import DomicilioCpService from '../../../services/DomicilioCpService';
 import AlumnoService from '../../../services/AlumnoService';
 import CatRegionDistritoService from '../../../services/CatRegionDistritoService';
@@ -84,6 +77,7 @@ const MiFamiliaForm = () => {
     const OTRO_DISTRITO_ID = "26"; // ID que identifica la opción "Otro" en distritos
     const navigate = useNavigate(); // Añadir esta línea
 
+    const [btnDisabled, setBtnDisabled] = useState(false);
 
 
     // ********************************* RELACION CON CATALOGOS *******************************************
@@ -151,10 +145,21 @@ const MiFamiliaForm = () => {
         }
     };
 
+    const verificarFechas = (fechaData) => {
+        if (!fechaData.active) return false;
+        const today = new Date();
+        const fechaInicio = new Date(fechaData.fechaInicio);
+        const fechaFin = new Date(fechaData.fechaFin);
+
+        today.setHours(0, 0, 0, 0);
+        fechaInicio.setHours(0, 0, 0, 0);
+        fechaFin.setHours(0, 0, 0, 0);
+
+        return today >= fechaInicio && today <= fechaFin;
+    };
+
     // Agregar función para cargar datos existentes de Mi Familia
-    const setDatosMiFamiliaAlumno = (data) => {
-        console.log("=== FUNCIÓN EJECUTÁNDOSE ===");
-        console.log("Datos de mi familia del alumno: ", data);
+    const setDatosMiFamiliaAlumno = (data, alumnoData) => {
 
         // Cargar datos básicos de Mi Familia
         setDataMiFamilia({
@@ -231,8 +236,8 @@ const MiFamiliaForm = () => {
                 municipio: data.domicilio.municipio || '',
                 colonia: data.domicilio.colonia || '',
                 localidad: data.domicilio.localidad || '',
-                distrito: data.domicilio.distrito || '',
-                region: data.domicilio.region || '',
+                distrito: data.viviendaFamiliar.distrito || '',
+                region: data.viviendaFamiliar.region || '',
                 cp: data.domicilio.cp || ''
             });
 
@@ -246,7 +251,7 @@ const MiFamiliaForm = () => {
 
             // Por defecto, si ya tiene domicilio registrado, asumir que no coincide con el del alumno
             // a menos que sea exactamente el mismo ID
-            if (data.domicilio.id === datosAlumno?.misDatos?.domicilio?.id) {
+            if (data.domicilio.id === alumnoData?.misDatos?.domicilio?.id) {
                 setDomicilioCoincide('Si');
                 setDisabled(true);
             } else {
@@ -285,12 +290,13 @@ const MiFamiliaForm = () => {
             }
             let datos = await AlumnoService.getById(alumnoId);
             console.log("Datos del alumno: ", datos);
+            verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setDatosAlumno(datos);
 
             // Verificar si ya tiene datos de Mi Familia
             if (datos.miFamilia) {
                 console.log("Datos de mi familia existentes: ", datos.miFamilia);
-                setDatosMiFamiliaAlumno(datos.miFamilia);
+                setDatosMiFamiliaAlumno(datos.miFamilia, datos);
             }
         } catch (error) {
             console.log("Error al obtener datos del alumno: ", error);
@@ -608,7 +614,7 @@ const MiFamiliaForm = () => {
             timerProgressBar: true,
             didOpen: () => {
                 const confirmButton = Swal.getConfirmButton();
-                confirmButton.style.backgroundColor = 'var(--color-verde)';
+                //confirmButton.style.backgroundColor = 'var(--color-verde)';
             },
         });
     };
@@ -642,6 +648,14 @@ const MiFamiliaForm = () => {
         });
     };
 
+    const mostrarInformacion = (mensaje) => {
+        mostrarAlerta({
+            title: 'Periodo de registro cerrado',
+            text: mensaje,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
+        });
+    };
 
     const mostrarMensajeErrorAlGuardar = (mensaje) => {
         mostrarError(mensaje);
@@ -792,13 +806,13 @@ const MiFamiliaForm = () => {
             console.log('Payload completo a enviar:', payloadCompleto);
 
             let response;
+            let nuevosErrores = null;
             // Verificar si es actualización o creación
             if (datosAlumno.miFamilia !== null) {
-                console.log(datosAlumno);
                 // Actualizar datos existentes
                 const idMiFamilia = datosAlumno.miFamilia.id;
+                console.log(datosAlumno);
                 response = await MiFamiliaService.update(idMiFamilia, payloadCompleto);
-                console.log('Datos actualizados:', response);
                 mostrarExito('Datos actualizados correctamente');
             } else {
                 // Crear nuevos datos
@@ -807,7 +821,10 @@ const MiFamiliaForm = () => {
                 mostrarExito('Datos guardados correctamente');
             }
         } catch (error) {
-            console.error('Error al guardar:', error);
+            if (error.includes('periodo de registro')) {
+                mostrarInformacion(error);
+                return;
+            }
             mostrarError('Ocurrió un error al guardar la información');
         }
     };
@@ -1302,18 +1319,13 @@ const MiFamiliaForm = () => {
                                     </div>
                                 ))}
                             </div>
-                            <div className="text-center mt-4 mb-4">
+                            <div className="d-flex justify-content-center mb-3 mt-5">
                                 <button
-                                    className="btn btn-primary px-4 py-2"
+                                    className="btn btn-midDatos"
                                     onClick={handleSubmit}
-                                    style={{
-                                        backgroundColor: 'var(--color-morado3)',
-                                        border: 'none',
-                                        fontSize: '1.2rem',
-                                        borderRadius: '8px',
-                                    }}
+                                    disabled={btnDisabled}
                                 >
-                                    Guardar información
+                                    Guardar
                                 </button>
                             </div>
                         </div>

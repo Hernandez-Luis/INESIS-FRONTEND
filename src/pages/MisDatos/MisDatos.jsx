@@ -46,6 +46,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
+  const [btnDisabled, setBtnDisabled] = useState(false);
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -96,6 +97,19 @@ export const MisDatos = ({ onAdd, update }) => {
     }
   }
 
+  const verificarFechas = (fechaData) => {
+    if(!fechaData.active) return false;
+    const today = new Date();
+    const fechaInicio = new Date(fechaData.fechaInicio);
+    const fechaFin = new Date(fechaData.fechaFin);
+
+    today.setHours(0, 0, 0, 0);
+    fechaInicio.setHours(0, 0, 0, 0);
+    fechaFin.setHours(0, 0, 0, 0);
+
+    return today >= fechaInicio && today <= fechaFin;
+  };
+
   const obtenerDatosAlumno = async () => {
     try {
       let dataAlumno = await AlumnoService.getById(idAlumno);
@@ -108,6 +122,8 @@ export const MisDatos = ({ onAdd, update }) => {
         sexo: dataAlumno.sexo?.id,
       }))
       if (dataAlumno?.misDatos) {
+        console.log("Datos del alumno: ", dataAlumno)
+        verificarFechas(dataAlumno?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
         setDataMisDatos((prevData) => ({
           ...prevData,
           estadoCivil: dataAlumno?.misDatos.estadoCivil?.id,
@@ -483,18 +499,25 @@ export const MisDatos = ({ onAdd, update }) => {
 
     try {
       let nuevosErrores = null;
+      let mensaje = "";
       if (datosAlumno.misDatos !== null) {
         let idMisDatos = datosAlumno.misDatos.id;
+        mensaje = "Los datos se actualizaron correctamente";
         nuevosErrores = await update(idMisDatos, coleccionValores);
       } else {
+        mensaje = "Los datos se guardaron correctamente";
         nuevosErrores = await onAdd(coleccionValores);
       }
-      console.log("Error: ", nuevosErrores)
       if (nuevosErrores && nuevosErrores.length > 0) {
-        mostrarError(nuevosErrores)
+        console.log("Errores: ", nuevosErrores)
+        if (nuevosErrores[0] && nuevosErrores[0].includes("periodo de registro") || nuevosErrores.includes("periodo de registro")) {
+          mostrarInformacion(nuevosErrores);
+        } else {
+          mostrarError(nuevosErrores);
+        }
         return;
       }
-      mostrarExito("Los datos se guardaron correctamente")
+      mostrarExito(mensaje);
 
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
@@ -571,7 +594,7 @@ export const MisDatos = ({ onAdd, update }) => {
       timerProgressBar: true,
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
-        confirmButton.style.backgroundColor = 'var(--color-verde)';
+        //confirmButton.style.backgroundColor = 'var(--color-verde)';
       },
     });
   };
@@ -602,6 +625,15 @@ export const MisDatos = ({ onAdd, update }) => {
       confirmButtonText: 'Aceptar',
     }).then(() => {
       navigate('/menuSolicitar')
+    });
+  };
+
+  const mostrarInformacion = (mensaje) => {
+    mostrarAlerta({
+      title: 'Periodo de registro cerrado',
+      text: mensaje,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
     });
   };
 
@@ -1212,7 +1244,7 @@ export const MisDatos = ({ onAdd, update }) => {
             </div>
 
             <div className='d-flex justify-content-center mb-5'>
-              <button className='btn btn-midDatos'>Guardar</button>
+              <button className='btn btn-midDatos' disabled={btnDisabled}>Guardar</button>
             </div>
           </form>
         </div>
