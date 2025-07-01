@@ -98,7 +98,7 @@ export const MisDatos = ({ onAdd, update }) => {
   }
 
   const verificarFechas = (fechaData) => {
-    if(!fechaData.active) return false;
+    if (!fechaData.active) return false;
     const today = new Date();
     const fechaInicio = new Date(fechaData.fechaInicio);
     const fechaFin = new Date(fechaData.fechaFin);
@@ -120,6 +120,8 @@ export const MisDatos = ({ onAdd, update }) => {
         carrera: dataAlumno.carrera?.id,
         semestre: dataAlumno.semestre?.id,
         sexo: dataAlumno.sexo?.id,
+        correo: dataAlumno.correo || '',
+        telefono: dataAlumno.telefono || '',
       }))
       if (dataAlumno?.misDatos) {
         console.log("Datos del alumno: ", dataAlumno)
@@ -287,6 +289,8 @@ export const MisDatos = ({ onAdd, update }) => {
     nombreCasaHuesped: "",
     llevaAutomovil: "",
     llevaMotocicleta: "",
+    correo: "",
+    telefono: "",
   }
 
   const formularioInicialDomicilio = {
@@ -530,6 +534,15 @@ export const MisDatos = ({ onAdd, update }) => {
     // Validación de los campos
     const erroresTemp = {};
     const camposOpcionalesMisDatos = ["transporteAutomovil", "transporteMotocicleta"]
+
+    // Validación específica para formato de correo
+    if (dataMisDatos.correo) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(dataMisDatos.correo)) {
+        erroresTemp.correo = 'Formato de correo electrónico inválido';
+      }
+    }
+
     let camposOpcionalesGastosIngresos = []
     if (dataGastosIngresos?.dependeEconomicamente === true) {
       camposOpcionalesGastosIngresos = ["nombreTrabajo", "ingresoMensual", "telefonoTrabajo", "domicilioTrabajo", "otro"];
@@ -650,7 +663,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 <div className='tarjeta-border p-4 d-flex flex-column mb-4 h-100' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                   <div className='row me-lg-5'>
                     <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
-                    <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3 p-2'>
+                    <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center p-2'>
                       <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Nombre:</label>
                       <label>{dataMisDatos.nombreCompleto}</label>
                     </div>
@@ -662,7 +675,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
                     <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
                       <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Semestre:</label>
-                      <div className='w-100 w-md-auto'>
+                      <div className='w-75'>
                         <SeleccionarCombo
                           name="semestre"
                           options={catSemestres.map(s => ({
@@ -710,6 +723,38 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                     </div>
                     {errores.recursosSuficientes && <div style={{ color: 'orange' }}>{errores.recursosSuficientes}</div>}
+
+                    <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Correo:</label>
+                      <div className='w-xs-100 me-4 mb-2 mb-md-0'>
+                        <input
+                          type="email"
+                          className={`form-control ${errores.correo ? 'input-error' : ''}`}
+                          name="correo"
+                          value={dataMisDatos.correo || ''}
+                          onChange={actualizarCamposMisDatos}
+                          placeholder="Ingrese su correo electrónico"
+                        />
+                        {errores.correo && <div style={{ color: 'orange' }}>{errores.correo}</div>}
+                      </div>
+
+                      <label className='fs-5 me-md-3' style={{ fontWeight: 'bold' }}>Teléfono:</label>
+                      <div className='w-xs-100'>
+                        <input
+                          type="telefono"
+                          className={`form-control ${errores.telefono ? 'input-error' : ''}`}
+                          name="telefono"
+                          value={dataMisDatos.telefono || ''}
+                          onChange={actualizarCamposMisDatos}
+                          placeholder="Ingrese su número telefónico"
+                          maxLength={10}
+                          onBeforeInput={soloNumerosPositivos}
+                        />
+                        {errores.telefono && <div style={{ color: 'orange' }}>{errores.telefono}</div>}
+                      </div>
+
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -722,7 +767,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
 
                     {/* Situación de vivienda */}
-                    <div className='mt-2'>
+                    <div className='mt-2 mb-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:</label>
                       <RadioSelect
                         gris={true}
@@ -740,7 +785,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     {/* Dirección */}
                     <label className='fs-5 mt-4' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
 
-                    <div className="col-12 col-md-4 mt-2">
+                    <div className="col-12 col-md-4 mt-2 mb-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                       <input
                         maxLength={5}
@@ -754,7 +799,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.cp && <div className='text-danger'>{errores.cp}</div>}
                     </div>
 
-                    <div className='col-12 col-md-4 mt-2'>
+                    <div className='col-12 col-md-4 mt-2 mb-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
                       <input
                         className='form-control'
@@ -767,7 +812,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.estado && <div className='text-danger'>{errores.estado}</div>}
                     </div>
 
-                    <div className='col-12 col-md-4 mt-2'>
+                    <div className='col-12 col-md-4 mt-2 mb-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                       <input
                         className='form-control'
@@ -779,7 +824,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2'>
+                    <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                       <input
                         className={`form-control ${errores.calle ? 'input-error' : ''}`}
@@ -792,7 +837,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                     </div>
 
-                    <div className="col-12 col-md-6 mt-2">
+                    <div className="col-12 col-md-6 mt-2 mb-3">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número</label>
                       <input
                         onBeforeInput={soloLetrasYNumeros}
@@ -805,7 +850,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.numero && <div className='text-danger'>{errores.numero}</div>}
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2'>
+                    <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
                       <SeleccionarCombo
                         options={colonias.map(c => ({
@@ -819,7 +864,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2'>
+                    <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                       <input
                         onBeforeInput={soloLetras}

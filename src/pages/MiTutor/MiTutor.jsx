@@ -78,11 +78,11 @@ export const MiTutor = ({ onAdd, update }) => {
                 return;
             }
             let datos = await AlumnoService.getById(alumnoId);
+            verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             console.log("Datos del alumno: ", datos);
             setDatosAlumno(datos);
             if (datos.miTutor) {
                 console.log("Datos de mi tutor: ", datos.miTutor)
-                verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
                 setDatosMiTutorAlumno(datos.miTutor);
             } else {
                 obtenerDatosTutorDeMisDatos(datos.misDatos);
@@ -145,6 +145,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
 
     const verificarFechas = (fechaData) => {
+        if(!fechaData) return false;
         if (!fechaData.active) return false;
         const today = new Date();
         const fechaInicio = new Date(fechaData.fechaInicio);

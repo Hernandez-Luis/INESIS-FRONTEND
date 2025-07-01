@@ -264,11 +264,6 @@ export const MenuSolicitarBeca = () => {
                 Ya enviaste tu estudio socioeconómico.
               </div>
             )}
-            {!estudioCompleto && !isWithinDateRange() && (
-              <div className="mt-3 text-warning fw-bold">
-                Período de registro cerrado. Contacta a Servicios Escolares.
-              </div>
-            )}
             {renderEstadoRevision()}
           </div>
           {/*fin contenido*/}
