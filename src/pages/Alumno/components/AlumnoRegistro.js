@@ -350,20 +350,38 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
   };
 
-  const descargarPlantilla = () => {
-    // URL de la plantilla (puede ser una URL o un archivo local)
-    const plantillaUrl = 'src/templates/plantillaAlumnosINESIS.xls';
+  const descargarPlantilla = async () => {
+    try {
+      const plantillaUrl = '/templates/plantillaAlumnosINESIS.xls';
 
-    // Crear un enlace temporal para la descarga
-    const link = document.createElement('a');
-    link.href = plantillaUrl;
-    link.setAttribute('download', 'plantilla_alumnos_INESIS.xlsx');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Verificar si el archivo existe
+      const response = await fetch(plantillaUrl, { method: 'HEAD' });
 
-    // Abre el modal para subir el archivo
-    setShowModal(true);
+      if (!response.ok) {
+        throw new Error('Archivo no encontrado');
+      }
+
+      // Crear enlace de descarga
+      const link = document.createElement('a');
+      link.href = plantillaUrl;
+      link.setAttribute('download', 'plantilla_alumnos_INESIS.xls');
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Abre el modal para subir el archivo
+      setShowModal(true);
+
+    } catch (error) {
+      console.error('Error al descargar plantilla:', error);
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error al descargar',
+        text: 'No se pudo descargar la plantilla. Verifica que el archivo existe.'
+      });
+    }
   };
 
   const handleFileChange = (e) => {
@@ -405,16 +423,45 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       // Llamada al servicio para procesar el archivo
       const response = await alumnoService.importarDesdeExcel(formData);
 
-      if (response && response.status === 200) {
-        mostrarAlerta({
+      if (response && response.status === 201) {
+        // Alerta personalizada que no se cierre automáticamente
+        Swal.fire({
           icon: 'success',
-          title: 'Importación exitosa',
-          text: 'Los alumnos fueron importados correctamente'
+          title: '¡Importación exitosa!',
+          html: `
+          <div style="text-align: left; margin: 20px 0;">
+            <p><strong>✅ Los alumnos fueron importados correctamente</strong></p>
+            <br>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+              <h5 style="color: #28a745; margin-bottom: 10px;">📋 Información importante sobre las credenciales:</h5>
+              <p><strong>🔐 Nombre de usuario:</strong> primer_nombre.primer_apellido</p>
+              <p style="margin-bottom: 8px;"><em>Ejemplo: juan.perez, maria.lopez</em></p>
+              <p><strong>🔑 Contraseña:</strong> Matrícula del alumno</p>
+              <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234</em></p>
+              <hr style="margin: 10px 0;">
+              <p style="color: #6c757d; font-size: 0.9em;">
+                <strong>Nota:</strong> En casos excepcionales, el nombre de usuario puede tener variaciones debido a caracteres especiales o nombres compuestos.
+              </p>
+            </div>
+          </div>
+        `,
+          showConfirmButton: true,
+          confirmButtonText: '¡Entendido!',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          width: '600px',
+          didOpen: () => {
+            const confirmButton = Swal.getConfirmButton();
+            confirmButton.style.backgroundColor = '#28a745';
+            confirmButton.style.color = 'white';
+            confirmButton.style.fontSize = '16px';
+            confirmButton.style.padding = '10px 20px';
+          }
+        }).then(() => {
+          setShowModal(false);
+          setExcelFile(null);
+          navigate('/AdministrarAlumnos');
         });
-        setShowModal(false);
-        setExcelFile(null);
-        // Opcional: redirigir a la lista de alumnos
-        navigate('/AdministrarAlumnos');
       }
     } catch (error) {
       console.error('Error al importar alumnos:', error);
