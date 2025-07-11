@@ -39,8 +39,6 @@ const AppRoutes = () => {
 
         <Route path="/menuSolicitar" element={<MenuSolicitarBeca />} />
         <Route path="/MisDatos" element={<GestionMisDatos />} />
-        <Route path="/NavInesis" element={<NavInesis />} />
-        <Route path="/Migas" element={<MigasRecorrido />} />
         <Route path="/Revision" element={<RevisionSolicitud />} />
         <Route path="/MisDocumentos" element={<MisDocumentos />} />
         <Route path="/ResultadosSolicitud" element={<ResultadosSolicitud />}/>
@@ -57,7 +55,6 @@ const AppRoutes = () => {
         <Route path="/MiFamilia" element={<MiFamilia/>} />
         <Route path="/AdministrarRevisor" element={<AdministrarRevisor/>} />
         <Route path='/AgregarRevisor' element={<AgregarRevisor></AgregarRevisor>}></Route>        
-        <Route path="/FooterInesis" element={<FooterInesis />} />
         <Route path="/GastosIngresos" element={<GastosIngresos />} />
     </Routes>
   )

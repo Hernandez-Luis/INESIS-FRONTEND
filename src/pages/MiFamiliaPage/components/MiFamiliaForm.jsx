@@ -894,7 +894,7 @@ const MiFamiliaForm = () => {
                                                     value={otroRegionTexto}
                                                     onChange={handleOtroRegionTexto}
                                                     placeholder="Escriba la región"
-                                                    disabled={disabled}
+                                                    disabled={false}
                                                 />
                                             </div>
                                         )}
@@ -930,7 +930,7 @@ const MiFamiliaForm = () => {
                                                     value={otroDistritoTexto}
                                                     onChange={handleOtroDistritoTexto}
                                                     placeholder="Escriba el distrito"
-                                                    disabled={disabled}
+                                                    disabled={false}
                                                 />
                                             </div>
                                         )}

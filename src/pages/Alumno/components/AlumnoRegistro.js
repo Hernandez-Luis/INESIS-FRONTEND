@@ -203,7 +203,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         break;
 
       case 'telefono':
-        if (value && !/^\d{10}$/.test(value))
+        if (value && value.trim() !== '' && !/^\d{10}$/.test(value))
           error = 'Debe contener 10 dígitos';
         break;
 
@@ -351,37 +351,55 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
   const descargarPlantilla = async () => {
-    try {
-      const plantillaUrl = '/templates/plantillaAlumnosINESIS.xls';
-
-      // Verificar si el archivo existe
-      const response = await fetch(plantillaUrl, { method: 'HEAD' });
-
-      if (!response.ok) {
-        throw new Error('Archivo no encontrado');
+    const result = await Swal.fire({
+      icon: 'question',
+      title: '¿Deseas descargar la plantilla de alumnos?',
+      text: 'La plantilla contiene el único formato válido para importar alumnos. Si ya la descargaste anteriormente, puedes continuar y subirla directamente. ¿Quieres descargarla ahora?',
+      showCancelButton: true,
+      confirmButtonText: 'Descargar plantilla',
+      cancelButtonText: 'No descargar',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      width: '400px',
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = '#28a745';
+        confirmButton.style.color = 'white';
       }
+    });
 
-      // Crear enlace de descarga
-      const link = document.createElement('a');
-      link.href = plantillaUrl;
-      link.setAttribute('download', 'plantilla_alumnos_INESIS.xls');
-      link.style.display = 'none';
+    if (result.isConfirmed) {
+      try {
+        const plantillaUrl = '/templates/plantillaAlumnosINESIS.xls';
 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        // Verificar si el archivo existe
+        const response = await fetch(plantillaUrl, { method: 'HEAD' });
 
-      // Abre el modal para subir el archivo
-      setShowModal(true);
+        if (!response.ok) {
+          throw new Error('Archivo no encontrado');
+        }
 
-    } catch (error) {
-      console.error('Error al descargar plantilla:', error);
-      mostrarAlerta({
-        icon: 'error',
-        title: 'Error al descargar',
-        text: 'No se pudo descargar la plantilla. Verifica que el archivo existe.'
-      });
+        // Crear enlace de descarga
+        const link = document.createElement('a');
+        link.href = plantillaUrl;
+        link.setAttribute('download', 'plantilla_alumnos_INESIS.xls');
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+      } catch (error) {
+        console.error('Error al descargar plantilla:', error);
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Error al descargar',
+          text: 'No se pudo descargar la plantilla. Verifica que el archivo existe.'
+        });
+      }
     }
+    // Abre el modal para subir el archivo
+    setShowModal(true);
   };
 
   const handleFileChange = (e) => {
@@ -440,7 +458,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234</em></p>
               <hr style="margin: 10px 0;">
               <p style="color: #6c757d; font-size: 0.9em;">
-                <strong>Nota:</strong> En casos excepcionales, el nombre de usuario puede tener variaciones debido a caracteres especiales o nombres compuestos.
+                <strong>Nota:</strong> El nombre de usuario puede tener variaciones en algunos casos y lo puedes verificar en el listado de alumnos.
               </p>
             </div>
           </div>

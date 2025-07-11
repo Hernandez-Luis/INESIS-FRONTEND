@@ -35,6 +35,7 @@ export const MenuSolicitarBeca = () => {
 
   useEffect(() => {
     getInfoAlumno();
+    isWithinDateRange();
   }, []);
 
   const getInfoAlumno = async () => {
@@ -42,7 +43,7 @@ export const MenuSolicitarBeca = () => {
     const response = await AlumnoService.getById(idAlumno);
     setEstudioCompleto(response.estudioCompleto === true);
     setEstadoRevision(response.estadoRevision); // Puede ser null, true o false
-    // ...tu lógica para setCardClasses...
+    setFechaRegistrada(response.fechaRegistrada);
     if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
       setCardClasses({
         misDatos: 'completo',
@@ -171,7 +172,6 @@ export const MenuSolicitarBeca = () => {
       timerProgressBar: true,
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
-        confirmButton.style.backgroundColor = 'var(--color-verde)';
       },
     });
   };
@@ -252,13 +252,15 @@ export const MenuSolicitarBeca = () => {
             </div>
           </div>
           <div className='text-center'>
-            <button
-              className='btn btn-primary btn-lg'
-              disabled={!isAllComplete() || estudioCompleto || !isWithinDateRange()}
-              onClick={handleEnviar}
-            >
-              Enviar
-            </button>
+            {fechaRegistrada && (
+              <button
+                className='btn btn-primary btn-lg'
+                disabled={!isAllComplete() || estudioCompleto || !isWithinDateRange()}
+                onClick={handleEnviar}
+              >
+                Enviar
+              </button>
+            )}
             {estudioCompleto && (
               <div className="mt-3 text-success fw-bold">
                 Ya enviaste tu estudio socioeconómico.
