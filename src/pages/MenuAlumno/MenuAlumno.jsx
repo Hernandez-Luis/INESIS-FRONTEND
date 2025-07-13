@@ -11,15 +11,15 @@ import resultadoEstudiO from "../../assets/resultadoEstudio.jpg";
 import "../../App.css";
 
 const MenuAlumno = () => {
-  // Estados para manejar datos del alumno y de la vista
+  
   const [nombreAlumno, setNombreAlumno] = useState(""); // Primer nombre del alumno
   const [linkResultado, setLinkResultado] = useState(""); // Ruta para resultados
   const [fechaFin, setFechaFin] = useState(""); // Fecha límite formateada
-  const [fechaAsignada, setFechaAsignada] = useState(false); // ¿Existe fecha límite?
+  const [fechaAsignada, setFechaAsignada] = useState(false); // Existe fecha límite
   const [estadoAlumno, setEstadoAlumno] = useState(false); // Estado socioeconómico del alumno
   const [observacionesAlumno, setObservacionesAlumno] = useState(""); // Observaciones del estudio
 
-  // Hook que se ejecuta al montar el componente
+  
   useEffect(() => {
     const usuarioStr = localStorage.getItem("usuario");
     if (usuarioStr) {
@@ -27,14 +27,12 @@ const MenuAlumno = () => {
       const alumnoId = usuario?.alumno?.id || usuario?.alumnoId;
 
       if (alumnoId) {
-        // Obtener información del alumno
         ServicioAlumno.getById(alumnoId)
           .then((alumno) => {
-            // Guardar solo el primer nombre para saludo
             const primerNombre = alumno.nombre?.split(" ")[0];
             setNombreAlumno(primerNombre);
 
-            // Guardar estado y observaciones
+            //  estado y observaciones
             setEstadoAlumno(alumno.estado);
             setObservacionesAlumno(alumno.observaciones);
 
@@ -47,7 +45,7 @@ const MenuAlumno = () => {
               setLinkResultado(""); // Si no hay datos válidos, se bloquea el acceso
             }
 
-            // Buscar fecha límite según carrera
+            // Fecha límite según carrera
             const carreraId = alumno?.carrera?.id;
             if (carreraId) {
               fechaService
@@ -83,13 +81,13 @@ const MenuAlumno = () => {
     }
   }, []);
 
-  // Función que se ejecuta al dar clic en "Resultados"
+  
   const handleResultadoClick = () => {
     const sinObservaciones =
       !observacionesAlumno || observacionesAlumno.trim() === "";
     const sinEstado = !estadoAlumno;
 
-    // Mostrar alerta si no hay datos válidos aún
+
     if (sinObservaciones && sinEstado) {
       Swal.fire({
         icon: "info",
@@ -113,12 +111,9 @@ const MenuAlumno = () => {
       <div className="container-fluid d-flex flex-column min-vh-100">
         <div className="flex-grow-1 p-2">
           <div className="text-center mt-4">
-            {/* Saludo personalizado */}
             <h1 style={{ color: "var(--color-morado2)" }}>
               Bienvenid@ {nombreAlumno}
             </h1>
-
-            {/* Mensaje dependiendo si tiene asignada fecha límite */}
             {fechaAsignada ? (
               <p className="recordatorio">
                 ¡Recuerda que tienes hasta el día <b>{fechaFin}</b> a las{" "}
@@ -132,24 +127,20 @@ const MenuAlumno = () => {
             )}
           </div>
 
-          {/* Tarjetas del menú */}
           <div className="container-fluid align-items-center justify-content-center text-center mb-5">
             <div className="row d-flex justify-content-center">
-              {/* Tarjeta de requisitar estudio */}
               <CardMenu
                 title="Requisitar Estudio Socioeconómico"
                 imgSrc={rellenarEstudio}
                 description="En esta sección, ingresarás datos personales y de otra índole necesaria."
                 link={"/menuSolicitar"}
               />
-
-              {/* Tarjeta de resultados con validación por click */}
               <CardMenu
                 title="Resultados del Estudio Socioeconómico"
                 imgSrc={resultadoEstudiO}
                 description="En esta sección, podrás ver tus resultados y observaciones."
-                link={linkResultado} // este se ignora si onClick está presente
-                onClick={handleResultadoClick} // previene acceso si no hay datos válidos
+                link={linkResultado} 
+                onClick={handleResultadoClick} 
               />
             </div>
           </div>
