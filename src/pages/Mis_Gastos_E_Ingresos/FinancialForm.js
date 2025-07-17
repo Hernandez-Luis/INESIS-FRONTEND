@@ -316,14 +316,18 @@ const FinancialForm = () => {
     const actualizarIngresoTotal = () => {
         let total = 0;
         for (let i = 0; i < numPeople; i++) {
-            const val = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
-            total += isNaN(val) ? 0 : val;
+            const bruto = parseFloat(document.getElementById(`person-${i}-imbbruto`)?.value || "0");
+            const neto = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
+            total += (isNaN(bruto) ? 0 : bruto) + (isNaN(neto) ? 0 : neto);
         }
+
         const input = document.getElementById("ingresoTotal");
         if (input) input.value = total.toFixed(2);
 
         validarIgualdadIngresosGastos();
     };
+
+
 
     const actualizarTotalGastos = () => {
         const gastoLabels = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'];
@@ -343,7 +347,7 @@ const FinancialForm = () => {
 
 
     return (
-        <Container className="mt-3" style={{ maxWidth: "1400px" }}>
+        <Container className="mt-3" style={{ maxWidth: "1600px" }}>
             {/* Ingresos Mensuales */}
             <Card className="p-4 mb-5" style={cardStyle}>
                 <h3 style={{ color: "#4F46E5" }}>Ingresos mensuales</h3>
@@ -402,25 +406,44 @@ const FinancialForm = () => {
                                                     <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
                                                     <Form.Control
                                                         id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
-                                                        type={field.type}
+                                                        type="text"
                                                         placeholder={field.placeholder}
                                                         isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
-                                                        onChange={field.label === "IMN (Neto)" ? actualizarIngresoTotal : undefined}
-                                                        onBeforeInput={
-                                                            field.label === "Nombre completo" ? soloLetras :
-                                                                field.label === "Empresa o lugar de trabajo" ? soloLetrasYNumeros :
-                                                                    field.label === "Puesto o tipo de trabajo" ? soloLetras :
-                                                                        field.label === "IMB (Bruto)" || field.label === "IMN (Neto)" ? soloNumerosPositivosConDosDecimales :
-                                                                            undefined
-                                                        }
+                                                        onChange={actualizarIngresoTotal}
+                                                        onKeyDown={(e) => {
+                                                            const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
+                                                            if (!/[0-9]/.test(e.key) && !validKeys.includes(e.key)) {
+                                                                e.preventDefault();
+                                                            }
+                                                        }}
+                                                        onInput={(e) => {
+                                                            const value = e.target.value;
+                                                            const regex = /^\d{0,6}(\.\d{0,2})?$/;
+                                                            if (value === "" || regex.test(value)) {
+                                                                e.target.setCustomValidity("");
+                                                            } else {
+                                                                e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
+                                                            }
+                                                        }}
                                                     />
-
+                                                    {field.label === "IMB (Bruto)" && (
+                                                        <small style={{ color: "#6B7280", marginTop: "4px" }}>
+                                                            Ingreso mensual bruto: ingreso antes de deducciones.
+                                                        </small>
+                                                    )}
+                                                    {field.label === "IMN (Neto)" && (
+                                                        <small style={{ color: "#6B7280", marginTop: "4px" }}>
+                                                            Ingreso mensual neto: ingreso disponible después de deducciones.
+                                                        </small>
+                                                    )}
                                                 </div>
                                             </Col>
+
                                         </React.Fragment>
                                     );
                                 }
 
+                                // Campos normales (Nombre completo, Puesto, IMB, IMN)
                                 // Campos normales (Nombre completo, Puesto, IMB, IMN)
                                 return (
                                     <Col key={idx} className="d-flex">
@@ -428,13 +451,52 @@ const FinancialForm = () => {
                                             <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
                                             <Form.Control
                                                 id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
-                                                type={field.type}
+                                                type="text"
                                                 placeholder={field.placeholder}
                                                 isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
+                                                onChange={
+                                                    field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
+                                                        ? actualizarIngresoTotal
+                                                        : undefined
+                                                }
+                                                onKeyDown={
+                                                    field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
+                                                        ? (e) => {
+                                                            const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
+                                                            if (!/[0-9]/.test(e.key) && !validKeys.includes(e.key)) {
+                                                                e.preventDefault();
+                                                            }
+                                                        }
+                                                        : undefined
+                                                }
+                                                onInput={
+                                                    field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
+                                                        ? (e) => {
+                                                            const value = e.target.value;
+                                                            const regex = /^\d{0,6}(\.\d{0,2})?$/;
+                                                            if (value === "" || regex.test(value)) {
+                                                                e.target.setCustomValidity("");
+                                                            } else {
+                                                                e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
+                                                            }
+                                                        }
+                                                        : undefined
+                                                }
                                             />
+                                            {field.label === "IMB (Bruto)" && (
+                                                <small style={{ color: "#6B7280", marginTop: "4px" }}>
+                                                    Ingreso mensual bruto: ingreso antes de deducciones.
+                                                </small>
+                                            )}
+                                            {field.label === "IMN (Neto)" && (
+                                                <small style={{ color: "#6B7280", marginTop: "4px" }}>
+                                                    Ingreso mensual neto: ingreso disponible después de deducciones.
+                                                </small>
+                                            )}
                                         </div>
                                     </Col>
                                 );
+
                             })}
                         </Row>
                     ))}
@@ -443,14 +505,16 @@ const FinancialForm = () => {
 
 
                     <Form.Group className="mt-4 d-flex justify-content-end align-items-center">
-                        <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>ingresoTotal</Form.Label>
+                        <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>Ingreso Total:</Form.Label>
                         <Form.Control
-                            style={{ maxWidth: "200px" }} type="number" placeholder="$"
-                            onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
-                            onInput={handleDecimalInput}
+                            style={{ maxWidth: "200px" }}
+                            type="number"
+                            placeholder="$"
                             id="ingresoTotal"
+                            readOnly
                             isInvalid={emptyFields.includes("ingresoTotal")}
                         />
+
                     </Form.Group>
 
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
@@ -533,7 +597,7 @@ const FinancialForm = () => {
                 </Col>
 
                 {/* Espacio entre las tarjetas */}
-                <div style={{ width: "50px" }}></div>
+                <div style={{ width: "30px" }}></div>
 
                 {/* Gastos Mensuales */}
                 <Col md={5} className="d-flex justify-content-center">

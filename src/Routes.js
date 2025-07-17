@@ -39,7 +39,7 @@ const AppRoutes = () => {
 
 
         <Route path="/menuSolicitar" element={<ProtectedRoute allowedRoles={[1,2,3]}><MenuSolicitarBeca /></ProtectedRoute>}/>
-        <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1]}><GestionMisDatos /></ProtectedRoute>} />
+        <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1,2,3]}><GestionMisDatos /></ProtectedRoute>} />
         <Route path="/NavInesis" element={<ProtectedRoute allowedRoles={[1]}><NavInesis /></ProtectedRoute>} />
 
         <Route path="/Migas" element={<ProtectedRoute allowedRoles={[1]}> <MigasRecorrido /> </ProtectedRoute>} />
