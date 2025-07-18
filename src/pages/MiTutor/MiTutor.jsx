@@ -448,11 +448,13 @@ export const MiTutor = ({ onAdd, update }) => {
                             <p className='fs-3 d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
                             <p style={{ color: 'var(--color-gris1)' }}>Datos del padre, madre o tutor o familiar más cercano (preferiblemente, del que se depende económicamente)</p>
                             {/* DATOS PERSONALES */}
+                                          <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
+
                             <div className="col-xs-12 col-lg-6">
                                 <div className="tarjeta-border h-100 w-100 p-4 p-lg-5 mb-4">
                                     <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
                                     {/* Nombre completo */}
-                                    <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo</label>
+                                    <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo <span style={{ color: 'red' }}>*</span></label>
                                     <input
                                         onBeforeInput={soloLetras}
                                         className={`form-control ${errores.nombreTutor ? 'input-error' : ''}`}
@@ -465,7 +467,7 @@ export const MiTutor = ({ onAdd, update }) => {
 
                                     {/* Parentesco */}
                                     <div className='w-100 w-lg-50 mt-3'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco</label>
+                                        <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco <span style={{ color: 'red' }}>*</span></label>
                                         <SeleccionarCombo
                                             name="parentesco"
                                             options={catParentesco.map(parentesco => ({
@@ -485,7 +487,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     {/* Teléfono y Correo */}
                                     <div className="row mt-3">
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Teléfono</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Teléfono <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloNumerosPositivos}
                                                 maxLength={10}
@@ -499,7 +501,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         </div>
 
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloCorreo}
                                                 className={`form-control ${errores.correo ? 'input-error' : ''}`}
@@ -513,7 +515,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     </div>
 
                                     {/* ¿Es trabajador de la UNSIJ o SUNEO? */}
-                                    <label className='fs-5 mt-4 mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿Es trabajador de la UNSIJ o SUNEO?</label>
+                                    <label className='fs-5 mt-4 mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿Es trabajador de la UNSIJ o SUNEO? <span style={{ color: 'red' }}>*</span></label>
                                     <RadioSelect
                                         gris={true}
                                         options={['Si', 'No']}
@@ -525,7 +527,7 @@ export const MiTutor = ({ onAdd, update }) => {
 
                                     {/* Trabajo de quien dependes */}
                                     <div className="row mt-4">
-                                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
+                                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es: <span style={{ color: 'red' }}>*</span></p>
                                         <RadioSelect
                                             gris={true}
                                             options={catTipoTrabajo.map(t => ({
@@ -542,7 +544,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     {/* Ocupación y otro */}
                                     <div className='row mt-4'>
                                         <div className="col-12 col-md-6 mb-3">
-                                            <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
+                                            <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación: <span style={{ color: 'red' }}>*</span></p>
                                             <SeleccionarCombo
                                                 name="ocupacion"
                                                 options={catOcupacion.map(ocupacion => ({
@@ -559,7 +561,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         <div className="col-12 col-md-6">
                                             {datosMiTutor?.ocupacion == 8 && (
                                                 <div className="mb-3">
-                                                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                                                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                                                     <input
                                                         onBeforeInput={soloLetras}
                                                         className='form-control'
@@ -583,7 +585,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                 <div className="tarjeta-border h-100 p-5">
                                     <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
                                     <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>
-                                    <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente?</label>
+                                    <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente? <span style={{ color: 'red' }}>*</span></label>
                                     <RadioSelect
                                         gris={true}
                                         options={['Si', 'No']}
@@ -595,7 +597,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     <div className="line mx-auto mt-5 mb-4"></div>
                                     <div className='row'>
                                         <div className="col-lg-4 mt-2">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P. <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloNumerosPositivos}
                                                 disabled={disabled}
@@ -635,7 +637,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             </div>
                                         </div>
                                         <div className='col-lg-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloFormatoDirecciones}
                                                 disabled={disabled}
@@ -648,7 +650,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                                         </div>
                                         <div className="col-lg-6 mt-2">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloFormatoDirecciones}
                                                 disabled={disabled}
@@ -677,7 +679,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             </div>
                                         </div>
                                         <div className='col-lg-6 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
                                             <div>
                                                 <input
                                                     onBeforeInput={soloLetras}
