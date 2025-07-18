@@ -22,6 +22,7 @@ const FinancialForm = () => {
     const [observaciones, setObservaciones] = useState("");
     const [parentescos, setParentescos] = useState([]);
     const [ingresoTotal, setIngresoTotal] = useState(0);
+    const [btnDisabled, setBtnDisabled] = useState(false);
 
     const navigate = useNavigate(); //
 
@@ -37,6 +38,7 @@ const FinancialForm = () => {
             }
 
             const response = await AlumnoService.getById(usuario.alumnoId);
+            verificarFechas(response?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setAlumnoData(response);
 
             // Si existen datos de gastos e ingresos, precargarlos
@@ -47,6 +49,19 @@ const FinancialForm = () => {
         } catch (error) {
             console.error('Error al cargar datos del alumno:', error);
         }
+    };
+
+    const verificarFechas = (fechaData) => {
+        if (!fechaData.active) return false;
+        const today = new Date();
+        const fechaInicio = new Date(fechaData.fechaInicio);
+        const fechaFin = new Date(fechaData.fechaFin);
+
+        today.setHours(0, 0, 0, 0);
+        fechaInicio.setHours(0, 0, 0, 0);
+        fechaFin.setHours(0, 0, 0, 0);
+
+        return today >= fechaInicio && today <= fechaFin;
     };
 
     // Función para precargar los datos del formulario
@@ -431,7 +446,11 @@ const FinancialForm = () => {
 
         } catch (error) {
             console.error("Error al guardar:", error);
-            mostrarError("Error al guardar datos");
+            if (error.includes('periodo de registro')) {
+                mostrarInformacion(error);
+                return;
+            }
+            mostrarError(error);
         }
     };
 
@@ -449,7 +468,7 @@ const FinancialForm = () => {
             timerProgressBar: true,
             didOpen: () => {
                 const confirmButton = Swal.getConfirmButton();
-                confirmButton.style.backgroundColor = 'var(--color-verde)';
+                //confirmButton.style.backgroundColor = 'var(--color-verde)';
             },
         });
     };
@@ -480,6 +499,15 @@ const FinancialForm = () => {
             confirmButtonText: 'Aceptar',
         }).then(() => {
             navigate('/menuSolicitar')
+        });
+    };
+
+    const mostrarInformacion = (mensaje) => {
+        mostrarAlerta({
+            title: 'Periodo de registro cerrado',
+            text: mensaje,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
         });
     };
 
@@ -723,13 +751,13 @@ const FinancialForm = () => {
             </Row>
 
             {/* Botón Guardar */}
-            <div className="text-center" style={{ padding: "50px" }}>
-                <Button variant="primary" className="px-4" onClick={handleSave}>Guardar</Button>
-                {error && (
+            <div className="d-flex justify-content-center mb-3" style={{ padding: "50px" }}>
+                <Button variant="btn btn-midDatos" onClick={handleSave} disabled={btnDisabled} >Guardar</Button>
+                {/*                 {error && (
                     <div style={{ color: "red", textAlign: "center", whiteSpace: "pre-line" }}>
                         {error}
                     </div>
-                )}
+                )} */}
             </div>
 
         </Container>

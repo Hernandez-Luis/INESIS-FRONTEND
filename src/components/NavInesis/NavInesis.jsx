@@ -38,7 +38,7 @@ export const NavInesis = () => {
     <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
       <Navbar expand="lg">
         <Container fluid>
-          {usuario && usuario.rol == 1 && (
+          {usuario && usuario.rol === 1 && (
             <Navbar.Brand href="/menuAlumno" className='fs-1 me-auto d-flex align-items-center'>
               <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
                 INESIS
@@ -46,7 +46,7 @@ export const NavInesis = () => {
             </Navbar.Brand>
           )}
 
-          {usuario && usuario.rol == 2 && (
+          {usuario && usuario.rol === 2 && (
             <Navbar.Brand href="/menuAdministrador" className='fs-1 me-auto d-flex align-items-center'>
               <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
                 INESIS
@@ -54,7 +54,7 @@ export const NavInesis = () => {
             </Navbar.Brand>
           )}
 
-          {usuario && usuario.rol == 3 && (
+          {usuario && usuario.rol === 3 && (
             <Navbar.Brand href="/menuRevisor" className='fs-1 me-auto d-flex align-items-center'>
               <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
                 INESIS
@@ -65,14 +65,14 @@ export const NavInesis = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" style={{ backgroundColor: 'white' }} />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto d-flex align-items-center">
-              {usuario && usuario.rol == 1 && (<NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
+              {usuario && usuario.rol === 1 && (<NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
                 <Link to="/menuSolicitar" className="text-decoration-none text-dark">
                   <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Estudio socioeconómico</p>
                 </Link>
               </NavItem>
               )}
 
-              {usuario && usuario.rol != 2 && (
+              {usuario && usuario.rol !== 2 && (
                 <NavItem className='me-5 fs-5 opciones nav-item-op'>
                   <Link to="/lineamientos" className="text-decoration-none text-dark">
                     <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Lineamientos</p>

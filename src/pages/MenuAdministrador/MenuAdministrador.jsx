@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido'
 import NavInesis from '../../components/NavInesis/NavInesis'
 import FooterInesis from '../../components/FooterInesis/FooterInesis'
 import ImagenAlumnos from '../../assets/estudiantes.png'

@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import NavInesis from '../../components/NavInesis/NavInesis'
-import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido'
 import FooterInesis from '../../components/FooterInesis/FooterInesis'
-import imagenMenu from '../../assets/imagenMenu.png'
 import { CardMenu } from '../MenuSolicitarBeca/components/CardMenu'
 import ImagenRevisor from '../../assets/iconoRevisor.png'
-import ListadoEstudioSocioeconomico from '../ListadoEstudioSocioeconomico/ListadoEstudioSocioeconomico'
 
 export const MenuPrincipalRevisor = () => {
-  const mandarAFormularios = () => {
-    console.log('mandar a formularios');
-  }
 
   const [usuario, setUsuario] = useState(null);
   

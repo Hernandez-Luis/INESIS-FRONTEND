@@ -8,7 +8,7 @@ import misDatosImg from '../../assets/misDatos.jpg'
 import miTutorImg from '../../assets/miTutor.jpg'
 import miFamiliaImg from '../../assets/miFamilia.jpg'
 import gastosFamiliaresImg from '../../assets/gastosFamiliares.jpg'
-import misDocumentosImg from '../../assets/misDocumentos.jpg'
+
 
 import '../../App.css';
 import AlumnoService from '../../services/AlumnoService';
@@ -26,6 +26,7 @@ export const MenuSolicitarBeca = () => {
   });
   const [estudioCompleto, setEstudioCompleto] = useState(false);
   const [estadoRevision, setEstadoRevision] = useState(null);
+  const [fechaRegistrada, setFechaRegistrada] = useState(null);
 
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
@@ -34,6 +35,7 @@ export const MenuSolicitarBeca = () => {
 
   useEffect(() => {
     getInfoAlumno();
+    isWithinDateRange();
   }, []);
 
   const getInfoAlumno = async () => {
@@ -41,7 +43,7 @@ export const MenuSolicitarBeca = () => {
     const response = await AlumnoService.getById(idAlumno);
     setEstudioCompleto(response.estudioCompleto === true);
     setEstadoRevision(response.estadoRevision); // Puede ser null, true o false
-    // ...tu lógica para setCardClasses...
+    setFechaRegistrada(response.fechaRegistrada);
     if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
       setCardClasses({
         misDatos: 'completo',
@@ -68,7 +70,81 @@ export const MenuSolicitarBeca = () => {
         gastosFamiliares: 'completo',
       }));
     }
+    // Verificar fechas al cargar y mostrar modal si es necesario
+    const verificarFechas = (fechaData) => {
+      if (!fechaData || !fechaData.active) {
+        // Mostrar modal después de un pequeño delay para asegurar que el DOM esté listo
+        setTimeout(() => {
+          mostrarModalFechaNoValida();
+        }, 500);
+        return false;
+      }
+
+      const today = new Date();
+      const fechaInicio = new Date(fechaData.fechaInicio);
+      const fechaFin = new Date(fechaData.fechaFin);
+
+      today.setHours(0, 0, 0, 0);
+      fechaInicio.setHours(0, 0, 0, 0);
+      fechaFin.setHours(0, 0, 0, 0);
+
+      const dentroDelRango = today >= fechaInicio && today <= fechaFin;
+
+      if (!dentroDelRango) {
+        setTimeout(() => {
+          mostrarModalFechaNoValida();
+        }, 500);
+      }
+
+      return dentroDelRango;
+    };
+
+    verificarFechas(response.fechaRegistrada);
   }
+
+  // Función para verificar si estamos dentro del rango de fechas permitidas
+  const isWithinDateRange = () => {
+    if (!fechaRegistrada || !fechaRegistrada.active) {
+      return false;
+    }
+
+    const today = new Date();
+    const fechaInicio = new Date(fechaRegistrada.fechaInicio);
+    const fechaFin = new Date(fechaRegistrada.fechaFin);
+
+    // Asegurar que la comparación sea solo por fecha (sin hora)
+    today.setHours(0, 0, 0, 0);
+    fechaInicio.setHours(0, 0, 0, 0);
+    fechaFin.setHours(0, 0, 0, 0);
+
+    return today >= fechaInicio && today <= fechaFin;
+  };
+
+  // Función para mostrar modal de fecha no válida
+  const mostrarModalFechaNoValida = () => {
+    Swal.fire({
+      title: 'Período de registro cerrado',
+      html: `
+        <div class="text-start">
+          <p><strong>No puedes actualizar tus datos en este momento.</strong></p>
+          <p>El período de registro para tu carrera no está activo o no ha sido asignado.</p>
+          <br>
+          <p><strong>¿Qué puedes hacer?</strong></p>
+          <ul>
+            <li>Comunícate con Servicios Escolares para más información</li>
+            <li>Espera a que se abra el período de registro</li>
+            <li>Verifica las fechas oficiales publicadas</li>
+          </ul>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        //confirmButton.style.backgroundColor = 'var(--color-verde)';
+      },
+    });
+  };
 
   const handleEnviar = async () => {
     try {
@@ -96,7 +172,6 @@ export const MenuSolicitarBeca = () => {
       timerProgressBar: true,
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
-        confirmButton.style.backgroundColor = 'var(--color-verde)';
       },
     });
   };
@@ -177,13 +252,15 @@ export const MenuSolicitarBeca = () => {
             </div>
           </div>
           <div className='text-center'>
-            <button
-              className='btn btn-primary btn-lg'
-              disabled={!isAllComplete() || estudioCompleto}
-              onClick={handleEnviar}
-            >
-              Enviar
-            </button>
+            {fechaRegistrada && (
+              <button
+                className='btn btn-primary btn-lg'
+                disabled={!isAllComplete() || estudioCompleto || !isWithinDateRange()}
+                onClick={handleEnviar}
+              >
+                Enviar
+              </button>
+            )}
             {estudioCompleto && (
               <div className="mt-3 text-success fw-bold">
                 Ya enviaste tu estudio socioeconómico.

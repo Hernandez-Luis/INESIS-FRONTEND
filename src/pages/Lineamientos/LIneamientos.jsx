@@ -7,7 +7,7 @@ import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido'
 export const LIneamientos = () => {
 
     const links = [
-        { url: '#', label: 'Menú alumno ' },
+        { url: '/MenuAlumno', label: 'Menú alumno ' },
         { url: '/lineamientos', label: 'Lineamientos' },
 
     ];

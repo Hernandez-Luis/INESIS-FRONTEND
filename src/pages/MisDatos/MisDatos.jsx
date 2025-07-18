@@ -46,6 +46,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [catSexo, setCatSexo] = useState([]);
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
+  const [btnDisabled, setBtnDisabled] = useState(false);
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -96,6 +97,19 @@ export const MisDatos = ({ onAdd, update }) => {
     }
   }
 
+  const verificarFechas = (fechaData) => {
+    if (!fechaData.active) return false;
+    const today = new Date();
+    const fechaInicio = new Date(fechaData.fechaInicio);
+    const fechaFin = new Date(fechaData.fechaFin);
+
+    today.setHours(0, 0, 0, 0);
+    fechaInicio.setHours(0, 0, 0, 0);
+    fechaFin.setHours(0, 0, 0, 0);
+
+    return today >= fechaInicio && today <= fechaFin;
+  };
+
   const obtenerDatosAlumno = async () => {
     try {
       let dataAlumno = await AlumnoService.getById(idAlumno);
@@ -106,8 +120,12 @@ export const MisDatos = ({ onAdd, update }) => {
         carrera: dataAlumno.carrera?.id,
         semestre: dataAlumno.semestre?.id,
         sexo: dataAlumno.sexo?.id,
+        correo: dataAlumno.correo || '',
+        telefono: dataAlumno.telefono || '',
       }))
       if (dataAlumno?.misDatos) {
+        console.log("Datos del alumno: ", dataAlumno)
+        verificarFechas(dataAlumno?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
         setDataMisDatos((prevData) => ({
           ...prevData,
           estadoCivil: dataAlumno?.misDatos.estadoCivil?.id,
@@ -271,6 +289,8 @@ export const MisDatos = ({ onAdd, update }) => {
     nombreCasaHuesped: "",
     llevaAutomovil: "",
     llevaMotocicleta: "",
+    correo: "",
+    telefono: "",
   }
 
   const formularioInicialDomicilio = {
@@ -483,18 +503,25 @@ export const MisDatos = ({ onAdd, update }) => {
 
     try {
       let nuevosErrores = null;
+      let mensaje = "";
       if (datosAlumno.misDatos !== null) {
         let idMisDatos = datosAlumno.misDatos.id;
+        mensaje = "Los datos se actualizaron correctamente";
         nuevosErrores = await update(idMisDatos, coleccionValores);
       } else {
+        mensaje = "Los datos se guardaron correctamente";
         nuevosErrores = await onAdd(coleccionValores);
       }
-      console.log("Error: ", nuevosErrores)
       if (nuevosErrores && nuevosErrores.length > 0) {
-        mostrarError(nuevosErrores)
+        console.log("Errores: ", nuevosErrores)
+        if (nuevosErrores[0] && nuevosErrores[0].includes("periodo de registro") || nuevosErrores.includes("periodo de registro")) {
+          mostrarInformacion(nuevosErrores);
+        } else {
+          mostrarError(nuevosErrores);
+        }
         return;
       }
-      mostrarExito("Los datos se guardaron correctamente")
+      mostrarExito(mensaje);
 
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
@@ -507,6 +534,15 @@ export const MisDatos = ({ onAdd, update }) => {
     // Validación de los campos
     const erroresTemp = {};
     const camposOpcionalesMisDatos = ["transporteAutomovil", "transporteMotocicleta"]
+
+    // Validación específica para formato de correo
+    if (dataMisDatos.correo) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(dataMisDatos.correo)) {
+        erroresTemp.correo = 'Formato de correo electrónico inválido';
+      }
+    }
+
     let camposOpcionalesGastosIngresos = []
     if (dataGastosIngresos?.dependeEconomicamente === true) {
       camposOpcionalesGastosIngresos = ["nombreTrabajo", "ingresoMensual", "telefonoTrabajo", "domicilioTrabajo", "otro"];
@@ -571,7 +607,7 @@ export const MisDatos = ({ onAdd, update }) => {
       timerProgressBar: true,
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
-        confirmButton.style.backgroundColor = 'var(--color-verde)';
+        //confirmButton.style.backgroundColor = 'var(--color-verde)';
       },
     });
   };
@@ -605,6 +641,15 @@ export const MisDatos = ({ onAdd, update }) => {
     });
   };
 
+  const mostrarInformacion = (mensaje) => {
+    mostrarAlerta({
+      title: 'Periodo de registro cerrado',
+      text: mensaje,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+    });
+  };
+
   return (
     <div>
       <NavInesis></NavInesis>
@@ -618,7 +663,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 <div className='tarjeta-border p-4 d-flex flex-column mb-4 h-100' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                   <div className='row me-lg-5'>
                     <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
-                    <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3 p-2'>
+                    <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center p-2'>
                       <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Nombre:</label>
                       <label>{dataMisDatos.nombreCompleto}</label>
                     </div>
@@ -630,7 +675,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
                     <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
                       <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Semestre:</label>
-                      <div className='w-100 w-md-auto'>
+                      <div className='w-75'>
                         <SeleccionarCombo
                           name="semestre"
                           options={catSemestres.map(s => ({
@@ -678,6 +723,38 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                     </div>
                     {errores.recursosSuficientes && <div style={{ color: 'orange' }}>{errores.recursosSuficientes}</div>}
+
+                    <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Correo:</label>
+                      <div className='w-xs-100 me-4 mb-2 mb-md-0'>
+                        <input
+                          type="email"
+                          className={`form-control ${errores.correo ? 'input-error' : ''}`}
+                          name="correo"
+                          value={dataMisDatos.correo || ''}
+                          onChange={actualizarCamposMisDatos}
+                          placeholder="Ingrese su correo electrónico"
+                        />
+                        {errores.correo && <div style={{ color: 'orange' }}>{errores.correo}</div>}
+                      </div>
+
+                      <label className='fs-5 me-md-3' style={{ fontWeight: 'bold' }}>Teléfono:</label>
+                      <div className='w-xs-100'>
+                        <input
+                          type="telefono"
+                          className={`form-control ${errores.telefono ? 'input-error' : ''}`}
+                          name="telefono"
+                          value={dataMisDatos.telefono || ''}
+                          onChange={actualizarCamposMisDatos}
+                          placeholder="Ingrese su número telefónico"
+                          maxLength={10}
+                          onBeforeInput={soloNumerosPositivos}
+                        />
+                        {errores.telefono && <div style={{ color: 'orange' }}>{errores.telefono}</div>}
+                      </div>
+
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -690,7 +767,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
 
                     {/* Situación de vivienda */}
-                    <div className='mt-2'>
+                    <div className='mt-2 mb-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:</label>
                       <RadioSelect
                         gris={true}
@@ -708,7 +785,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     {/* Dirección */}
                     <label className='fs-5 mt-4' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
 
-                    <div className="col-12 col-md-4 mt-2">
+                    <div className="col-12 col-md-4 mt-2 mb-2">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                       <input
                         maxLength={5}
@@ -722,7 +799,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.cp && <div className='text-danger'>{errores.cp}</div>}
                     </div>
 
-                    <div className='col-12 col-md-4 mt-2'>
+                    <div className='col-12 col-md-4 mt-2 mb-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
                       <input
                         className='form-control'
@@ -735,7 +812,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.estado && <div className='text-danger'>{errores.estado}</div>}
                     </div>
 
-                    <div className='col-12 col-md-4 mt-2'>
+                    <div className='col-12 col-md-4 mt-2 mb-2'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
                       <input
                         className='form-control'
@@ -747,7 +824,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2'>
+                    <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
                       <input
                         className={`form-control ${errores.calle ? 'input-error' : ''}`}
@@ -760,7 +837,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                     </div>
 
-                    <div className="col-12 col-md-6 mt-2">
+                    <div className="col-12 col-md-6 mt-2 mb-3">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número</label>
                       <input
                         onBeforeInput={soloLetrasYNumeros}
@@ -773,7 +850,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.numero && <div className='text-danger'>{errores.numero}</div>}
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2'>
+                    <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
                       <SeleccionarCombo
                         options={colonias.map(c => ({
@@ -787,7 +864,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       />
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2'>
+                    <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
                       <input
                         onBeforeInput={soloLetras}
@@ -1212,7 +1289,7 @@ export const MisDatos = ({ onAdd, update }) => {
             </div>
 
             <div className='d-flex justify-content-center mb-5'>
-              <button className='btn btn-midDatos'>Guardar</button>
+              <button className='btn btn-midDatos' disabled={btnDisabled}>Guardar</button>
             </div>
           </form>
         </div>

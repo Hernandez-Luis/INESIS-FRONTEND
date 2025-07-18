@@ -91,6 +91,40 @@ const setEstudioSocioeconomicoCompleto = async (id) => {
   }
 };
 
+const importarDesdeExcel = async (formData) => {
+  
+  try {
+    const response = await axiosInstance.post(`${API_URL}/importar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response;
+  } catch (error) {
+    // Manejar diferentes tipos de errores
+    if (error.response) {
+      // El servidor respondió con un código de error
+      throw {
+        message: error.response.data.message || 'Error al importar alumnos',
+        status: error.response.status,
+        data: error.response.data
+      };
+    } else if (error.request) {
+      // La petición se hizo pero no hubo respuesta
+      throw {
+        message: 'No hay respuesta del servidor',
+        status: 0
+      };
+    } else {
+      // Error en la configuración de la petición
+      throw {
+        message: 'Error en la configuración de la petición',
+        status: 0
+      };
+    }
+  }
+};
+
 
 export default {
   getAll,
@@ -101,5 +135,6 @@ export default {
   deleteAlumno,
   checkIfExists,
   enviarRevisionAlumno,
-  setEstudioSocioeconomicoCompleto
+  setEstudioSocioeconomicoCompleto,
+  importarDesdeExcel
 };

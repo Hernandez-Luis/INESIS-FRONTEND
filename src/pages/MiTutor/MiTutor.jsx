@@ -30,6 +30,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const [catParentesco, setCatParentesco] = useState([]);
     const [datosAlumno, setDatosAlumno] = useState([]);
     const [disabled, setDisabled] = useState(false)
+    const [btnDisabled, setBtnDisabled] = useState(false);
 
     // --------- INFOMRACION DE MI TUTOR DESDE MIS DATOS --------------
     const [nombreTutorMisDatos, setNombreTutor] = useState();
@@ -77,6 +78,7 @@ export const MiTutor = ({ onAdd, update }) => {
                 return;
             }
             let datos = await AlumnoService.getById(alumnoId);
+            verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             console.log("Datos del alumno: ", datos);
             setDatosAlumno(datos);
             if (datos.miTutor) {
@@ -141,6 +143,20 @@ export const MiTutor = ({ onAdd, update }) => {
 
     const boolToSiNo = (valor) => valor === true ? 'Si' : valor === false ? 'No' : '';
     const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
+
+    const verificarFechas = (fechaData) => {
+        if(!fechaData) return false;
+        if (!fechaData.active) return false;
+        const today = new Date();
+        const fechaInicio = new Date(fechaData.fechaInicio);
+        const fechaFin = new Date(fechaData.fechaFin);
+
+        today.setHours(0, 0, 0, 0);
+        fechaInicio.setHours(0, 0, 0, 0);
+        fechaFin.setHours(0, 0, 0, 0);
+
+        return today >= fechaInicio && today <= fechaFin;
+    };
 
     /*     useEffect(() => {
             if (datosAlumno) {
@@ -312,21 +328,26 @@ export const MiTutor = ({ onAdd, update }) => {
 
         try {
             let nuevosErrores = null;
-            console.log("Datos del alumno: ", datosAlumno)
+            let mensaje = "";
             if (datosAlumno.miTutor !== null) {
                 let idMiTutor = datosAlumno.miTutor.idTutor;
+                mensaje = "Los datos se actualizaron correctamente";
                 nuevosErrores = await update(idMiTutor, coleccionValores);
             } else {
-                console.log("Datos del alumno: ", datosAlumno)
+                mensaje = "Los datos se guardaron correctamente";
                 nuevosErrores = await onAdd(coleccionValores);
             }
 
-            console.log("Error: ", nuevosErrores)
+
             if (nuevosErrores && nuevosErrores.length > 0) {
-                mostrarError(nuevosErrores)
+                if (nuevosErrores[0] && nuevosErrores[0].includes("periodo de registro")) {
+                    mostrarInformacion(nuevosErrores[0]);
+                } else {
+                    mostrarError(nuevosErrores);
+                }
                 return;
             }
-            mostrarExito("Los datos se guardaron correctamente")
+            mostrarExito(mensaje);
         } catch (error) {
             console.error("Error al guardar miTutor: ", error);
         }
@@ -372,7 +393,7 @@ export const MiTutor = ({ onAdd, update }) => {
             timerProgressBar: true,
             didOpen: () => {
                 const confirmButton = Swal.getConfirmButton();
-                confirmButton.style.backgroundColor = 'var(--color-verde)';
+                //confirmButton.style.backgroundColor = 'var(--color-verde)';
             },
         });
     };
@@ -403,6 +424,15 @@ export const MiTutor = ({ onAdd, update }) => {
             confirmButtonText: 'Aceptar',
         }).then(() => {
             navigate('/menuSolicitar')
+        });
+    };
+
+    const mostrarInformacion = (mensaje) => {
+        mostrarAlerta({
+            title: 'Periodo de registro cerrado',
+            text: mensaje,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
         });
     };
 
@@ -667,7 +697,7 @@ export const MiTutor = ({ onAdd, update }) => {
                             {/* FIN DOMICILIO */}
                         </div>
                         <div className='d-flex justify-content-center mb-3 mt-5'>
-                            <button className='btn btn-midDatos'>Guardar</button>
+                            <button className='btn btn-midDatos' disabled={btnDisabled}>Guardar</button>
                         </div>
                     </form>
                 </div>
