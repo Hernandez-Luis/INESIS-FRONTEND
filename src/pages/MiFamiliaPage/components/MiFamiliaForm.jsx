@@ -694,6 +694,17 @@ const MiFamiliaForm = () => {
 
     const handleChange = (e) => {
         const { name, value, type } = e.target;
+        const numero = parseInt(value);
+
+        // Clonar el objeto actual
+        const nuevoData = { ...dataMiFamilia, [name]: numero };
+
+        // Si es el campo de num_hermanos y es 0, autollenar los demás
+        if (name === "num_hermanos" && numero === 0) {
+            nuevoData.num_hermanos_estudiando = 0;
+            nuevoData.num_hermanos_no_estudiando = 0;
+            nuevoData.num_hermanos_licenciatura = 0;
+        }
 
         setDataMiFamilia((prevState) => ({
             ...prevState,
@@ -869,32 +880,48 @@ const MiFamiliaForm = () => {
             erroresSwal.push('Selecciona una opción sobre el acceso a internet');
         }
 
-        if (
-            !dataMiFamilia.num_hermanos &&
-            !dataMiFamilia.num_hermanos_estudiando &&
-            !dataMiFamilia.num_hermanos_no_estudiando
-        ) {
-            erroresSwal.push('Información de hermanos');
-        }
+        // Validación de número de hermanos
+        // Validación de hermanos
+        const total = dataMiFamilia.num_hermanos;
+        const estudiando = dataMiFamilia.num_hermanos_estudiando;
+        const noEstudiando = dataMiFamilia.num_hermanos_no_estudiando;
+        const licenciatura = dataMiFamilia.num_hermanos_licenciatura;
 
-        if (dataMiFamilia.num_hermanos === null || dataMiFamilia.num_hermanos < 0) {
+        // Si num_hermanos es null o menor que 0
+        if (total === null || total < 0) {
             errores.numHermanos = true;
-            erroresSwal.push('Número total de hermanos');
+            erroresSwal.push('Número total de hermanos debe ser 0 o más.');
         }
 
-        if (dataMiFamilia.num_hermanos_estudiando === null || dataMiFamilia.num_hermanos_estudiando < 0) {
-            errores.numHermanosEstudiando = true;
-            erroresSwal.push('Número de hermanos estudiando');
-        }
+        // Si hay hermanos (> 0), validar los otros campos
+        if (total > 0) {
+            if (estudiando === null || estudiando < 0) {
+                errores.numHermanosEstudiando = true;
+                erroresSwal.push('Número de hermanos estudiando no válido.');
+            }
 
-        if (dataMiFamilia.num_hermanos_no_estudiando === null || dataMiFamilia.num_hermanos_no_estudiando < 0) {
-            errores.numHermanosNoEstudiando = true;
-            erroresSwal.push('Número de hermanos no estudiando');
-        }
+            if (noEstudiando === null || noEstudiando < 0) {
+                errores.numHermanosNoEstudiando = true;
+                erroresSwal.push('Número de hermanos que no estudian no válido.');
+            }
 
-        if (dataMiFamilia.num_hermanos_licenciatura === null || dataMiFamilia.num_hermanos_licenciatura < 0) {
-            errores.numHermanosLicenciatura = true;
-            erroresSwal.push('Número de hermanos con licenciatura');
+            if (licenciatura === null || licenciatura < 0) {
+                errores.numHermanosLicenciatura = true;
+                erroresSwal.push('Número de hermanos con licenciatura no válido.');
+            }
+
+            const suma = (estudiando || 0) + (noEstudiando || 0) + (licenciatura || 0);
+            if (suma > total) {
+                errores.numHermanos = true;
+                erroresSwal.push('La suma de hermanos no puede ser mayor al total.');
+            }
+        } else {
+            // Si es 0, autollenar si no estaba hecho
+            if (estudiando !== 0 || noEstudiando !== 0 || licenciatura !== 0) {
+                dataMiFamilia.num_hermanos_estudiando = 0;
+                dataMiFamilia.num_hermanos_no_estudiando = 0;
+                dataMiFamilia.num_hermanos_licenciatura = 0;
+            }
         }
 
         // Validación cruzada opcional
@@ -980,7 +1007,7 @@ const MiFamiliaForm = () => {
             mostrarError(mensajeHTML);
             return;
         }*/
-        
+
         if (errores.length > 0) {
             Swal.fire({
                 icon: 'warning',  // Puedes usar 'info' o 'warning'
