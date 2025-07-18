@@ -1179,212 +1179,214 @@ const MiFamiliaForm = () => {
 
     // ******************************************************************************************************
     return (
-        <div className='px-1'>
-            <div className='d-flex flex-column min-vh-100 mt-3 mb-4 ms-4 me-4 px-5'>
+        <div className='d-flex flex-column min-vh-100'>
+            <div className='flex-grow-1 mt-5 mx-lg-5 px-5'>
                 <form onSubmit={(e) => { e.preventDefault(); }}>
-                    <div className='tarjeta-border p-4 mb-2'>
-                        <div className='row'>
-                            <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
-                            <div className='mt-2'>
-                                <div className='d-flex justify-content-start align-items-center'>
-                                    <label className='fs-5 me-5' style={{ color: 'var(--color-morado3)' }}>
-                                        ¿El domicilio de tu familia coincide con el que te encuentras actualmente?
-                                    </label>
-                                    <RadioSelect
-                                        gris={true}
-                                        options={['Si', 'No']}
-                                        onChange={handleDomicilioCoincide}
-                                        name={"domicilioCoincide"}
-                                        value={domicilioCoincide}
-                                    />
-                                    {erroresFormulario.domicilioCoincide && (
-                                        <div className="text-danger ms-3" style={{ fontSize: '0.9rem' }}>
-                                            Por favor, selecciona una opción.
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="line mx-auto mt-4 mb-4"></div>
-                                <div className='row'>
-                                    <div className="col-2 mt-2">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
-                                        <input
-                                            type="text"
-                                            className={`form-control ${erroresFormulario.cp ? 'is-invalid' : ''}`}
-                                            placeholder="Código Postal"
-                                            onChange={actualizarCamposDomicilio}
-                                            value={dataDomicilio.cp}
-                                            name={"cp"}
-                                            disabled={disabled}
+                    <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
+                        <div className='tarjeta-border p-4 mb-2'>
+                            <div className='row'>
+                                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
+                                <div className='mt-2'>
+                                    <div className='d-flex justify-content-start align-items-center flex-wrap'>
+                                        <label className='fs-5 me-5' style={{ color: 'var(--color-morado3)' }}>
+                                            ¿El domicilio de tu familia coincide con el que te encuentras actualmente?
+                                        </label>
+                                        <RadioSelect
+                                            gris={true}
+                                            options={['Si', 'No']}
+                                            onChange={handleDomicilioCoincide}
+                                            name={"domicilioCoincide"}
+                                            value={domicilioCoincide}
                                         />
-                                        {erroresFormulario.cp && (
-                                            <div className="invalid-feedback">
-                                                El Código Postal es obligatorio.
+                                        {erroresFormulario.domicilioCoincide && (
+                                            <div className="text-danger ms-3" style={{ fontSize: '0.9rem' }}>
+                                                Por favor, selecciona una opción.
                                             </div>
                                         )}
-
                                     </div>
-
-                                    <div className='col-4 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                                        <div>
+                                    <div className="line mx-auto mt-4 mb-4"></div>
+                                    <div className='row'>
+                                        <div className="col-12 col-md-2 mt-2">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
                                             <input
                                                 type="text"
-                                                className="form-control"
+                                                className={`form-control ${erroresFormulario.cp ? 'is-invalid' : ''}`}
+                                                placeholder="Código Postal"
                                                 onChange={actualizarCamposDomicilio}
-                                                value={dataDomicilio.estado}
-                                                name='estado'
-                                                disabled={true}
+                                                value={dataDomicilio.cp}
+                                                name={"cp"}
+                                                disabled={disabled}
                                             />
-                                        </div>
-                                    </div>
-                                    <div className='col-6 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                                        <div>
-                                            <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
-                                        </div>
-                                    </div>
+                                            {erroresFormulario.cp && (
+                                                <div className="invalid-feedback">
+                                                    El Código Postal es obligatorio.
+                                                </div>
+                                            )}
 
-                                    <div className="col-3 mt-2">
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región</label>
-                                        <select
-                                            name="region"
-                                            value={regionSeleccionada}
-                                            onChange={handleChangeRegion}
-                                            className={`form-select ${erroresFormulario.region ? 'is-invalid' : ''}`}
-                                        >
-                                            <option value="">Selecciona una región</option>
-                                            {regiones.map((region) => (
-                                                <option key={region.id} value={region.id}>
-                                                    {region.nombre || region.nombreRegion}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {erroresFormulario.region && (
-                                            <div className="invalid-feedback">
-                                                Selecciona una región.
-                                            </div>
-                                        )}
+                                        </div>
 
-                                        {/* Input para "Otro" en región */}
-                                        {regionSeleccionada === OTRO_REGION_ID && (
-                                            <div className="mt-2">
-                                                <label className='fs-6' style={{ color: 'var(--color-morado3)' }}>
-                                                    Especifique otra región:
-                                                </label>
+                                        <div className='col-12 col-md-4 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                                            <div>
                                                 <input
                                                     type="text"
-                                                    className={`form-control ${erroresFormulario.otroRegionTexto ? 'is-invalid' : ''}`}
-                                                    value={otroRegionTexto}
-                                                    onChange={handleOtroRegionTexto}
-                                                    placeholder="Escriba la región"
-                                                    disabled={disabled}
+                                                    className="form-control"
+                                                    onChange={actualizarCamposDomicilio}
+                                                    value={dataDomicilio.estado}
+                                                    name='estado'
+                                                    disabled={true}
                                                 />
-                                                {erroresFormulario.otroRegionTexto && (
-                                                    <div className="invalid-feedback">
-                                                        Escribe el nombre de la región.
-                                                    </div>
-                                                )}
                                             </div>
-                                        )}
-                                    </div>
-
-                                    <div className='col-3 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
-                                        <input
-                                            className={`form-control ${erroresFormulario.localidad ? 'is-invalid' : ''}`}
-                                            type="text"
-                                            name="localidad"
-                                            value={dataDomicilio.localidad || ''}
-                                            onChange={actualizarCamposDomicilio}
-                                            disabled={disabled}
-                                        />
-                                        {erroresFormulario.localidad && (
-                                            <div className="invalid-feedback">
-                                                La localidad es obligatoria.
+                                        </div>
+                                        <div className='col-12 col-md-6 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                                            <div>
+                                                <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
                                             </div>
-                                        )}
+                                        </div>
+
+                                        <div className="col-12 col-md-3 mt-2">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región</label>
+                                            <select
+                                                name="region"
+                                                value={regionSeleccionada}
+                                                onChange={handleChangeRegion}
+                                                className={`form-select ${erroresFormulario.region ? 'is-invalid' : ''}`}
+                                            >
+                                                <option value="">Selecciona una región</option>
+                                                {regiones.map((region) => (
+                                                    <option key={region.id} value={region.id}>
+                                                        {region.nombre || region.nombreRegion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {erroresFormulario.region && (
+                                                <div className="invalid-feedback">
+                                                    Selecciona una región.
+                                                </div>
+                                            )}
+
+                                            {/* Input para "Otro" en región */}
+                                            {regionSeleccionada === OTRO_REGION_ID && (
+                                                <div className="mt-2">
+                                                    <label className='fs-6' style={{ color: 'var(--color-morado3)' }}>
+                                                        Especifique otra región:
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className={`form-control ${erroresFormulario.otroRegionTexto ? 'is-invalid' : ''}`}
+                                                        value={otroRegionTexto}
+                                                        onChange={handleOtroRegionTexto}
+                                                        placeholder="Escriba la región"
+                                                        disabled={disabled}
+                                                    />
+                                                    {erroresFormulario.otroRegionTexto && (
+                                                        <div className="invalid-feedback">
+                                                            Escribe el nombre de la región.
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className='col-12 col-md-3 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                            <input
+                                                className={`form-control ${erroresFormulario.localidad ? 'is-invalid' : ''}`}
+                                                type="text"
+                                                name="localidad"
+                                                value={dataDomicilio.localidad || ''}
+                                                onChange={actualizarCamposDomicilio}
+                                                disabled={disabled}
+                                            />
+                                            {erroresFormulario.localidad && (
+                                                <div className="invalid-feedback">
+                                                    La localidad es obligatoria.
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className='col-12 col-md-3 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
+                                            <select
+                                                name="distrito"
+                                                value={distritoSeleccionado}
+                                                onChange={handleChangeDistrito}
+                                                className={`form-select ${erroresFormulario.distrito ? 'is-invalid' : ''}`}
+                                            >
+                                                <option value="">Selecciona un distrito</option>
+                                                {distritos.map((distrito) => (
+                                                    <option key={distrito.id} value={distrito.id}>
+                                                        {distrito.nombre || distrito.nombreDistrito}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {erroresFormulario.distrito && (
+                                                <div className="invalid-feedback">Selecciona un distrito.</div>
+                                            )}
+
+                                            {/* Input para "Otro" en distrito */}
+                                            {distritoSeleccionado === OTRO_DISTRITO_ID && (
+                                                <div className="mt-2">
+                                                    <label className='fs-6' style={{ color: 'var(--color-morado3)' }}>
+                                                        Especifique otro distrito:
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className={`form-control ${erroresFormulario.otroDistritoTexto ? 'is-invalid' : ''}`}
+                                                        value={otroDistritoTexto}
+                                                        onChange={handleOtroDistritoTexto}
+                                                        placeholder="Escriba el distrito"
+                                                        disabled={disabled}
+                                                    />
+                                                    {erroresFormulario.otroDistritoTexto && (
+                                                        <div className="invalid-feedback">
+                                                            Escribe el nombre del distrito.
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+
+                                        <div className='col-12 col-md-3 mt-2'>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                                            <select
+                                                name="colonia"
+                                                value={dataDomicilio.colonia || ''}
+                                                onChange={actualizarCamposDomicilio}
+                                                className={`form-select ${erroresFormulario.colonia ? 'is-invalid' : ''}`}
+                                                disabled={disabled}
+                                            >
+                                                <option value="">Selecciona una opción</option>
+                                                {colonias.map((c, index) => (
+                                                    <option key={index} value={c}>
+                                                        {c}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {erroresFormulario.colonia && (
+                                                <div className="invalid-feedback">
+                                                    Selecciona una colonia.
+                                                </div>
+                                            )}
+                                        </div>
+
                                     </div>
-
-                                    <div className='col-3 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
-                                        <select
-                                            name="distrito"
-                                            value={distritoSeleccionado}
-                                            onChange={handleChangeDistrito}
-                                            className={`form-select ${erroresFormulario.distrito ? 'is-invalid' : ''}`}
-                                        >
-                                            <option value="">Selecciona un distrito</option>
-                                            {distritos.map((distrito) => (
-                                                <option key={distrito.id} value={distrito.id}>
-                                                    {distrito.nombre || distrito.nombreDistrito}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {erroresFormulario.distrito && (
-                                            <div className="invalid-feedback">Selecciona un distrito.</div>
-                                        )}
-
-                                        {/* Input para "Otro" en distrito */}
-                                        {distritoSeleccionado === OTRO_DISTRITO_ID && (
-                                            <div className="mt-2">
-                                                <label className='fs-6' style={{ color: 'var(--color-morado3)' }}>
-                                                    Especifique otro distrito:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className={`form-control ${erroresFormulario.otroDistritoTexto ? 'is-invalid' : ''}`}
-                                                    value={otroDistritoTexto}
-                                                    onChange={handleOtroDistritoTexto}
-                                                    placeholder="Escriba el distrito"
-                                                    disabled={disabled}
-                                                />
-                                                {erroresFormulario.otroDistritoTexto && (
-                                                    <div className="invalid-feedback">
-                                                        Escribe el nombre del distrito.
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-
-
-                                    <div className='col-3 mt-2'>
-                                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                                        <select
-                                            name="colonia"
-                                            value={dataDomicilio.colonia || ''}
-                                            onChange={actualizarCamposDomicilio}
-                                            className={`form-select ${erroresFormulario.colonia ? 'is-invalid' : ''}`}
-                                            disabled={disabled}
-                                        >
-                                            <option value="">Selecciona una opción</option>
-                                            {colonias.map((c, index) => (
-                                                <option key={index} value={c}>
-                                                    {c}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {erroresFormulario.colonia && (
-                                            <div className="invalid-feedback">
-                                                Selecciona una colonia.
-                                            </div>
-                                        )}
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="row mt-4 mx-0">
+                    <div className="row mx-lg-5 mt-4 d-flex justify-content-center">
                         {/* Tarjeta combinada para Contacto y Escolaridad */}
-                        <div className="tarjeta-border p-4 mb-4">
+                        <div className="tarjeta-border p-4 mb-4 w-100">
                             <div className="row px-4">
                                 {/* Columna 1: Contacto */}
-                                <div className="col-md-4 d-flex flex-column">
+                                <div className="col-12 col-md-4 d-flex flex-column mb-4 mb-md-0">
                                     <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                         Contacto
                                     </p>
-                                    <div className="col-12 mb-3">
+                                    <div className="mb-3">
                                         <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                             Teléfono
                                         </label>
@@ -1405,12 +1407,12 @@ const MiFamiliaForm = () => {
                                     </div>
                                 </div>
                                 {/* ESCOLARIDAD */}
-                                <div className="col-md-8 d-flex flex-column">
+                                <div className="col-12 col-md-8 d-flex flex-column">
                                     <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                         Escolaridad
                                     </p>
                                     <div className="row">
-                                        <div className="col-6 mb-3">
+                                        <div className="col-12 col-md-6 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                 Escolaridad del padre
                                             </label>
@@ -1433,7 +1435,7 @@ const MiFamiliaForm = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="col-6">
+                                        <div className="col-12 col-md-6 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                                 Escolaridad de la madre
                                             </label>
@@ -1670,7 +1672,7 @@ const MiFamiliaForm = () => {
                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                     ¿Cuenta con acceso a internet?
                                 </label>
-                                <div className="col-md-8">
+                                <div className="col-md-12">
                                     <select
                                         name="accesoInternet"
                                         className={`form-select ${erroresFormulario.accesoInternet ? 'is-invalid' : ''}`}
@@ -1741,7 +1743,7 @@ const MiFamiliaForm = () => {
                                 {/* ¿Cuántos dejaron de estudiar? */}
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        ¿Cuántos dejaron de estudiar?
+                                        ¿Cuántos no estudian?
                                     </label>
                                     <input
                                         type="number"
@@ -1778,13 +1780,11 @@ const MiFamiliaForm = () => {
                             </div>
                         </div>
 
-
-                        <div className="container">
-                            <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                                <p className="fs-2" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
+                        <div className="col-12 tarjeta-border d-flex flex-column p-4 mb-4 w-100">
+                                <p className="fs-2 ms-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
                                     Personas dependientes
                                 </p>
-                                <div className="col-12 col-md-8 mb-3 px-4">
+                                <div className="col-12 col-md-8 mb-3 px-3">
                                     <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
                                         Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
                                     </label>
@@ -1799,10 +1799,10 @@ const MiFamiliaForm = () => {
                                 </div>
                                 {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                                 {dependientes.map((dep, index) => (
-                                    <div key={index} className="col-12 tarjeta-border p-4 mb-2">
+                                    <div key={index} className="col-12 tarjeta-border p-4 mb-3">
                                         <div className="row">
-                                            <div className="col-md-3">
-                                                <label>Nombre completo:</label>
+                                            <div className="fs-5 col-12 col-md-3 mb-3">
+                                                <label style={{ color: 'var(--color-morado3)' }} >Nombre completo:</label>
                                                 <input
                                                     type="text"
                                                     className={`form-control ${erroresFormulario.dependientes?.[index]?.nombrePersona ? 'is-invalid' : ''}`}
@@ -1817,8 +1817,8 @@ const MiFamiliaForm = () => {
                                                 )}
                                             </div>
 
-                                            <div className="col-md-2">
-                                                <label>Edad:</label>
+                                            <div className="fs-5 col-12 col-md-2 mb-3">
+                                                <label style={{ color: 'var(--color-morado3)' }} >Edad:</label>
                                                 <input
                                                     type="number"
                                                     className={`form-control ${erroresFormulario.dependientes?.[index]?.edad ? 'is-invalid' : ''}`}
@@ -1830,8 +1830,8 @@ const MiFamiliaForm = () => {
                                                 )}
                                             </div>
 
-                                            <div className="col-md-2">
-                                                <label>Parentesco:</label>
+                                            <div className="fs-5 col-12 col-md-3 mb-3">
+                                                <label style={{ color: 'var(--color-morado3)' }} >Parentesco:</label>
                                                 <select
                                                     className={`form-select ${erroresFormulario.dependientes?.[index]?.parentesco ? 'is-invalid' : ''}`}
                                                     name={`parentesco-${index}`}
@@ -1851,8 +1851,8 @@ const MiFamiliaForm = () => {
                                                 )}
                                             </div>
 
-                                            <div className="col-md-5">
-                                                <label>Comprobante (CURP, Acta, etc.):</label>
+                                            <div className="fs-5 col-12 col-md-4 mb-3">
+                                                <label style={{ color: 'var(--color-morado3)' }}  >Comprobante (CURP, Acta, etc.):</label>
                                                 <input
                                                     type="file"
                                                     className={`form-control ${erroresFormulario.dependientes?.[index]?.archivo ? 'is-invalid' : ''}`}
@@ -1875,8 +1875,8 @@ const MiFamiliaForm = () => {
                                         </div>
                                     </div>
                                 ))}
-                            </div>
-                            <div className="text-center mt-4 mb-4">
+                        </div>
+                        <div className="text-center mt-4 mb-4">
                                 <button
                                     className="btn btn-primary px-4 py-2"
                                     onClick={handleSubmit}
@@ -1889,7 +1889,6 @@ const MiFamiliaForm = () => {
                                 >
                                     Guardar información
                                 </button>
-                            </div>
                         </div>
                     </div>
 
