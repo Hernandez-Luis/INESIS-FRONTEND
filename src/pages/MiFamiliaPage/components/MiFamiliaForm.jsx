@@ -60,7 +60,6 @@ const MiFamiliaForm = () => {
     const [servicioOtroSeleccionado, setServiciosOtroSelecciondo] = useState([]);
 
     const [nombreCompleto, setNombreCompleto] = useState('');
-    const [telefono, setTelefono] = useState('');
     const [idDomicilio, setIdDomicilio] = useState(null);
     const [viviendaFamiliarSeleccionada, setViviendaFamiliarSeleccionada] = useState(null);
 
@@ -73,8 +72,6 @@ const MiFamiliaForm = () => {
 
     const [regionSeleccionada, setRegionSeleccionada] = useState('');
     const [distritoSeleccionado, setDistritoSeleccionado] = useState('');
-
-    const [errores, setErrores] = useState({})
     const [erroresFormulario, setErroresFormulario] = useState({});
 
 
@@ -524,7 +521,6 @@ const MiFamiliaForm = () => {
         }
     };
 
-
     const handleChangeEscolaridadPadre = (e) => {
         setEscolaridadPadre(e.target.value);
     };
@@ -741,6 +737,31 @@ const MiFamiliaForm = () => {
         }));
     };
 
+    // En el input agrega un onChange controlado para solo permitir números y máximo 10 dígitos
+
+    const handleTelefonoChange = (e) => {
+        let valor = e.target.value;
+
+        // Solo dígitos
+        valor = valor.replace(/\D/g, '');
+
+        // Limitar a 10 dígitos máximo
+        if (valor.length > 10) {
+            valor = valor.slice(0, 10);
+        }
+
+        setDataMiFamilia((prev) => ({
+            ...prev,
+            telefono: valor
+        }));
+
+        // Limpia error si cumple la condición (exactamente 10 dígitos)
+        setErroresFormulario((prev) => ({
+            ...prev,
+            telefono: valor.length === 10 ? false : prev.telefono
+        }));
+    };
+
     const validarFormulario = () => {
         const errores = {};
         const erroresSwal = [];
@@ -790,9 +811,12 @@ const MiFamiliaForm = () => {
         }
 
         // Teléfono
-        if (!dataMiFamilia.telefono || !/^\d{10}$/.test(dataMiFamilia.telefono)) {
+        if (!dataMiFamilia.telefono) {
             errores.telefono = true;
-            erroresSwal.push('Teléfono (10 dígitos)');
+            erroresSwal.push('El campo Teléfono es obligatorio.');
+        } else if (!/^\d{10}$/.test(dataMiFamilia.telefono)) {
+            errores.telefono = true;
+            erroresSwal.push('El Teléfono debe tener exactamente 10 dígitos.');
         }
 
         // Escolaridad
@@ -884,11 +908,6 @@ const MiFamiliaForm = () => {
             erroresSwal.push('La suma de hermanos estudiando/no estudiando/licenciatura no puede superar al total');
         }
 
-        if (!numDependientes || parseInt(numDependientes) < 0) {
-            errores.numDependientes = true;
-            erroresSwal.push('Número de personas que dependen económicamente');
-        }
-
         if (!numPersonasHabitan || parseInt(numPersonasHabitan) <= 0) {
             errores.numPersonasHabitan = true;
             erroresSwal.push('Número de personas que habitan la vivienda');
@@ -909,39 +928,42 @@ const MiFamiliaForm = () => {
 
         errores.dependientes = [];
 
-        dependientes.forEach((dep, index) => {
-            const errDep = {};
+        // Validar dependientes SOLO si numDependientes es mayor a 0
+        if (parseInt(numDependientes) > 0) {
+            dependientes.forEach((dep, index) => {
+                const errDep = {};
 
-            if (!dep.nombrePersona || dep.nombrePersona.trim() === "") {
-                errDep.nombrePersona = true;
-                erroresSwal.push(`El nombre completo del dependiente #${index + 1} es obligatorio.`);
-            }
+                if (!dep.nombrePersona || dep.nombrePersona.trim() === "") {
+                    errDep.nombrePersona = true;
+                    erroresSwal.push(`El nombre completo del dependiente #${index + 1} es obligatorio.`);
+                }
 
-            if (!dep.edad || isNaN(dep.edad) || parseInt(dep.edad) < 0) {
-                errDep.edad = true;
-                erroresSwal.push(`La edad del dependiente #${index + 1} no es válida.`);
-            }
+                if (!dep.edad || isNaN(dep.edad) || parseInt(dep.edad) < 0) {
+                    errDep.edad = true;
+                    erroresSwal.push(`La edad del dependiente #${index + 1} no es válida.`);
+                }
 
-            if (!dep.parentesco || dep.parentesco === "") {
-                errDep.parentesco = true;
-                erroresSwal.push(`Selecciona el parentesco del dependiente #${index + 1}.`);
-            }
+                if (!dep.parentesco || dep.parentesco === "") {
+                    errDep.parentesco = true;
+                    erroresSwal.push(`Selecciona el parentesco del dependiente #${index + 1}.`);
+                }
 
-            if (!dep.archivo) {
-                errDep.archivo = true;
-                erroresSwal.push(`Debes subir un archivo para el dependiente #${index + 1}.`);
-            }
+                if (!dep.archivo) {
+                    errDep.archivo = true;
+                    erroresSwal.push(`Debes subir un archivo para el dependiente #${index + 1}.`);
+                }
 
-            errores.dependientes.push(errDep);
-        });
+                if (Object.keys(errDep).length > 0) {
+                    if (!errores.dependientes) errores.dependientes = [];
+                    errores.dependientes[index] = errDep;
+                }
+            });
+        }
 
 
         setErroresFormulario(errores);
         return erroresSwal;
     };
-
-
-
 
     // ********************  SE ENVIAN LOS DATOS DEL FORMULARIO PARA SER GUARDADOS  ************************
 
@@ -958,6 +980,7 @@ const MiFamiliaForm = () => {
             mostrarError(mensajeHTML);
             return;
         }*/
+        
         if (errores.length > 0) {
             Swal.fire({
                 icon: 'warning',  // Puedes usar 'info' o 'warning'
@@ -968,10 +991,6 @@ const MiFamiliaForm = () => {
             });
             return;
         }
-
-
-
-
         const result = await Swal.fire({
             title: '¿Deseas guardar el formulario?',
             text: 'Asegúrate de haber revisado todos los datos antes de continuar.',
@@ -1348,13 +1367,14 @@ const MiFamiliaForm = () => {
                                             placeholder="Ingresa el número de teléfono"
                                             name="telefono"
                                             value={dataMiFamilia.telefono}
-                                            onChange={handleChange}
+                                            onChange={handleTelefonoChange}
                                         />
                                         {erroresFormulario.telefono && (
                                             <div className="invalid-feedback">
                                                 Ingresa un número de teléfono válido de 10 dígitos.
                                             </div>
                                         )}
+
                                     </div>
                                 </div>
                                 {/* ESCOLARIDAD */}
@@ -1623,7 +1643,7 @@ const MiFamiliaForm = () => {
                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                     ¿Cuenta con acceso a internet?
                                 </label>
-                                <div className="col-md-6">
+                                <div className="col-md-8">
                                     <select
                                         name="accesoInternet"
                                         className={`form-select ${erroresFormulario.accesoInternet ? 'is-invalid' : ''}`}
@@ -1847,9 +1867,9 @@ const MiFamiliaForm = () => {
                     </div>
 
                 </form>
-            </div>
+            </div >
 
-        </div>
+        </div >
     );
 };
 export default MiFamiliaForm;
