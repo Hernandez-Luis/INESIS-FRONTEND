@@ -910,7 +910,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </p>
                     <input
                       onBeforeInput={soloNumerosPositivosConDosDecimales}
-                      className={`form-control ${errores.gastoMensual ? 'input-error' : ''}`}
+                      className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
                       type="text"
                       name="gastoMensual"
                       onChange={actualizarCampoGastosIngresos}
@@ -934,8 +934,8 @@ export const MisDatos = ({ onAdd, update }) => {
                     {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
                   </div>
 
-                  <div className='col-6'>
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Con cuantas personas comparte el costo de la renta?</p>
+                  <div className='col-12 col-lg-6'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Con cuantas personas comparte el costo de la renta? <span style={{ color: 'red' }}>*</span></p>
                     <input 
                       onBeforeInput={soloNumerosPositivos}
                       type="text"
@@ -948,8 +948,8 @@ export const MisDatos = ({ onAdd, update }) => {
                     {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
                   </div>
 
-                  <div className='col-6'>
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Cuanto paga usted de renta mensualmente?</p>
+                  <div className='col-12 col-lg-6'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Cuanto paga usted de renta mensualmente? <span style={{ color: 'red' }}>*</span></p>
                     <input 
                       onBeforeInput={soloNumerosPositivosConDosDecimales}
                       type="text"
