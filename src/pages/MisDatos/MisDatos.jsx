@@ -243,6 +243,8 @@ export const MisDatos = ({ onAdd, update }) => {
   const formularioInicialGastosIngresos = {
     gastoMensual: "",
     dependeEconomicamente: "",
+    personasComparteRenta: "",
+    pagoRentaMensual: "",
     nombreQuienDependes: "",
     solicitaBecaAlimenticia: "",
     trabajoTipo: "",
@@ -930,6 +932,34 @@ export const MisDatos = ({ onAdd, update }) => {
                       value={boolToSiNo(dataGastosIngresos.dependeEconomicamente)}
                     />
                     {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
+                  </div>
+
+                  <div className='col-6'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Con cuantas personas comparte el costo de la renta?</p>
+                    <input 
+                      onBeforeInput={soloNumerosPositivos}
+                      type="text"
+                      className={`form-control w-25 ${errores.personasComparteRenta ? 'input-error' : ''}`}
+                      name="personasComparteRenta"
+                      onChange={actualizarCampoGastosIngresos}
+                      value={dataGastosIngresos.personasComparteRenta}
+                      isInvalid={!!errores.personasComparteRenta}
+                    />
+                    {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
+                  </div>
+
+                  <div className='col-6'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Cuanto paga usted de renta mensualmente?</p>
+                    <input 
+                      onBeforeInput={soloNumerosPositivosConDosDecimales}
+                      type="text"
+                      className={`form-control w-25 ${errores.pagoRentaMensual ? 'input-error' : ''}`}
+                      name="pagoRentaMensual"
+                      onChange={actualizarCampoGastosIngresos}
+                      value={dataGastosIngresos.pagoRentaMensual}
+                      isInvalid={!!errores.pagoRentaMensual}
+                    />
+                    {errores.pagoRentaMensual && <div className="text-danger">{errores.pagoRentaMensual}</div>}
                   </div>
                 </div>
 

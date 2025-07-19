@@ -145,7 +145,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const siNoToBool = (valor) => valor === 'Si' ? true : valor === 'No' ? false : null;
 
     const verificarFechas = (fechaData) => {
-        if(!fechaData) return false;
+        if (!fechaData) return false;
         if (!fechaData.active) return false;
         const today = new Date();
         const fechaInicio = new Date(fechaData.fechaInicio);
@@ -448,8 +448,7 @@ export const MiTutor = ({ onAdd, update }) => {
                             <p className='fs-3 d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
                             <p style={{ color: 'var(--color-gris1)' }}>Datos del padre, madre o tutor o familiar más cercano (preferiblemente, del que se depende económicamente)</p>
                             {/* DATOS PERSONALES */}
-                                          <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
-
+                            <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
                             <div className="col-xs-12 col-lg-6">
                                 <div className="tarjeta-border h-100 w-100 p-4 p-lg-5 mb-4">
                                     <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
