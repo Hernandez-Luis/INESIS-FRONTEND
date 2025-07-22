@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import UsuarioService from '../../../services/UsuarioService';
 import ModalCambiarContraseña from '../../../components/CambiarContraseña/ModalCambiarContraseña';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 const AlumnoRegistro = forwardRef((props, ref) => {
 
@@ -37,6 +38,10 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [showModalCambiar, setShowModalCambiar] = useState(false);
   const esEdicion = !!props.alumno;
   const navigate = useNavigate();
+
+  const [showModal, setShowModal] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Obtener datos iniciales
   useEffect(() => {
@@ -87,7 +92,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
             usuario: usuario?.usuario || '', // Aquí se carga el usuario
             contrasena: usuario?.contrasenia || '',
           };
-
           setFormValues(alumnoEditar);
           setAlumnoId(props.alumno.id);
         } catch (error) {
@@ -165,7 +169,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
   const validateField = (name, value) => {
     let error = '';
-    const requiredFields = ['nombre', 'apellido', 'curp', 'correo', 'telefono', 'matricula', 'carrera', 'semestre', 'sexo'];
+    const requiredFields = ['nombre', 'apellidoPaterno', 'curp', 'matricula', 'carrera', 'semestre', 'sexo'];
 
     // Validación de campos requeridos
     if (requiredFields.includes(name)) {
@@ -181,7 +185,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     // Validaciones específicas
     switch (name) {
       case 'nombre':
-      case 'apellido':
+      case 'apellidoPaterno':
         if (typeof value === 'string' && value.length > 30)
           error = 'Máximo 30 caracteres';
         break;
@@ -194,12 +198,12 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       }
 
       case 'correo':
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+        if (value && value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           error = 'Correo electrónico inválido';
         break;
 
       case 'telefono':
-        if (!/^\d{10}$/.test(value))
+        if (value && value.trim() !== '' && !/^\d{10}$/.test(value))
           error = 'Debe contener 10 dígitos';
         break;
 
@@ -224,6 +228,14 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Actualizar contraseña solo desde modal
+  const actualizarContraseña = (nuevaContrasena) => {
+    setFormValues(prev => ({
+      ...prev,
+      contrasena: nuevaContrasena
+    }));
   };
 
   const mostrarAlerta = (config) => {
@@ -338,10 +350,173 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
   };
 
+  const descargarPlantilla = async () => {
+    const result = await Swal.fire({
+      icon: 'question',
+      title: '¿Deseas descargar la plantilla de alumnos?',
+      text: 'La plantilla contiene el único formato válido para importar alumnos. Si ya la descargaste anteriormente, puedes continuar y subirla directamente. ¿Quieres descargarla ahora?',
+      showCancelButton: true,
+      confirmButtonText: 'Descargar plantilla',
+      cancelButtonText: 'No descargar',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      width: '400px',
+      didOpen: () => {
+        const confirmButton = Swal.getConfirmButton();
+        confirmButton.style.backgroundColor = '#28a745';
+        confirmButton.style.color = 'white';
+      }
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const plantillaUrl = '/templates/plantillaAlumnosINESIS.xls';
+
+        // Verificar si el archivo existe
+        const response = await fetch(plantillaUrl, { method: 'HEAD' });
+
+        if (!response.ok) {
+          throw new Error('Archivo no encontrado');
+        }
+
+        // Crear enlace de descarga
+        const link = document.createElement('a');
+        link.href = plantillaUrl;
+        link.setAttribute('download', 'plantilla_alumnos_INESIS.xls');
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+      } catch (error) {
+        console.error('Error al descargar plantilla:', error);
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Error al descargar',
+          text: 'No se pudo descargar la plantilla. Verifica que el archivo existe.'
+        });
+      }
+    }
+    // Abre el modal para subir el archivo
+    setShowModal(true);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Verificar que sea un archivo Excel
+      if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.type === 'application/vnd.ms-excel') {
+        setExcelFile(file);
+      } else {
+        mostrarAlerta({
+          icon: 'error',
+          title: 'Formato incorrecto',
+          text: 'Por favor, sube un archivo Excel (.xlsx o .xls)'
+        });
+        e.target.value = null;
+      }
+    }
+  };
+
+  // Función para subir el archivo Excel
+  const subirExcel = async () => {
+    if (!excelFile) {
+      mostrarAlerta({
+        icon: 'warning',
+        title: 'Archivo no seleccionado',
+        text: 'Por favor, selecciona un archivo Excel primero'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Crear un FormData para enviar el archivo
+      const formData = new FormData();
+      formData.append('file', excelFile);
+
+      // Llamada al servicio para procesar el archivo
+      const response = await alumnoService.importarDesdeExcel(formData);
+
+      if (response && response.status === 201) {
+        // Alerta personalizada que no se cierre automáticamente
+        Swal.fire({
+          icon: 'success',
+          title: '¡Importación exitosa!',
+          html: `
+          <div style="text-align: left; margin: 20px 0;">
+            <p><strong>✅ Los alumnos fueron importados correctamente</strong></p>
+            <br>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+              <h5 style="color: #28a745; margin-bottom: 10px;">📋 Información importante sobre las credenciales:</h5>
+              <p><strong>🔐 Nombre de usuario:</strong> primer_nombre.primer_apellido</p>
+              <p style="margin-bottom: 8px;"><em>Ejemplo: juan.perez, maria.lopez</em></p>
+              <p><strong>🔑 Contraseña:</strong> Matrícula del alumno</p>
+              <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234</em></p>
+              <hr style="margin: 10px 0;">
+              <p style="color: #6c757d; font-size: 0.9em;">
+                <strong>Nota:</strong> El nombre de usuario puede tener variaciones en algunos casos y lo puedes verificar en el listado de alumnos.
+              </p>
+            </div>
+          </div>
+        `,
+          showConfirmButton: true,
+          confirmButtonText: '¡Entendido!',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          width: '600px',
+          didOpen: () => {
+            const confirmButton = Swal.getConfirmButton();
+            confirmButton.style.backgroundColor = '#28a745';
+            confirmButton.style.color = 'white';
+            confirmButton.style.fontSize = '16px';
+            confirmButton.style.padding = '10px 20px';
+          }
+        }).then(() => {
+          setShowModal(false);
+          setExcelFile(null);
+          navigate('/AdministrarAlumnos');
+        });
+      }
+    } catch (error) {
+      console.error('Error al importar alumnos:', error);
+      mostrarAlerta({
+        icon: 'error',
+        title: 'Error en la importación',
+        text: error.message || 'No se pudieron importar los alumnos. Verifica el formato del archivo.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para cerrar el modal y resetear el estado
+  const cerrarModal = () => {
+    setShowModal(false);
+    setExcelFile(null);
+  };
 
   return (
     <div className="mb-5">
       <h2 className="size-font-title cardMenu-title m-5 text-center"> {props.alumno ? 'Editar Alumno' : 'Agregar Alumno'}</h2>
+
+      {/* Botón para subir Excel - solo visible en la vista de agregar */}
+      {!props.alumno && (
+        <div className="d-flex justify-content-start mx-5 mb-4">
+          <button
+            type="button"
+            className="btn btn-success d-flex align-items-center gap-2"
+            onClick={descargarPlantilla}
+          >
+            <i className="bi bi-file-earmark-excel"></i>
+            <span>Cargar alumnos desde Excel</span>
+          </button>
+        </div>
+      )}
+
 
       <form className="agregar-alumno-container m-5" onSubmit={handleSubmit}>
         {/* Sección Datos Personales */}
@@ -363,7 +538,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               />
               {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 dobleColumna">
               <div>
                 <label className="formulario-etiqueta">
                   Apellido Paterno <span className="text-danger">*</span>
@@ -371,16 +546,16 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 <input
                   type="text"
                   name="apellidoPaterno"
-                  className={`formulario-entrada ${errors.apellido ? 'is-invalid' : ''}`}
+                  className={`formulario-entrada ${errors.apellidoPaterno ? 'is-invalid' : ''} dobleColumnaInput`}
                   placeholder="Ingrese el apellido paterno"
                   value={formValues.apellidoPaterno}
                   onChange={handleChange}
                   maxLength={30}
                 />
-                {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
+                {errors.apellidoPaterno && <div className="invalid-feedback">{errors.apellidoPaterno}</div>}
               </div>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 dobleColumna">
               <div>
                 <label className="formulario-etiqueta">
                   Apellido Materno
@@ -415,7 +590,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
             <div>
               <label className="formulario-etiqueta">
-                Correo electrónico <span className="text-danger">*</span>
+                Correo electrónico
               </label>
               <input
                 type="email"
@@ -428,7 +603,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
             </div>
 
-            <div className="col-md-6">
+            <div className="col-md-6 dobleColumna">
               <label className="formulario-etiqueta">
                 Sexo <span className="text-danger">*</span>
               </label>
@@ -447,9 +622,10 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               </select>
               {errors.sexo && <div className="invalid-feedback">{errors.sexo}</div>}
             </div>
-            <div className="col-md-6">
+
+            <div className="col-md-6 dobleColumna">
               <label className="formulario-etiqueta">
-                Teléfono <span className="text-danger">*</span>
+                Teléfono
               </label>
               <input
                 type="tel"
@@ -568,11 +744,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                       <span className="btn-cambiar-pass-text">Cambiar contraseña</span>
                     </span>
                   </button>
-                  <ModalCambiarContraseña
-                    show={showModalCambiar}
-                    handleClose={() => setShowModalCambiar(false)}
-                    requireCurrentPassword={false} 
-                  />
+
                 </>
               ) : (
                 <input
@@ -584,16 +756,74 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 />
               )}
             </div>
+
             <div className="d-flex justify-content-center gap-3">
               <button type="submit" className="btn-agregar">
                 {props.alumno ? 'Editar Alumno' : 'Agregar Alumno'}
               </button>
             </div>
+
           </div>
         </section>
       </form>
-    </div>
 
+      <ModalCambiarContraseña
+        show={showModalCambiar}
+        handleClose={() => setShowModalCambiar(false)}
+        requireCurrentPassword={false}
+        usuario={formValues.usuario}
+        onContraseñaActualizada={actualizarContraseña}
+      />
+
+      {/* Modal para carga de archivo Excel */}
+      <Modal show={showModal} onHide={cerrarModal} backdrop="static" keyboard={false} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Importar alumnos desde Excel</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-3">
+            Has descargado la plantilla. Por favor, llénala con los datos de los alumnos y súbela a continuación.
+          </p>
+          <Form.Group controlId="formFile" className="mb-3">
+            <Form.Label>Seleccionar archivo Excel</Form.Label>
+            <Form.Control
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={handleFileChange}
+              disabled={loading}
+            />
+            {excelFile && (
+              <p className="mt-2 text-success">
+                <i className="bi bi-check-circle"></i> Archivo seleccionado: {excelFile.name}
+              </p>
+            )}
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cerrarModal} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={subirExcel}
+            disabled={!excelFile || loading}
+            className="d-flex align-items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Procesando...</span>
+              </>
+            ) : (
+              <>
+                <i className="bi bi-cloud-upload"></i>
+                <span>Importar alumnos</span>
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
 });
 

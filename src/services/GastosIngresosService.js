@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/gastosIngresos';
+const API_URL = '/gastosFamiliares';
 
 const getAll = async () => {
     try {

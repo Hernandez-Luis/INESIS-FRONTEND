@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import RecibosDeLuz from '../../components/ReciboLuz/RecibosDeLuz';
 import axiosInstance from '../../api/axiosConfig';
 import Swal from "sweetalert2";
-import CatParentescoService from "../../services/CatParentescoService";
+import CatParentescoService from '../../services/CatParentescoService';
+import GastosIngresosService from '../../services/GastosIngresosService';
+import { useNavigate } from "react-router-dom";
+import AlumnoService from "../../services/AlumnoService";
+
 import { useEffect } from "react";
 import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales } from "../../utils/Validaciones/Validaciones";
+
 
 
 const FinancialForm = () => {
@@ -16,8 +21,17 @@ const FinancialForm = () => {
     const [error, setError] = useState(""); // Para manejar el mensaje de error
     const [reciboFile, setReciboFile] = useState(null);
     const [observaciones, setObservaciones] = useState("");
+
+
+        const [parentescos, setParentescos] = useState([]);
+    const [ingresoTotal, setIngresoTotal] = useState(0);
+    const [btnDisabled, setBtnDisabled] = useState(false);
     const [catParentesco, setParentesco] = useState([]);
     const [desigualdadMensaje, setDesigualdadMensaje] = useState("");
+  const navigate = useNavigate(); //
+
+    // Estado para almacenar los datos del alumno
+    const [alumnoData, setAlumnoData] = useState(null);
 
 
     useEffect(() => {
@@ -36,6 +50,117 @@ const FinancialForm = () => {
         }
     };
 
+
+
+    const cargarDatosAlumno = async () => {
+        try {
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+            if (!usuario || !usuario.alumnoId) {
+                console.error('No se encontró información del alumno en localStorage');
+                return;
+            }
+
+            const response = await AlumnoService.getById(usuario.alumnoId);
+            verificarFechas(response?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
+            setAlumnoData(response);
+
+            // Si existen datos de gastos e ingresos, precargarlos
+            if (response.gastosIngresosFamiliares) {
+                precargarDatosFormulario(response.gastosIngresosFamiliares);
+            }
+
+        } catch (error) {
+            console.error('Error al cargar datos del alumno:', error);
+        }
+    };
+
+    const verificarFechas = (fechaData) => {
+        if (!fechaData.active) return false;
+        const today = new Date();
+        const fechaInicio = new Date(fechaData.fechaInicio);
+        const fechaFin = new Date(fechaData.fechaFin);
+
+        today.setHours(0, 0, 0, 0);
+        fechaInicio.setHours(0, 0, 0, 0);
+        fechaFin.setHours(0, 0, 0, 0);
+
+        return today >= fechaInicio && today <= fechaFin;
+    };
+
+    // Función para precargar los datos del formulario
+    const precargarDatosFormulario = (gastosIngresos) => {
+        // Precargar número de personas que aportan
+        if (gastosIngresos.nummeroPersonasAportan) {
+            setNumPeople(gastosIngresos.nummeroPersonasAportan);
+
+            // Precargar datos de las personas que aportan
+            if (gastosIngresos.ingresosFamiliar && gastosIngresos.ingresosFamiliar.length > 0) {
+                const peopleData = gastosIngresos.ingresosFamiliar.map(persona => ({
+                    name: persona.nombrePersona || "",
+                    relationship: persona.parentesco?.id || "",
+                    company: persona.lugarTrabajo || "",
+                    job: persona.puestoTrabajo || "",
+                    gross: persona.ingresoBruto || 0,
+                    net: persona.ingresoNeto || 0,
+                }));
+                setPeopleData(peopleData);
+            }
+        }
+
+        // Precargar ingreso total y personas dependientes
+        setIngresoTotal(gastosIngresos.ingresoTotal || 0);
+
+        // Usar setTimeout para asegurarse de que los elementos DOM existen
+        setTimeout(() => {
+            // Precargar personas dependientes
+            const personasDependen = document.getElementById("¿Cuántas personas dependen de este ingreso mensual?");
+            if (personasDependen) personasDependen.value = gastosIngresos.numeroPersonasDependen || 0;
+
+            // Precargar gastos
+            if (gastosIngresos.gastoFamiliarModel) {
+                const gastos = gastosIngresos.gastoFamiliarModel;
+                const campos = [
+                    { id: "Alimentación", valor: gastos.gastoAlimentacion },
+                    { id: "Renta", valor: gastos.gastoRenta },
+                    { id: "Servicios", valor: gastos.gastoServicios },
+                    { id: "Gastos escolares", valor: gastos.gastoEscolares },
+                    { id: "Ropa", valor: gastos.gastoRopa },
+                    { id: "Transporte", valor: gastos.gastoTransporte },
+                    { id: "Otros", valor: gastos.gastoOtros },
+                    { id: "totalGastos", valor: gastos.totalGastos }
+                ];
+
+                campos.forEach(campo => {
+                    const elemento = document.getElementById(campo.id);
+                    if (elemento) elemento.value = campo.valor || 0;
+                });
+            }
+
+            // Precargar recibo de luz
+            if (gastosIngresos.reciboLuzModel) {
+                const recibo = gastosIngresos.reciboLuzModel;
+                const campos = [
+                    { id: "lightName", valor: recibo.titular },
+                    { id: "periodoInicio", valor: recibo.periodoInicio },
+                    { id: "periodoFin", valor: recibo.periodoFin },
+                    { id: "ultimoPago", valor: recibo.ultimoPago },
+                    { id: "promedioPago", valor: recibo.promedioPago }
+                ];
+
+                campos.forEach(campo => {
+                    const elemento = document.getElementById(campo.id);
+                    if (elemento) elemento.value = campo.valor || "";
+                });
+
+                // Establecer observaciones
+                setObservaciones(recibo.observaciones || "");
+            }
+        }, 500); // Pequeño retraso para asegurar que los elementos existen
+    };
+
+    useEffect(() => {
+        cargarDatosAlumno();
+    }, []);
 
     const fieldNames = {
         lightName: "Nombre del titular del recibo de luz",
@@ -61,15 +186,28 @@ const FinancialForm = () => {
     const handleNumPeopleChange = (e) => {
         const value = e.target.value;
         if (/^[1-9]$|^1[0-9]$|^20$/.test(value)) {
-            setNumPeople(parseInt(value, 10));
-            setPeopleData(new Array(parseInt(value, 10)).fill({
-                name: "",
-                relationship: "",
-                company: "",
-                job: "",
-                gross: "",
-                net: ""
-            }));
+            const newNumPeople = parseInt(value, 10);
+            setNumPeople(newNumPeople);
+
+            // Conservar los datos existentes si el nuevo número es mayor
+            if (newNumPeople > peopleData.length) {
+                const newPeopleData = [...peopleData];
+                // Añadir nuevas personas con objetos vacíos
+                for (let i = peopleData.length; i < newNumPeople; i++) {
+                    newPeopleData.push({
+                        name: "",
+                        relationship: "",
+                        company: "",
+                        job: "",
+                        gross: "",
+                        net: ""
+                    });
+                }
+                setPeopleData(newPeopleData);
+            } else if (newNumPeople < peopleData.length) {
+                // Si el nuevo número es menor, truncar el array
+                setPeopleData(peopleData.slice(0, newNumPeople));
+            }
         } else if (value === "") {
             setNumPeople("");
             setPeopleData([]);
@@ -97,6 +235,45 @@ const FinancialForm = () => {
             e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
         }
     };
+
+    useEffect(() => {
+        const fetchParentescos = async () => {
+            try {
+                const data = await CatParentescoService.getAll();
+                setParentescos(data);
+            } catch (error) {
+                console.error("Error al cargar parentescos:", error);
+            }
+        };
+        fetchParentescos();
+    }, []);
+
+    useEffect(() => {
+        const handler = () => {
+            let total = 0;
+            for (let i = 0; i < numPeople; i++) {
+                const value = document.getElementById(`person-${i}-imnneto`)?.value;
+                if (value && !isNaN(parseFloat(value))) {
+                    total += parseFloat(value);
+                }
+            }
+            setIngresoTotal(total);
+        };
+
+        // Escuchar cambios en todos los campos IMN (Neto)
+        for (let i = 0; i < numPeople; i++) {
+            const input = document.getElementById(`person-${i}-imnneto`);
+            if (input) input.addEventListener('input', handler);
+        }
+
+        // Limpieza
+        return () => {
+            for (let i = 0; i < numPeople; i++) {
+                const input = document.getElementById(`person-${i}-imnneto`);
+                if (input) input.removeEventListener('input', handler);
+            }
+        };
+    }, [numPeople]);
 
     const validateForm = () => {
         let isValid = true;
@@ -260,14 +437,7 @@ const FinancialForm = () => {
                 const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
 
                 if (reciboFile.size > maxSizeInBytes) {
-                    Swal.fire({
-                        title: '¡Alto!',
-                        text: 'El archivo del recibo de luz excede el tamaño máximo permitido de 10MB.',
-                        icon: 'info',
-                        confirmButtonText: 'Aceptar',
-                        timer: 5000,
-                        timerProgressBar: true,
-                    });
+                    mostrarCuidado('El archivo del recibo de luz excede el tamaño máximo permitido de 10MB.');
                     return;
                 }
 
@@ -279,6 +449,7 @@ const FinancialForm = () => {
 
             // Armar payload
             const payload = {
+                alumnoId: JSON.parse(localStorage.getItem('usuario')).alumnoId,
                 personasAportan: personasAportan,
                 personas: people,
                 ingresoTotal,
@@ -289,18 +460,30 @@ const FinancialForm = () => {
 
             console.log("Payload al backend:", payload);
 
-            const response = await axiosInstance.post('/gastosFamiliares', payload, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            let response;
 
-            alert("Datos guardados correctamente");
+            if (alumnoData?.gastosIngresosFamiliares?.id) {
+                // Actualizar datos existentes
+                response = await GastosIngresosService.update(
+                    alumnoData.gastosIngresosFamiliares.id,
+                    payload
+                );
+                mostrarExito("Datos actualizados correctamente");
+            } else {
+                // Crear nuevos datos
+                response = await GastosIngresosService.create(payload);
+                mostrarExito("Datos guardados correctamente");
+            }
+
             console.log("Respuesta del backend:", response.data);
 
         } catch (error) {
             console.error("Error al guardar:", error);
-            alert("Error al guardar datos");
+            if (error.includes('periodo de registro')) {
+                mostrarInformacion(error);
+                return;
+            }
+            mostrarError(error);
         }
     };
 
@@ -344,6 +527,56 @@ const FinancialForm = () => {
 
 
 
+ // Funciones de alerta
+    const mostrarAlerta = (config) => {
+        return Swal.fire({
+            ...config,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: () => {
+                const confirmButton = Swal.getConfirmButton();
+                //confirmButton.style.backgroundColor = 'var(--color-verde)';
+            },
+        });
+    };
+
+    const mostrarError = (mensajeHTML) => {
+        mostrarAlerta({
+            title: 'Error',
+            html: mensajeHTML,
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+        });
+    };
+
+    const mostrarCuidado = (mensaje) => {
+        mostrarAlerta({
+            title: '¡Alerta!',
+            text: mensaje,
+            icon: 'warning',
+            confirmButtonText: 'Aceptar',
+        });
+    };
+
+    const mostrarExito = (mensaje) => {
+        mostrarAlerta({
+            title: 'Éxito',
+            text: mensaje,
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+        }).then(() => {
+            navigate('/menuSolicitar')
+        });
+    };
+
+    const mostrarInformacion = (mensaje) => {
+        mostrarAlerta({
+            title: 'Periodo de registro cerrado',
+            text: mensaje,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
+        });
+    };
 
 
     return (
@@ -370,11 +603,11 @@ const FinancialForm = () => {
                     {[...Array(numPeople)].map((_, index) => (
                         <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
                             {[
-                                { label: "Nombre completo", placeholder: "Nombre completo", type: "text" },
-                                { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text" },
-                                { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text" },
-                                { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text" },
-                                { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text" }
+                                { label: "Nombre completo", placeholder: "Nombre completo", type: "text", field: "name" },
+                                { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
+                                { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text", field: "job" },
+                                { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text", field: "gross" },
+                                { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text", field: "net" }
                             ].map((field, idx) => {
                                 // Insertar el campo "Parentesco" después de "Nombre completo"
                                 if (idx === 1) {
@@ -387,12 +620,18 @@ const FinancialForm = () => {
                                                     <Form.Select
                                                         id={`person-${index}-parentesco`}
                                                         isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
-                                                        defaultValue=""  // para que el option vacío sea el seleccionado inicialmente
+                                                        value={peopleData[index]?.relationship || ""}
+                                                        onChange={(e) => {
+                                                            const newPeopleData = [...peopleData];
+                                                            if (!newPeopleData[index]) newPeopleData[index] = {};
+                                                            newPeopleData[index].relationship = e.target.value;
+                                                            setPeopleData(newPeopleData);
+                                                        }}
                                                     >
                                                         <option value="" disabled>Selecciona un parentesco</option>
                                                         {catParentesco.map((item) => (
                                                             <option key={item.id} value={item.id}>
-                                                                {item.nombreParentesco}  {/* Aquí el texto visible */}
+                                                                {item.nombreParentesco}
                                                             </option>
                                                         ))}
                                                     </Form.Select>
@@ -409,7 +648,15 @@ const FinancialForm = () => {
                                                         type="text"
                                                         placeholder={field.placeholder}
                                                         isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
-                                                        onChange={actualizarIngresoTotal}
+                                                        value={peopleData[index]?.[field.field] || ""}
+                                                        onChange={(e) => {
+                                                            const newPeopleData = [...peopleData];
+                                                            if (!newPeopleData[index]) newPeopleData[index] = {};
+                                                            newPeopleData[index][field.field] = e.target.value;
+                                                            setPeopleData(newPeopleData);
+                                                            actualizarIngresoTotal(index, value); // o sin parámetros, según cómo esté definida
+
+                                                        }}
                                                         onKeyDown={(e) => {
                                                             const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
                                                             if (!/[0-9]/.test(e.key) && !validKeys.includes(e.key)) {
@@ -512,6 +759,8 @@ const FinancialForm = () => {
                             placeholder="$"
                             id="ingresoTotal"
                             readOnly
+                            value={ingresoTotal}
+                            disabled
                             isInvalid={emptyFields.includes("ingresoTotal")}
                         />
 
@@ -591,6 +840,8 @@ const FinancialForm = () => {
                         <RecibosDeLuz
                             onChangeFile={(e) => setReciboFile(e.target.files[0])}
                             onChangeObservaciones={(text) => setObservaciones(text)}
+                            observacionesIniciales={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.observaciones || ""}
+                            archivoExistente={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.nombreOriginal || null}
                         />
 
                     </Card>
@@ -642,13 +893,13 @@ const FinancialForm = () => {
             </Row>
 
             {/* Botón Guardar */}
-            <div className="text-center" style={{ padding: "50px" }}>
-                <Button variant="primary" className="px-4" onClick={handleSave}>Guardar</Button>
-                {error && (
+            <div className="d-flex justify-content-center mb-3" style={{ padding: "50px" }}>
+                <Button variant="btn btn-midDatos" onClick={handleSave} disabled={btnDisabled} >Guardar</Button>
+                {/*                 {error && (
                     <div style={{ color: "red", textAlign: "center", whiteSpace: "pre-line" }}>
                         {error}
                     </div>
-                )}
+                )} */}
             </div>
 
         </Container>
