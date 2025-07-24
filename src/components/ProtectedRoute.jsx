@@ -5,8 +5,8 @@ import { Navigate } from 'react-router-dom';
 const getDefaultRouteByRole = (rol) => {
   switch (rol) {
     case 1: return "/MenuAlumno";
-    case 2: return "/MenuRevisor";
-    case 3: return "/MenuAdministrador";
+    case 2: return "/MenuAdministrador";
+    case 3: return "/MenuRevisor";
     default: return "/";
   }
 };

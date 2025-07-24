@@ -8,9 +8,7 @@ import CatParentescoService from '../../services/CatParentescoService';
 import GastosIngresosService from '../../services/GastosIngresosService';
 import { useNavigate } from "react-router-dom";
 import AlumnoService from "../../services/AlumnoService";
-
-import { useEffect } from "react";
-import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales } from "../../utils/Validaciones/Validaciones";
+import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales, validarNumericoDecimal } from "../../utils/Validaciones/Validaciones";
 
 
 
@@ -23,12 +21,12 @@ const FinancialForm = () => {
     const [observaciones, setObservaciones] = useState("");
 
 
-        const [parentescos, setParentescos] = useState([]);
+    const [parentescos, setParentescos] = useState([]);
     const [ingresoTotal, setIngresoTotal] = useState(0);
     const [btnDisabled, setBtnDisabled] = useState(false);
     const [catParentesco, setParentesco] = useState([]);
     const [desigualdadMensaje, setDesigualdadMensaje] = useState("");
-  const navigate = useNavigate(); //
+    const navigate = useNavigate(); //
 
     // Estado para almacenar los datos del alumno
     const [alumnoData, setAlumnoData] = useState(null);
@@ -113,7 +111,7 @@ const FinancialForm = () => {
         // Usar setTimeout para asegurarse de que los elementos DOM existen
         setTimeout(() => {
             // Precargar personas dependientes
-            const personasDependen = document.getElementById("¿Cuántas personas dependen de este ingreso mensual?");
+            const personasDependen = document.getElementById("personasDependenIngreso");
             if (personasDependen) personasDependen.value = gastosIngresos.numeroPersonasDependen || 0;
 
             // Precargar gastos
@@ -138,6 +136,8 @@ const FinancialForm = () => {
 
             // Precargar recibo de luz
             if (gastosIngresos.reciboLuzModel) {
+
+                
                 const recibo = gastosIngresos.reciboLuzModel;
                 const campos = [
                     { id: "lightName", valor: recibo.titular },
@@ -147,6 +147,9 @@ const FinancialForm = () => {
                     { id: "promedioPago", valor: recibo.promedioPago }
                 ];
 
+            const campoDomicilio = document.getElementById("domicilioRecibo");
+            if (campoDomicilio) campoDomicilio.value = recibo.domicilio || "";
+
                 campos.forEach(campo => {
                     const elemento = document.getElementById(campo.id);
                     if (elemento) elemento.value = campo.valor || "";
@@ -155,6 +158,9 @@ const FinancialForm = () => {
                 // Establecer observaciones
                 setObservaciones(recibo.observaciones || "");
             }
+
+
+
         }, 500); // Pequeño retraso para asegurar que los elementos existen
     };
 
@@ -214,27 +220,6 @@ const FinancialForm = () => {
         }
     };
 
-    const handleKeyDown = (e) => {
-        // Permitir solo números, el punto decimal, Backspace, y las flechas de navegación
-        const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
-        if (
-            !/[0-9]/.test(e.key) &&  // Permitir solo números
-            !validKeys.includes(e.key)  // Permitir teclas especiales (Backspace, flechas)
-        ) {
-            e.preventDefault();  // Bloquear la tecla si no es válida
-        }
-    };
-
-    const handleDecimalInput = (e) => {
-        const value = e.target.value;
-        const regex = /^\d{0,6}(\.\d{0,2})?$/;
-
-        if (value === "" || regex.test(value)) {
-            e.target.setCustomValidity("");  // Formato válido
-        } else {
-            e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
-        }
-    };
 
     useEffect(() => {
         const fetchParentescos = async () => {
@@ -299,7 +284,7 @@ const FinancialForm = () => {
         });
 
         // Recibo de luz
-        ["lightName", "periodoInicio", "periodoFin", "ultimoPago", "promedioPago"].forEach((field) => {
+        ["lightName", "periodoInicio", "periodoFin", "ultimoPago", "promedioPago", "domicilioRecibo"].forEach((field) => {
             const input = document.getElementById(field);
             const value = input?.value;
 
@@ -388,6 +373,7 @@ const FinancialForm = () => {
             }));
 
             // Ingreso total y personas que dependen
+            const ingresoBrutoTotal = parseFloat(document.getElementById("ingresoBrutoTotal")?.value || "0");
             const ingresoTotal = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
             const personasDependen = parseInt(document.getElementById("personasDependenIngreso")?.value || "0");
 
@@ -421,6 +407,7 @@ const FinancialForm = () => {
                 titular: document.getElementById("lightName")?.value || "",
                 periodoInicio: document.getElementById("periodoInicio")?.value || "",
                 periodoFin: document.getElementById("periodoFin")?.value || "",
+                domicilio: document.getElementById("domicilioRecibo")?.value || "",
 
                 ultimoPago: parseFloat(document.getElementById("ultimoPago")?.value || "0"),
                 promedioPago: parseFloat(document.getElementById("promedioPago")?.value || "0"),
@@ -453,6 +440,7 @@ const FinancialForm = () => {
                 personasAportan: personasAportan,
                 personas: people,
                 ingresoTotal,
+                ingresoBrutoTotal,
                 personasDependen,
                 reciboLuz,
                 gastos,
@@ -496,19 +484,28 @@ const FinancialForm = () => {
 
 
 
-    const actualizarIngresoTotal = () => {
-        let total = 0;
-        for (let i = 0; i < numPeople; i++) {
-            const bruto = parseFloat(document.getElementById(`person-${i}-imbbruto`)?.value || "0");
-            const neto = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
-            total += (isNaN(bruto) ? 0 : bruto) + (isNaN(neto) ? 0 : neto);
-        }
+const actualizarIngresoTotal = () => {
+    let totalBruto = 0;
+    let totalNeto = 0;
 
-        const input = document.getElementById("ingresoTotal");
-        if (input) input.value = total.toFixed(2);
+    for (let i = 0; i < numPeople; i++) {
+        const bruto = parseFloat(document.getElementById(`person-${i}-imbbruto`)?.value || "0");
+        const neto = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
 
-        validarIgualdadIngresosGastos();
-    };
+        totalBruto += isNaN(bruto) ? 0 : bruto;
+        totalNeto += isNaN(neto) ? 0 : neto;
+    }
+
+    const inputBruto = document.getElementById("ingresoBrutoTotal");
+    if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
+
+    const inputNeto = document.getElementById("ingresoTotal");
+    if (inputNeto) inputNeto.value = totalNeto.toFixed(2);
+
+    setIngresoTotal(totalNeto);
+    validarIgualdadIngresosGastos();
+};
+
 
 
 
@@ -527,7 +524,7 @@ const FinancialForm = () => {
 
 
 
- // Funciones de alerta
+    // Funciones de alerta
     const mostrarAlerta = (config) => {
         return Swal.fire({
             ...config,
@@ -592,8 +589,7 @@ const FinancialForm = () => {
                             id="personasAportan"
                             style={{ maxWidth: "350px" }}
                             type="number"
-                            onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
-                            onInput={handleDecimalInput}
+                            onInput={validarNumericoDecimal}
                             placeholder="Número de personas"
                             value={numPeople}
                             onChange={handleNumPeopleChange}
@@ -654,24 +650,12 @@ const FinancialForm = () => {
                                                             if (!newPeopleData[index]) newPeopleData[index] = {};
                                                             newPeopleData[index][field.field] = e.target.value;
                                                             setPeopleData(newPeopleData);
-                                                            actualizarIngresoTotal(index, value); // o sin parámetros, según cómo esté definida
+                                                            actualizarIngresoTotal();
 
                                                         }}
-                                                        onKeyDown={(e) => {
-                                                            const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
-                                                            if (!/[0-9]/.test(e.key) && !validKeys.includes(e.key)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
-                                                        onInput={(e) => {
-                                                            const value = e.target.value;
-                                                            const regex = /^\d{0,6}(\.\d{0,2})?$/;
-                                                            if (value === "" || regex.test(value)) {
-                                                                e.target.setCustomValidity("");
-                                                            } else {
-                                                                e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
-                                                            }
-                                                        }}
+                                                        onBeforeInput={soloNumerosPositivosConDosDecimales}
+                                                        onInput={validarNumericoDecimal}
+
                                                     />
                                                     {field.label === "IMB (Bruto)" && (
                                                         <small style={{ color: "#6B7280", marginTop: "4px" }}>
@@ -706,7 +690,7 @@ const FinancialForm = () => {
                                                         ? actualizarIngresoTotal
                                                         : undefined
                                                 }
-                                                onKeyDown={
+                                                onBeforeInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
                                                         ? (e) => {
                                                             const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
@@ -751,8 +735,22 @@ const FinancialForm = () => {
 
 
 
+                    {/* Total ingreso bruto */}
                     <Form.Group className="mt-4 d-flex justify-content-end align-items-center">
-                        <Form.Label style={{ color: "#4F46E5", maxWidth: "100px", marginRight: "10px" }}>Ingreso Total:</Form.Label>
+                        <Form.Label style={{ color: "#4F46E5", maxWidth: "150px", marginRight: "10px" }}>Total ingreso bruto:</Form.Label>
+                        <Form.Control
+                            style={{ maxWidth: "200px" }}
+                            type="number"
+                            placeholder="$"
+                            id="ingresoBrutoTotal"
+                            readOnly
+                            disabled
+                        />
+                    </Form.Group>
+
+                    {/* Total ingreso neto (nombre actualizado) */}
+                    <Form.Group className="mt-2 d-flex justify-content-end align-items-center">
+                        <Form.Label style={{ color: "#4F46E5", maxWidth: "150px", marginRight: "10px" }}>Total ingreso neto:</Form.Label>
                         <Form.Control
                             style={{ maxWidth: "200px" }}
                             type="number"
@@ -763,7 +761,6 @@ const FinancialForm = () => {
                             disabled
                             isInvalid={emptyFields.includes("ingresoTotal")}
                         />
-
                     </Form.Group>
 
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
@@ -771,8 +768,8 @@ const FinancialForm = () => {
                         <Form.Control
                             style={{ maxWidth: "400px" }}
                             type="number"
-                            onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
-                            onInput={handleDecimalInput}
+                            onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
+                            onInput={validarNumericoDecimal}
                             id="personasDependenIngreso"
                             isInvalid={emptyFields.includes("personasDependenIngreso")}
                         />
@@ -794,6 +791,21 @@ const FinancialForm = () => {
                                     isInvalid={emptyFields.includes("lightName")}
                                 />
                             </Form.Group>
+
+                            <Form.Group>
+                                <Form.Label style={{ color: "#4F46E5" }}>Domicilio que aparece en el recibo de luz</Form.Label>
+                                <Form.Control
+                                    id="domicilioRecibo"
+                                    type="text"
+                                    isInvalid={emptyFields.includes("domicilioRecibo")}
+                                    value={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.domicilio || ""}
+                                    onChange={(e) => {
+                                        const input = document.getElementById("domicilioRecibo");
+                                        if (input) input.value = e.target.value;
+                                    }}
+                                />
+                            </Form.Group>
+
 
                             <Form.Group>
                                 <Form.Label style={{ color: "#4F46E5" }}>Periodo de inicio</Form.Label>
@@ -819,8 +831,8 @@ const FinancialForm = () => {
                                 <Form.Control
                                     id="ultimoPago"
                                     type="number"
-                                    onKeyDown={handleKeyDown}
-                                    onInput={handleDecimalInput}
+                                    onBeforeInput={soloNumerosPositivosConDosDecimales}
+                                    onInput={validarNumericoDecimal}
                                     isInvalid={emptyFields.includes("ultimoPago")}
                                 />
                             </Form.Group>
@@ -830,8 +842,8 @@ const FinancialForm = () => {
                                 <Form.Control
                                     id="promedioPago"
                                     type="number"
-                                    onKeyDown={handleKeyDown}
-                                    onInput={handleDecimalInput}
+                                    onBeforeInput={soloNumerosPositivosConDosDecimales}
+                                    onInput={validarNumericoDecimal}
                                     isInvalid={emptyFields.includes("promedioPago")}
                                 />
                             </Form.Group>
@@ -861,8 +873,8 @@ const FinancialForm = () => {
                                     <Form.Control
                                         id={label}
                                         type="number"
-                                        onKeyDown={handleKeyDown}
-                                        onInput={handleDecimalInput}
+                                        onBeforeInput={soloNumerosPositivosConDosDecimales}
+                                        onInput={validarNumericoDecimal}
                                         isInvalid={emptyFields.includes(label)}
                                         onChange={actualizarTotalGastos}
                                     />
@@ -872,11 +884,10 @@ const FinancialForm = () => {
                             <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales</Form.Label>
                                 <Form.Control
-                                    onBeforeInput={soloNumerosPositivosConDosDecimales}
                                     id="totalGastos"
                                     type="number"
-                                    onKeyDown={handleKeyDown} // Evitar caracteres no numéricos
-                                    onInput={handleDecimalInput}
+                                    onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
+                                    onInput={validarNumericoDecimal}
                                     placeholder="$"
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
