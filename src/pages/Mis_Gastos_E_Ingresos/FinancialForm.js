@@ -30,6 +30,8 @@ const FinancialForm = () => {
 
     // Estado para almacenar los datos del alumno
     const [alumnoData, setAlumnoData] = useState(null);
+    const [domicilioRecibo, setDomicilioRecibo] = useState("");
+
 
 
     useEffect(() => {
@@ -137,7 +139,7 @@ const FinancialForm = () => {
             // Precargar recibo de luz
             if (gastosIngresos.reciboLuzModel) {
 
-                
+
                 const recibo = gastosIngresos.reciboLuzModel;
                 const campos = [
                     { id: "lightName", valor: recibo.titular },
@@ -147,8 +149,8 @@ const FinancialForm = () => {
                     { id: "promedioPago", valor: recibo.promedioPago }
                 ];
 
-            const campoDomicilio = document.getElementById("domicilioRecibo");
-            if (campoDomicilio) campoDomicilio.value = recibo.domicilio || "";
+                setDomicilioRecibo(recibo.domicilio || "");
+
 
                 campos.forEach(campo => {
                     const elemento = document.getElementById(campo.id);
@@ -157,6 +159,8 @@ const FinancialForm = () => {
 
                 // Establecer observaciones
                 setObservaciones(recibo.observaciones || "");
+                setDomicilioRecibo(recibo.domicilio || "");
+
             }
 
 
@@ -324,12 +328,13 @@ const FinancialForm = () => {
 
         setEmptyFields(newEmptyFields);
 
+
         if (!isValid) {
-            const missingFields = newEmptyFields.map(field => `- ${fieldNames[field] || field}`).join('\n');
-            setError(`Por favor, complete los siguientes campos obligatorios:\n${missingFields}`);
+            mostrarModalCamposIncompletos(newEmptyFields);
         } else {
             setError("");
         }
+
 
         return isValid;
 
@@ -355,6 +360,60 @@ const FinancialForm = () => {
             reader.onerror = (error) => reject(error);
         });
     };
+
+
+const mostrarModalCamposIncompletos = (camposFaltantes) => {
+  const etiquetasPersonas = {
+    nombrecompleto: "Nombre completo",
+    parentesco: "Parentesco",
+    empresaolugardetrabajo: "Lugar de trabajo",
+    puestootipodetrabajo: "Puesto de trabajo",
+    imbbruto: "Ingreso bruto",
+    imnneto: "Ingreso neto"
+  };
+
+  const agrupados = {};
+  const camposSimples = [];
+
+  camposFaltantes.forEach((campo) => {
+    const match = campo.match(/^person-(\d+)-(.+)$/);
+    if (match) {
+      const index = parseInt(match[1]) + 1;
+      const tipo = match[2];
+      const etiqueta = etiquetasPersonas[tipo];
+
+      if (etiqueta) {
+        if (!agrupados[etiqueta]) agrupados[etiqueta] = [];
+        agrupados[etiqueta].push(index);
+      } else {
+        camposSimples.push(campo);
+      }
+    } else {
+      camposSimples.push(campo);
+    }
+  });
+
+  let mensaje = "<ul style='text-align: left;'>";
+  Object.entries(agrupados).forEach(([campo, indices]) => {
+    mensaje += `<li><strong>${campo}</strong> de persona(s): ${indices.join(", ")}</li>`;
+  });
+  camposSimples.forEach((campo) => {
+    mensaje += `<li><strong>${fieldNames[campo] || campo}</strong></li>`;
+  });
+  mensaje += "</ul>";
+
+  Swal.fire({
+    title: "Campos incompletos",
+    html: `Por favor completa los siguientes campos obligatorios:${mensaje}`,
+    icon: "warning",
+    confirmButtonText: "Entendido",
+    width: "600px"
+  });
+};
+
+
+
+
 
     const handleSave = async () => {
         const isFormValid = validateForm();
@@ -407,7 +466,7 @@ const FinancialForm = () => {
                 titular: document.getElementById("lightName")?.value || "",
                 periodoInicio: document.getElementById("periodoInicio")?.value || "",
                 periodoFin: document.getElementById("periodoFin")?.value || "",
-                domicilio: document.getElementById("domicilioRecibo")?.value || "",
+                domicilio: domicilioRecibo,
 
                 ultimoPago: parseFloat(document.getElementById("ultimoPago")?.value || "0"),
                 promedioPago: parseFloat(document.getElementById("promedioPago")?.value || "0"),
@@ -476,6 +535,8 @@ const FinancialForm = () => {
     };
 
 
+
+
     const cardStyle = {
         backgroundColor: "#F5F5F5",
         borderRadius: "1rem",
@@ -483,30 +544,27 @@ const FinancialForm = () => {
     };
 
 
+    const actualizarIngresoTotal = () => {
+        let totalBruto = 0;
+        let totalNeto = 0;
 
-const actualizarIngresoTotal = () => {
-    let totalBruto = 0;
-    let totalNeto = 0;
+        for (let i = 0; i < numPeople; i++) {
+            const bruto = parseFloat(document.getElementById(`person-${i}-imbbruto`)?.value || "0");
+            const neto = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
 
-    for (let i = 0; i < numPeople; i++) {
-        const bruto = parseFloat(document.getElementById(`person-${i}-imbbruto`)?.value || "0");
-        const neto = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
+            totalBruto += isNaN(bruto) ? 0 : bruto;
+            totalNeto += isNaN(neto) ? 0 : neto;
+        }
 
-        totalBruto += isNaN(bruto) ? 0 : bruto;
-        totalNeto += isNaN(neto) ? 0 : neto;
-    }
+        const inputBruto = document.getElementById("ingresoBrutoTotal");
+        if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
 
-    const inputBruto = document.getElementById("ingresoBrutoTotal");
-    if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
+        const inputNeto = document.getElementById("ingresoTotal");
+        if (inputNeto) inputNeto.value = totalNeto.toFixed(2);
 
-    const inputNeto = document.getElementById("ingresoTotal");
-    if (inputNeto) inputNeto.value = totalNeto.toFixed(2);
-
-    setIngresoTotal(totalNeto);
-    validarIgualdadIngresosGastos();
-};
-
-
+        setIngresoTotal(totalNeto);
+        validarIgualdadIngresosGastos();
+    };
 
 
     const actualizarTotalGastos = () => {
@@ -521,7 +579,6 @@ const actualizarIngresoTotal = () => {
 
         validarIgualdadIngresosGastos();
     };
-
 
 
     // Funciones de alerta
@@ -764,7 +821,7 @@ const actualizarIngresoTotal = () => {
                     </Form.Group>
 
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
-                        <Form.Label>personasDependenIngreso</Form.Label>
+                        <Form.Label>¿Cuántas personas dependen del ingreso mencionado?</Form.Label>
                         <Form.Control
                             style={{ maxWidth: "400px" }}
                             type="number"
@@ -798,12 +855,10 @@ const actualizarIngresoTotal = () => {
                                     id="domicilioRecibo"
                                     type="text"
                                     isInvalid={emptyFields.includes("domicilioRecibo")}
-                                    value={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.domicilio || ""}
-                                    onChange={(e) => {
-                                        const input = document.getElementById("domicilioRecibo");
-                                        if (input) input.value = e.target.value;
-                                    }}
+                                    value={domicilioRecibo}
+                                    onChange={(e) => setDomicilioRecibo(e.target.value)}
                                 />
+
                             </Form.Group>
 
 
