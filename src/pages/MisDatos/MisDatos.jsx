@@ -156,6 +156,8 @@ export const MisDatos = ({ onAdd, update }) => {
           solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia,
           trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.catTipoTrabajo?.id || '',
           ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
+          personasComparteRenta: dataAlumno?.misDatos.gastosIngresos?.personasComparteRenta,
+          pagoRentaMensual: dataAlumno?.misDatos.gastosIngresos?.pagoRentaMensual,
         }))
         setDataTrabajo((prevData) => ({
           ...prevData,
