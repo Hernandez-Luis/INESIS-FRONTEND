@@ -544,27 +544,26 @@ const FinancialForm = () => {
     };
 
 
-    const actualizarIngresoTotal = () => {
+    const actualizarIngresoTotal = (peopleArray) => {
         let totalBruto = 0;
         let totalNeto = 0;
 
-        for (let i = 0; i < numPeople; i++) {
-            const bruto = parseFloat(document.getElementById(`person-${i}-imbbruto`)?.value || "0");
-            const neto = parseFloat(document.getElementById(`person-${i}-imnneto`)?.value || "0");
+        for (let i = 0; i < peopleArray.length; i++) {
+            const bruto = parseFloat(peopleArray[i]?.gross || "0");
+            const neto = parseFloat(peopleArray[i]?.net || "0");
 
             totalBruto += isNaN(bruto) ? 0 : bruto;
             totalNeto += isNaN(neto) ? 0 : neto;
         }
 
+        // Actualizar los campos calculados
         const inputBruto = document.getElementById("ingresoBrutoTotal");
         if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
-
-        const inputNeto = document.getElementById("ingresoTotal");
-        if (inputNeto) inputNeto.value = totalNeto.toFixed(2);
 
         setIngresoTotal(totalNeto);
         validarIgualdadIngresosGastos();
     };
+
 
 
     const actualizarTotalGastos = () => {
@@ -707,7 +706,6 @@ const FinancialForm = () => {
                                                             if (!newPeopleData[index]) newPeopleData[index] = {};
                                                             newPeopleData[index][field.field] = e.target.value;
                                                             setPeopleData(newPeopleData);
-                                                            actualizarIngresoTotal();
 
                                                         }}
                                                         onBeforeInput={soloLetrasYNumeros}
@@ -748,14 +746,16 @@ const FinancialForm = () => {
                                                     if (!newPeopleData[index]) newPeopleData[index] = {};
                                                     newPeopleData[index][field.field] = e.target.value;
                                                     setPeopleData(newPeopleData);
+
+                                                    // Solo actualizar el total si se trata de los campos numéricos
                                                     if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
-                                                        actualizarIngresoTotal();
+                                                        actualizarIngresoTotal(newPeopleData);
                                                     }
                                                 }}
                                                 onBeforeInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
                                                         ? soloNumerosPositivosConDosDecimales
-                                                        : undefined
+                                                        : soloLetras
                                                 }
                                                 onInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
@@ -763,6 +763,7 @@ const FinancialForm = () => {
                                                         : undefined
                                                 }
                                             />
+
 
                                             {field.label === "IMB (Bruto)" && (
                                                 <small style={{ color: "#6B7280", marginTop: "4px" }}>
