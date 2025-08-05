@@ -362,54 +362,54 @@ const FinancialForm = () => {
     };
 
 
-const mostrarModalCamposIncompletos = (camposFaltantes) => {
-  const etiquetasPersonas = {
-    nombrecompleto: "Nombre completo",
-    parentesco: "Parentesco",
-    empresaolugardetrabajo: "Lugar de trabajo",
-    puestootipodetrabajo: "Puesto de trabajo",
-    imbbruto: "Ingreso bruto",
-    imnneto: "Ingreso neto"
-  };
+    const mostrarModalCamposIncompletos = (camposFaltantes) => {
+        const etiquetasPersonas = {
+            nombrecompleto: "Nombre completo",
+            parentesco: "Parentesco",
+            empresaolugardetrabajo: "Lugar de trabajo",
+            puestootipodetrabajo: "Puesto de trabajo",
+            imbbruto: "Ingreso bruto",
+            imnneto: "Ingreso neto"
+        };
 
-  const agrupados = {};
-  const camposSimples = [];
+        const agrupados = {};
+        const camposSimples = [];
 
-  camposFaltantes.forEach((campo) => {
-    const match = campo.match(/^person-(\d+)-(.+)$/);
-    if (match) {
-      const index = parseInt(match[1]) + 1;
-      const tipo = match[2];
-      const etiqueta = etiquetasPersonas[tipo];
+        camposFaltantes.forEach((campo) => {
+            const match = campo.match(/^person-(\d+)-(.+)$/);
+            if (match) {
+                const index = parseInt(match[1]) + 1;
+                const tipo = match[2];
+                const etiqueta = etiquetasPersonas[tipo];
 
-      if (etiqueta) {
-        if (!agrupados[etiqueta]) agrupados[etiqueta] = [];
-        agrupados[etiqueta].push(index);
-      } else {
-        camposSimples.push(campo);
-      }
-    } else {
-      camposSimples.push(campo);
-    }
-  });
+                if (etiqueta) {
+                    if (!agrupados[etiqueta]) agrupados[etiqueta] = [];
+                    agrupados[etiqueta].push(index);
+                } else {
+                    camposSimples.push(campo);
+                }
+            } else {
+                camposSimples.push(campo);
+            }
+        });
 
-  let mensaje = "<ul style='text-align: left;'>";
-  Object.entries(agrupados).forEach(([campo, indices]) => {
-    mensaje += `<li><strong>${campo}</strong> de persona(s): ${indices.join(", ")}</li>`;
-  });
-  camposSimples.forEach((campo) => {
-    mensaje += `<li><strong>${fieldNames[campo] || campo}</strong></li>`;
-  });
-  mensaje += "</ul>";
+        let mensaje = "<ul style='text-align: left;'>";
+        Object.entries(agrupados).forEach(([campo, indices]) => {
+            mensaje += `<li><strong>${campo}</strong> de persona(s): ${indices.join(", ")}</li>`;
+        });
+        camposSimples.forEach((campo) => {
+            mensaje += `<li><strong>${fieldNames[campo] || campo}</strong></li>`;
+        });
+        mensaje += "</ul>";
 
-  Swal.fire({
-    title: "Campos incompletos",
-    html: `Por favor completa los siguientes campos obligatorios:${mensaje}`,
-    icon: "warning",
-    confirmButtonText: "Entendido",
-    width: "600px"
-  });
-};
+        Swal.fire({
+            title: "Campos incompletos",
+            html: `Por favor completa los siguientes campos obligatorios:${mensaje}`,
+            icon: "warning",
+            confirmButtonText: "Entendido",
+            width: "600px"
+        });
+    };
 
 
 
@@ -710,7 +710,7 @@ const mostrarModalCamposIncompletos = (camposFaltantes) => {
                                                             actualizarIngresoTotal();
 
                                                         }}
-                                                        onBeforeInput={soloNumerosPositivosConDosDecimales}
+                                                        onBeforeInput={soloLetrasYNumeros}
                                                         onInput={validarNumericoDecimal}
 
                                                     />
@@ -742,35 +742,28 @@ const mostrarModalCamposIncompletos = (camposFaltantes) => {
                                                 type="text"
                                                 placeholder={field.placeholder}
                                                 isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
-                                                onChange={
-                                                    field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                        ? actualizarIngresoTotal
-                                                        : undefined
-                                                }
+                                                value={peopleData[index]?.[field.field] || ""}
+                                                onChange={(e) => {
+                                                    const newPeopleData = [...peopleData];
+                                                    if (!newPeopleData[index]) newPeopleData[index] = {};
+                                                    newPeopleData[index][field.field] = e.target.value;
+                                                    setPeopleData(newPeopleData);
+                                                    if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
+                                                        actualizarIngresoTotal();
+                                                    }
+                                                }}
                                                 onBeforeInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                        ? (e) => {
-                                                            const validKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "."];
-                                                            if (!/[0-9]/.test(e.key) && !validKeys.includes(e.key)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }
+                                                        ? soloNumerosPositivosConDosDecimales
                                                         : undefined
                                                 }
                                                 onInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                        ? (e) => {
-                                                            const value = e.target.value;
-                                                            const regex = /^\d{0,6}(\.\d{0,2})?$/;
-                                                            if (value === "" || regex.test(value)) {
-                                                                e.target.setCustomValidity("");
-                                                            } else {
-                                                                e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
-                                                            }
-                                                        }
+                                                        ? validarNumericoDecimal
                                                         : undefined
                                                 }
                                             />
+
                                             {field.label === "IMB (Bruto)" && (
                                                 <small style={{ color: "#6B7280", marginTop: "4px" }}>
                                                     Ingreso mensual bruto: ingreso antes de deducciones.
