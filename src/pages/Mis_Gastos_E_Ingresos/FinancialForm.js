@@ -830,7 +830,7 @@ const FinancialForm = () => {
 
             <Row className="justify-content-center">
                 {/* Recibo de luz */}
-                <Col md={5} className="d-flex justify-content-center">
+                <Col md={6} className="d-flex justify-content-center">
                     <Card className="p-5 mb-5 w-100" style={cardStyle}>
                         <h4 style={{ color: "#4F46E5" }}>Recibo de luz</h4>
                         <Form>
@@ -908,11 +908,9 @@ const FinancialForm = () => {
                     </Card>
                 </Col>
 
-                {/* Espacio entre las tarjetas */}
-                <div style={{ width: "30px" }}></div>
 
                 {/* Gastos Mensuales */}
-                <Col md={5} className="d-flex justify-content-center">
+                <Col md={6} className="d-flex justify-content-center">
                     <Card className="p-5 mb-5 w-100" style={cardStyle}>
                         <h4 style={{ color: "#4F46E5" }}>Gastos mensuales</h4>
                         <Form id="gastosForm">
