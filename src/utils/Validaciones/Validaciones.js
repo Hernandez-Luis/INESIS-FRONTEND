@@ -72,3 +72,14 @@ export const soloNumerosPositivosConDosDecimales = (e) => {
       e.preventDefault();
     }
 };
+
+
+export const validarNumericoDecimal = (e) => {
+    const value = e.target.value;
+    const regex = /^\d{0,6}(\.\d{0,2})?$/;
+    if (value === "" || regex.test(value)) {
+        e.target.setCustomValidity("");
+    } else {
+        e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
+    }
+};

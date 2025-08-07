@@ -39,7 +39,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [tieneAutomovil, setTieneAutomovil] = useState(null);
   const [tieneMotocicleta, setTieneMotocicleta] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
-  const [catSemestres, setCatSemestres] = useState([]);
+  const [catSemestres, setCatSemestres] = useState([]); 
   const [catOcupacion, setCatOcupacion] = useState([]);
   const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
   const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
@@ -156,6 +156,8 @@ export const MisDatos = ({ onAdd, update }) => {
           solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia,
           trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.catTipoTrabajo?.id || '',
           ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
+          personasComparteRenta: dataAlumno?.misDatos.gastosIngresos?.personasComparteRenta,
+          pagoRentaMensual: dataAlumno?.misDatos.gastosIngresos?.pagoRentaMensual,
         }))
         setDataTrabajo((prevData) => ({
           ...prevData,
@@ -243,6 +245,8 @@ export const MisDatos = ({ onAdd, update }) => {
   const formularioInicialGastosIngresos = {
     gastoMensual: "",
     dependeEconomicamente: "",
+    personasComparteRenta: "",
+    pagoRentaMensual: "",
     nombreQuienDependes: "",
     solicitaBecaAlimenticia: "",
     trabajoTipo: "",
@@ -260,15 +264,13 @@ export const MisDatos = ({ onAdd, update }) => {
   const formularioInicialTransporteAutomovil = {
     marca: '',
     modelo: '',
-    anio: '',
-    catTipoTransporte: ''
+    anio: ''
   }
 
   const formularioInicialTransporteMotocicleta = {
     marca: '',
     modelo: '',
-    anio: '',
-    catTipoTransporte: ''
+    anio: ''
   }
 
   const formularioInicialMisDatos = {
@@ -659,23 +661,24 @@ export const MisDatos = ({ onAdd, update }) => {
           <form onSubmit={handleSubmit}>
             <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
               {/* INICIO MODULO INFORMACION GENERAL */}
+              <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
               <div className="col-xs-12 col-lg-6 mb-4">
                 <div className='tarjeta-border p-4 d-flex flex-column mb-4 h-100' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                   <div className='row me-lg-5'>
                     <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
                     <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center p-2'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Nombre:</label>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Nombre: <span style={{ color: 'red' }}>*</span></label>
                       <label>{dataMisDatos.nombreCompleto}</label>
                     </div>
 
                     <div className='mt-3 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Carrera:</label>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Carrera: <span style={{ color: 'red' }}>*</span></label>
                       <label>{datosAlumno.carrera?.nombreCarrera || ''}</label>
                     </div>
 
                     <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Semestre:</label>
-                      <div className='w-75'>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Semestre: <span style={{ color: 'red' }}>*</span></label>
+                      <div className='w-50'>
                         <SeleccionarCombo
                           name="semestre"
                           options={catSemestres.map(s => ({
@@ -690,7 +693,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Sexo:</label>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Sexo:  <span style={{ color: 'red' }}>*</span></label>
                       <div>
                         <RadioSelect
                           options={catSexo.map(s => ({ label: s.nombreSexo, value: s.id }))}
@@ -702,7 +705,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Estado civil:</label>
+                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Estado civil: <span style={{ color: 'red' }}>*</span></label>
                       <RadioSelect
                         options={estadoCivil.map(s => ({ label: s.nombreEstadoCivil, value: s.id }))}
                         name="estadoCivil"
@@ -713,7 +716,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     {errores.estadoCivil && <div style={{ color: 'orange' }}>{errores.estadoCivil}</div>}
 
                     <div className='mt-4'>
-                      <label className='fs-5' style={{ fontWeight: 'bold' }}>¿Tienes los recursos económicos necesarios para tus actividades académicas?</label>
+                      <label className='fs-5' style={{ fontWeight: 'bold' }}>¿Tienes los recursos económicos necesarios para tus actividades académicas? <span style={{ color: 'red' }}>*</span></label>
                       <RadioSelect
                         gris={false}
                         options={['Si', 'No']}
@@ -768,7 +771,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
                     {/* Situación de vivienda */}
                     <div className='mt-2 mb-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:</label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:  <span style={{ color: 'red' }}>*</span></label>
                       <RadioSelect
                         gris={true}
                         options={catSituacionVivienda.map(s => ({
@@ -783,10 +786,10 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     {/* Dirección */}
-                    <label className='fs-5 mt-4' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual:</label>
+                    <label className='fs-5 mt-4' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual: <span style={{ color: 'red' }}>*</span></label>
 
                     <div className="col-12 col-md-4 mt-2 mb-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P. <span style={{ color: 'red' }}>*</span></label>
                       <input
                         maxLength={5}
                         onBeforeInput={soloNumerosPositivos}
@@ -825,7 +828,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className='col-12 col-md-6 mt-2 mb-3'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle</label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
                       <input
                         className={`form-control ${errores.calle ? 'input-error' : ''}`}
                         type="text"
@@ -838,7 +841,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-12 col-md-6 mt-2 mb-3">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número</label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número <span style={{ color: 'red' }}>*</span></label>
                       <input
                         onBeforeInput={soloLetrasYNumeros}
                         className={`form-control ${errores.numero ? 'input-error' : ''}`}
@@ -865,7 +868,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className='col-12 col-md-6 mt-2 mb-3'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
                       <input
                         onBeforeInput={soloLetras}
                         className={`form-control ${errores.localidad ? 'input-error' : ''}`}
@@ -878,7 +881,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-12 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario</label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario <span style={{ color: 'red' }}>*</span></label>
                       <input
                         onBeforeInput={soloLetras}
                         className={`form-control ${errores.nombreCasaHuesped ? 'input-error' : ''}`}
@@ -900,7 +903,7 @@ export const MisDatos = ({ onAdd, update }) => {
             <div className='row mx-lg-5 mt-4'>
               <div className='tarjeta-border p-3 p-md-5'>
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
-                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto ascienden tus gastos mensuales de manutención?</p>
+                <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto ascienden tus gastos mensuales de manutención? <span style={{ color: 'red' }}>*</span></p>
 
                 <div className="row">
                   <div className="col-12 col-md-8 mb-2">
@@ -909,7 +912,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </p>
                     <input
                       onBeforeInput={soloNumerosPositivosConDosDecimales}
-                      className={`form-control ${errores.gastoMensual ? 'input-error' : ''}`}
+                      className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
                       type="text"
                       name="gastoMensual"
                       onChange={actualizarCampoGastosIngresos}
@@ -921,7 +924,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
                   <div className='col-12 col-md-4 d-flex flex-column align-items-center text-center mb-4'>
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
-                      ¿Dependes económicamente?
+                      ¿Dependes económicamente? <span style={{ color: 'red' }}>*</span>
                     </p>
                     <RadioSelect
                       gris={true}
@@ -932,13 +935,41 @@ export const MisDatos = ({ onAdd, update }) => {
                     />
                     {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
                   </div>
+
+                  <div className='col-12 col-lg-6'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Con cuantas personas comparte el costo de la renta? <span style={{ color: 'red' }}>*</span></p>
+                    <input 
+                      onBeforeInput={soloNumerosPositivos}
+                      type="text"
+                      className={`form-control w-25 ${errores.personasComparteRenta ? 'input-error' : ''}`}
+                      name="personasComparteRenta"
+                      onChange={actualizarCampoGastosIngresos}
+                      value={dataGastosIngresos.personasComparteRenta}
+                      isInvalid={!!errores.personasComparteRenta}
+                    />
+                    {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
+                  </div>
+
+                  <div className='col-12 col-lg-6'>
+                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Cuanto paga usted de renta mensualmente? <span style={{ color: 'red' }}>*</span></p>
+                    <input 
+                      onBeforeInput={soloNumerosPositivosConDosDecimales}
+                      type="text"
+                      className={`form-control w-25 ${errores.pagoRentaMensual ? 'input-error' : ''}`}
+                      name="pagoRentaMensual"
+                      onChange={actualizarCampoGastosIngresos}
+                      value={dataGastosIngresos.pagoRentaMensual}
+                      isInvalid={!!errores.pagoRentaMensual}
+                    />
+                    {errores.pagoRentaMensual && <div className="text-danger">{errores.pagoRentaMensual}</div>}
+                  </div>
                 </div>
 
                 {(recursos === 'Si' || recursos === true) && (
                   <div className="row">
                     <div className="line mx-auto mt-5 mb-4"></div>
                     <div className="col-xs-12 col-lg-5 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente:</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente: <span style={{ color: 'red' }}>*</span></p>
                       <input
                         onBeforeInput={soloLetras}
                         className='form-control'
@@ -951,7 +982,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-lg-3 col-md-4 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es:</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es: <span style={{ color: 'red' }}>*</span></p>
                       <RadioSelect
                         gris={true}
                         options={catTipoTrabajo.map(t => ({
@@ -966,7 +997,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-lg-3 col-md-4 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación:</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación: <span style={{ color: 'red' }}>*</span></p>
                       <SeleccionarCombo
                         name="ocupacion"
                         options={catOcupacion.map(ocupacion => ({
@@ -982,7 +1013,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
                     {dataGastosIngresos.ocupacion === '8' && (
                       <div className="col-12 col-md-4 mb-4">
-                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro:</p>
+                        <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                         <input
                           onBeforeInput={soloLetras}
                           className='form-control'
@@ -1004,7 +1035,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="line mx-auto mt-5 mb-4"></div>
 
                     <div className="col-12 col-md-4 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas <span style={{ color: 'red' }}>*</span></p>
                       <input
                         className={`form-control ${errores.nombreTrabajo ? 'input-error' : ''}`}
                         type="text"
@@ -1016,7 +1047,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-12 col-md-4 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Menciona el ingreso mensual que recibes</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingreso mensual que recibes <span style={{ color: 'red' }}>*</span></p>
                       <input
                         className={`form-control ${errores.ingresoMensual ? 'input-error' : ''}`}
                         type="text"
@@ -1028,7 +1059,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-12 col-md-4 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Teléfono celular del lugar donde trabajas</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Teléfono del lugar donde trabajas <span style={{ color: 'red' }}>*</span></p>
                       <input
                         className={`form-control ${errores.telefonoTrabajo ? 'input-error' : ''}`}
                         type="text"
@@ -1040,7 +1071,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-12 mb-4">
-                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas</p>
+                      <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas <span style={{ color: 'red' }}>*</span></p>
                       <input
                         className={`form-control ${errores.domicilioTrabajo ? 'input-error' : ''}`}
                         type="text"
@@ -1056,7 +1087,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 )}
 
                 <div className="row">
-                  <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria?</p>
+                  <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Solicitas beca alimentaria? <span style={{ color: 'red' }}>*</span></p>
                   <RadioSelect
                     gris={true}
                     name="solicitaBecaAlimenticia"
@@ -1080,7 +1111,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 <div className="tarjeta-border p-4">
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
 
-                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas automóvil cotidianamente a la universidad?</label>
+                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas automóvil cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
                   <RadioSelect
                     gris={true}
                     options={['Si', 'No']}
@@ -1092,23 +1123,9 @@ export const MisDatos = ({ onAdd, update }) => {
 
                   {(tieneAutomovil === 'Si' || tieneAutomovil === true) && (
                     <div>
-                      <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Selecciona tu tipo de vehículo:</label>
-                      <div className='col-xs-4 col-lg-4 mb-3'>
-                        <SeleccionarCombo
-                          options={catTipoTransporte.map(t => ({
-                            label: t.nombreTipo,
-                            value: t.idCatTipoTransporte
-                          }))}
-                          placeholder="Selecciona una opción"
-                          name={'catTipoTransporte'}
-                          value={dataTransporteAutomovil.catTipoTransporte}
-                          onChange={actualizarCamposTransporteAutomovil}
-                        />
-                      </div>
-
                       <div className="row mt-4 gy-3">
                         <div className="col-12 col-md-4">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca</label>
+                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
                           <input
                             onBeforeInput={soloFormatoDirecciones}
                             className='form-control w-100'
@@ -1118,8 +1135,8 @@ export const MisDatos = ({ onAdd, update }) => {
                             onChange={actualizarCamposTransporteAutomovil}
                           />
                         </div>
-                        <div className="col-xs-2 col-lg-2">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo</label>
+                        <div className="col-xs-2 col-lg-3">
+                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
                           <input
                             onBeforeInput={soloFormatoDirecciones}
                             className='form-control'
@@ -1130,7 +1147,7 @@ export const MisDatos = ({ onAdd, update }) => {
                           />
                         </div>
                         <div className="col-xs-2 col-lg-2">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año</label>
+                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
                           <input
                             onBeforeInput={soloNumerosPositivos}
                             maxLength={4}
@@ -1147,7 +1164,7 @@ export const MisDatos = ({ onAdd, update }) => {
 
                   <div className="line mx-auto mt-4 mb-4"></div>
 
-                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas motocicleta cotidianamente a la universidad?</label>
+                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas motocicleta cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
                   <RadioSelect
                     gris={true}
                     options={['Si', 'No']}
@@ -1159,23 +1176,9 @@ export const MisDatos = ({ onAdd, update }) => {
 
                   {(tieneMotocicleta === 'Si' || tieneMotocicleta === true) && (
                     <div>
-                      <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Selecciona tu tipo de vehículo:</label>
-                      <div className='col-xs-4 col-lg-4 mb-3'>
-                        <SeleccionarCombo
-                          options={catTipoTransporte.map(t => ({
-                            label: t.nombreTipo,
-                            value: t.idCatTipoTransporte
-                          }))}
-                          placeholder="Selecciona una opción"
-                          name={'catTipoTransporte'}
-                          value={dataTransporteMotocicleta.catTipoTransporte}
-                          onChange={actualizarCamposTransporteMotocicleta}
-                        />
-                      </div>
-
                       <div className="row mt-4 gy-3">
                         <div className="col-12 col-md-4">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca</label>
+                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
                           <input
                             onBeforeInput={soloFormatoDirecciones}
                             className='form-control w-100'
@@ -1185,8 +1188,8 @@ export const MisDatos = ({ onAdd, update }) => {
                             onChange={actualizarCamposTransporteMotocicleta}
                           />
                         </div>
-                        <div className="col-xs-2 col-lg-2">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo</label>
+                        <div className="col-xs-2 col-lg-3">
+                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
                           <input
                             onBeforeInput={soloFormatoDirecciones}
                             className='form-control w-100'
@@ -1197,7 +1200,7 @@ export const MisDatos = ({ onAdd, update }) => {
                           />
                         </div>
                         <div className="col-xs-2 col-lg-2">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año</label>
+                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
                           <input
                             onBeforeInput={soloNumerosPositivos}
                             maxLength={4}
@@ -1215,7 +1218,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   <div className="line mx-auto mt-4 mb-4"></div>
 
                   <div className="row mt-4 gy-2">
-                    <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Qué otros medios utilizas para trasladarte a la universidad?</label>
+                    <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Qué otros medios utilizas para trasladarte a la universidad? <span style={{ color: 'red' }}>*</span></label>
                     {errores.mediosTraslado && <div className='text-danger'>{errores.mediosTraslado}</div>}
                     {medios.map((medio) => (
                       <CheckBox
@@ -1237,7 +1240,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 <div className="tarjeta-border p-4 h-100 w-100">
                   <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
 
-                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Eres hijo o nieto de comunero de Ixtlán de Juárez?</label>
+                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Eres hijo o nieto de comunero de Ixtlán de Juárez? <span style={{ color: 'red' }}>*</span></label>
                   <RadioSelect
                     gris={true}
                     options={['Si', 'No']}
@@ -1248,7 +1251,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   {errores.familiarComunero && <div className='text-danger'>{errores.familiarComunero}</div>}
 
                   <br />
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Utilizas teléfono celular en la universidad?</label>
+                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Utilizas teléfono celular en la universidad? <span style={{ color: 'red' }}>*</span></label>
                   <RadioSelect
                     gris={true}
                     options={['Si', 'No']}
@@ -1259,7 +1262,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   {errores.utilizaCelular && <div className='text-danger'>{errores.utilizaCelular}</div>}
 
                   <br />
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Tienes computadora personal y/o portátil?</label>
+                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Tienes computadora personal y/o portátil? <span style={{ color: 'red' }}>*</span></label>
                   <RadioSelect
                     gris={true}
                     options={['Si', 'No']}
@@ -1270,7 +1273,7 @@ export const MisDatos = ({ onAdd, update }) => {
                   {errores.tieneComputadora && <div className='text-danger'>{errores.tieneComputadora}</div>}
 
                   <br />
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas?</label>
+                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas? <span style={{ color: 'red' }}>*</span></label>
                   <div className="col-xs-4 col-lg-4">
                     <input
                       onBeforeInput={soloLetras}

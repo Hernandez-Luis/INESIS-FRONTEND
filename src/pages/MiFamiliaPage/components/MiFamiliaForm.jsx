@@ -1220,7 +1220,7 @@ const MiFamiliaForm = () => {
     // ******************************************************************************************************
     return (
         <div className='d-flex flex-column min-vh-100'>
-            <div className='flex-grow-1 mt-5 mx-lg-5 px-5'>
+            <div className='flex-grow-1 mt-5 mx-lg-5 '>
                 <form onSubmit={(e) => { e.preventDefault(); }}>
                     <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
                         <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
