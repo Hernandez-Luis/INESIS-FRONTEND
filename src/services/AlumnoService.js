@@ -125,6 +125,17 @@ const importarDesdeExcel = async (formData) => {
   }
 };
 
+const cambiarPassword = async (idAlumno, nuevaPassword) => {
+  try {
+    const response = await axiosInstance.put(`${API_URL}/${idAlumno}/password`, {
+      password: nuevaPassword
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || 'Error al cambiar la contraseña';
+  }
+};
+
 
 export default {
   getAll,
@@ -136,5 +147,6 @@ export default {
   checkIfExists,
   enviarRevisionAlumno,
   setEstudioSocioeconomicoCompleto,
-  importarDesdeExcel
+  importarDesdeExcel,
+  cambiarPassword
 };

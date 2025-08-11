@@ -89,7 +89,7 @@ const RegistroRevisor = forwardRef((props, ref) => {
                 if (!/^\d{10}$/.test(value)) error = 'Debe contener 10 dígitos';
                 break;
             case 'matricula':
-                if (!/^\d{10}$/.test(value)) error = 'La matrícula debe contener exactamente 10 dígitos numéricos';
+                if (!/^\d{5}$/.test(value)) error = 'La matrícula debe contener exactamente 5 dígitos numéricos';
                 break;
         }
 
@@ -378,14 +378,14 @@ const RegistroRevisor = forwardRef((props, ref) => {
 
                         <div className="col-md-6">
                             <label className="formulario-etiqueta">
-                                Matrícula <span className="text-danger">*</span>
+                                Numero de empleado <span className="text-danger">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="matricula"
                                 className={`formulario-entrada ${errors.matricula ? 'is-invalid' : ''}`}
                                 placeholder="Ingrese la matrícula"
-                                maxLength={10}
+                                maxLength={5}
                                 value={formValues.matricula}
                                 onChange={handleChange}
                             />

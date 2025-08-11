@@ -312,7 +312,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         sexo: sexoSeleccionado ? sexoSeleccionado.id : null,
         grupo: formValues.grupo.id,
         usuario: formValues.usuario,
-        contrasenia: formValues.contrasena,
         estatus: 1,
         idCatRol: 1
       };
@@ -320,10 +319,19 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       // 4. Crear o actualizar
       let response;
       if (esEdicion) {
+        console.log("ESTE ES EL ALUMNO A EDITAR", alumnoPayload);
         response = await alumnoService.update(props.alumno.id, alumnoPayload);
+
+        // Si en edición también quieres cambiar la contraseña
+        if (formValues.contrasena && formValues.contrasena.trim() !== "") {
+          await alumnoService.cambiarPassword(props.alumno.id, formValues.contrasena);
+        }
+
       } else {
+        alumnoPayload.contrasenia = formValues.contrasena;
         response = await alumnoService.create(alumnoPayload);
       }
+
 
       // 5. Confirmar éxito
       if (response.status === 200 || response.status === 201 || response.status === 204) {
@@ -505,7 +513,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
       {/* Botón para subir Excel - solo visible en la vista de agregar */}
       {!props.alumno && (
-        <div className="d-flex justify-content-start mx-5 mb-4">
+        <div className="d-flex justify-content-start mx-5 mb-4 ">
           <button
             type="button"
             className="btn btn-success d-flex align-items-center gap-2"
