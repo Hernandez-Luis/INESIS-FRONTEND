@@ -38,10 +38,24 @@ const ListadoEstudioSocioeconomico = () => {
           .map(a => {
             // Determinar estado: null = "Sin revisar", false = "Pendiente", true = "Finalizado"
             let estadoTexto = "Sin revisar";
-            if (a.estadoRevision === false) {
-              estadoTexto = "Pendiente";
-            } else if (a.estadoRevision === true) {
-              estadoTexto = "Finalizado";
+            switch (a.estadoRevision) {
+              case 0:
+                estadoTexto = "Sin revisar";
+                break;
+              case 1:
+                estadoTexto = "Pendiente";
+                break;
+              case 2:
+                estadoTexto = "Con correcciones";
+                break;
+              case 3:
+                estadoTexto = "Corregido";
+                break;
+              case 4:
+                estadoTexto = "Finalizado";
+                break;
+              default:
+                estadoTexto = "Sin revisar";
             }
 
             return {
@@ -150,11 +164,20 @@ const ListadoEstudioSocioeconomico = () => {
                         <i className="bi bi-file-earmark-text"></i>
                       </Link>
                     </td>
-                    <td className={
+                    <td className={`fw-bold ${
                       a.estado === "Finalizado" ? "text-success" :
-                      a.estado === "Pendiente" ? "text-danger" :
+                      a.estado === "Corregido" ? "text-primary" :
+                      a.estado === "Pendiente" ? "text-warning" :
+                      a.estado === "Con correcciones" ? "text-danger" :
                       "text-muted"
-                    }>
+                    }`}>
+                      <i className={`me-2 ${
+                        a.estado === "Finalizado" ? "bi bi-check-circle-fill" :
+                        a.estado === "Corregido" ? "bi bi-arrow-clockwise" :
+                        a.estado === "Pendiente" ? "bi bi-clock-fill" :
+                        a.estado === "Con correcciones" ? "bi bi-x-circle-fill" :
+                        "bi bi-clipboard"
+                      }`}></i>
                       {a.estado}
                     </td>
                   </tr>

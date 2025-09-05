@@ -442,7 +442,7 @@ export const MiTutor = ({ onAdd, update }) => {
             <NavInesis></NavInesis>
             <MigasRecorrido items={links}></MigasRecorrido>
             <div className='d-flex flex-column min-vh-100'>
-                <div className='flex-grow-1 px-5 m-lg-5 ' >
+                <div className='flex-grow-1 px-4 m-lg-5 ' >
                     <form onSubmit={handleSubmit}>
                         <div className='row'>
                             <p className='fs-3 d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
@@ -580,7 +580,7 @@ export const MiTutor = ({ onAdd, update }) => {
                             {/* FIN DATOS PERSONALES */}
 
                             {/* DOMICILIO */}
-                            <div className="col-12 col-lg-6">
+                            <div className="col-12 col-lg-6 mt-4 mt-lg-0">
                                 <div className="tarjeta-border h-100 p-5">
                                     <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
                                     <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>

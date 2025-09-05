@@ -19,6 +19,9 @@ export default function RevisionSolicitud() {
     const { estudiante } = location.state || {};
     const navigate = useNavigate();
 
+    const conCorrecciones = 2;
+    const finalizado = 4;
+
     console.log("Datos recibidos:", location.state);
     console.log("Estudiante recibido:", estudiante);
     const alumnoId = estudiante?.id;
@@ -81,7 +84,7 @@ const handleEnviarCorreccion = async () => {
             return;
         }
 
-        await AlumnoService.enviarRevisionAlumno(alumnoId, comentario, false);
+        await AlumnoService.enviarRevisionAlumno(alumnoId, comentario, conCorrecciones);
         mostrarAlerta({
           icon: 'success',
           title: 'Corrección enviada correctamente'
@@ -108,7 +111,7 @@ const handleMarcarFinalizado = async () => {
         return; // Detiene la ejecución si hay comentario
       }
   
-      await AlumnoService.enviarRevisionAlumno(alumnoId, "", true);
+      await AlumnoService.enviarRevisionAlumno(alumnoId, "", finalizado);
   
       mostrarAlerta({
         icon: 'success',

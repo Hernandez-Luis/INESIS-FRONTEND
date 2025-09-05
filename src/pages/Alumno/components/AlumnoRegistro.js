@@ -75,7 +75,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
           // Petición para obtener el usuario relacionado con el alumno
           const usuario = await UsuarioService.getByAlumnoId(props.alumno.id);
 
-          console.log("ESTE ES EL USUARIO", props.alumno);
           // Convertimos los datos al formato esperado por el formulario
           const alumnoEditar = {
             nombre: props.alumno.nombre || '',
@@ -319,14 +318,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       // 4. Crear o actualizar
       let response;
       if (esEdicion) {
-        console.log("ESTE ES EL ALUMNO A EDITAR", alumnoPayload);
         response = await alumnoService.update(props.alumno.id, alumnoPayload);
-
-        // Si en edición también quieres cambiar la contraseña
-        if (formValues.contrasena && formValues.contrasena.trim() !== "") {
-          await alumnoService.cambiarPassword(props.alumno.id, formValues.contrasena);
-        }
-
       } else {
         alumnoPayload.contrasenia = formValues.contrasena;
         response = await alumnoService.create(alumnoPayload);

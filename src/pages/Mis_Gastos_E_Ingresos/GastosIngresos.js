@@ -27,7 +27,7 @@ const GastosIngresos = () => {
             </div>
 
 
-            <div className="container d-flex justify-content-center text-center " style={{maxWidth: "1600px"}} >
+            <div className="container d-flex justify-content-center text-center " style={{maxWidth: "1900px"}} >
                 <div className=" p-1" style={{ color: "#4F46E5" }} >
                 <h1 className="text-start">GASTOS E INGRESOS FAMILIARES</h1>
                     <div className="text-secondary text-start">

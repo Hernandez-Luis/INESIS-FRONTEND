@@ -185,8 +185,9 @@ const MiFamiliaForm = () => {
             setMaterialSeleccionado(data.viviendaFamiliar.materialVivienda?.id || '');
 
             // Cargar región y distrito
-            setRegionSeleccionada(data.viviendaFamiliar.region || '');
-            setDistritoSeleccionado(data.viviendaFamiliar.distrito || '');
+            console.log("Region y distrito de vivienda familiar: ", data.viviendaFamiliar.region, data.viviendaFamiliar.distrito)
+            setRegionSeleccionada(data.viviendaFamiliar.region.id || '');
+            setDistritoSeleccionado(data.viviendaFamiliar.distrito.id || '');
 
             // Cargar servicios de vivienda
             if (data.viviendaFamiliar.serviciosVivienda && data.viviendaFamiliar.serviciosVivienda.length > 0) {
@@ -246,10 +247,10 @@ const MiFamiliaForm = () => {
 
             // Establecer región y distrito seleccionados
             if (data.viviendaFamiliar?.region) {
-                setRegionSeleccionada(data.viviendaFamiliar.region);
+                setRegionSeleccionada(data.viviendaFamiliar.region.id);
             }
             if (data.viviendaFamiliar?.distrito) {
-                setDistritoSeleccionado(data.viviendaFamiliar.distrito);
+                setDistritoSeleccionado(data.viviendaFamiliar.distrito.id);
             }
 
             // Por defecto, si ya tiene domicilio registrado, asumir que no coincide con el del alumno
@@ -820,6 +821,24 @@ const MiFamiliaForm = () => {
             erroresSwal.push('Debes indicar si el domicilio coincide');
         }
 
+        // Validar distrito - manejar tanto objeto como string
+        if (!dataDomicilio.distrito || 
+            (typeof dataDomicilio.distrito === 'object' ? 
+                !dataDomicilio.distrito.id : 
+                dataDomicilio.distrito.trim() === "")) {
+            errores.distrito = true;
+            erroresSwal.push('El Distrito es obligatorio.');
+        }
+
+        // Validar región - manejar tanto objeto como string
+        if (!dataDomicilio.region || 
+            (typeof dataDomicilio.region === 'object' ? 
+                !dataDomicilio.region.id : 
+                dataDomicilio.region.trim() === "")) {
+            errores.region = true;
+            erroresSwal.push('La Región es obligatoria.');
+        }
+
         // Validaciones de domicilio (si no coincide con el del alumno)
         if (domicilioCoincide !== 'Si' && domicilioCoincide !== true) {
 
@@ -1208,7 +1227,8 @@ const MiFamiliaForm = () => {
                 mostrarExito('Datos guardados correctamente');
             }
         } catch (error) {
-            if (error.includes('periodo de registro')) {
+            const mensaje = error.message || error.toString();
+            if (mensaje.includes('periodo de registro')) {
                 mostrarInformacion(error);
                 return;
             }
@@ -1220,7 +1240,7 @@ const MiFamiliaForm = () => {
     // ******************************************************************************************************
     return (
         <div className='d-flex flex-column min-vh-100'>
-            <div className='flex-grow-1 mt-5 mx-lg-5 '>
+            <div className='flex-grow-1 px-4 px-md-0'>
                 <form onSubmit={(e) => { e.preventDefault(); }}>
                     <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
                         <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
@@ -1441,12 +1461,12 @@ const MiFamiliaForm = () => {
                                     </p>
                                     <div className="mb-3">
                                         <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Teléfono	<span style={{ color: 'red' }}>*</span>
+                                            Teléfono de la familia	<span style={{ color: 'red' }}>*</span>
                                         </label>
                                         <input
                                             type="text"
                                             className={`form-control ${erroresFormulario.telefono ? 'is-invalid' : ''}`}
-                                            placeholder="Ingresa el número de teléfono"
+                                            placeholder="Teléfono de casa o de algún familiar"
                                             name="telefono"
                                             value={dataMiFamilia.telefono}
                                             onChange={handleTelefonoChange}

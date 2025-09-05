@@ -450,6 +450,25 @@ export const MisDatos = ({ onAdd, update }) => {
       }
       return;
     }
+
+    // Lógica para situación de vivienda
+    if (name === "situacionVivienda") {
+      setDataMisDatos((prevData) => ({
+        ...prevData,
+        [name]: value
+      }));
+      
+      // Si selecciona "Vivo con familiares", establecer personas que comparten renta en 0
+      const situacionSeleccionada = catSituacionVivienda.find(s => s.id === parseInt(value));
+      if (situacionSeleccionada && situacionSeleccionada.nombreSituacion === "Vivo con familiares") {
+        setDataGastosIngresos((prevData) => ({
+          ...prevData,
+          personasComparteRenta: "0"
+        }));
+      }
+      return;
+    }
+
     setDataMisDatos((prevData) => ({
       ...prevData,
       [name]: value
@@ -657,7 +676,7 @@ export const MisDatos = ({ onAdd, update }) => {
       <NavInesis></NavInesis>
       <MigasRecorrido items={links}></MigasRecorrido>
       <div className='d-flex flex-column min-vh-100'>
-        <div className='flex-grow-1 mt-5 mx-lg-5 px-5'>
+        <div className='flex-grow-1 px-4 mx-lg-5'>
           <form onSubmit={handleSubmit}>
             <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
               {/* INICIO MODULO INFORMACION GENERAL */}
@@ -900,7 +919,7 @@ export const MisDatos = ({ onAdd, update }) => {
             </div>
 
             {/* MODULO GASTOS E INGRESOS  */}
-            <div className='row mx-lg-5 mt-4'>
+            <div className='mx-lg-5 mt-4'>
               <div className='tarjeta-border p-3 p-md-5'>
                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto ascienden tus gastos mensuales de manutención? <span style={{ color: 'red' }}>*</span></p>
@@ -946,6 +965,10 @@ export const MisDatos = ({ onAdd, update }) => {
                       onChange={actualizarCampoGastosIngresos}
                       value={dataGastosIngresos.personasComparteRenta}
                       isInvalid={!!errores.personasComparteRenta}
+                      disabled={(() => {
+                        const situacionSeleccionada = catSituacionVivienda.find(s => s.id === parseInt(dataMisDatos.situacionVivienda));
+                        return situacionSeleccionada && situacionSeleccionada.nombreSituacion === "Vivo con familiares";
+                      })()}
                     />
                     {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
                   </div>
@@ -1102,196 +1125,196 @@ export const MisDatos = ({ onAdd, update }) => {
 
             {/* FIN MODULO GASTOS E INGRESOS  */}
 
-            <div className="col">
+            <div className="mx-lg-5 mt-5">
 
-            </div>
-            <div className="row  mx-md-5 mt-4 mb-5 gy-4">
-              {/* MODULO TRANSPORTE */}
-              <div className="col-12 col-md-6 ">
-                <div className="tarjeta-border p-4">
-                  <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
+              <div className="d-flex flex-column flex-md-row gap-4 ">
+                {/* MODULO TRANSPORTE */}
+                <div className="col-12 col-md-6">
+                  <div className="tarjeta-border p-3 p-md-5 h-100">
+                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
 
-                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas automóvil cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
-                  <RadioSelect
-                    gris={true}
-                    options={['Si', 'No']}
-                    onChange={actualizarCamposMisDatos}
-                    name={"llevaAutomovil"}
-                    value={boolToSiNo(dataMisDatos.llevaAutomovil)}
-                  />
-                  {errores.llevaAutomovil && <div className='text-danger'>{errores.llevaAutomovil}</div>}
-
-                  {(tieneAutomovil === 'Si' || tieneAutomovil === true) && (
-                    <div>
-                      <div className="row mt-4 gy-3">
-                        <div className="col-12 col-md-4">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
-                          <input
-                            onBeforeInput={soloFormatoDirecciones}
-                            className='form-control w-100'
-                            type="text"
-                            name={'marca'}
-                            value={dataTransporteAutomovil.marca}
-                            onChange={actualizarCamposTransporteAutomovil}
-                          />
-                        </div>
-                        <div className="col-xs-2 col-lg-3">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
-                          <input
-                            onBeforeInput={soloFormatoDirecciones}
-                            className='form-control'
-                            type="text"
-                            name={'modelo'}
-                            value={dataTransporteAutomovil.modelo}
-                            onChange={actualizarCamposTransporteAutomovil}
-                          />
-                        </div>
-                        <div className="col-xs-2 col-lg-2">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
-                          <input
-                            onBeforeInput={soloNumerosPositivos}
-                            maxLength={4}
-                            className='form-control w-100'
-                            type="text"
-                            name={'anio'}
-                            value={dataTransporteAutomovil.anio}
-                            onChange={actualizarCamposTransporteAutomovil}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="line mx-auto mt-4 mb-4"></div>
-
-                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas motocicleta cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
-                  <RadioSelect
-                    gris={true}
-                    options={['Si', 'No']}
-                    onChange={actualizarCamposMisDatos}
-                    name={"llevaMotocicleta"}
-                    value={boolToSiNo(dataMisDatos.llevaMotocicleta)}
-                  />
-                  {errores.llevaMotocicleta && <div className='text-danger'>{errores.llevaMotocicleta}</div>}
-
-                  {(tieneMotocicleta === 'Si' || tieneMotocicleta === true) && (
-                    <div>
-                      <div className="row mt-4 gy-3">
-                        <div className="col-12 col-md-4">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
-                          <input
-                            onBeforeInput={soloFormatoDirecciones}
-                            className='form-control w-100'
-                            type="text"
-                            name={'marca'}
-                            value={dataTransporteMotocicleta.marca}
-                            onChange={actualizarCamposTransporteMotocicleta}
-                          />
-                        </div>
-                        <div className="col-xs-2 col-lg-3">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
-                          <input
-                            onBeforeInput={soloFormatoDirecciones}
-                            className='form-control w-100'
-                            type="text"
-                            name={'modelo'}
-                            value={dataTransporteMotocicleta.modelo}
-                            onChange={actualizarCamposTransporteMotocicleta}
-                          />
-                        </div>
-                        <div className="col-xs-2 col-lg-2">
-                          <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
-                          <input
-                            onBeforeInput={soloNumerosPositivos}
-                            maxLength={4}
-                            className='form-control w-100'
-                            type="text"
-                            name={'anio'}
-                            value={dataTransporteMotocicleta.anio}
-                            onChange={actualizarCamposTransporteMotocicleta}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="line mx-auto mt-4 mb-4"></div>
-
-                  <div className="row mt-4 gy-2">
-                    <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Qué otros medios utilizas para trasladarte a la universidad? <span style={{ color: 'red' }}>*</span></label>
-                    {errores.mediosTraslado && <div className='text-danger'>{errores.mediosTraslado}</div>}
-                    {medios.map((medio) => (
-                      <CheckBox
-                        key={medio.id}
-                        id={medio.id}
-                        opcion={medio.nombreMedio}
-                        onChange={actualizarMediosTraslado}
-                        checked={mediosSeleccionados.includes(medio.id)}
-                        name={"mediosTraslado"}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              {/* FIN MODULO TRANSPORTE */}
-
-              {/* INFORMACION COMPLEMENTARIA */}
-              <div className="col-12 col-md-6">
-                <div className="tarjeta-border p-4 h-100 w-100">
-                  <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
-
-                  <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Eres hijo o nieto de comunero de Ixtlán de Juárez? <span style={{ color: 'red' }}>*</span></label>
-                  <RadioSelect
-                    gris={true}
-                    options={['Si', 'No']}
-                    onChange={actualizarCamposMisDatos}
-                    name="familiarComunero"
-                    value={boolToSiNo(dataMisDatos.familiarComunero)}
-                  />
-                  {errores.familiarComunero && <div className='text-danger'>{errores.familiarComunero}</div>}
-
-                  <br />
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Utilizas teléfono celular en la universidad? <span style={{ color: 'red' }}>*</span></label>
-                  <RadioSelect
-                    gris={true}
-                    options={['Si', 'No']}
-                    name={"utilizaCelular"}
-                    onChange={actualizarCamposMisDatos}
-                    value={boolToSiNo(dataMisDatos.utilizaCelular)}
-                  />
-                  {errores.utilizaCelular && <div className='text-danger'>{errores.utilizaCelular}</div>}
-
-                  <br />
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Tienes computadora personal y/o portátil? <span style={{ color: 'red' }}>*</span></label>
-                  <RadioSelect
-                    gris={true}
-                    options={['Si', 'No']}
-                    name={"tieneComputadora"}
-                    onChange={actualizarCamposMisDatos}
-                    value={boolToSiNo(dataMisDatos.tieneComputadora)}
-                  />
-                  {errores.tieneComputadora && <div className='text-danger'>{errores.tieneComputadora}</div>}
-
-                  <br />
-                  <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas? <span style={{ color: 'red' }}>*</span></label>
-                  <div className="col-xs-4 col-lg-4">
-                    <input
-                      onBeforeInput={soloLetras}
-                      className={`form-control ${errores.idioma ? 'input-error' : ''}`}
-                      type="text"
-                      name='idioma'
-                      value={dataMisDatos.idioma}
+                    <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas automóvil cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
+                    <RadioSelect
+                      gris={true}
+                      options={['Si', 'No']}
                       onChange={actualizarCamposMisDatos}
+                      name={"llevaAutomovil"}
+                      value={boolToSiNo(dataMisDatos.llevaAutomovil)}
                     />
-                    {errores.idioma && <div className='text-danger'>{errores.idioma}</div>}
+                    {errores.llevaAutomovil && <div className='text-danger'>{errores.llevaAutomovil}</div>}
+
+                    {(tieneAutomovil === 'Si' || tieneAutomovil === true) && (
+                      <div>
+                        <div className="row mt-4 gy-3">
+                          <div className="col-12 col-md-4">
+                            <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
+                            <input
+                              onBeforeInput={soloFormatoDirecciones}
+                              className='form-control w-100'
+                              type="text"
+                              name={'marca'}
+                              value={dataTransporteAutomovil.marca}
+                              onChange={actualizarCamposTransporteAutomovil}
+                            />
+                          </div>
+                          <div className="col-xs-2 col-lg-3">
+                            <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
+                            <input
+                              onBeforeInput={soloFormatoDirecciones}
+                              className='form-control'
+                              type="text"
+                              name={'modelo'}
+                              value={dataTransporteAutomovil.modelo}
+                              onChange={actualizarCamposTransporteAutomovil}
+                            />
+                          </div>
+                          <div className="col-xs-2 col-lg-2">
+                            <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
+                            <input
+                              onBeforeInput={soloNumerosPositivos}
+                              maxLength={4}
+                              className='form-control w-100'
+                              type="text"
+                              name={'anio'}
+                              value={dataTransporteAutomovil.anio}
+                              onChange={actualizarCamposTransporteAutomovil}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="line mx-auto mt-4 mb-4"></div>
+
+                    <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas motocicleta cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
+                    <RadioSelect
+                      gris={true}
+                      options={['Si', 'No']}
+                      onChange={actualizarCamposMisDatos}
+                      name={"llevaMotocicleta"}
+                      value={boolToSiNo(dataMisDatos.llevaMotocicleta)}
+                    />
+                    {errores.llevaMotocicleta && <div className='text-danger'>{errores.llevaMotocicleta}</div>}
+
+                    {(tieneMotocicleta === 'Si' || tieneMotocicleta === true) && (
+                      <div>
+                        <div className="row mt-4 gy-3">
+                          <div className="col-12 col-md-4">
+                            <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
+                            <input
+                              onBeforeInput={soloFormatoDirecciones}
+                              className='form-control w-100'
+                              type="text"
+                              name={'marca'}
+                              value={dataTransporteMotocicleta.marca}
+                              onChange={actualizarCamposTransporteMotocicleta}
+                            />
+                          </div>
+                          <div className="col-xs-2 col-lg-3">
+                            <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
+                            <input
+                              onBeforeInput={soloFormatoDirecciones}
+                              className='form-control w-100'
+                              type="text"
+                              name={'modelo'}
+                              value={dataTransporteMotocicleta.modelo}
+                              onChange={actualizarCamposTransporteMotocicleta}
+                            />
+                          </div>
+                          <div className="col-xs-2 col-lg-2">
+                            <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
+                            <input
+                              onBeforeInput={soloNumerosPositivos}
+                              maxLength={4}
+                              className='form-control w-100'
+                              type="text"
+                              name={'anio'}
+                              value={dataTransporteMotocicleta.anio}
+                              onChange={actualizarCamposTransporteMotocicleta}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="line mx-auto mt-4 mb-4"></div>
+
+                    <div className="row mt-4 gy-2">
+                      <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Qué otros medios utilizas para trasladarte a la universidad? <span style={{ color: 'red' }}>*</span></label>
+                      {errores.mediosTraslado && <div className='text-danger'>{errores.mediosTraslado}</div>}
+                      {medios.map((medio) => (
+                        <CheckBox
+                          key={medio.id}
+                          id={medio.id}
+                          opcion={medio.nombreMedio}
+                          onChange={actualizarMediosTraslado}
+                          checked={mediosSeleccionados.includes(medio.id)}
+                          name={"mediosTraslado"}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+                {/* FIN MODULO TRANSPORTE */}
 
-              {/* FIN INFORMACION COMPLEMENTARIA */}
+                {/* INFORMACION COMPLEMENTARIA */}
+                <div className="col-12 col-md-6">
+                  <div className="tarjeta-border p-3 p-md-5 h-100">
+                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
+
+                    <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Eres hijo o nieto de comunero de Ixtlán de Juárez? <span style={{ color: 'red' }}>*</span></label>
+                    <RadioSelect
+                      gris={true}
+                      options={['Si', 'No']}
+                      onChange={actualizarCamposMisDatos}
+                      name="familiarComunero"
+                      value={boolToSiNo(dataMisDatos.familiarComunero)}
+                    />
+                    {errores.familiarComunero && <div className='text-danger'>{errores.familiarComunero}</div>}
+
+                    <br />
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Utilizas teléfono celular en la universidad? <span style={{ color: 'red' }}>*</span></label>
+                    <RadioSelect
+                      gris={true}
+                      options={['Si', 'No']}
+                      name={"utilizaCelular"}
+                      onChange={actualizarCamposMisDatos}
+                      value={boolToSiNo(dataMisDatos.utilizaCelular)}
+                    />
+                    {errores.utilizaCelular && <div className='text-danger'>{errores.utilizaCelular}</div>}
+
+                    <br />
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>¿Tienes computadora personal y/o portátil? <span style={{ color: 'red' }}>*</span></label>
+                    <RadioSelect
+                      gris={true}
+                      options={['Si', 'No']}
+                      name={"tieneComputadora"}
+                      onChange={actualizarCamposMisDatos}
+                      value={boolToSiNo(dataMisDatos.tieneComputadora)}
+                    />
+                    {errores.tieneComputadora && <div className='text-danger'>{errores.tieneComputadora}</div>}
+
+                    <br />
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas? <span style={{ color: 'red' }}>*</span></label>
+                    <div className="col-xs-4 col-lg-4">
+                      <input
+                        onBeforeInput={soloLetras}
+                        className={`form-control ${errores.idioma ? 'input-error' : ''}`}
+                        type="text"
+                        name='idioma'
+                        value={dataMisDatos.idioma}
+                        onChange={actualizarCamposMisDatos}
+                      />
+                      {errores.idioma && <div className='text-danger'>{errores.idioma}</div>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* FIN INFORMACION COMPLEMENTARIA */}
+              </div>
             </div>
 
-            <div className='d-flex justify-content-center mb-5'>
+            <div className='d-flex justify-content-center mb-5 mt-4'>
               <button className='btn btn-midDatos' disabled={btnDisabled}>Guardar</button>
             </div>
           </form>

@@ -121,7 +121,7 @@ const MenuAlumno = () => {
               </p>
             ) : (
               <p className="recordatorio">
-                Aún no tienes asignada una fecha para realizar tu estudio
+                <b>Aún no tienes una fecha asignada</b> para realizar tu estudio
                 socioeconómico.
               </p>
             )}
