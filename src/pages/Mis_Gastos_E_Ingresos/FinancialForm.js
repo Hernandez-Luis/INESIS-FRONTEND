@@ -665,10 +665,10 @@ const FinancialForm = () => {
                         <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
                             {[
                                 { label: "Nombre completo ", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>,  placeholder: "Nombre completo", type: "text", field: "name" },
-                                { label: "Empresa o lugar de trabajo", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
-                                { label: "Puesto o tipo de trabajo", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "Puesto o tipo de trabajo", type: "text", field: "job" },
-                                { label: "IMB (Bruto)", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "IMB (Bruto)", type: "text", field: "gross" },
-                                { label: "IMN (Neto)", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "IMN (Neto)", type: "text", field: "net" }
+                                { label: "Empresa o lugar de trabajo", labelJSX: <>Empresa o lugar de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
+                                { label: "Puesto o tipo de trabajo", labelJSX: <>Puesto o tipo de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Puesto o tipo de trabajo", type: "text", field: "job" },
+                                { label: "IMB (Bruto)", labelJSX: <>IMB (Bruto) <span style={{ color: 'red' }}>*</span></>, placeholder: "IMB (Bruto)", type: "text", field: "gross" },
+                                { label: "IMN (Neto)", labelJSX: <>IMN (Neto) <span style={{ color: 'red' }}>*</span></>, placeholder: "IMN (Neto)", type: "text", field: "net" }
                             ].map((field, idx) => {
                                 // Insertar el campo "Parentesco" después de "Nombre completo"
                                 if (idx === 1) {
