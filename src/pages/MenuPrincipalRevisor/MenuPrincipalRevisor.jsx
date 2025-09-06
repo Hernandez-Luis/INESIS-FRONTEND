@@ -20,11 +20,11 @@ export const MenuPrincipalRevisor = () => {
     <div>
       <NavInesis></NavInesis>
       <div className='d-flex flex-column min-vh-100'>
-        <div className='flex-grow-1 m-5 px-5 d-flex justify-content-center' style={{ color: 'var(--color-morado2)' }}>
+        <div className='flex-grow-1 px-5 d-flex justify-content-center' style={{ color: 'var(--color-morado2)' }}>
           <h1>Bienvenido {usuario ? usuario.usuario : 'Usuario'}</h1>
         </div>
         <div className='container-fluid align-items-center justify-content-center text-center mb-5'>
-          <div className='row d-flex justify-content-center'>
+          <div className='row justify-content-center'>
             <CardMenu
               title='ESTUDIOS'
               imgSrc={ImagenRevisor}

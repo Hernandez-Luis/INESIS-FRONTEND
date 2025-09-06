@@ -163,7 +163,7 @@ const handleMarcarFinalizado = async () => {
   if (error) {
     return (
       <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <h1 style={{ fontSize: '1.8rem', marginBottom: '20px', color: 'red', fontWeight: 'bold' }}>Error al cragar el pdf</h1>
+        <h1 style={{ fontSize: '1.8rem', marginBottom: '20px', color: 'red', fontWeight: 'bold' }}>Error al cargar el pdf</h1>
         <div className="spinner-border text-danger" role="status">
           <span className="visually-hidden">Error</span>
         </div>

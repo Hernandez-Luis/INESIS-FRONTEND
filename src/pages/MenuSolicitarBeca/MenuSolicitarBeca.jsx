@@ -192,7 +192,7 @@ export const MenuSolicitarBeca = () => {
       icon: 'success',
       confirmButtonText: 'Aceptar',
     }).then(() => {
-      navigate('/menuSolicitar');
+      window.location.reload();
     });
   };
 

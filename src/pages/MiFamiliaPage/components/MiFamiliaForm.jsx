@@ -1874,7 +1874,7 @@ const MiFamiliaForm = () => {
                             </p>
                             <div className="col-12 col-md-8 mb-3 px-3">
                                 <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
-                                    Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
+                                    Además de ti, ¿Cuántas personas dependen económicamente del ingreso familiar?
                                     <span style={{ color: 'red' }}>*</span>
                                 </label>
                                 <input

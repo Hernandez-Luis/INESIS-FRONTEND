@@ -914,7 +914,7 @@ const FinancialForm = () => {
 
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de inicio: <span style={{ color: 'red' }}>*</span></Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de inicio (mes): <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="periodoInicio"
                                     type="month"
@@ -923,7 +923,7 @@ const FinancialForm = () => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de fin: <span style={{ color: 'red' }}>*</span></Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de fin (mes): <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="periodoFin"
                                     type="month"
