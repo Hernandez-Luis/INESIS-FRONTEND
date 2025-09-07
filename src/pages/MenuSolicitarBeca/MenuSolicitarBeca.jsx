@@ -27,6 +27,7 @@ export const MenuSolicitarBeca = () => {
   const [estudioCompleto, setEstudioCompleto] = useState(false);
   const [estadoRevision, setEstadoRevision] = useState(null);
   const [fechaRegistrada, setFechaRegistrada] = useState(null);
+  const [conCorrecciones, setConCorrecciones] = useState(false);
 
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
@@ -44,6 +45,9 @@ export const MenuSolicitarBeca = () => {
     setEstudioCompleto(response.estudioCompleto === true);
     setEstadoRevision(response.estadoRevision); // Puede ser null, true o false
     setFechaRegistrada(response.fechaRegistrada);
+    if(response.estadoRevision === 2){
+      setConCorrecciones(true);
+    }
     if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
       setCardClasses({
         misDatos: 'completo',
@@ -255,13 +259,26 @@ export const MenuSolicitarBeca = () => {
             {fechaRegistrada && (
               <button
                 className='btn btn-primary btn-lg'
-                disabled={!isAllComplete() || estudioCompleto || !isWithinDateRange()}
+                disabled={
+                  (!isAllComplete() && !conCorrecciones) ||
+                  (estudioCompleto && !conCorrecciones) ||
+                  !isWithinDateRange()
+                }
                 onClick={handleEnviar}
               >
                 Enviar
               </button>
             )}
-            {estudioCompleto && (
+            {estudioCompleto && conCorrecciones && (
+              <div className="mt-3 text-danger fw-bold">
+                Tienes correcciones pendientes en tu estudio socioeconómico. Realízalas y vuelve a enviar tu información.
+                <br />
+                <span className="fw-normal">
+                  Puedes revisarlas en el apartado de <b>Resultados del estudio socioeconómico</b>.
+                </span>
+              </div>
+            )}
+            {estudioCompleto && !conCorrecciones && (
               <div className="mt-3 text-success fw-bold">
                 Ya enviaste tu estudio socioeconómico.
               </div>

@@ -13,9 +13,6 @@ const RegistroRevisor = forwardRef((props, ref) => {
         nombre: '',
         apellidoPaterno: '',
         apellidoMaterno: '',
-        curp: '',
-        correo: '',
-        telefono: '',
         matricula: '',
         departamento: '',
         usuario: '',
@@ -40,9 +37,6 @@ const RegistroRevisor = forwardRef((props, ref) => {
                         nombre: props.revisor.nombre || '',
                         apellidoPaterno: props.revisor.apellidoPaterno || '',
                         apellidoMaterno: props.revisor.apellidoMaterno || '',
-                        curp: props.revisor.curp || '',
-                        correo: props.revisor.correo || '',
-                        telefono: props.revisor.telefono || '',
                         departamento: props.revisor.departamento || '',
                         matricula: props.revisor.matricula || '',
                         usuario: usuario?.usuario || '',
@@ -60,7 +54,7 @@ const RegistroRevisor = forwardRef((props, ref) => {
     // Validar campos
     const validateField = (name, value) => {
         let error = '';
-        const requiredFields = ['nombre', 'apellidoPaterno', 'curp', 'correo', 'telefono', 'matricula', 'departamento'];
+        const requiredFields = ['nombre', 'apellidoPaterno', 'matricula', 'departamento'];
 
         if (requiredFields.includes(name)) {
             if (typeof value === 'string') {
@@ -76,17 +70,6 @@ const RegistroRevisor = forwardRef((props, ref) => {
             case 'nombre':
             case 'apellidoPaterno':
                 if (typeof value === 'string' && value.length > 30) error = 'Máximo 30 caracteres';
-                break;
-            case 'curp': {
-                const curpRegex = /^[A-Z][AEIOU][A-Z]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HM](AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/;
-                if (!curpRegex.test(value?.toUpperCase())) error = 'Formato CURP inválido';
-                break;
-            }
-            case 'correo':
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = 'Correo electrónico inválido';
-                break;
-            case 'telefono':
-                if (!/^\d{10}$/.test(value)) error = 'Debe contener 10 dígitos';
                 break;
             case 'matricula':
                 if (!/^\d{5}$/.test(value)) error = 'La matrícula debe contener exactamente 5 dígitos numéricos';
@@ -175,16 +158,12 @@ const RegistroRevisor = forwardRef((props, ref) => {
 
         if (!esEdicion) {
             try {
-                const existe = await revisorService.checkIfExists(
-                    formValues.curp,
-                    formValues.matricula,
-                    formValues.correo
-                );
+                const existe = await revisorService.checkIfExists(formValues.matricula);
                 if (existe) {
                     mostrarAlerta({
                         icon: 'info',
                         title: '¡Atención!',
-                        text: 'Ya existe un revisor con la misma CURP, matrícula o correo.'
+                        text: 'Ya existe un revisor con el mismo numero de empleado.'
                     });
                     return;
                 }
@@ -203,9 +182,6 @@ const RegistroRevisor = forwardRef((props, ref) => {
                 nombre: formValues.nombre.trim(),
                 apellidoPaterno: formValues.apellidoPaterno.trim(),
                 apellidoMaterno: formValues.apellidoMaterno.trim(),
-                curp: formValues.curp.trim().toUpperCase(),
-                correo: formValues.correo.trim(),
-                telefono: formValues.telefono.trim(),
                 departamento: formValues.departamento.trim(),
                 matricula: formValues.matricula.trim(),
                 usuario: formValues.usuario,
@@ -253,10 +229,10 @@ const RegistroRevisor = forwardRef((props, ref) => {
 
                 {/* Datos Personales */}
                 <section className="formulario-seccion formulario-seccion--datos-personales mb-2">
-                    <h2 className="texto-morado2 mb-4">Datos personales</h2>
+                    <h2 className="texto-morado2 mb-5">Datos personales</h2>
                     <div className="row g-4">
 
-                        <div>
+                        <div className='mb-4'>
                             <label className="formulario-etiqueta">
                                 Nombre(s) <span className="text-danger">*</span>
                             </label>
@@ -272,7 +248,7 @@ const RegistroRevisor = forwardRef((props, ref) => {
                             {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
                         </div>
 
-                        <div className="col-md-6 dobleColumna">
+                        <div className="col-md-6 dobleColumna mb-4">
                             <div>
                                 <label className="formulario-etiqueta">
                                     Apellido Paterno <span className="text-danger">*</span>
@@ -306,58 +282,12 @@ const RegistroRevisor = forwardRef((props, ref) => {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="formulario-etiqueta">
-                                CURP <span className="text-danger">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="curp"
-                                className={`formulario-entrada ${errors.curp ? 'is-invalid' : ''}`}
-                                placeholder="Ingrese la CURP"
-                                value={formValues.curp}
-                                onChange={handleChange}
-                                maxLength={18}
-                            />
-                            {errors.curp && <div className="invalid-feedback">{errors.curp}</div>}
-                        </div>
-
-                        <div className="col-md-6">
-                            <label className="formulario-etiqueta">
-                                Correo electrónico <span className="text-danger">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                name="correo"
-                                className={`formulario-entrada ${errors.correo ? 'is-invalid' : ''}`}
-                                placeholder="Ingrese el correo"
-                                value={formValues.correo}
-                                onChange={handleChange}
-                            />
-                            {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
-                        </div>
-
-                        <div className="col-md-6 dobleColumna">
-                            <label className="formulario-etiqueta">
-                                Teléfono <span className="text-danger">*</span>
-                            </label>
-                            <input
-                                type="tel"
-                                name="telefono"
-                                className={`formulario-entrada ${errors.telefono ? 'is-invalid' : ''}`}
-                                placeholder="Ingrese el teléfono"
-                                value={formValues.telefono}
-                                onChange={handleChange}
-                                maxLength={10}
-                            />
-                            {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
-                        </div>
                     </div>
                 </section>
 
                 {/* Datos Laborales */}
                 <section className="formulario-seccion formulario-seccion--datos-academicos mb-2">
-                    <h2 className="texto-morado2 mb-4">Datos laborales</h2>
+                    <h2 className="texto-morado2 mb-2">Datos laborales</h2>
                     <div className="row g-4">
 
                         <div className="col-md-6">
@@ -435,14 +365,15 @@ const RegistroRevisor = forwardRef((props, ref) => {
                                 />
                             )}
                         </div>
-
-                        <div className="d-flex justify-content-center gap-3">
-                            <button type="submit" className="btn-agregar">
-                                {esEdicion ? 'Editar Revisor' : 'Agregar Revisor'}
-                            </button>
-                        </div>
                     </div>
                 </section>
+                <div className="col-12">
+                    <div className="d-flex justify-content-center">
+                        <button type="submit" className="btn-agregar">
+                            {esEdicion ? 'Editar Revisor' : 'Agregar Revisor'}
+                        </button>
+                    </div>
+                </div>
             </form>
             
             <ModalCambiarContraseña

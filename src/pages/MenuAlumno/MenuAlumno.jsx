@@ -18,6 +18,7 @@ const MenuAlumno = () => {
   const [fechaAsignada, setFechaAsignada] = useState(false); // Existe fecha límite
   const [estadoAlumno, setEstadoAlumno] = useState(false); // Estado socioeconómico del alumno
   const [observacionesAlumno, setObservacionesAlumno] = useState(""); // Observaciones del estudio
+  const [fechaExpirada, setFechaExpirada] = useState(false); // Fecha límite expirada
 
   
   useEffect(() => {
@@ -33,7 +34,7 @@ const MenuAlumno = () => {
             setNombreAlumno(primerNombre);
 
             //  estado y observaciones
-            setEstadoAlumno(alumno.estado);
+            setEstadoAlumno(alumno.estadoRevision);
             setObservacionesAlumno(alumno.observaciones);
 
             // Asignar ruta según estado del alumno
@@ -63,6 +64,12 @@ const MenuAlumno = () => {
                       opciones
                     );
                     setFechaFin(fechaFormateada);
+                    const hoy = new Date();
+                    if (fecha < hoy.setHours(23,59,59,999)) {
+                      setFechaExpirada(true);
+                    } else {
+                      setFechaExpirada(false);
+                    }
                     setFechaAsignada(true);
                   } else {
                     setFechaAsignada(false);
@@ -86,6 +93,7 @@ const MenuAlumno = () => {
     const sinObservaciones =
       !observacionesAlumno || observacionesAlumno.trim() === "";
     const sinEstado = !estadoAlumno;
+    console.log("Estado del alumno:", estadoAlumno);
 
 
     if (sinObservaciones && sinEstado) {
@@ -93,6 +101,17 @@ const MenuAlumno = () => {
         icon: "info",
         title: "Sin información registrada",
         text: "Aún no has llenado tu estudio socioeconómico o no se han registrado comentarios.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#6f42c1",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        width: "400px",
+      });
+    } else if (estadoAlumno === 3) {
+      Swal.fire({
+        icon: "info",
+        title: "En espera de revisión",
+        text: "Ya realizaste las correcciones. Tu estudio está pendiente de ser revisado nuevamente por el revisor.",
         confirmButtonText: "Entendido",
         confirmButtonColor: "#6f42c1",
         allowOutsideClick: false,
@@ -115,10 +134,16 @@ const MenuAlumno = () => {
               Bienvenid@ {nombreAlumno}
             </h1>
             {fechaAsignada ? (
-              <p className="recordatorio">
-                ¡Recuerda que tienes hasta el día <b>{fechaFin}</b> a las{" "}
-                <b>23:59:59</b> para realizar tu estudio socioeconómico!
-              </p>
+              fechaExpirada ? (
+                <p className="recordatorio text-danger">
+                  <b>La fecha límite para realizar tu estudio socioeconómico (<span>{fechaFin}</span> a las <span>23:59:59</span>) ya ha pasado.</b>
+                </p>
+              ) : (
+                <p className="recordatorio">
+                  ¡Recuerda que tienes hasta el día <b>{fechaFin}</b> a las{" "}
+                  <b>23:59:59</b> para realizar tu estudio socioeconómico!
+                </p>
+              )
             ) : (
               <p className="recordatorio">
                 <b>Aún no tienes una fecha asignada</b> para realizar tu estudio

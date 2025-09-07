@@ -99,7 +99,7 @@ const FooterInesis = () => {
                 alt="Teléfono"
                 style={{ width: '20px', marginRight: '8px' }}
               />
-              Teléfono: +52 951 000 00 00
+              Teléfono:  951 553 6362
             </p>
             <p style={{color: 'var(--color-gris1)'}}>
               <img
@@ -107,7 +107,7 @@ const FooterInesis = () => {
                 alt="Correo"
                 style={{ width: '20px', marginRight: '8px' }}
               />
-              Correo: info@example.com
+              Correo: servescolares@unsij.edu.mx
             </p>
             <p style={{color: 'var(--color-gris1)'}}>
               <img

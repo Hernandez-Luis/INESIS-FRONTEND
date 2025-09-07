@@ -455,7 +455,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <p><strong>🔐 Nombre de usuario:</strong> primer_nombre.primer_apellido</p>
               <p style="margin-bottom: 8px;"><em>Ejemplo: juan.perez, maria.lopez</em></p>
               <p><strong>🔑 Contraseña:</strong> Matrícula del alumno</p>
-              <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234</em></p>
+              <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234  ó UNSIJ@202X</em></p>
               <hr style="margin: 10px 0;">
               <p style="color: #6c757d; font-size: 0.9em;">
                 <strong>Nota:</strong> El nombre de usuario puede tener variaciones en algunos casos y lo puedes verificar en el listado de alumnos.
@@ -776,8 +776,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       />
 
       {/* Modal para carga de archivo Excel */}
-      <Modal show={showModal} onHide={cerrarModal} backdrop="static" keyboard={false} centered>
-        <Modal.Header closeButton>
+      <Modal show={showModal} onHide={cerrarModal} backdrop={loading ? "static" : "static"} keyboard={!loading} centered>
+        <Modal.Header closeButton={!loading}>
           <Modal.Title>Importar alumnos desde Excel</Modal.Title>
         </Modal.Header>
         <Modal.Body>

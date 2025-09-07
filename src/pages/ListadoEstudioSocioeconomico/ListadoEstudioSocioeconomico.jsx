@@ -36,7 +36,6 @@ const ListadoEstudioSocioeconomico = () => {
         const lista = data
           .filter(a => a.estudioCompleto === true) // Mostrar solo si 'completo' es true
           .map(a => {
-            // Determinar estado: null = "Sin revisar", false = "Pendiente", true = "Finalizado"
             let estadoTexto = "Sin revisar";
             switch (a.estadoRevision) {
               case 0:
@@ -117,17 +116,22 @@ const ListadoEstudioSocioeconomico = () => {
 
           {/* Filtros por estado y búsqueda */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <select
-              className="form-select w-auto"
-              style={{ width: "25%" }}
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-            >
-              <option value="">Mostrar todos</option>
-              <option value="Sin revisar">Sin revisar</option>
-              <option value="Finalizado">Finalizado</option>
-              <option value="Pendiente">Pendiente</option>
-            </select>
+            <div className="d-flex align-items-center">
+              <label className="me-2 fw-bold">Filtrar por estado:</label>
+              <select
+                className="form-select w-auto"
+                style={{ width: "25%" }}
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+              >
+                <option value="">Mostrar todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Con correcciones">Con correcciones</option>
+                <option value="Corregido">Corregido</option>
+                <option value="Finalizado">Finalizado</option>
+              </select>
+            </div>
+
 
             <input
               type="text"

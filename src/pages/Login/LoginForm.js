@@ -104,15 +104,15 @@ const LoginForm = () => {
 
   return (
     <div className="d-flex flex-column min-vh-100" >
-      <div className="container-fluid d-flex align-items-center justify-content-center bg-light flex-grow-1">
-        <div className="col-md-5 d-flex align-items-center justify-content-center">
+      <div className="container-fluid d-flex align-items-center justify-content-center  flex-grow-1 mb-5">
+        <div className="col-md-5 d-none d-md-flex align-items-center justify-content-center">
           <img src={logoLogin} alt="Login" className="img-fluid" />
         </div>
 
         <div className="col-md-2 p-2 justify-content-center align-items-center">
           <div className="text-center mb-4">
-            <img src={logoUnsij} alt="Logo" className="img-fluid" style={{ maxHeight: "190px" }} />
-            <h3 className="mt-2 text-primary">Bienvenido a INESIS</h3>
+            <img src={logoUnsij} alt="Logo" className="img-fluid mb-3" style={{ maxHeight: "190px" }} />
+            <h3 className="mt-2 " style={{ color: 'var(--color-morado1)' }}>Bienvenid@ a INESIS</h3>
             <p>Para poder acceder por favor inicia sesión</p>
           </div>
           <form onSubmit={handleSubmit}>
