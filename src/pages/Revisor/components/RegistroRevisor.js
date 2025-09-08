@@ -23,6 +23,8 @@ const RegistroRevisor = forwardRef((props, ref) => {
     const [errors, setErrors] = useState({});
     const [showModalCambiar, setShowModalCambiar] = useState(false);
     const [evitarNavegacion, setEvitarNavegacion] = useState(false);
+    const [originalUsuario, setOriginalUsuario] = useState('');
+    const [originalContrasena, setOriginalContrasena] = useState('');
     const navigate = useNavigate();
 
     const esEdicion = !!props.revisor;
@@ -43,6 +45,8 @@ const RegistroRevisor = forwardRef((props, ref) => {
                         contrasena: usuario?.contrasenia || ''
                     };
                     setFormValues(revisorEditar);
+                    setOriginalUsuario(usuario?.usuario || '');
+                    setOriginalContrasena(usuario?.contrasenia || '');
                 } catch (error) {
                     console.error("Error al cargar usuario del revisor:", error);
                 }
@@ -184,11 +188,17 @@ const RegistroRevisor = forwardRef((props, ref) => {
                 apellidoMaterno: formValues.apellidoMaterno.trim(),
                 departamento: formValues.departamento.trim(),
                 matricula: formValues.matricula.trim(),
-                usuario: formValues.usuario,
-                contrasenia: formValues.contrasena,
                 estatus: 1,
                 idCatRol: 3
             };
+
+            // Solo incluir usuario/contrasena si cambiaron
+            if (!esEdicion || formValues.usuario !== originalUsuario) {
+                payload.usuario = formValues.usuario;
+            }
+            if (!esEdicion || formValues.contrasena !== originalContrasena) {
+                payload.contrasenia = formValues.contrasena;
+            }
 
             let response;
             if (esEdicion) {

@@ -24,8 +24,6 @@ export default function RevisionSolicitud() {
   const conCorrecciones = 2;
   const finalizado = 4;
 
-  console.log("Datos recibidos:", location.state);
-  console.log("Estudiante recibido:", estudiante);
   const alumnoId = estudiante?.id;
 
   const links = [
@@ -47,7 +45,6 @@ export default function RevisionSolicitud() {
   useEffect(() => {
     const fetchPdf = async () => {
       if (!alumnoId) {
-        console.log("id del alumno", alumnoId);
         setError('No se pudo obtener el ID del alumno');
         setLoading(false);
         return;

@@ -351,10 +351,8 @@ const FinancialForm = () => {
         try {
             let catParentesco = await CatParentescoService.getAll();
             setParentesco(catParentesco)
-            console.log("catParentesco:", catParentesco);
-
         } catch (error) {
-            console.log("Error al obtener la lista de CatSemestre: ", error)
+            console.error("Error al obtener la lista de CatParentesco: ", error)
 
         }
     }
@@ -498,7 +496,6 @@ const FinancialForm = () => {
                 reciboLuz.contenidoBase64 = base64Completo.split(",")[1]; // quitar metadata si aplica
             }
 
-            console.log((document.getElementById("personasAportan")?.value));
 
             // Armar payload
             const payload = {
@@ -512,7 +509,6 @@ const FinancialForm = () => {
                 gastos,
             };
 
-            console.log("Payload al backend:", payload);
 
             let response;
 
@@ -528,8 +524,6 @@ const FinancialForm = () => {
                 response = await GastosIngresosService.create(payload);
                 mostrarExito("Datos guardados correctamente");
             }
-
-            console.log("Respuesta del backend:", response.data);
 
         } catch (error) {
             console.error("Error al guardar:", error);

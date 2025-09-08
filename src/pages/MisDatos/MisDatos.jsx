@@ -57,7 +57,7 @@ export const MisDatos = ({ onAdd, update }) => {
       let listaMedios = await CatMedioTransporteService.getAll();
       setMedios(listaMedios)
     } catch (error) {
-      console.log("Error al obtener la lista de CatMediosTransporte: ", error)
+      console.error("Error al obtener la lista de CatMediosTransporte: ", error)
     }
   }
 
@@ -66,7 +66,7 @@ export const MisDatos = ({ onAdd, update }) => {
       let catTipoTransporte = await CatTipoTransporteService.getAll();
       setCatTipoTransporte(catTipoTransporte)
     } catch (error) {
-      console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+      console.error("Error al obtener la lista de CatTipoTransporte: ", error)
     }
   }
 
@@ -75,7 +75,7 @@ export const MisDatos = ({ onAdd, update }) => {
       let catSemestres = await CatSemestreService.getAll();
       setCatSemestres(catSemestres)
     } catch (error) {
-      console.log("Error al obtener la lista de CatSemestres: ", error)
+      console.error("Error al obtener la lista de CatSemestres: ", error)
     }
   }
 
@@ -84,7 +84,7 @@ export const MisDatos = ({ onAdd, update }) => {
       let catSexo = await CatSexoService.getAll();
       setCatSexo(catSexo)
     } catch (error) {
-      console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+      console.error("Error al obtener la lista de catSexo: ", error)
     }
   }
 
@@ -93,7 +93,7 @@ export const MisDatos = ({ onAdd, update }) => {
       let catEstadoCivil = await CatEstadoCivilService.getAll();
       setEstadoCivil(catEstadoCivil)
     } catch (error) {
-      console.log("Error al obtener la lista de CatEstadoCivil: ", error)
+      console.error("Error al obtener la lista de CatEstadoCivil: ", error)
     }
   }
 
@@ -124,7 +124,6 @@ export const MisDatos = ({ onAdd, update }) => {
         telefono: dataAlumno.telefono || '',
       }))
       if (dataAlumno?.misDatos) {
-        console.log("Datos del alumno: ", dataAlumno)
         verificarFechas(dataAlumno?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
         setDataMisDatos((prevData) => ({
           ...prevData,
@@ -190,7 +189,7 @@ export const MisDatos = ({ onAdd, update }) => {
         setMediosSeleccionados(mediosSeleccionadosIds);
       }
     } catch (error) {
-      console.log("Error al obtener datos del alumno: ", error)
+      console.error("Error al obtener datos del alumno: ", error)
     }
   }
 
@@ -198,33 +197,30 @@ export const MisDatos = ({ onAdd, update }) => {
     try {
       let ocupaciones = await CatOcupacionService.getAll();
       setCatOcupacion(ocupaciones)
-      // console.log("Ocupacion cat: ", ocupaciones)
     } catch (error) {
-      console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+      console.error("Error al obtener la lista de ocupaciones: ", error)
     }
   }
 
   const obtenerCatSituacionVivienda = async () => {
     try {
       let situacionViviendaLista = await CatSituacionVivienda.getAll();
-      // console.log("SITUACION VIVENDA: ", situacionViviendaLista)
       let opcionesPermitidas = ['Rento cuarto', 'Rento casa', 'Vivo con familiares'];
       let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
         opcionesPermitidas.includes(item.nombreSituacion)
       );
       setCatSituacionVivienda(situacionViviendaFiltrada);
     } catch (error) {
-      console.log("Error al obtener la lista de SituacionVivienda: ", error)
+      console.error("Error al obtener la lista de SituacionVivienda: ", error)
     }
   }
 
   const obtenerCatTipoTrabajo = async () => {
     try {
       let tipoTrabajoLista = await CatTipoTrabajoService.getAll();
-      // console.log(tipoTrabajoLista)
       setCatTipoTrabajo(tipoTrabajoLista)
     } catch (error) {
-      console.log("Error al obtener la lista de SituacionVivienda: ", error)
+      console.error("Error al obtener la lista de CatTipoTrabajo: ", error)
     }
   }
 
@@ -327,12 +323,10 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const handleBuscarCP = async (value) => {
     const codigoPostal = value
-    // console.log("Codigo postal: ", codigoPostal)
     // Solo buscar si tiene 5 dígitos
     if (value.length !== 5) return;
     try {
       const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-      // console.log("Datos de la API: ", datos)
       setColonias(datos.codigo_postal.colonias);
 
       setDataDomicilio((prevData) => ({
@@ -341,8 +335,6 @@ export const MisDatos = ({ onAdd, update }) => {
         municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
         cp: codigoPostal,
       }))
-
-      // console.log(dataDomicilio)
     } catch (err) {
       console.error('Error al buscar código postal:', err);
       setColonias([]);
@@ -394,7 +386,6 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const actualizarCamposTrabajo = (e) => {
     const { name, value } = e.target;
-    // console.log("Nombre: ", name, " Valor: ", value)
     setDataTrabajo((prevData) => ({
       ...prevData,
       [name]: value
@@ -411,7 +402,6 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const actualizarCamposTransporteMotocicleta = (e) => {
     const { name, value } = e.target;
-    // console.log("Nombre: ", name, " Valor: ", value)
     setDataTransporteMotocicleta((prevData) => ({
       ...prevData,
       [name]: value
@@ -432,7 +422,6 @@ export const MisDatos = ({ onAdd, update }) => {
       "tieneComputadora",
     ];
     const { name, value } = e.target;
-    console.log("Nombre: ", name, " Valor: ", value)
 
     if (camposBooleanos.includes(name)) {
       setDataMisDatos((prevData) => ({
@@ -487,7 +476,6 @@ export const MisDatos = ({ onAdd, update }) => {
 
   const actualizarCamposDomicilio = (e) => {
     const { name, value } = e.target;
-    //console.log("Nombre: ", name, " Valor: ", value)
     if (name === "cp")
       handleBuscarCP(value)
     setDataDomicilio((prevData) => ({
@@ -534,7 +522,6 @@ export const MisDatos = ({ onAdd, update }) => {
         nuevosErrores = await onAdd(coleccionValores);
       }
       if (nuevosErrores && nuevosErrores.length > 0) {
-        console.log("Errores: ", nuevosErrores)
         if (nuevosErrores[0] && nuevosErrores[0].includes("periodo de registro") || nuevosErrores.includes("periodo de registro")) {
           mostrarInformacion(nuevosErrores);
         } else {
@@ -612,7 +599,6 @@ export const MisDatos = ({ onAdd, update }) => {
 
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
-      console.log("FALTA: ", erroresTemp)
       mostrarCuidado("Tienes que llenar todos los campos requeridos")
       return 0; // No enviar el formulario si hay errores
     }

@@ -45,9 +45,8 @@ export const MiTutor = ({ onAdd, update }) => {
         try {
             let catTipoTrabajo = await CatTipoTrabajoService.getAll();
             setCatTipoTrabajo(catTipoTrabajo)
-            // console.log(catTipoTrabajo)
         } catch (error) {
-            console.log("Error al obtener la lista de CatTipoTrabajo: ", error)
+            console.error("Error al obtener la lista de CatTipoTrabajo: ", error)
         }
     }
 
@@ -56,7 +55,7 @@ export const MiTutor = ({ onAdd, update }) => {
             let ocupaciones = await CatOcupacionService.getAll();
             setCatOcupacion(ocupaciones)
         } catch (error) {
-            console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+            console.error("Error al obtener la lista de CatTipoTransporte: ", error)
         }
     }
 
@@ -65,7 +64,7 @@ export const MiTutor = ({ onAdd, update }) => {
             let parentescoLista = await CatParentescoService.getAll();
             setCatParentesco(parentescoLista)
         } catch (error) {
-            console.log("Error al obtener la lista de CatParentesco: ", error)
+            console.error("Error al obtener la lista de CatParentesco: ", error)
         }
     }
 
@@ -79,21 +78,18 @@ export const MiTutor = ({ onAdd, update }) => {
             }
             let datos = await AlumnoService.getById(alumnoId);
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
-            console.log("Datos del alumno: ", datos);
             setDatosAlumno(datos);
             if (datos.miTutor) {
-                console.log("Datos de mi tutor: ", datos.miTutor)
                 setDatosMiTutorAlumno(datos.miTutor);
             } else {
                 obtenerDatosTutorDeMisDatos(datos.misDatos);
             }
         } catch (error) {
-            console.log("Error al obtener datos del alumno: ", error);
+            console.error("Error al obtener datos del alumno: ", error);
         }
     };
 
     const obtenerDatosTutorDeMisDatos = (datos) => {
-        console.log("Datos de gastos e ingresos: ", datos);
         let dependeEconomicamente = datos?.gastosIngresos?.dependeEconomicamente;
         if (dependeEconomicamente === true) {
             setDatosMiTutor((prevData) => ({
@@ -216,12 +212,10 @@ export const MiTutor = ({ onAdd, update }) => {
 
     const handleBuscarCP = async (value) => {
         const codigoPostal = value
-        // console.log("Codigo postal: ", codigoPostal)
         // Solo buscar si tiene 5 dígitos
         if (value.length !== 5) return;
         try {
             const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            // console.log("Datos de la API: ", datos)
             setColonias(datos.codigo_postal.colonias);
 
             setDatosDomicilio((prevData) => ({
@@ -231,7 +225,6 @@ export const MiTutor = ({ onAdd, update }) => {
                 cp: codigoPostal,
             }))
 
-            // console.log(dataDomicilio)
         } catch (err) {
             console.error('Error al buscar código postal:', err);
             setColonias([]);
@@ -242,7 +235,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
     const actualizarCamposMiTutor = (e) => {
         const { name, value } = e.target;
-        console.log("Nombre: ", name, " Valor: ", value)
 
         const camposBooleanos = [
             "trabajadorSuneo",
@@ -257,7 +249,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
             if (name === "comparteVivienda" && (value === "Si" || value === true)) {
                 setDisabled(true)
-                console.log("Datos alumno: ", datosAlumno)
                 setDatosDomicilio((prevData) => ({
                     ...prevData,
                     cp: datosAlumno?.misDatos?.domicilio?.cp,
@@ -266,7 +257,6 @@ export const MiTutor = ({ onAdd, update }) => {
                     localidad: datosAlumno?.misDatos?.domicilio?.localidad,
                     colonia: datosAlumno?.misDatos?.domicilio?.colonia,
                 }))
-                // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
             } else if (name === "comparteVivienda" && (value === "No" || value === false)) {
                 setDisabled(false)
                 setDatosDomicilio(formularioInicialDomicilio)
@@ -290,7 +280,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
-        //console.log("Nombre: ", name, " Valor: ", value)
         if (name === "cp")
             handleBuscarCP(value)
         setDatosDomicilio((prevData) => ({
@@ -311,7 +300,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
 
         let datosDomicilioEnviar = {};
-        console.log("Datos del domicilio: ", datosAlumno)
 
         if (datosMiTutor.comparteVivienda === 'Si' || datosMiTutor.comparteVivienda === true) {
             datosDomicilioEnviar = {
@@ -324,7 +312,6 @@ export const MiTutor = ({ onAdd, update }) => {
             ...datosMiTutor,
             datosDomicilio: datosDomicilioEnviar
         }
-        console.log("VALORES MI TUTOR: ", coleccionValores)
 
         try {
             let nuevosErrores = null;
@@ -377,7 +364,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
         if (Object.keys(erroresTemp).length > 0) {
             setErrores(erroresTemp);
-            console.log("FALTA: ", erroresTemp)
             mostrarCuidado("Tienes que llenar todos los campos requeridos")
             return 0; // No enviar el formulario si hay errores
         }

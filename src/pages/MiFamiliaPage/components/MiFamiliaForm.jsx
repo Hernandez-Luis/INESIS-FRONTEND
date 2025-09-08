@@ -127,11 +127,9 @@ const MiFamiliaForm = () => {
     const [colonias, setColonias] = useState([]);
     const handleBuscarCP = async (value) => {
         const codigoPostal = value
-        console.log("Codigo postal: ", codigoPostal)
         // Solo buscar si tiene 5 dígitos
         try {
             const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            console.log("Datos de la API: ", datos)
             setColonias(datos.codigo_postal.colonias);
 
             setDataDomicilio((prevData) => ({
@@ -141,7 +139,6 @@ const MiFamiliaForm = () => {
                 cp: codigoPostal,
             }))
 
-            console.log(dataDomicilio)
         } catch (err) {
             console.error('Error al buscar código postal:', err);
             setColonias([]);
@@ -185,7 +182,6 @@ const MiFamiliaForm = () => {
             setMaterialSeleccionado(data.viviendaFamiliar.materialVivienda?.id || '');
 
             // Cargar región y distrito
-            console.log("Region y distrito de vivienda familiar: ", data.viviendaFamiliar.region, data.viviendaFamiliar.distrito)
             setRegionSeleccionada(data.viviendaFamiliar.region.id || '');
             setDistritoSeleccionado(data.viviendaFamiliar.distrito.id || '');
 
@@ -293,17 +289,15 @@ const MiFamiliaForm = () => {
                 return;
             }
             let datos = await AlumnoService.getById(alumnoId);
-            console.log("Datos del alumno: ", datos);
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setDatosAlumno(datos);
 
             // Verificar si ya tiene datos de Mi Familia
             if (datos.miFamilia) {
-                console.log("Datos de mi familia existentes: ", datos.miFamilia);
                 setDatosMiFamiliaAlumno(datos.miFamilia, datos);
             }
         } catch (error) {
-            console.log("Error al obtener datos del alumno: ", error);
+            console.error("Error al obtener datos del alumno: ", error);
         }
     };
 
@@ -417,7 +411,6 @@ const MiFamiliaForm = () => {
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
-        //console.log("Nombre: ", name, " Valor: ", value)
         if (name === "cp" && value.length === 5) {
             handleBuscarCP(value)
         }
@@ -495,14 +488,13 @@ const MiFamiliaForm = () => {
     const obtenerCatSituacionVivienda = async () => {
         try {
             let situacionViviendaLista = await CatSituacionViviendaService.getAll();
-            // console.log("SITUACION VIVENDA: ", situacionViviendaLista)
             let opcionesPermitidas = ['Propia', 'Alquilada', 'Otro'];
             let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
                 opcionesPermitidas.includes(item.nombreSituacion)
             );
             setCatSituacionVivienda(situacionViviendaFiltrada);
         } catch (error) {
-            console.log("Error al obtener la lista de SituacionVivienda: ", error)
+            console.error("Error al obtener la lista de SituacionVivienda: ", error)
         }
     }
 
@@ -1209,7 +1201,6 @@ const MiFamiliaForm = () => {
                 personasDependientes: dependientesData
             };
 
-            console.log('Payload completo a enviar:', payloadCompleto);
 
             let response;
             let nuevosErrores = null;
@@ -1217,13 +1208,11 @@ const MiFamiliaForm = () => {
             if (datosAlumno.miFamilia !== null) {
                 // Actualizar datos existentes
                 const idMiFamilia = datosAlumno.miFamilia.id;
-                console.log(datosAlumno);
                 response = await MiFamiliaService.update(idMiFamilia, payloadCompleto);
                 mostrarExito('Datos actualizados correctamente');
             } else {
                 // Crear nuevos datos
                 response = await MiFamiliaService.create(payloadCompleto);
-                console.log('Datos creados:', response);
                 mostrarExito('Datos guardados correctamente');
             }
         } catch (error) {

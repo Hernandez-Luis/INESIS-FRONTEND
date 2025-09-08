@@ -22,7 +22,6 @@ const getById = async (id) => {
 
 const create = async (params) => {
   try {
-    console.log("Datos enviados:", params);
     const response = await axiosInstance.post(API_URL, params);
     return response;
   } catch (error) {

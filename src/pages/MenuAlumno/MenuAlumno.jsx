@@ -93,7 +93,6 @@ const MenuAlumno = () => {
     const sinObservaciones =
       !observacionesAlumno || observacionesAlumno.trim() === "";
     const sinEstado = !estadoAlumno;
-    console.log("Estado del alumno:", estadoAlumno);
 
 
     if (sinObservaciones && sinEstado) {

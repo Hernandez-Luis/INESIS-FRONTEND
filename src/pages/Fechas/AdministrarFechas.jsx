@@ -71,7 +71,6 @@ const AdministrarFechas = () => {
         const fetchFechas = async () => {
             try {
                 const data = await fechasRegistradasService.getAll();
-                console.log("REGISTROS:", data);
                 setFechas(data);
             } catch (err) {
                 setError(err.message || "Error al obtener fechas");

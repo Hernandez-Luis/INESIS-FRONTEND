@@ -65,8 +65,6 @@ const LoginForm = () => {
 
       localStorage.setItem('usuario', JSON.stringify(usuarioData));
 
-      console.log("Login exitoso:", data);
-      console.log("Login exitoso:", data);
 
       // Redirigir según el rol
       switch (usuarioData.rol) {

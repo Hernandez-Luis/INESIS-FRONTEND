@@ -32,7 +32,6 @@ const ListadoEstudioSocioeconomico = () => {
   useEffect(() => {
     Alumno.getAll()
       .then(data => {
-        console.log("Datos de alumnos:", data);
         const lista = data
           .filter(a => a.estudioCompleto === true) // Mostrar solo si 'completo' es true
           .map(a => {

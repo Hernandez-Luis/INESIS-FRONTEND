@@ -72,7 +72,6 @@ const verificarYActualizarContrasena = async ({ usuario, contrasena, nuevaContra
       contrasena
     });
 
-    console.log("Respuesta de verificación:", response.data.verificado);
     // Si la verificación es exitosa, cambiar la contraseña
     if (response.data) {
       const cambioResponse = await axiosInstance.post(`${API_URL}/cambiar-contrasena`, {

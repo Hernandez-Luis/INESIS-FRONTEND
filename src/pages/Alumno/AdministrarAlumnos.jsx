@@ -51,7 +51,6 @@ const AdministrarAlumnos = () => {
     const rutaBoton = "/AgregarAlumno";
 
     const editarAlumno = (alumno) => {
-        //console.log("ESTE DATO ES PARA EDITA ", alumno);
         navigate('/AgregarAlumno', { state: { alumno } });
     };
 
