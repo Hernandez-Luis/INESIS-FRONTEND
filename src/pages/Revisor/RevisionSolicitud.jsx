@@ -199,7 +199,7 @@ export default function RevisionSolicitud() {
               <div className="col-12 col-md-3">
                 <h3 className="text-center" style={{ color: 'var(--color-morado1)' }}>Comentario de observación</h3>
 
-                {estadoRevision === 3 || estadoRevision === 2 && (
+                {(estadoRevision === 3 || estadoRevision === 2) && (
                   <div className="mb-3">
                     <label className="fw-bold">Observaciones realizadas al alumno:</label>
                     <textarea
@@ -222,7 +222,7 @@ export default function RevisionSolicitud() {
                     />
                   </div>
                 )}
-                {estadoRevision !== 3 && estadoRevision !== 2 && (
+                {(estadoRevision !== 3 && estadoRevision !== 2) && (
                   <textarea
                     className="form-control"
                     id="observaciones"

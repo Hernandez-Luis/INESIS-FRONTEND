@@ -161,6 +161,8 @@ const MiFamiliaForm = () => {
     // Agregar función para cargar datos existentes de Mi Familia
     const setDatosMiFamiliaAlumno = (data, alumnoData) => {
 
+        console.log(data);
+
         // Cargar datos básicos de Mi Familia
         setDataMiFamilia({
             telefono: data?.telefono || '',
@@ -251,7 +253,7 @@ const MiFamiliaForm = () => {
 
             // Por defecto, si ya tiene domicilio registrado, asumir que no coincide con el del alumno
             // a menos que sea exactamente el mismo ID
-            if (data.domicilio.id === alumnoData?.misDatos?.domicilio?.id) {
+            if (data.domicilio?.id === alumnoData?.misDatos?.domicilio?.id) {
                 setDomicilioCoincide('Si');
                 setDisabled(true);
             } else {
@@ -289,6 +291,7 @@ const MiFamiliaForm = () => {
                 return;
             }
             let datos = await AlumnoService.getById(alumnoId);
+            console.log(datos);
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setDatosAlumno(datos);
 
