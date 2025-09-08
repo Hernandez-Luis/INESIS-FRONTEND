@@ -53,19 +53,20 @@ const MenuAlumno = () => {
                 .getByCarrera(carreraId)
                 .then((fechaCarrera) => {
                   if (fechaCarrera && fechaCarrera.fechaFin) {
-                    const fecha = new Date(fechaCarrera.fechaFin);
+                    const fechaLimite = new Date(fechaCarrera.fechaFin);
+                    fechaLimite.setHours(23, 59, 59, 999);
                     const opciones = {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",
                     };
-                    const fechaFormateada = fecha.toLocaleDateString(
+                    const fechaFormateada = fechaLimite.toLocaleDateString(
                       "es-MX",
                       opciones
                     );
                     setFechaFin(fechaFormateada);
-                    const hoy = new Date();
-                    if (fecha < hoy.setHours(23,59,59,999)) {
+                    const ahora = new Date();
+                    if (ahora > fechaLimite) {
                       setFechaExpirada(true);
                     } else {
                       setFechaExpirada(false);

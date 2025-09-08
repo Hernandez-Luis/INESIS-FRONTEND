@@ -112,16 +112,15 @@ export const MenuSolicitarBeca = () => {
       return false;
     }
 
-    const today = new Date();
+    const now = new Date();
     const fechaInicio = new Date(fechaRegistrada.fechaInicio);
     const fechaFin = new Date(fechaRegistrada.fechaFin);
 
     // Asegurar que la comparación sea solo por fecha (sin hora)
-    today.setHours(0, 0, 0, 0);
     fechaInicio.setHours(0, 0, 0, 0);
-    fechaFin.setHours(0, 0, 0, 0);
+    fechaFin.setHours(23, 59, 59, 999);
 
-    return today >= fechaInicio && today <= fechaFin;
+    return now >= fechaInicio && now <= fechaFin;
   };
 
   // Función para mostrar modal de fecha no válida
