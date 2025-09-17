@@ -23,6 +23,7 @@ import CatRegionDistritoService from '../../../services/CatRegionDistritoService
 import CatParentescoService from '../../../services/CatParentescoService';
 import { useNavigate } from 'react-router-dom';
 import CatSituacionVivienda from '../../../services/CatSituacionVivienda';
+import { mostrarSpinner, ocultarSpinner } from '../../../utils/spinerCarga/ModalSpiner';
 
 
 const MiFamiliaForm = () => {
@@ -161,8 +162,6 @@ const MiFamiliaForm = () => {
     // Agregar función para cargar datos existentes de Mi Familia
     const setDatosMiFamiliaAlumno = (data, alumnoData) => {
 
-        console.log(data);
-
         // Cargar datos básicos de Mi Familia
         setDataMiFamilia({
             telefono: data?.telefono || '',
@@ -291,7 +290,6 @@ const MiFamiliaForm = () => {
                 return;
             }
             let datos = await AlumnoService.getById(alumnoId);
-            console.log(datos);
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setDatosAlumno(datos);
 
@@ -656,6 +654,35 @@ const MiFamiliaForm = () => {
     };
 
     const handleFileUpload = (index, file) => {
+        if (file) {
+            const allowedTypes = [
+                "application/pdf",
+                "image/jpeg",
+                "image/png"
+            ];
+            const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+
+            if (!allowedTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Archivo no permitido",
+                    text: "Solo se permiten archivos PDF o imágenes (JPG, PNG).",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#6f42c1"
+                });
+                return;
+            }
+            if (file.size > maxSizeInBytes) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Archivo demasiado grande",
+                    text: "El archivo no debe exceder los 10MB.",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#6f42c1"
+                });
+                return;
+            }
+        }
         const nuevos = [...dependientes];
         nuevos[index].archivo = file;
         nuevos[index].nombreArchivo = file ? file.name : ""; // <-- Guarda el nombre
@@ -1085,6 +1112,7 @@ const MiFamiliaForm = () => {
             return;
         }*/
         try {
+            mostrarSpinner();
             // Preparar datos de domicilio
             let datosDomicilio = {};
             if (domicilioCoincide === 'Si' || domicilioCoincide === true) {
@@ -1204,10 +1232,11 @@ const MiFamiliaForm = () => {
                 personasDependientes: dependientesData
             };
 
-
+            
             let response;
             let nuevosErrores = null;
             // Verificar si es actualización o creación
+            console.log("payloadCompleto", payloadCompleto);
             if (datosAlumno.miFamilia !== null) {
                 // Actualizar datos existentes
                 const idMiFamilia = datosAlumno.miFamilia.id;
@@ -1225,6 +1254,8 @@ const MiFamiliaForm = () => {
                 return;
             }
             mostrarError('Ocurrió un error al guardar la información');
+        } finally {
+            ocultarSpinner();
         }
     };
 
@@ -1866,7 +1897,7 @@ const MiFamiliaForm = () => {
                             </p>
                             <div className="col-12 col-md-8 mb-3 px-3">
                                 <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
-                                    Además de ti, ¿Cuántas personas dependen económicamente del ingreso familiar?
+                                    <b>Además de ti,</b> ¿Cuántas personas dependen económicamente del ingreso familiar?
                                     <span style={{ color: 'red' }}>*</span>
                                 </label>
                                 <input

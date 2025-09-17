@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/revisor';
+const API_URL = '/api/revisor';
 
 const getAll = async () => {
   try {
@@ -69,6 +69,15 @@ const checkIfExists = async (matricula) => {
   }
 };
 
+const exportarExcel = async () => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/exportar`, {timeout: 6000});
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || 'Error al exportar a Excel';
+  }
+};
+
 export default {
   getAll,
   getById,
@@ -76,5 +85,6 @@ export default {
   update,
   updateRevisorConUsuario,
   deleteRevisor,
-  checkIfExists
+  checkIfExists,
+  exportarExcel,
 };

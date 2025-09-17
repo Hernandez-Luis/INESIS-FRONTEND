@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/fechas-registradas';
+const API_URL = '/api/fechas-registradas';
 
 const getAll = async () => {
   try {

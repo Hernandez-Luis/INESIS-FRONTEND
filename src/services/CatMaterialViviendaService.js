@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/cat_material_vivienda';
+const API_URL = '/api/cat_material_vivienda';
 
 const getAll = async () => {
   try {

@@ -21,6 +21,7 @@ import CatTipoTrabajoService from '../../services/CatTipoTrabajoService'
 import { data, useNavigate } from 'react-router-dom'
 import '../../styles/BordeInputsError/BordeInputsError.css'
 import { soloFormatoDirecciones, soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales } from '../../utils/Validaciones/Validaciones'
+import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner'
 
 export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -39,7 +40,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [tieneAutomovil, setTieneAutomovil] = useState(null);
   const [tieneMotocicleta, setTieneMotocicleta] = useState(null);
   const [catTipoTransporte, setCatTipoTransporte] = useState([]);
-  const [catSemestres, setCatSemestres] = useState([]); 
+  const [catSemestres, setCatSemestres] = useState([]);
   const [catOcupacion, setCatOcupacion] = useState([]);
   const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
   const [catTipoTrabajo, setCatTipoTrabajo] = useState([]);
@@ -423,18 +424,20 @@ export const MisDatos = ({ onAdd, update }) => {
     ];
     const { name, value } = e.target;
 
+    const newValue = name === "telefono" ? value.trim() : value;
+
     if (camposBooleanos.includes(name)) {
       setDataMisDatos((prevData) => ({
         ...prevData,
-        [name]: siNoToBool(value)
+        [name]: siNoToBool(newValue)
       }));
       if (name === "llevaAutomovil") {
-        setTieneAutomovil(siNoToBool(value));
+        setTieneAutomovil(siNoToBool(newValue));
         setDataTransporteAutomovil(formularioInicialTransporteAutomovil)
       }
 
       if (name === "llevaMotocicleta") {
-        setTieneMotocicleta(siNoToBool(value));
+        setTieneMotocicleta(siNoToBool(newValue));
         setDataTransporteMotocicleta(formularioInicialTransporteMotocicleta);
       }
       return;
@@ -444,11 +447,11 @@ export const MisDatos = ({ onAdd, update }) => {
     if (name === "situacionVivienda") {
       setDataMisDatos((prevData) => ({
         ...prevData,
-        [name]: value
+        [name]: newValue
       }));
-      
+
       // Si selecciona "Vivo con familiares", establecer personas que comparten renta en 0
-      const situacionSeleccionada = catSituacionVivienda.find(s => s.id === parseInt(value));
+      const situacionSeleccionada = catSituacionVivienda.find(s => s.id === parseInt(newValue));
       if (situacionSeleccionada && situacionSeleccionada.nombreSituacion === "Vivo con familiares") {
         setDataGastosIngresos((prevData) => ({
           ...prevData,
@@ -511,6 +514,7 @@ export const MisDatos = ({ onAdd, update }) => {
     };
 
     try {
+      mostrarSpinner();
       let nuevosErrores = null;
       let mensaje = "";
       if (datosAlumno.misDatos !== null) {
@@ -533,6 +537,8 @@ export const MisDatos = ({ onAdd, update }) => {
 
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
+    } finally {
+      ocultarSpinner();
     }
   };
 
@@ -755,7 +761,7 @@ export const MisDatos = ({ onAdd, update }) => {
                           value={dataMisDatos.telefono || ''}
                           onChange={actualizarCamposMisDatos}
                           placeholder="Ingrese su número telefónico"
-                          maxLength={10}
+                          maxLength={11}
                           onBeforeInput={soloNumerosPositivos}
                         />
                         {errores.telefono && <div style={{ color: 'orange' }}>{errores.telefono}</div>}
@@ -848,7 +854,6 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12 col-md-6 mt-2 mb-3">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número <span style={{ color: 'red' }}>*</span></label>
                       <input
-                        onBeforeInput={soloLetrasYNumeros}
                         className={`form-control ${errores.numero ? 'input-error' : ''}`}
                         type="text"
                         name={"numero"}
@@ -907,7 +912,7 @@ export const MisDatos = ({ onAdd, update }) => {
             {/* MODULO GASTOS E INGRESOS  */}
             <div className='mx-lg-5 mt-4'>
               <div className='tarjeta-border p-3 p-md-5'>
-                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gatos e ingresos</p>
+                <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Gastos e ingresos</p>
                 <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿A cuánto ascienden tus gastos mensuales de manutención? <span style={{ color: 'red' }}>*</span></p>
 
                 <div className="row">
@@ -941,37 +946,50 @@ export const MisDatos = ({ onAdd, update }) => {
                     {errores.dependeEconomicamente && <div className="text-danger">{errores.dependeEconomicamente}</div>}
                   </div>
 
-                  <div className='col-12 col-lg-6'>
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Con cuantas personas comparte el costo de la renta? <span style={{ color: 'red' }}>*</span></p>
-                    <input 
-                      onBeforeInput={soloNumerosPositivos}
-                      type="text"
-                      className={`form-control w-25 ${errores.personasComparteRenta ? 'input-error' : ''}`}
-                      name="personasComparteRenta"
-                      onChange={actualizarCampoGastosIngresos}
-                      value={dataGastosIngresos.personasComparteRenta}
-                      isInvalid={!!errores.personasComparteRenta}
-                      disabled={(() => {
-                        const situacionSeleccionada = catSituacionVivienda.find(s => s.id === parseInt(dataMisDatos.situacionVivienda));
-                        return situacionSeleccionada && situacionSeleccionada.nombreSituacion === "Vivo con familiares";
-                      })()}
-                    />
-                    {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
-                  </div>
+                  {(() => {
+                    const situacionSeleccionada = catSituacionVivienda.find(
+                      s => s.id === parseInt(dataMisDatos.situacionVivienda)
+                    );
+                    return (
+                      situacionSeleccionada &&
+                      (situacionSeleccionada.nombreSituacion === "Rento cuarto" ||
+                        situacionSeleccionada.nombreSituacion === "Rento casa")
+                    );
+                  })() && (
+                      <>
+                        <div className='col-12 col-lg-6'>
+                          <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
+                            ¿Con cuantas personas comparte el costo de la renta? <span style={{ color: 'red' }}>*</span>
+                          </p>
+                          <input
+                            onBeforeInput={soloNumerosPositivos}
+                            type="text"
+                            className={`form-control w-25 ${errores.personasComparteRenta ? 'input-error' : ''}`}
+                            name="personasComparteRenta"
+                            onChange={actualizarCampoGastosIngresos}
+                            value={dataGastosIngresos.personasComparteRenta}
+                            isInvalid={!!errores.personasComparteRenta}
+                          />
+                          {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
+                        </div>
 
-                  <div className='col-12 col-lg-6'>
-                    <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>¿Cuanto paga usted de renta mensualmente? <span style={{ color: 'red' }}>*</span></p>
-                    <input 
-                      onBeforeInput={soloNumerosPositivosConDosDecimales}
-                      type="text"
-                      className={`form-control w-25 ${errores.pagoRentaMensual ? 'input-error' : ''}`}
-                      name="pagoRentaMensual"
-                      onChange={actualizarCampoGastosIngresos}
-                      value={dataGastosIngresos.pagoRentaMensual}
-                      isInvalid={!!errores.pagoRentaMensual}
-                    />
-                    {errores.pagoRentaMensual && <div className="text-danger">{errores.pagoRentaMensual}</div>}
-                  </div>
+                        <div className='col-12 col-lg-6'>
+                          <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
+                            ¿Cuanto paga usted de renta mensualmente? <span style={{ color: 'red' }}>*</span>
+                          </p>
+                          <input
+                            onBeforeInput={soloNumerosPositivosConDosDecimales}
+                            type="text"
+                            className={`form-control w-25 ${errores.pagoRentaMensual ? 'input-error' : ''}`}
+                            name="pagoRentaMensual"
+                            onChange={actualizarCampoGastosIngresos}
+                            value={dataGastosIngresos.pagoRentaMensual}
+                            isInvalid={!!errores.pagoRentaMensual}
+                          />
+                          {errores.pagoRentaMensual && <div className="text-danger">{errores.pagoRentaMensual}</div>}
+                        </div>
+                      </>
+                    )}
                 </div>
 
                 {(recursos === 'Si' || recursos === true) && (

@@ -17,7 +17,7 @@ const LoginForm = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_INESIS_URL}/usuario/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_INESIS_URL}/api/usuario/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario: usuar, contrasenia: password }),

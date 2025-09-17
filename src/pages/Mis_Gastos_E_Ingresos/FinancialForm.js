@@ -9,6 +9,7 @@ import GastosIngresosService from '../../services/GastosIngresosService';
 import { useNavigate } from "react-router-dom";
 import AlumnoService from "../../services/AlumnoService";
 import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales, validarNumericoDecimal } from "../../utils/Validaciones/Validaciones";
+import { mostrarSpinner, ocultarSpinner } from "../../utils/spinerCarga/ModalSpiner";
 
 
 
@@ -425,6 +426,7 @@ const FinancialForm = () => {
         if (!isFormValid) return;
 
         try {
+            mostrarSpinner();
             // Obtener datos de las personas que aportan
             const personasAportan = parseInt(document.getElementById("personasAportan")?.value || "0");
             const people = [...Array(numPeople)].map((_, index) => ({
@@ -526,12 +528,15 @@ const FinancialForm = () => {
             }
 
         } catch (error) {
+            const mensaje = error.message || error.toString();
             console.error("Error al guardar:", error);
-            if (error.includes('periodo de registro')) {
+            if (mensaje.includes('periodo de registro')) {
                 mostrarInformacion(error);
                 return;
             }
             mostrarError(error);
+        } finally {
+            ocultarSpinner();
         }
     };
 
@@ -950,7 +955,42 @@ const FinancialForm = () => {
 
                         </Form>
                         <RecibosDeLuz
-                            onChangeFile={(e) => setReciboFile(e.target.files[0])}
+                            onChangeFile={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const allowedTypes = [
+                                        "application/pdf",
+                                        "image/jpeg",
+                                        "image/png"
+                                    ];
+
+                                    const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+
+                                    if (!allowedTypes.includes(file.type)) {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Archivo no permitido",
+                                            text: "Solo se permiten archivos PDF o imágenes (JPG, PNG).",
+                                            confirmButtonText: "Entendido",
+                                            confirmButtonColor: "#6f42c1"
+                                        });
+                                        e.target.value = "";
+                                        return;
+                                    }
+                                    if (file.size > maxSizeInBytes) {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Archivo demasiado grande",
+                                            text: "El archivo no debe exceder los 10MB.",
+                                            confirmButtonText: "Entendido",
+                                            confirmButtonColor: "#6f42c1"
+                                        });
+                                        e.target.value = "";
+                                        return;
+                                    }
+                                    setReciboFile(file);
+                                }
+                            }}
                             onChangeObservaciones={(text) => setObservaciones(text)}
                             observacionesIniciales={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.observaciones || ""}
                             archivoExistente={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.nombreOriginal || null}

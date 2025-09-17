@@ -4,6 +4,7 @@ import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
 import MiFamiliaForm from './components/MiFamiliaForm';
+import { SpinnerCarga } from '../../utils/spinerCarga/SpinerCarga';
 
 const MiFamilia = () => {
     const links = [
@@ -17,6 +18,7 @@ const MiFamilia = () => {
             <NavInesis />
             <MigasRecorrido items={links}/>
             <MiFamiliaForm/>
+            <SpinnerCarga />
             <FooterInesis />
         </div>
     );

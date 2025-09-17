@@ -1,7 +1,7 @@
 // src/services/codigoPostalService.js
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/domicilio';
+const API_URL = '/api/domicilio';
 
 const getAll = async () => {
     try {

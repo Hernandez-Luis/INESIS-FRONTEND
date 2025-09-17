@@ -1,6 +1,7 @@
 
 import { MisDatos } from './MisDatos'
 import MisDatosService from '../../services/MisDatosService';
+import { SpinnerCarga } from '../../utils/spinerCarga/SpinerCarga';
 
 
 export default function GestionMisDatos() {
@@ -34,6 +35,7 @@ export default function GestionMisDatos() {
         onAdd={guardarMisDatos}
         update={updateMisDatos}
       />
+      <SpinnerCarga />
     </div>
   )
 }

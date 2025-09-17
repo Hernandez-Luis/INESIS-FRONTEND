@@ -7,6 +7,9 @@ import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo
 import carreraService from "../../services/CatCarreraService";
 import Alumno from "../../services/AlumnoService";
 import { Link } from "react-router-dom";
+import RevisorService from "../../services/RevisorService";
+import { SpinnerCarga } from "../../utils/spinerCarga/SpinerCarga";
+import { mostrarSpinner, ocultarSpinner } from "../../utils/spinerCarga/ModalSpiner";
 
 const ListadoEstudioSocioeconomico = () => {
 
@@ -91,6 +94,35 @@ const ListadoEstudioSocioeconomico = () => {
     currentPage * itemsPerPage
   );
 
+  const exportarFinalizados = async () => {
+    try {
+      mostrarSpinner();
+      const response = await RevisorService.exportarExcel(); // Debe ser una promesa que regresa el base64
+      const base64 = response.data || response; // Ajusta según tu backend
+
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Estudios_Socioeconomicos.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("No se pudo exportar el archivo.");
+    } finally { 
+      ocultarSpinner();
+    } 
+  };
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
@@ -101,6 +133,17 @@ const ListadoEstudioSocioeconomico = () => {
           <h1 className="fw-bold" style={{ color: "#6658d3" }}>
             Resultados Estudio Socioeconómico
           </h1>
+
+          <div className="d-flex justify-content-end mb-3">
+            <button
+              className="btn btn-success"
+              onClick={exportarFinalizados}
+              style={{ minWidth: 200, fontWeight: "bold" }}
+            >
+              <i className="bi bi-file-earmark-excel-fill me-2"></i>
+              Exportar
+            </button>
+          </div>
 
           {/* Combo carrera */}
           <div className="mb-3" style={{ width: "50%" }}>
@@ -206,7 +249,7 @@ const ListadoEstudioSocioeconomico = () => {
           </nav>
         </div>
       </div>
-
+      <SpinnerCarga />
       <FooterInesis />
     </div>
   );

@@ -5,6 +5,7 @@ import NavInesis from "../../components/NavInesis/NavInesis";
 import FinancialForm from "./FinancialForm";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
+import { SpinnerCarga } from "../../utils/spinerCarga/SpinerCarga";
 
 const GastosIngresos = () => {
 
@@ -42,7 +43,7 @@ const GastosIngresos = () => {
                 </div>
             </div>
             <FinancialForm />
-
+            <SpinnerCarga />
             <FooterInesis className="mt-auto" />
 
         </div>

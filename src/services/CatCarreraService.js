@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/carrera';
+const API_URL = '/api/carrera';
 
 const getAll = async () => {
     try {

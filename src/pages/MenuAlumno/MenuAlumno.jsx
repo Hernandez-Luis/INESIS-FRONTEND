@@ -16,7 +16,7 @@ const MenuAlumno = () => {
   const [linkResultado, setLinkResultado] = useState(""); // Ruta para resultados
   const [fechaFin, setFechaFin] = useState(""); // Fecha límite formateada
   const [fechaAsignada, setFechaAsignada] = useState(false); // Existe fecha límite
-  const [estadoAlumno, setEstadoAlumno] = useState(false); // Estado socioeconómico del alumno
+  const [estadoAlumno, setEstadoAlumno] = useState(""); // Estado socioeconómico del alumno
   const [observacionesAlumno, setObservacionesAlumno] = useState(""); // Observaciones del estudio
   const [fechaExpirada, setFechaExpirada] = useState(false); // Fecha límite expirada
 
@@ -93,10 +93,11 @@ const MenuAlumno = () => {
   const handleResultadoClick = () => {
     const sinObservaciones =
       !observacionesAlumno || observacionesAlumno.trim() === "";
-    const sinEstado = !estadoAlumno;
 
+    console.log("Observaciones del alumno:", observacionesAlumno);
+    console.log("Estado del alumnoss:", estadoAlumno);
 
-    if (sinObservaciones && sinEstado) {
+    if (sinObservaciones && estadoAlumno === 1) {
       Swal.fire({
         icon: "info",
         title: "Sin información registrada",

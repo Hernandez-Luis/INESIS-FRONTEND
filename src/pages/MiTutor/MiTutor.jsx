@@ -14,6 +14,7 @@ import AlumnoService from '../../services/AlumnoService';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/BordeInputsError/BordeInputsError.css'
 import { soloCorreo, soloFormatoDirecciones, soloLetras, soloNumerosPositivos } from '../../utils/Validaciones/Validaciones';
+import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner';
 
 export const MiTutor = ({ onAdd, update }) => {
     const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -316,6 +317,7 @@ export const MiTutor = ({ onAdd, update }) => {
         try {
             let nuevosErrores = null;
             let mensaje = "";
+            mostrarSpinner();
             if (datosAlumno.miTutor !== null) {
                 let idMiTutor = datosAlumno.miTutor.idTutor;
                 mensaje = "Los datos se actualizaron correctamente";
@@ -337,6 +339,8 @@ export const MiTutor = ({ onAdd, update }) => {
             mostrarExito(mensaje);
         } catch (error) {
             console.error("Error al guardar miTutor: ", error);
+        } finally {
+            ocultarSpinner();
         }
     };
 
