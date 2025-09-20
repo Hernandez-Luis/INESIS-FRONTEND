@@ -40,7 +40,7 @@ const deleteDomicilio = async (id) => {
 
 const getColoniasPorCP = async (cp) => {
     try {
-        const response = await axiosInstance.get(`/domicilio/codigo_postal?cp=${cp}`);
+        const response = await axiosInstance.get(`${API_URL}/codigo_postal?cp=${cp}`);
         return response.data;
     } catch (error) {
         console.error('Error en getColoniasPorCP:', error);

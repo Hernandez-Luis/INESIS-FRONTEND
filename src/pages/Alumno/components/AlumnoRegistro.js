@@ -240,7 +240,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const mostrarAlerta = (config) => {
     Swal.fire({
       ...config,
-      timer: 3000,
+      timer: 4000,
       timerProgressBar: true,
       showConfirmButton: true,
       confirmButtonText: 'OK',
@@ -485,8 +485,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       console.error('Error al importar alumnos:', error);
       mostrarAlerta({
         icon: 'error',
-        title: 'Error en la importación',
-        text: error.message || 'No se pudieron importar los alumnos. Verifica el formato del archivo.'
+        title: error.message || 'Error al importar',
+        text: error.data || 'No se pudieron importar los alumnos. Verifica el formato del archivo.'
       });
     } finally {
       setLoading(false);

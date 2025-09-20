@@ -547,7 +547,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const validacionCampos = () => {
     // Validación de los campos
     const erroresTemp = {};
-    const camposOpcionalesMisDatos = ["transporteAutomovil", "transporteMotocicleta"]
+    const camposOpcionalesMisDatos = ["transporteAutomovil", "transporteMotocicleta", "telefono", "correo"]
 
     // Validación específica para formato de correo
     if (dataMisDatos.correo) {
@@ -565,7 +565,18 @@ export const MisDatos = ({ onAdd, update }) => {
     }
     const camposOpcionalesDomicilio = ["estado", "municipio", "colonia"]
 
+    // Validación condicional para renta
+    const situacionSeleccionada = catSituacionVivienda.find(
+      s => s.id === parseInt(dataMisDatos.situacionVivienda)
+    );
+    const esRenta = situacionSeleccionada &&
+      (situacionSeleccionada.nombreSituacion === "Rento cuarto" ||
+      situacionSeleccionada.nombreSituacion === "Rento casa");
+
     Object.keys(dataGastosIngresos).forEach((campo) => {
+      if ((campo === "personasComparteRenta" || campo === "pagoRentaMensual") && !esRenta) {
+      return; // No validar si no es renta
+      }
       if (!camposOpcionalesGastosIngresos.includes(campo)) {
         if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined || dataGastosIngresos[campo] === '') {
           erroresTemp[campo] = 'Este campo es obligatorio';
@@ -761,7 +772,7 @@ export const MisDatos = ({ onAdd, update }) => {
                           value={dataMisDatos.telefono || ''}
                           onChange={actualizarCamposMisDatos}
                           placeholder="Ingrese su número telefónico"
-                          maxLength={11}
+                          maxLength={10}
                           onBeforeInput={soloNumerosPositivos}
                         />
                         {errores.telefono && <div style={{ color: 'orange' }}>{errores.telefono}</div>}

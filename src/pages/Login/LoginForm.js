@@ -115,7 +115,7 @@ const LoginForm = () => {
           </div>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label">Correo electrónico</label>
+              <label className="form-label">Usuario</label>
               <input
                 type="text"
                 className="form-control"
