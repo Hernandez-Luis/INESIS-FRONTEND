@@ -40,7 +40,7 @@ pipeline {
       steps {
         // Sincroniza la carpeta build con la del servidor
         sh "rsync -a --delete ${BUILD_DIR}/ ${TARGET_DIR}/"
-        sh 'sudo systemctl reload apache2'
+        sh 'sudo systemctl reload nginx'
       }
     }
   }
