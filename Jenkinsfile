@@ -14,7 +14,7 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        sshagent(credentials: ['github-frontend']) {
+        sshagent(credentials: ['github-frontend-ssh']) {
           sh '''
             git clone -b deploy git@github-frontend:Hernandez-Luis/INESIS-FRONTEND.git .
           '''
