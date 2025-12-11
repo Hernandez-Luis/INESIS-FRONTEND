@@ -7,7 +7,8 @@ import TablaRegistros from '../../components/Tablas/TablaRegistros';
 import fechasRegistradasService from '../../services/FechasRegistradasService';
 import ModalRegistrarFecha from './components/ModalRegistrarFechas';
 import Swal from 'sweetalert2';
-import '../Fechas/components/AdministrarFechas.css';
+//import '../Fechas/components/AdministrarFechas.css';
+import './components/AdministrarFechas.css';
 
 const AdministrarFechas = () => {
 
@@ -21,7 +22,6 @@ const AdministrarFechas = () => {
 
     const links = [
         { url: '/MenuAdministrador', label: 'Inicio' },
-        //{ url: '/PrincipalAdmin', label: 'Administrar' },
         { url: '/AdministrarFechas', label: 'Fechas' }
     ];
 
@@ -51,21 +51,34 @@ const AdministrarFechas = () => {
             }
         }
     };
+
     // Configuración de columnas
-   const columns = [
-  { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
-  { header: 'Fecha inicial', accessor: 'fechaInicioFormateada' },
-  { header: 'Fecha final', accessor: 'fechaFinFormateada' },
-  { 
-    header: 'Estatus', 
-    accessor: 'estatusTexto',
-    Cell: ({ row }) => (
-      <span className={row.original.claseColor}>
-        {row.original.estatusTexto}
-      </span>
-    )
-  },
-];
+    const columns = [
+        { header: 'Carrera', accessor: 'carrera.nombreCarrera' },
+        { header: 'Fecha inicial', accessor: 'fechaInicioFormateada' },
+        { header: 'Fecha final', accessor: 'fechaFinFormateada' },
+        {
+            header: 'Estatus',
+            accessor: 'estatusPrincipal',
+            Cell: ({ row }) => (
+                <div className={row.original.claseColor} style={{ display: "flex", flexDirection: "column" }}>
+
+                    {/* Texto principal en negrita */}
+                    <span style={{ fontWeight: "bold" }}>
+                        {row.original.estatusPrincipal}
+                    </span>
+
+                    {/* Texto secundario fino y más pequeño */}
+                    {row.original.estatusSecundario && (
+                        <span style={{ fontSize: "0.85rem", fontWeight: 400 }}>
+                            {row.original.estatusSecundario}
+                        </span>
+                    )}
+                </div>
+            )
+
+        },
+    ];
 
     useEffect(() => {
         const fetchFechas = async () => {
@@ -82,31 +95,43 @@ const AdministrarFechas = () => {
         fetchFechas();
     }, []);
 
-    // Dentro de TablaRegistros o aquí mismo puedes formatear las fechas
-    // Solo formatear para mostrar en la tabla
- const formattedData = fechas.map(fecha => {
-  const fechaInicioFormateada = dayjs(fecha.fechaInicio).format('DD/MM/YYYY');
-  const fechaFinFormateada = dayjs(fecha.fechaFin).format('DD/MM/YYYY');
+    // Formatear datos + ordenar por fecha final próxima
+    const formattedData = fechas
+        .map(fecha => {
+            const fechaInicioFormateada = dayjs(fecha.fechaInicio).format('DD/MM/YYYY');
+            const fechaFinFormateada = dayjs(fecha.fechaFin).format('DD/MM/YYYY');
 
-  let estatusTexto = '';
-  let claseColor = '';
-  
-  if (fecha.active) {
-    estatusTexto = `ACTIVO quedan ${fecha.restante} días`;
-    claseColor = fecha.restante < 5 ? 'texto-naranja' : 'texto-verde';
-  } else {
-    estatusTexto = 'FINALIZADO';
-    claseColor = 'texto-rojo';
-  }
+            let estatusTexto = '';
+            let claseColor = '';
+            let estatusPrincipal = "";
+            let estatusSecundario = "";
 
-  return {
-    ...fecha,
-    fechaInicioFormateada,
-    fechaFinFormateada,
-    estatusTexto,
-    claseColor  // Nueva propiedad para la clase CSS
-  };
-});
+            if (fecha.active) {
+                estatusPrincipal = "ACTIVO";
+                estatusSecundario = `(Quedan ${fecha.restante + 1} días)`;
+                claseColor = fecha.restante < 3 ? "texto-naranja" : "texto-verde";
+            } else {
+                estatusPrincipal = "FINALIZADO";
+                estatusSecundario = "";
+                claseColor = "texto-rojo";
+            }
+
+            return {
+                ...fecha,
+                fechaInicioFormateada,
+                fechaFinFormateada,
+                estatusPrincipal,
+                estatusSecundario,
+                claseColor
+            };
+
+        })
+        // 📌 Ordenar por la fecha más próxima a finalizar
+        .sort((a, b) => {
+            const fechaA = dayjs(a.fechaFin);
+            const fechaB = dayjs(b.fechaFin);
+            return fechaA - fechaB; // ascendente: primero la que está por terminar
+        });
 
     const recargarFechas = async () => {
         try {
@@ -121,6 +146,7 @@ const AdministrarFechas = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
+
             <TablaRegistros
                 data={formattedData}
                 columns={columns}
@@ -130,6 +156,7 @@ const AdministrarFechas = () => {
                 onEdit={handleEditar}
                 onDelete={handleEliminar}
             />
+
             <ModalRegistrarFecha
                 show={showModal}
                 handleClose={() => {
@@ -140,6 +167,7 @@ const AdministrarFechas = () => {
                 modoEdicion={!!fechaEditar}
                 fechaEditar={fechaEditar}
             />
+
             <FooterInesis />
         </div>
     );
