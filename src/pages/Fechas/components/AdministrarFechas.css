@@ -6,6 +6,7 @@
   border: none;
 }
 
+
 .modal-luna-header {
   background: linear-gradient(135deg, #6f42c1, #8a63d2);
   border-bottom: none;
@@ -198,3 +199,4 @@
     font-size: 1rem;
   }
 }
+
