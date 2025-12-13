@@ -4,6 +4,8 @@ import Swal from 'sweetalert2';
 import RadioSelect from '../../../components/RadioSelect/RadioSelect';
 import SeleccionarCombo from '../../../components/ComboSeleccionar/SeleccionarCombo';
 import { CheckBox } from '../../../components/CheckBox/CheckBox'
+import { Info, CheckCircle, AlertCircle } from 'lucide-react';
+
 
 //Servicios cat
 import CatBienesHogarService from '../../../services/CatBienesHogarService';
@@ -82,6 +84,8 @@ const MiFamiliaForm = () => {
     const navigate = useNavigate(); // Añadir esta línea
 
     const [btnDisabled, setBtnDisabled] = useState(false);
+
+    const [mostrarAyuda, setMostrarAyuda] = useState(false);
 
 
     // ********************************* RELACION CON CATALOGOS *******************************************
@@ -844,18 +848,18 @@ const MiFamiliaForm = () => {
         }
 
         // Validar distrito - manejar tanto objeto como string
-        if (!dataDomicilio.distrito || 
-            (typeof dataDomicilio.distrito === 'object' ? 
-                !dataDomicilio.distrito.id : 
+        if (!dataDomicilio.distrito ||
+            (typeof dataDomicilio.distrito === 'object' ?
+                !dataDomicilio.distrito.id :
                 dataDomicilio.distrito.trim() === "")) {
             errores.distrito = true;
             erroresSwal.push('El Distrito es obligatorio.');
         }
 
         // Validar región - manejar tanto objeto como string
-        if (!dataDomicilio.region || 
-            (typeof dataDomicilio.region === 'object' ? 
-                !dataDomicilio.region.id : 
+        if (!dataDomicilio.region ||
+            (typeof dataDomicilio.region === 'object' ?
+                !dataDomicilio.region.id :
                 dataDomicilio.region.trim() === "")) {
             errores.region = true;
             erroresSwal.push('La Región es obligatoria.');
@@ -1232,7 +1236,7 @@ const MiFamiliaForm = () => {
                 personasDependientes: dependientesData
             };
 
-            
+
             let response;
             let nuevosErrores = null;
             // Verificar si es actualización o creación
@@ -1806,6 +1810,57 @@ const MiFamiliaForm = () => {
                             </div>
                         </div>
                         <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                            <div className="d-flex align-items-center justify-content-between mb-3 px-4">
+                                <button
+                                    type="button"
+                                    className="btn btn-link p-0 ms-auto"
+                                    onClick={() => setMostrarAyuda(!mostrarAyuda)}
+                                    style={{ color: 'var(--color-morado3)', fontSize: '1.5rem' }}
+                                    title="Ver ayuda"
+                                >
+                                    <Info size={28} />
+                                </button>
+                            </div>
+                            {/* Panel de ayuda expandible */}
+                            {mostrarAyuda && (
+                                <div className="alert alert-info mx-4" style={{
+                                    backgroundColor: '#e8f4fd',
+                                    borderLeft: '4px solid var(--color-morado3)',
+                                    borderRadius: '8px'
+                                }}>
+                                    <h5 className="alert-heading d-flex align-items-center">
+                                        <Info size={20} className="me-2" />
+                                        ¿Cómo llenar esta sección?
+                                    </h5>
+                                    <hr />
+                                    <p className="mb-2"><strong>Regla importante:</strong> Cada hermano debe contarse UNA SOLA VEZ.</p>
+
+                                    <div className="mb-3">
+                                        <strong>Ejemplo correcto:</strong>
+                                        <ul className="mb-0 mt-2">
+                                            <li>Tengo <strong>2 hermanos</strong></li>
+                                            <li><strong>1</strong> está estudiando actualmente</li>
+                                            <li><strong>1</strong> ya no estudia y tiene licenciatura</li>
+                                            <li><strong>0</strong> dejaron de estudiar sin terminar</li>
+                                            <li>Total: 1 + 1 + 0 = <strong>2 hermanos</strong></li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="bg-white p-3 rounded mb-3">
+                                        <strong>Categorías:</strong>
+                                        <ul className="mb-0 mt-2">
+                                            <li><strong>Están estudiando:</strong> Actualmente cursan un nivel educativo</li>
+                                            <li><strong>No estudian:</strong> Dejaron de estudiar sin terminar una carrera</li>
+                                            <li><strong>Tienen licenciatura:</strong> Ya terminaron una carrera universitaria (aunque no estudien actualmente)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="alert alert-warning mb-0" style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107' }}>
+                                        <strong>Error común:</strong> Si un hermano "no estudia pero tiene licenciatura",
+                                        solo cuenta en <strong>"Tienen licenciatura"</strong>, NO en ambas categorías.
+                                    </div>
+                                </div>
+                            )}
                             <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Hermanos
                             </p>
