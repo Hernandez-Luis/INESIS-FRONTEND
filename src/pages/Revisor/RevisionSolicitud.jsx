@@ -106,7 +106,7 @@ export default function RevisionSolicitud() {
 
   const handleMarcarFinalizado = async () => {
     try {
-      if (comentario.trim() !== "" && estadoRevision !== 3) {
+      if (estadoRevision !== 1 && estadoRevision !== 3) {
         mostrarAlerta({
           icon: 'warning',
           title: 'No se puede finalizar si hay un comentario en observaciones'
