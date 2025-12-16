@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import NavInesis from "../../components/NavInesis/NavInesis";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
-import { CardMenu } from "../MenuSolicitarBeca/components/CardMenu"; // Componente visual reutilizable
+import { CardMenu } from "../MenuSolicitarBeca/components/CardMenu"; 
 import ServicioAlumno from "../../services/AlumnoService";
 import fechaService from "../../services/FechasRegistradasService";
 import rellenarEstudio from "../../assets/rellenarEstudio.jpg";
@@ -38,12 +38,12 @@ const MenuAlumno = () => {
             setObservacionesAlumno(alumno.observaciones);
 
             // Asignar ruta según estado del alumno
-            if (alumno.observaciones && alumno.observaciones.trim() !== "") {
+            if (alumno.estadoRevision === 2) {
               setLinkResultado("/ResultadosSolicitud");
-            } else if (alumno.estado === true) {
+            } else if (alumno.estadoRevision === 4) {
               setLinkResultado("/ResultadoEstudioSocioeconomicoCorrecto");
             } else {
-              setLinkResultado(""); // Si no hay datos válidos, se bloquea el acceso
+              setLinkResultado(null); // Si no hay datos válidos, se bloquea el acceso
             }
 
             // Fecha límite según carrera
@@ -121,6 +121,16 @@ const MenuAlumno = () => {
       });
     } else {
       // Redirigir si hay acceso permitido
+      if (!linkResultado) {
+        Swal.fire({
+          icon: "info",
+          title: "Resultados no disponibles",
+          text: "Tu estudio aún no ha sido finalizado o está en revisión.",
+          confirmButtonColor: "#6f42c1",
+        });
+        return;
+      }
+
       window.location.href = linkResultado;
     }
   };
@@ -165,8 +175,8 @@ const MenuAlumno = () => {
                 title="Resultados del Estudio Socioeconómico"
                 imgSrc={resultadoEstudiO}
                 description="En esta sección, podrás ver tus resultados y observaciones."
-                link={linkResultado} 
-                onClick={handleResultadoClick} 
+                link={linkResultado}
+                onClick={handleResultadoClick}
               />
             </div>
           </div>
