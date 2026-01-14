@@ -198,7 +198,7 @@ const ModalRegistrarFecha = ({
                 value={formData.fechaInicio}
                 onChange={(e) => handleChange('fechaInicio', e.target.value)}
                 className="rounded-3 py-2"
-                min={modoEdicion ? undefined : obtenerFechaActualLocal()}
+                min={obtenerFechaActualLocal()}
               />
             </Form.Group>
 
