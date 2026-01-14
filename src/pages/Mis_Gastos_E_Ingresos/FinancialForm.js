@@ -33,6 +33,42 @@ const FinancialForm = () => {
     const [alumnoData, setAlumnoData] = useState(null);
     const [domicilioRecibo, setDomicilioRecibo] = useState("");
 
+    const [periodoInicioMes, setPeriodoInicioMes] = useState("");
+    const [periodoInicioAnio, setPeriodoInicioAnio] = useState("");
+
+    const [periodoFinMes, setPeriodoFinMes] = useState("");
+    const [periodoFinAnio, setPeriodoFinAnio] = useState("");
+
+    const meses = [
+        { value: "01", label: "Enero" },
+        { value: "02", label: "Febrero" },
+        { value: "03", label: "Marzo" },
+        { value: "04", label: "Abril" },
+        { value: "05", label: "Mayo" },
+        { value: "06", label: "Junio" },
+        { value: "07", label: "Julio" },
+        { value: "08", label: "Agosto" },
+        { value: "09", label: "Septiembre" },
+        { value: "10", label: "Octubre" },
+        { value: "11", label: "Noviembre" },
+        { value: "12", label: "Diciembre" }
+    ];
+
+    const anios = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+
+
+    const actualizarPeriodoInicio = (mes, anio) => {
+        if (mes && anio) {
+            document.getElementById("periodoInicio").value = `${anio}-${mes}`;
+        }
+    };
+
+    const actualizarPeriodoFin = (mes, anio) => {
+        if (mes && anio) {
+            document.getElementById("periodoFin").value = `${anio}-${mes}`;
+        }
+    };
+
 
 
     useEffect(() => {
@@ -247,11 +283,11 @@ const FinancialForm = () => {
         // Actualizar el total basado en los datos del estado en lugar del DOM
         let totalNeto = 0;
         let totalBruto = 0;
-        
+
         for (let i = 0; i < peopleData.length; i++) {
             const neto = parseFloat(peopleData[i]?.net || "0");
             const bruto = parseFloat(peopleData[i]?.gross || "0");
-            
+
             if (!isNaN(neto)) {
                 totalNeto += neto;
             }
@@ -259,9 +295,9 @@ const FinancialForm = () => {
                 totalBruto += bruto;
             }
         }
-        
+
         setIngresoTotal(totalNeto);
-        
+
         // Actualizar también el campo de total bruto
         setTimeout(() => {
             const inputBruto = document.getElementById("ingresoBrutoTotal");
@@ -424,6 +460,16 @@ const FinancialForm = () => {
     const handleSave = async () => {
         const isFormValid = validateForm();
         if (!isFormValid) return;
+        // NUEVA VALIDACIÓN BLOQUEANTE
+        if (!ingresosYGastosCoinciden()) {
+            Swal.fire({
+                title: "Ingresos y gastos no coinciden",
+                text: "El total de gastos debe ser igual al ingreso total antes de guardar.",
+                icon: "warning",
+                confirmButtonText: "Entendido"
+            });
+            return; // BLOQUEA EL GUARDADO
+        }
 
         try {
             mostrarSpinner();
@@ -566,7 +612,7 @@ const FinancialForm = () => {
         setTimeout(() => {
             const inputBruto = document.getElementById("ingresoBrutoTotal");
             if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
-            
+
             setIngresoTotal(totalNeto);
             validarIgualdadIngresosGastos();
         }, 0);
@@ -639,6 +685,14 @@ const FinancialForm = () => {
         });
     };
 
+    const ingresosYGastosCoinciden = () => {
+        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
+        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
+
+        return Math.abs(ingreso - gastos) <= 0.01;
+    };
+
+
 
     return (
         <Container className="mt-3" style={{ maxWidth: "1700px" }}>
@@ -663,7 +717,7 @@ const FinancialForm = () => {
                     {[...Array(numPeople)].map((_, index) => (
                         <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
                             {[
-                                { label: "Nombre completo ", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>,  placeholder: "Nombre completo", type: "text", field: "name" },
+                                { label: "Nombre completo ", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "Nombre completo", type: "text", field: "name" },
                                 { label: "Empresa o lugar de trabajo", labelJSX: <>Empresa o lugar de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
                                 { label: "Puesto o tipo de trabajo", labelJSX: <>Puesto o tipo de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Puesto o tipo de trabajo", type: "text", field: "job" },
                                 { label: "IMB (Bruto)", labelJSX: <>IMB (Bruto) <span style={{ color: 'red' }}>*</span></>, placeholder: "IMB (Bruto)", type: "text", field: "gross" },
@@ -712,28 +766,28 @@ const FinancialForm = () => {
                                                         onChange={(e) => {
                                                             const newPeopleData = [...peopleData];
                                                             if (!newPeopleData[index]) newPeopleData[index] = {};
-                                                            
+
                                                             let value = e.target.value;
-                                                            
+
                                                             // Para campos numéricos, aplicar validación más simple
                                                             if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
                                                                 // Solo permitir números, puntos y vacío
                                                                 value = value.replace(/[^0-9.]/g, '');
-                                                                
+
                                                                 // Evitar múltiples puntos
                                                                 const pointCount = (value.match(/\./g) || []).length;
                                                                 if (pointCount > 1) {
                                                                     const firstPointIndex = value.indexOf('.');
                                                                     value = value.substring(0, firstPointIndex + 1) + value.substring(firstPointIndex + 1).replace(/\./g, '');
                                                                 }
-                                                                
+
                                                                 // Limitar decimales a 2
                                                                 const parts = value.split('.');
                                                                 if (parts[1] && parts[1].length > 2) {
                                                                     value = parts[0] + '.' + parts[1].substring(0, 2);
                                                                 }
                                                             }
-                                                            
+
                                                             newPeopleData[index][field.field] = value;
                                                             setPeopleData(newPeopleData);
 
@@ -782,28 +836,28 @@ const FinancialForm = () => {
                                                 onChange={(e) => {
                                                     const newPeopleData = [...peopleData];
                                                     if (!newPeopleData[index]) newPeopleData[index] = {};
-                                                    
+
                                                     let value = e.target.value;
-                                                    
+
                                                     // Para campos numéricos, aplicar validación más simple
                                                     if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
                                                         // Solo permitir números, puntos y vacío
                                                         value = value.replace(/[^0-9.]/g, '');
-                                                        
+
                                                         // Evitar múltiples puntos
                                                         const pointCount = (value.match(/\./g) || []).length;
                                                         if (pointCount > 1) {
                                                             const firstPointIndex = value.indexOf('.');
                                                             value = value.substring(0, firstPointIndex + 1) + value.substring(firstPointIndex + 1).replace(/\./g, '');
                                                         }
-                                                        
+
                                                         // Limitar decimales a 2
                                                         const parts = value.split('.');
                                                         if (parts[1] && parts[1].length > 2) {
                                                             value = parts[0] + '.' + parts[1].substring(0, 2);
                                                         }
                                                     }
-                                                    
+
                                                     newPeopleData[index][field.field] = value;
                                                     setPeopleData(newPeopleData);
 
@@ -913,22 +967,97 @@ const FinancialForm = () => {
 
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de inicio (mes): <span style={{ color: 'red' }}>*</span></Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>
+                                    Periodo de inicio (mes): <span style={{ color: 'red' }}>*</span>
+                                </Form.Label>
+
+                                {/* SELECTS visibles */}
+                                <Row>
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoInicioMes}
+                                            onChange={(e) => {
+                                                setPeriodoInicioMes(e.target.value);
+                                                actualizarPeriodoInicio(e.target.value, periodoInicioAnio);
+                                            }}
+                                        >
+                                            <option value="">Mes</option>
+                                            {meses.map(m => (
+                                                <option key={m.value} value={m.value}>{m.label}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoInicioAnio}
+                                            onChange={(e) => {
+                                                setPeriodoInicioAnio(e.target.value);
+                                                actualizarPeriodoInicio(periodoInicioMes, e.target.value);
+                                            }}
+                                        >
+                                            <option value="">Año</option>
+                                            {anios.map(a => (
+                                                <option key={a} value={a}>{a}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
+
+                                {/* INPUT OCULTO (el que usa TODO tu sistema) */}
                                 <Form.Control
                                     id="periodoInicio"
                                     type="month"
+                                    style={{ display: "none" }}
                                     isInvalid={emptyFields.includes("periodoInicio")}
                                 />
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de fin (mes): <span style={{ color: 'red' }}>*</span></Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>
+                                    Periodo de fin (mes): <span style={{ color: 'red' }}>*</span>
+                                </Form.Label>
+
+                                <Row>
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoFinMes}
+                                            onChange={(e) => {
+                                                setPeriodoFinMes(e.target.value);
+                                                actualizarPeriodoFin(e.target.value, periodoFinAnio);
+                                            }}
+                                        >
+                                            <option value="">Mes</option>
+                                            {meses.map(m => (
+                                                <option key={m.value} value={m.value}>{m.label}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoFinAnio}
+                                            onChange={(e) => {
+                                                setPeriodoFinAnio(e.target.value);
+                                                actualizarPeriodoFin(periodoFinMes, e.target.value);
+                                            }}
+                                        >
+                                            <option value="">Año</option>
+                                            {anios.map(a => (
+                                                <option key={a} value={a}>{a}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
+
                                 <Form.Control
                                     id="periodoFin"
                                     type="month"
+                                    style={{ display: "none" }}
                                     isInvalid={emptyFields.includes("periodoFin")}
                                 />
                             </Form.Group>
+
 
 
                             <Form.Group>
@@ -1026,6 +1155,8 @@ const FinancialForm = () => {
                                     type="number"
                                     onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
                                     onInput={validarNumericoDecimal}
+                                    readOnly
+                                    disabled
                                     placeholder="$"
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
