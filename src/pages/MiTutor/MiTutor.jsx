@@ -349,7 +349,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const validacionCampos = () => {
         const erroresTemp = {};
         const camposOpcionalesDomicilio = ["colonia", "estado", "municipio"]
-        const camposOpcionalesMiTutor = ["ocupacionOtro"]
+        const camposOpcionalesMiTutor = ["ocupacionOtro","correo"]
         Object.keys(datosMiTutor).forEach((campo) => {
             if (!camposOpcionalesMiTutor.includes(campo)) {
                 if (datosMiTutor[campo] === null || datosMiTutor[campo] === undefined || datosMiTutor[campo] === '') {
@@ -490,7 +490,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         </div>
 
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo <span style={{ color: 'red' }}>*</span></label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
                                             <input
                                                 onBeforeInput={soloCorreo}
                                                 className={`form-control ${errores.correo ? 'input-error' : ''}`}
