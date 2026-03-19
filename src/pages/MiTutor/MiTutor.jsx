@@ -349,7 +349,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const validacionCampos = () => {
         const erroresTemp = {};
         const camposOpcionalesDomicilio = ["colonia", "estado", "municipio"]
-        const camposOpcionalesMiTutor = ["ocupacionOtro"]
+        const camposOpcionalesMiTutor = ["ocupacionOtro", "correo"]
         Object.keys(datosMiTutor).forEach((campo) => {
             if (!camposOpcionalesMiTutor.includes(campo)) {
                 if (datosMiTutor[campo] === null || datosMiTutor[campo] === undefined || datosMiTutor[campo] === '') {
@@ -445,6 +445,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     {/* Nombre completo */}
                                     <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo <span style={{ color: 'red' }}>*</span></label>
                                     <input
+                                        maxLength={45}
                                         onBeforeInput={soloLetras}
                                         className={`form-control ${errores.nombreTutor ? 'input-error' : ''}`}
                                         type="text"
@@ -490,8 +491,9 @@ export const MiTutor = ({ onAdd, update }) => {
                                         </div>
 
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo <span style={{ color: 'red' }}>*</span></label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
                                             <input
+                                                maxLength={40}
                                                 onBeforeInput={soloCorreo}
                                                 className={`form-control ${errores.correo ? 'input-error' : ''}`}
                                                 type="mail"
@@ -552,6 +554,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                                 <div className="mb-3">
                                                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                                                     <input
+                                                        maxLength={36}
                                                         onBeforeInput={soloLetras}
                                                         className='form-control'
                                                         name='ocupacionOtro'
@@ -628,6 +631,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         <div className='col-lg-6 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
                                             <input
+                                                maxLength={50}
                                                 onBeforeInput={soloFormatoDirecciones}
                                                 disabled={disabled}
                                                 className={`form-control ${errores.calle ? 'input-error' : ''}`}
@@ -641,6 +645,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         <div className="col-lg-6 mt-2">
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero <span style={{ color: 'red' }}>*</span></label>
                                             <input
+                                                maxLength={10}
                                                 onBeforeInput={soloFormatoDirecciones}
                                                 disabled={disabled}
                                                 className={`form-control ${errores.numero ? 'input-error' : ''}`}
@@ -662,7 +667,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                                     name={"colonia"}
                                                     value={datosDomicilio.colonia}
                                                     onChange={actualizarCamposDomicilio}
-                                                    placeholder="Selecciona una opción" // Placeholder
+                                                    placeholder="Selecciona una opción"
                                                     disabled={disabled}
                                                 />
                                             </div>
@@ -671,6 +676,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
                                             <div>
                                                 <input
+                                                    maxLength={50}
                                                     onBeforeInput={soloLetras}
                                                     disabled={disabled}
                                                     className={`form-control ${errores.localidad ? 'input-error' : ''}`}
