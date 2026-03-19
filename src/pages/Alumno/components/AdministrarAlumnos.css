@@ -63,6 +63,11 @@
     background-color: var(--color-gris2);
 }
 
+.layout-centrado {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
 
 .custom-table {
     border-radius: 0.6cm;
