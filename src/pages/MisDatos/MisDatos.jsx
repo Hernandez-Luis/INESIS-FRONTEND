@@ -24,6 +24,7 @@ import { soloFormatoDirecciones, soloLetras, soloLetrasYNumeros, soloNumerosPosi
 import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import CatCodigosPostalesService from '../../services/CatCodigosPostalesService'
 
 
 export const MisDatos = ({ onAdd, update }) => {
@@ -51,6 +52,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
   const [btnDisabled, setBtnDisabled] = useState(false);
+    const [colonias, setColonias] = useState([]);
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -100,6 +102,26 @@ export const MisDatos = ({ onAdd, update }) => {
       console.error("Error al obtener la lista de CatEstadoCivil: ", error)
     }
   }
+
+  const obtenerCpExcel = async (value) => {
+    const codigoPostal = value
+    // Solo buscar si tiene 5 dígitos
+    if (value.length !== 5) return;
+    try {
+      const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+      setColonias(datos.map(d => d.nombreAsentamiento));
+
+      setDataDomicilio((prevData) => ({
+        ...prevData,
+        estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+        municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+        cp: codigoPostal,
+      }))
+    } catch (err) {
+      console.error('Error al buscar código postal:', err);
+      setColonias([]);
+    }
+  };
 
   const verificarFechas = (fechaData) => {
     if (!fechaData.active) return false;
@@ -317,33 +339,9 @@ export const MisDatos = ({ onAdd, update }) => {
   // *********************************  BUSCAR CP DE LOS DATOS DEL BACK  ***********************************
   useEffect(() => {
     if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
-      handleBuscarCP(dataDomicilio.cp);
+      obtenerCpExcel(dataDomicilio.cp);
     }
   }, [dataDomicilio.cp]);
-
-  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
-
-  const [colonias, setColonias] = useState([]);
-
-  const handleBuscarCP = async (value) => {
-    const codigoPostal = value
-    // Solo buscar si tiene 5 dígitos
-    if (value.length !== 5) return;
-    try {
-      const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-      setColonias(datos.codigo_postal.colonias);
-
-      setDataDomicilio((prevData) => ({
-        ...prevData,
-        estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-        municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-        cp: codigoPostal,
-      }))
-    } catch (err) {
-      console.error('Error al buscar código postal:', err);
-      setColonias([]);
-    }
-  };
 
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
@@ -483,7 +481,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const actualizarCamposDomicilio = (e) => {
     const { name, value } = e.target;
     if (name === "cp")
-      handleBuscarCP(value)
+      obtenerCpExcel(value)
     setDataDomicilio((prevData) => ({
       ...prevData,
       [name]: value
