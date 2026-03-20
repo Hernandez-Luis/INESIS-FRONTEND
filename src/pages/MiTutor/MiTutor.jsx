@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/BordeInputsError/BordeInputsError.css'
 import { soloCorreo, soloFormatoDirecciones, soloLetras, soloNumerosPositivos } from '../../utils/Validaciones/Validaciones';
 import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner';
+import CatCodigosPostalesService from '../../services/CatCodigosPostalesService';
 
 export const MiTutor = ({ onAdd, update }) => {
     const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -32,6 +33,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const [datosAlumno, setDatosAlumno] = useState([]);
     const [disabled, setDisabled] = useState(false)
     const [btnDisabled, setBtnDisabled] = useState(false);
+    const [colonias, setColonias] = useState([]);
 
     // --------- INFOMRACION DE MI TUTOR DESDE MIS DATOS --------------
     const [nombreTutorMisDatos, setNombreTutor] = useState();
@@ -131,6 +133,26 @@ export const MiTutor = ({ onAdd, update }) => {
         }
     }
 
+    const obtenerCpExcel = async (value) => {
+        const codigoPostal = value
+        // Solo buscar si tiene 5 dígitos
+        if (value.length !== 5) return;
+        try {
+          const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+          setColonias(datos.map(d => d.nombreAsentamiento));
+    
+          setDatosDomicilio((prevData) => ({
+            ...prevData,
+            estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+            municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+            cp: codigoPostal,
+          }))
+        } catch (err) {
+          console.error('Error al buscar código postal:', err);
+          setColonias([]);
+        }
+      };
+
     useEffect(() => {
         obtenerCatTipoTrabajo();
         obtenerCatOcupacion();
@@ -203,34 +225,12 @@ export const MiTutor = ({ onAdd, update }) => {
     // *********************************  BUSCAR CP DE LOS DATOS DEL BACK  ***********************************
     useEffect(() => {
         if (datosDomicilio.cp && datosDomicilio.cp.length === 5) {
-            handleBuscarCP(datosDomicilio.cp);
+            obtenerCpExcel(datosDomicilio.cp);
         }
     }, [datosDomicilio.cp]);
 
     // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
 
-    const [colonias, setColonias] = useState([]);
-
-    const handleBuscarCP = async (value) => {
-        const codigoPostal = value
-        // Solo buscar si tiene 5 dígitos
-        if (value.length !== 5) return;
-        try {
-            const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            setColonias(datos.codigo_postal.colonias);
-
-            setDatosDomicilio((prevData) => ({
-                ...prevData,
-                estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-                municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-                cp: codigoPostal,
-            }))
-
-        } catch (err) {
-            console.error('Error al buscar código postal:', err);
-            setColonias([]);
-        }
-    };
 
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
 
@@ -282,7 +282,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
         if (name === "cp")
-            handleBuscarCP(value)
+            obtenerCpExcel(value)
         setDatosDomicilio((prevData) => ({
             ...prevData,
             [name]: value
