@@ -32,7 +32,9 @@ const FinancialForm = () => {
     const [alumnoData, setAlumnoData] = useState(null);
     const [domicilioRecibo, setDomicilioRecibo] = useState("");
 
-
+    const currentYear = new Date().getFullYear();
+    const minDate = `${currentYear - 1}-01`;
+    const maxDate = `${currentYear}-12`;
 
     useEffect(() => {
         obtenerParentesco();
@@ -305,6 +307,12 @@ const FinancialForm = () => {
             }
         });
 
+        const archivoExistente = alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.nombreOriginal;
+
+        if (!reciboFile && !archivoExistente) {
+            isValid = false;
+            newEmptyFields.push("reciboArchivo");
+        }
 
         // Gastos
         const gastoFields = ['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros', 'totalGastos'];
@@ -369,6 +377,7 @@ const FinancialForm = () => {
             empresaolugardetrabajo: "Lugar de trabajo",
             puestootipodetrabajo: "Puesto de trabajo",
             imbbruto: "Ingreso bruto",
+            reciboArchivo: "Archivo de recibo de luz",
             imnneto: "Ingreso neto"
         };
 
@@ -418,6 +427,15 @@ const FinancialForm = () => {
     const handleSave = async () => {
         const isFormValid = validateForm();
         if (!isFormValid) return;
+
+        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
+        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
+
+        if (Math.abs(ingreso - gastos) > 0.01) {
+            mostrarCuidado(`El total no coincide.\n\nIngreso total: $${ingreso}\nGastos: $${gastos}`);
+            return;
+        }
+
 
         try {
             // Obtener datos de las personas que aportan
@@ -478,6 +496,18 @@ const FinancialForm = () => {
 
             };
 
+            const inicio = document.getElementById("periodoInicio")?.value;
+            const fin = document.getElementById("periodoFin")?.value;
+
+            if (inicio && fin && fin < inicio) {
+                mostrarCuidado(`El total no coincide:
+                            Ingreso total: $${ingreso.toFixed(2)}
+                            Gastos: $${gastos.toFixed(2)}
+                            Diferencia: $${Math.abs(ingreso - gastos).toFixed(2)}
+                    `);
+                return;
+            }
+
             // Convertir archivo a base64 si existe
             if (reciboFile) {
                 const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
@@ -522,6 +552,8 @@ const FinancialForm = () => {
                 mostrarExito("Datos guardados correctamente");
             }
 
+
+
             console.log("Respuesta del backend:", response.data);
 
         } catch (error) {
@@ -561,7 +593,7 @@ const FinancialForm = () => {
         if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
 
         setIngresoTotal(totalNeto);
-        validarIgualdadIngresosGastos();
+        //validarIgualdadIngresosGastos();
     };
 
 
@@ -576,7 +608,7 @@ const FinancialForm = () => {
         const input = document.getElementById("totalGastos");
         if (input) input.value = total.toFixed(2);
 
-        validarIgualdadIngresosGastos();
+        //validarIgualdadIngresosGastos();
     };
 
 
@@ -861,6 +893,8 @@ const FinancialForm = () => {
                                 <Form.Control
                                     id="periodoInicio"
                                     type="month"
+                                    min={minDate}
+                                    max={maxDate}
                                     isInvalid={emptyFields.includes("periodoInicio")}
                                 />
                             </Form.Group>
@@ -870,6 +904,8 @@ const FinancialForm = () => {
                                 <Form.Control
                                     id="periodoFin"
                                     type="month"
+                                    min={minDate}
+                                    max={maxDate}
                                     isInvalid={emptyFields.includes("periodoFin")}
                                 />
                             </Form.Group>
@@ -912,6 +948,10 @@ const FinancialForm = () => {
                 {/* Gastos Mensuales */}
                 <Col md={6} className="d-flex justify-content-center">
                     <Card className="p-5 mb-5 w-100" style={cardStyle}>
+                        <p style={{ color: "#6B7280", fontSize: "14px" }}>
+                            Ingresa el gasto mensual aproximado en cada categoría.
+                            El sistema calculará automáticamente el total de gastos.
+                        </p>
                         <h4 style={{ color: "#4F46E5" }}>Gastos mensuales</h4>
                         <Form id="gastosForm">
                             {['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].map((label, index) => (
