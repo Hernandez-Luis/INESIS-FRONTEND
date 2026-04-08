@@ -8,7 +8,7 @@ import CatParentescoService from '../../services/CatParentescoService';
 import GastosIngresosService from '../../services/GastosIngresosService';
 import { useNavigate } from "react-router-dom";
 import AlumnoService from "../../services/AlumnoService";
-import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales, validarNumericoDecimal } from "../../utils/Validaciones/Validaciones";
+import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales, validarNumericoDecimal, limitarNumerico6Enteros2Decimales } from "../../utils/Validaciones/Validaciones";
 
 
 
@@ -26,6 +26,9 @@ const FinancialForm = () => {
     const [btnDisabled, setBtnDisabled] = useState(false);
     const [catParentesco, setParentesco] = useState([]);
     const [desigualdadMensaje, setDesigualdadMensaje] = useState("");
+    const [desigualdadMensajePeriodo, setdesigualdadMensajePeriodo] = useState("");
+
+    
     const navigate = useNavigate(); //
 
     // Estado para almacenar los datos del alumno
@@ -36,23 +39,26 @@ const FinancialForm = () => {
     const minDate = `${currentYear - 1}-01`;
     const maxDate = `${currentYear}-12`;
 
+
     useEffect(() => {
         obtenerParentesco();
     }, []);
 
+    const validarPeriodo = () => {
+        const inicio = document.getElementById("periodoInicio")?.value;
+        const fin = document.getElementById("periodoFin")?.value;
 
-    const validarIgualdadIngresosGastos = () => {
-        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
-        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
+        if (inicio && fin) {
+            const fechaInicio = new Date(inicio + "-01");
+            const fechaFin = new Date(fin + "-01");
 
-        if (Math.abs(ingreso - gastos) > 0.01) {
-            setDesigualdadMensaje("⚠️ El total de gastos no coincide con el ingreso total.");
-        } else {
-            setDesigualdadMensaje("");
+            if (fechaInicio >= fechaFin) {
+                setdesigualdadMensajePeriodo("⚠️ El periodo de inicio debe ser menor al de fin.");
+            } else {
+                setdesigualdadMensajePeriodo("");
+            }
         }
     };
-
-
 
     const cargarDatosAlumno = async () => {
         try {
@@ -239,32 +245,19 @@ const FinancialForm = () => {
         fetchParentescos();
     }, []);
 
+
     useEffect(() => {
-        const handler = () => {
-            let total = 0;
-            for (let i = 0; i < numPeople; i++) {
-                const value = document.getElementById(`person-${i}-imnneto`)?.value;
-                if (value && !isNaN(parseFloat(value))) {
-                    total += parseFloat(value);
-                }
-            }
-            setIngresoTotal(total);
-        };
+        let total = 0;
 
-        // Escuchar cambios en todos los campos IMN (Neto)
-        for (let i = 0; i < numPeople; i++) {
-            const input = document.getElementById(`person-${i}-imnneto`);
-            if (input) input.addEventListener('input', handler);
-        }
+        peopleData.forEach(p => {
+            const value = parseFloat(p?.net || 0);
+            if (!isNaN(value)) total += value;
+        });
 
-        // Limpieza
-        return () => {
-            for (let i = 0; i < numPeople; i++) {
-                const input = document.getElementById(`person-${i}-imnneto`);
-                if (input) input.removeEventListener('input', handler);
-            }
-        };
-    }, [numPeople]);
+        setIngresoTotal(total);
+    }, [peopleData]);
+
+
 
     const validateForm = () => {
         let isValid = true;
@@ -479,6 +472,11 @@ const FinancialForm = () => {
                 totalGastos: gastosOriginales.total
             };
 
+            if (desigualdadMensaje) {
+                mostrarCuidado("Corrige el periodo de fechas antes de guardar.");
+                return;
+            }
+
             // Recibo de luz
             const reciboLuz = {
                 titular: document.getElementById("lightName")?.value || "",
@@ -496,17 +494,6 @@ const FinancialForm = () => {
 
             };
 
-            const inicio = document.getElementById("periodoInicio")?.value;
-            const fin = document.getElementById("periodoFin")?.value;
-
-            if (inicio && fin && fin < inicio) {
-                mostrarCuidado(`El total no coincide:
-                            Ingreso total: $${ingreso.toFixed(2)}
-                            Gastos: $${gastos.toFixed(2)}
-                            Diferencia: $${Math.abs(ingreso - gastos).toFixed(2)}
-                    `);
-                return;
-            }
 
             // Convertir archivo a base64 si existe
             if (reciboFile) {
@@ -574,28 +561,6 @@ const FinancialForm = () => {
         borderRadius: "1rem",
         boxShadow: "0 6px 15px rgba(0, 0, 0, 0.4)"
     };
-
-
-    const actualizarIngresoTotal = (peopleArray) => {
-        let totalBruto = 0;
-        let totalNeto = 0;
-
-        for (let i = 0; i < peopleArray.length; i++) {
-            const bruto = parseFloat(peopleArray[i]?.gross || "0");
-            const neto = parseFloat(peopleArray[i]?.net || "0");
-
-            totalBruto += isNaN(bruto) ? 0 : bruto;
-            totalNeto += isNaN(neto) ? 0 : neto;
-        }
-
-        // Actualizar los campos calculados
-        const inputBruto = document.getElementById("ingresoBrutoTotal");
-        if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
-
-        setIngresoTotal(totalNeto);
-        //validarIgualdadIngresosGastos();
-    };
-
 
 
     const actualizarTotalGastos = () => {
@@ -677,7 +642,7 @@ const FinancialForm = () => {
                             id="personasAportan"
                             style={{ maxWidth: "350px" }}
                             type="number"
-                            onInput={validarNumericoDecimal}
+                            onInput={limitarNumerico6Enteros2Decimales}
                             placeholder="Número de personas"
                             value={numPeople}
                             onChange={handleNumPeopleChange}
@@ -741,7 +706,7 @@ const FinancialForm = () => {
 
                                                         }}
                                                         onBeforeInput={soloLetrasYNumeros}
-                                                        onInput={validarNumericoDecimal}
+                                                        onInput={limitarNumerico6Enteros2Decimales}
 
                                                     />
                                                     {field.label === "IMB (Bruto)" && (
@@ -779,10 +744,6 @@ const FinancialForm = () => {
                                                     newPeopleData[index][field.field] = e.target.value;
                                                     setPeopleData(newPeopleData);
 
-                                                    // Solo actualizar el total si se trata de los campos numéricos
-                                                    if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
-                                                        actualizarIngresoTotal(newPeopleData);
-                                                    }
                                                 }}
                                                 onBeforeInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
@@ -791,7 +752,7 @@ const FinancialForm = () => {
                                                 }
                                                 onInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                        ? validarNumericoDecimal
+                                                        ? limitarNumerico6Enteros2Decimales
                                                         : undefined
                                                 }
                                             />
@@ -852,7 +813,7 @@ const FinancialForm = () => {
                             style={{ maxWidth: "400px" }}
                             type="number"
                             onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
-                            onInput={validarNumericoDecimal}
+                            onInput={limitarNumerico6Enteros2Decimales}
                             id="personasDependenIngreso"
                             isInvalid={emptyFields.includes("personasDependenIngreso")}
                         />
@@ -895,6 +856,7 @@ const FinancialForm = () => {
                                     type="month"
                                     min={minDate}
                                     max={maxDate}
+                                    onChange={validarPeriodo}
                                     isInvalid={emptyFields.includes("periodoInicio")}
                                 />
                             </Form.Group>
@@ -906,6 +868,7 @@ const FinancialForm = () => {
                                     type="month"
                                     min={minDate}
                                     max={maxDate}
+                                    onChange={validarPeriodo}
                                     isInvalid={emptyFields.includes("periodoFin")}
                                 />
                             </Form.Group>
@@ -917,7 +880,7 @@ const FinancialForm = () => {
                                     id="ultimoPago"
                                     type="number"
                                     onBeforeInput={soloNumerosPositivosConDosDecimales}
-                                    onInput={validarNumericoDecimal}
+                                    onInput={limitarNumerico6Enteros2Decimales}
                                     isInvalid={emptyFields.includes("ultimoPago")}
                                 />
                             </Form.Group>
@@ -928,10 +891,15 @@ const FinancialForm = () => {
                                     id="promedioPago"
                                     type="number"
                                     onBeforeInput={soloNumerosPositivosConDosDecimales}
-                                    onInput={validarNumericoDecimal}
+                                    onInput={limitarNumerico6Enteros2Decimales}
                                     isInvalid={emptyFields.includes("promedioPago")}
                                 />
                             </Form.Group>
+                            {desigualdadMensajePeriodo && (
+                                <div style={{ color: "red", marginTop: "10px" }}>
+                                    {desigualdadMensajePeriodo}
+                                </div>
+                            )}
 
                         </Form>
                         <RecibosDeLuz
@@ -961,7 +929,7 @@ const FinancialForm = () => {
                                         id={label}
                                         type="number"
                                         onBeforeInput={soloNumerosPositivosConDosDecimales}
-                                        onInput={validarNumericoDecimal}
+                                        onInput={limitarNumerico6Enteros2Decimales}
                                         isInvalid={emptyFields.includes(label)}
                                         onChange={actualizarTotalGastos}
                                     />
@@ -974,7 +942,7 @@ const FinancialForm = () => {
                                     id="totalGastos"
                                     type="number"
                                     onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
-                                    onInput={validarNumericoDecimal}
+                                    onInput={limitarNumerico6Enteros2Decimales}
                                     placeholder="$"
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
