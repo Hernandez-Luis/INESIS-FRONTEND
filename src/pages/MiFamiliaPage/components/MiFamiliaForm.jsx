@@ -26,6 +26,7 @@ import CatParentescoService from '../../../services/CatParentescoService';
 import { useNavigate } from 'react-router-dom';
 import CatSituacionVivienda from '../../../services/CatSituacionVivienda';
 import { mostrarSpinner, ocultarSpinner } from '../../../utils/spinerCarga/ModalSpiner';
+import CatCodigosPostalesService from '../../../services/CatCodigosPostalesService';
 
 
 const MiFamiliaForm = () => {
@@ -130,25 +131,27 @@ const MiFamiliaForm = () => {
     const idMiFamilia = localStorageData?.id_mi_familia;
 
     const [colonias, setColonias] = useState([]);
-    const handleBuscarCP = async (value) => {
+
+      const obtenerCpExcel = async (value) => {
         const codigoPostal = value
         // Solo buscar si tiene 5 dígitos
+        if (value.length !== 5) return;
         try {
-            const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            setColonias(datos.codigo_postal.colonias);
-
-            setDataDomicilio((prevData) => ({
-                ...prevData,
-                estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-                municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-                cp: codigoPostal,
-            }))
-
+          const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+          setColonias(datos.map(d => d.nombreAsentamiento));
+    
+          setDataDomicilio((prevData) => ({
+            ...prevData,
+            estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+            municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+            cp: codigoPostal,
+          }))
         } catch (err) {
-            console.error('Error al buscar código postal:', err);
-            setColonias([]);
+          console.error('Error al buscar código postal:', err);
+          setColonias([]);
         }
-    };
+      };
+      
 
     const verificarFechas = (fechaData) => {
         if (!fechaData.active) return false;
@@ -362,7 +365,7 @@ const MiFamiliaForm = () => {
     // useEffect para buscar CP cuando se carga desde datos del alumno:
     useEffect(() => {
         if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
-            handleBuscarCP(dataDomicilio.cp);
+            obtenerCpExcel(dataDomicilio.cp);
         }
     }, [dataDomicilio.cp]);
 
@@ -417,7 +420,7 @@ const MiFamiliaForm = () => {
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
         if (name === "cp" && value.length === 5) {
-            handleBuscarCP(value)
+            obtenerCpExcel(value)
         }
         setDataDomicilio((prevData) => ({
             ...prevData,
