@@ -7,6 +7,9 @@ import SeleccionarCombo from "../../components/ComboSeleccionar/SeleccionarCombo
 import carreraService from "../../services/CatCarreraService";
 import Alumno from "../../services/AlumnoService";
 import { Link } from "react-router-dom";
+import RevisorService from "../../services/RevisorService";
+import { SpinnerCarga } from "../../utils/spinerCarga/SpinerCarga";
+import { mostrarSpinner, ocultarSpinner } from "../../utils/spinerCarga/ModalSpiner";
 
 const ListadoEstudioSocioeconomico = () => {
 
@@ -32,16 +35,28 @@ const ListadoEstudioSocioeconomico = () => {
   useEffect(() => {
     Alumno.getAll()
       .then(data => {
-        console.log("Datos de alumnos:", data);
         const lista = data
           .filter(a => a.estudioCompleto === true) // Mostrar solo si 'completo' es true
           .map(a => {
-            // Determinar estado: null = "Sin revisar", false = "Pendiente", true = "Finalizado"
             let estadoTexto = "Sin revisar";
-            if (a.estadoRevision === false) {
-              estadoTexto = "Pendiente";
-            } else if (a.estadoRevision === true) {
-              estadoTexto = "Finalizado";
+            switch (a.estadoRevision) {
+              case 0:
+                estadoTexto = "Sin revisar";
+                break;
+              case 1:
+                estadoTexto = "Pendiente";
+                break;
+              case 2:
+                estadoTexto = "Con correcciones";
+                break;
+              case 3:
+                estadoTexto = "Corregido";
+                break;
+              case 4:
+                estadoTexto = "Finalizado";
+                break;
+              default:
+                estadoTexto = "Sin revisar";
             }
 
             return {
@@ -79,6 +94,35 @@ const ListadoEstudioSocioeconomico = () => {
     currentPage * itemsPerPage
   );
 
+  const exportarFinalizados = async () => {
+    try {
+      mostrarSpinner();
+      const response = await RevisorService.exportarExcel(); // Debe ser una promesa que regresa el base64
+      const base64 = response.data || response; // Ajusta según tu backend
+
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Estudios_Socioeconomicos.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("No se pudo exportar el archivo.");
+    } finally { 
+      ocultarSpinner();
+    } 
+  };
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <div className="flex-grow-1">
@@ -90,37 +134,53 @@ const ListadoEstudioSocioeconomico = () => {
             Resultados Estudio Socioeconómico
           </h1>
 
+          <div className="d-flex justify-content-end mb-3">
+            <button
+              className="btn btn-success"
+              onClick={exportarFinalizados}
+              style={{ minWidth: 200, fontWeight: "bold" }}
+            >
+              <i className="bi bi-file-earmark-excel-fill me-2"></i>
+              Exportar
+            </button>
+          </div>
+
           {/* Combo carrera */}
           <div className="mb-3" style={{ width: "50%" }}>
             <SeleccionarCombo
               name="carrera"
               options={opcionesCarreras}
               value={selectedCarrera}
-              onChange={e => setSelectedCarrera(e.target.value)}
+              onChange={e => setSelectedCarrera(e.target.value || "")}
               placeholder="Selecciona una carrera"
             />
           </div>
 
           {/* Filtros por estado y búsqueda */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <select
-              className="form-select w-auto"
-              style={{ width: "25%" }}
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-            >
-              <option value="">Mostrar todos</option>
-              <option value="Sin revisar">Sin revisar</option>
-              <option value="Finalizado">Finalizado</option>
-              <option value="Pendiente">Pendiente</option>
-            </select>
+            <div className="d-flex align-items-center">
+              <label className="me-2 fw-bold">Filtrar por estado:</label>
+              <select
+                className="form-select w-auto"
+                style={{ width: "25%" }}
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+              >
+                <option value="">Mostrar todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Con correcciones">Con correcciones</option>
+                <option value="Corregido">Corregido</option>
+                <option value="Finalizado">Finalizado</option>
+              </select>
+            </div>
+
 
             <input
               type="text"
               className="form-control w-auto"
               placeholder="Buscar..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value.slice(0, 30))}
             />
           </div>
 
@@ -150,11 +210,20 @@ const ListadoEstudioSocioeconomico = () => {
                         <i className="bi bi-file-earmark-text"></i>
                       </Link>
                     </td>
-                    <td className={
+                    <td className={`fw-bold ${
                       a.estado === "Finalizado" ? "text-success" :
-                      a.estado === "Pendiente" ? "text-danger" :
+                      a.estado === "Corregido" ? "text-primary" :
+                      a.estado === "Pendiente" ? "text-warning" :
+                      a.estado === "Con correcciones" ? "text-danger" :
                       "text-muted"
-                    }>
+                    }`}>
+                      <i className={`me-2 ${
+                        a.estado === "Finalizado" ? "bi bi-check-circle-fill" :
+                        a.estado === "Corregido" ? "bi bi-arrow-clockwise" :
+                        a.estado === "Pendiente" ? "bi bi-clock-fill" :
+                        a.estado === "Con correcciones" ? "bi bi-x-circle-fill" :
+                        "bi bi-clipboard"
+                      }`}></i>
                       {a.estado}
                     </td>
                   </tr>
@@ -180,7 +249,7 @@ const ListadoEstudioSocioeconomico = () => {
           </nav>
         </div>
       </div>
-
+      <SpinnerCarga />
       <FooterInesis />
     </div>
   );

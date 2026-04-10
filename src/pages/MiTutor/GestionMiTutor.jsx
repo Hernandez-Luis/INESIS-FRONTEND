@@ -1,6 +1,7 @@
 import React from 'react'
 import { MiTutor } from './MiTutor'
 import MiTutorService from '../../services/MiTutorService'
+import { SpinnerCarga } from '../../utils/spinerCarga/SpinerCarga'
 
 export const GestionMiTutor = () => {
 
@@ -33,6 +34,7 @@ export const GestionMiTutor = () => {
             onAdd={guardarMiTutor}
             update={updateMiTutor}
         />
+        <SpinnerCarga />
     </div>
   )
 }

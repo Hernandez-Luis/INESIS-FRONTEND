@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/usuario';
+const API_URL = '/api/usuario';
 
 const getAll = async () => {
   try {
@@ -72,7 +72,6 @@ const verificarYActualizarContrasena = async ({ usuario, contrasena, nuevaContra
       contrasena
     });
 
-    console.log("Respuesta de verificación:", response.data.verificado);
     // Si la verificación es exitosa, cambiar la contraseña
     if (response.data) {
       const cambioResponse = await axiosInstance.post(`${API_URL}/cambiar-contrasena`, {

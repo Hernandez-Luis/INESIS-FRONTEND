@@ -64,12 +64,12 @@ const ResultadosSolicitud = () => {
   }, []);
 
   const handleClick = () => {
-    navigate("/MenuAlumno");
+    navigate("/menuSolicitar");
   };
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <div className="flex-grow-1">
+      <div className="flex-grow-1 mb-5">
         <NavInesis /> 
         <MigasRecorrido items={links} /> 
         <div className="container text-center mt-4">

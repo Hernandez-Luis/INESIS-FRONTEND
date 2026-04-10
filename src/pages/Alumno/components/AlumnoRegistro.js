@@ -75,7 +75,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
           // Petición para obtener el usuario relacionado con el alumno
           const usuario = await UsuarioService.getByAlumnoId(props.alumno.id);
 
-          console.log("ESTE ES EL USUARIO", props.alumno);
           // Convertimos los datos al formato esperado por el formulario
           const alumnoEditar = {
             nombre: props.alumno.nombre || '',
@@ -241,7 +240,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const mostrarAlerta = (config) => {
     Swal.fire({
       ...config,
-      timer: 3000,
+      timer: 4000,
       timerProgressBar: true,
       showConfirmButton: true,
       confirmButtonText: 'OK',
@@ -312,7 +311,6 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         sexo: sexoSeleccionado ? sexoSeleccionado.id : null,
         grupo: formValues.grupo.id,
         usuario: formValues.usuario,
-        contrasenia: formValues.contrasena,
         estatus: 1,
         idCatRol: 1
       };
@@ -322,8 +320,10 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       if (esEdicion) {
         response = await alumnoService.update(props.alumno.id, alumnoPayload);
       } else {
+        alumnoPayload.contrasenia = formValues.contrasena;
         response = await alumnoService.create(alumnoPayload);
       }
+
 
       // 5. Confirmar éxito
       if (response.status === 200 || response.status === 201 || response.status === 204) {
@@ -455,7 +455,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               <p><strong>🔐 Nombre de usuario:</strong> primer_nombre.primer_apellido</p>
               <p style="margin-bottom: 8px;"><em>Ejemplo: juan.perez, maria.lopez</em></p>
               <p><strong>🔑 Contraseña:</strong> Matrícula del alumno</p>
-              <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234</em></p>
+              <p style="margin-bottom: 8px;"><em>Ejemplo: 2024001234  ó UNSIJ@202X</em></p>
               <hr style="margin: 10px 0;">
               <p style="color: #6c757d; font-size: 0.9em;">
                 <strong>Nota:</strong> El nombre de usuario puede tener variaciones en algunos casos y lo puedes verificar en el listado de alumnos.
@@ -485,8 +485,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       console.error('Error al importar alumnos:', error);
       mostrarAlerta({
         icon: 'error',
-        title: 'Error en la importación',
-        text: error.message || 'No se pudieron importar los alumnos. Verifica el formato del archivo.'
+        title: error.message || 'Error al importar',
+        text: error.data || 'No se pudieron importar los alumnos. Verifica el formato del archivo.'
       });
     } finally {
       setLoading(false);
@@ -505,7 +505,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
       {/* Botón para subir Excel - solo visible en la vista de agregar */}
       {!props.alumno && (
-        <div className="d-flex justify-content-start mx-5 mb-4">
+        <div className="d-flex justify-content-start mx-5 mb-4 ">
           <button
             type="button"
             className="btn btn-success d-flex align-items-center gap-2"
@@ -776,8 +776,8 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       />
 
       {/* Modal para carga de archivo Excel */}
-      <Modal show={showModal} onHide={cerrarModal} backdrop="static" keyboard={false} centered>
-        <Modal.Header closeButton>
+      <Modal show={showModal} onHide={cerrarModal} backdrop={loading ? "static" : "static"} keyboard={!loading} centered>
+        <Modal.Header closeButton={!loading}>
           <Modal.Title>Importar alumnos desde Excel</Modal.Title>
         </Modal.Header>
         <Modal.Body>

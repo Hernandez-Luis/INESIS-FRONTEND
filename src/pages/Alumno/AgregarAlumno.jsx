@@ -11,7 +11,7 @@ const AgregarAlumno = () => {
     const alumno = location.state?.alumno || null;
 
     const links = [
-        { url: '/PrincipalAdmin', label: 'Inicio' },
+        { url: '/MenuAdministrador', label: 'Inicio' },
         { url: '/AdministrarAlumnos', label: 'Alumnos' },
         { url: '/AgregarAlumno', label: 'Agregar alumno' }
     ];
@@ -20,7 +20,9 @@ const AgregarAlumno = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
-            <AlumnoRegistro alumno={alumno} />
+            <div className="layout-centrado">
+                <AlumnoRegistro alumno={alumno} />
+            </div>
             <FooterInesis />
         </div>
     );

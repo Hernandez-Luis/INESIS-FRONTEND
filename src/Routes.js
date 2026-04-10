@@ -38,29 +38,29 @@ const AppRoutes = () => {
         <Route path="/" element={<Login />} />
 
 
-        <Route path="/menuSolicitar" element={<ProtectedRoute allowedRoles={[1,2,3]}><MenuSolicitarBeca /></ProtectedRoute>}/>
-        <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1,2,3]}><GestionMisDatos /></ProtectedRoute>} />
+        <Route path="/menuSolicitar" element={<ProtectedRoute allowedRoles={[1]}><MenuSolicitarBeca /></ProtectedRoute>}/>
+        <Route path="/MisDatos" element={<ProtectedRoute allowedRoles={[1]}><GestionMisDatos /></ProtectedRoute>} />
         <Route path="/NavInesis" element={<ProtectedRoute allowedRoles={[1,2,3]}><NavInesis /></ProtectedRoute>} />
 
         <Route path="/Migas" element={<ProtectedRoute allowedRoles={[1,2,3]}> <MigasRecorrido /> </ProtectedRoute>} />
-        <Route path="/Revision" element={<ProtectedRoute allowedRoles={[1,2,3]}> <RevisionSolicitud /></ProtectedRoute>} />
-        <Route path="/MisDocumentos" element={<ProtectedRoute allowedRoles={[1,2,3]}> <MisDocumentos /> </ProtectedRoute>} />
-        <Route path="/ResultadosSolicitud" element={<ProtectedRoute allowedRoles={[1,2,3]}> <ResultadosSolicitud /> </ProtectedRoute>}/>
-        <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ProtectedRoute allowedRoles={[1,2,3]}> <ResultadoEstudioSocioeconomicoCorrecto /> </ProtectedRoute>}/>
-        <Route path="/ListadoEstudioSocioeconomico" element={<ProtectedRoute allowedRoles={[1,2,3]}> <ListadoEstudioSocioeconomico /> </ProtectedRoute>}/>
-        <Route path="/MenuAlumno" element={<ProtectedRoute allowedRoles={[1,2,3]}><MenuAlumno/></ProtectedRoute>} />
+        <Route path="/Revision" element={<ProtectedRoute allowedRoles={[3]}> <RevisionSolicitud /></ProtectedRoute>} />
+        {/*<Route path="/MisDocumentos" element={<ProtectedRoute allowedRoles={[1,2,3]}> <MisDocumentos /> </ProtectedRoute>} />*/}
+        <Route path="/ResultadosSolicitud" element={<ProtectedRoute allowedRoles={[1]}> <ResultadosSolicitud /> </ProtectedRoute>}/>
+        <Route path="/ResultadoEstudioSocioeconomicoCorrecto" element={<ProtectedRoute allowedRoles={[1]}> <ResultadoEstudioSocioeconomicoCorrecto /> </ProtectedRoute>}/>
+        <Route path="/ListadoEstudioSocioeconomico" element={<ProtectedRoute allowedRoles={[3]}> <ListadoEstudioSocioeconomico /> </ProtectedRoute>}/>
+        <Route path="/MenuAlumno" element={<ProtectedRoute allowedRoles={[1]}><MenuAlumno/></ProtectedRoute>} />
         <Route path="/Lineamientos" element={<ProtectedRoute allowedRoles={[1,2,3]}> <LIneamientos /> </ProtectedRoute>} />
-        <Route path="/MenuRevisor" element={<ProtectedRoute allowedRoles={[1,2,3]}> <MenuPrincipalRevisor /> </ProtectedRoute>} />
-        <Route path="/MenuAdministrador" element={<ProtectedRoute allowedRoles={[1,2,3]}> <MenuAdministrador /> </ProtectedRoute>} />   
-        <Route path="/MiTutor" element={<ProtectedRoute allowedRoles={[1,2,3]}> <GestionMiTutor /> </ProtectedRoute>} />
-        <Route path="/AdministrarAlumnos" element={<ProtectedRoute allowedRoles={[1,2,3]}> <AdministrarAlumnos /> </ProtectedRoute>} />
-        <Route path="/AgregarAlumno" element={<ProtectedRoute allowedRoles={[1,2,3]}> <AgregarAlumno/> </ProtectedRoute>} />
-        <Route path="/AdministrarFechas" element={<ProtectedRoute allowedRoles={[1,2,3]}> <AdministrarFechas/> </ProtectedRoute>} />
-        <Route path="/MiFamilia" element={<ProtectedRoute allowedRoles={[1,2,3]}> <MiFamilia/> </ProtectedRoute>} />
-        <Route path="/AdministrarRevisor" element={<ProtectedRoute allowedRoles={[1,2,3]}> <AdministrarRevisor/> </ProtectedRoute>} />
-        <Route path='/AgregarRevisor' element={<ProtectedRoute allowedRoles={[1,2,3]}> <AgregarRevisor/> </ProtectedRoute>}></Route>        
+        <Route path="/MenuRevisor" element={<ProtectedRoute allowedRoles={[3]}> <MenuPrincipalRevisor /> </ProtectedRoute>} />
+        <Route path="/MenuAdministrador" element={<ProtectedRoute allowedRoles={[2]}> <MenuAdministrador /> </ProtectedRoute>} />   
+        <Route path="/MiTutor" element={<ProtectedRoute allowedRoles={[1]}> <GestionMiTutor /> </ProtectedRoute>} />
+        <Route path="/AdministrarAlumnos" element={<ProtectedRoute allowedRoles={[2]}> <AdministrarAlumnos /> </ProtectedRoute>} />
+        <Route path="/AgregarAlumno" element={<ProtectedRoute allowedRoles={[2]}> <AgregarAlumno/> </ProtectedRoute>} />
+        <Route path="/AdministrarFechas" element={<ProtectedRoute allowedRoles={[2]}> <AdministrarFechas/> </ProtectedRoute>} />
+        <Route path="/MiFamilia" element={<ProtectedRoute allowedRoles={[1]}> <MiFamilia/> </ProtectedRoute>} />
+        <Route path="/AdministrarRevisor" element={<ProtectedRoute allowedRoles={[2]}> <AdministrarRevisor/> </ProtectedRoute>} />
+        <Route path='/AgregarRevisor' element={<ProtectedRoute allowedRoles={[2]}> <AgregarRevisor/> </ProtectedRoute>}></Route>        
         <Route path="/FooterInesis" element={<ProtectedRoute allowedRoles={[1,2,3]}> <FooterInesis /> </ProtectedRoute>} />
-        <Route path="/GastosIngresos" element={<ProtectedRoute allowedRoles={[1,2,3]}> <GastosIngresos /> </ProtectedRoute>} />
+        <Route path="/GastosIngresos" element={<ProtectedRoute allowedRoles={[1]}> <GastosIngresos /> </ProtectedRoute>} />
     </Routes>
   )
 }

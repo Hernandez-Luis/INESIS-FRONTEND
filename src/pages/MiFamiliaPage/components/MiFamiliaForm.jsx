@@ -4,6 +4,8 @@ import Swal from 'sweetalert2';
 import RadioSelect from '../../../components/RadioSelect/RadioSelect';
 import SeleccionarCombo from '../../../components/ComboSeleccionar/SeleccionarCombo';
 import { CheckBox } from '../../../components/CheckBox/CheckBox'
+import { Info, CheckCircle, AlertCircle } from 'lucide-react';
+
 
 //Servicios cat
 import CatBienesHogarService from '../../../services/CatBienesHogarService';
@@ -22,6 +24,9 @@ import AlumnoService from '../../../services/AlumnoService';
 import CatRegionDistritoService from '../../../services/CatRegionDistritoService';
 import CatParentescoService from '../../../services/CatParentescoService';
 import { useNavigate } from 'react-router-dom';
+import CatSituacionVivienda from '../../../services/CatSituacionVivienda';
+import { mostrarSpinner, ocultarSpinner } from '../../../utils/spinerCarga/ModalSpiner';
+import CatCodigosPostalesService from '../../../services/CatCodigosPostalesService';
 
 
 const MiFamiliaForm = () => {
@@ -44,6 +49,7 @@ const MiFamiliaForm = () => {
     const [tipoViviendaSeleccionado, setTipoViviendaSeleccionado] = useState('');
 
     const [situacionesVivienda, setSituacionesVivienda] = useState([]);
+    const [catSituacionVivienda, setCatSituacionVivienda] = useState([])
     const [situacionViviendaSeleccionada, setSituacionViviendaSeleccionada] = useState('');
 
     const [mediosEstudio, setMediosEstudio] = useState([]);
@@ -79,6 +85,8 @@ const MiFamiliaForm = () => {
     const navigate = useNavigate(); // Añadir esta línea
 
     const [btnDisabled, setBtnDisabled] = useState(false);
+
+    const [mostrarAyuda, setMostrarAyuda] = useState(false);
 
 
     // ********************************* RELACION CON CATALOGOS *******************************************
@@ -123,28 +131,27 @@ const MiFamiliaForm = () => {
     const idMiFamilia = localStorageData?.id_mi_familia;
 
     const [colonias, setColonias] = useState([]);
-    const handleBuscarCP = async (value) => {
+
+      const obtenerCpExcel = async (value) => {
         const codigoPostal = value
-        console.log("Codigo postal: ", codigoPostal)
         // Solo buscar si tiene 5 dígitos
+        if (value.length !== 5) return;
         try {
-            const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            console.log("Datos de la API: ", datos)
-            setColonias(datos.codigo_postal.colonias);
-
-            setDataDomicilio((prevData) => ({
-                ...prevData,
-                estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-                municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-                cp: codigoPostal,
-            }))
-
-            console.log(dataDomicilio)
+          const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+          setColonias(datos.map(d => d.nombreAsentamiento));
+    
+          setDataDomicilio((prevData) => ({
+            ...prevData,
+            estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+            municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+            cp: codigoPostal,
+          }))
         } catch (err) {
-            console.error('Error al buscar código postal:', err);
-            setColonias([]);
+          console.error('Error al buscar código postal:', err);
+          setColonias([]);
         }
-    };
+      };
+      
 
     const verificarFechas = (fechaData) => {
         if (!fechaData.active) return false;
@@ -183,8 +190,8 @@ const MiFamiliaForm = () => {
             setMaterialSeleccionado(data.viviendaFamiliar.materialVivienda?.id || '');
 
             // Cargar región y distrito
-            setRegionSeleccionada(data.viviendaFamiliar.region || '');
-            setDistritoSeleccionado(data.viviendaFamiliar.distrito || '');
+            setRegionSeleccionada(data.viviendaFamiliar.region.id || '');
+            setDistritoSeleccionado(data.viviendaFamiliar.distrito.id || '');
 
             // Cargar servicios de vivienda
             if (data.viviendaFamiliar.serviciosVivienda && data.viviendaFamiliar.serviciosVivienda.length > 0) {
@@ -244,15 +251,15 @@ const MiFamiliaForm = () => {
 
             // Establecer región y distrito seleccionados
             if (data.viviendaFamiliar?.region) {
-                setRegionSeleccionada(data.viviendaFamiliar.region);
+                setRegionSeleccionada(data.viviendaFamiliar.region.id);
             }
             if (data.viviendaFamiliar?.distrito) {
-                setDistritoSeleccionado(data.viviendaFamiliar.distrito);
+                setDistritoSeleccionado(data.viviendaFamiliar.distrito.id);
             }
 
             // Por defecto, si ya tiene domicilio registrado, asumir que no coincide con el del alumno
             // a menos que sea exactamente el mismo ID
-            if (data.domicilio.id === alumnoData?.misDatos?.domicilio?.id) {
+            if (data.domicilio?.id === alumnoData?.misDatos?.domicilio?.id) {
                 setDomicilioCoincide('Si');
                 setDisabled(true);
             } else {
@@ -290,17 +297,15 @@ const MiFamiliaForm = () => {
                 return;
             }
             let datos = await AlumnoService.getById(alumnoId);
-            console.log("Datos del alumno: ", datos);
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setDatosAlumno(datos);
 
             // Verificar si ya tiene datos de Mi Familia
             if (datos.miFamilia) {
-                console.log("Datos de mi familia existentes: ", datos.miFamilia);
                 setDatosMiFamiliaAlumno(datos.miFamilia, datos);
             }
         } catch (error) {
-            console.log("Error al obtener datos del alumno: ", error);
+            console.error("Error al obtener datos del alumno: ", error);
         }
     };
 
@@ -347,14 +352,20 @@ const MiFamiliaForm = () => {
         const cargarDatos = async () => {
             await obtenerCatalogos();
             await obtenerDatosPorAlumno();
+            await obtenerCatSituacionVivienda();
         };
         cargarDatos();
     }, []);
 
+    useEffect(() => {
+        obtenerCatSituacionVivienda();
+    }, []);
+
+
     // useEffect para buscar CP cuando se carga desde datos del alumno:
     useEffect(() => {
         if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
-            handleBuscarCP(dataDomicilio.cp);
+            obtenerCpExcel(dataDomicilio.cp);
         }
     }, [dataDomicilio.cp]);
 
@@ -366,6 +377,7 @@ const MiFamiliaForm = () => {
     }, [regionSeleccionada]);
 
     // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
+
     const obtenerCatalogos = async () => {
         try {
             const bienes = await CatBienesHogarService.getAll();
@@ -403,12 +415,12 @@ const MiFamiliaForm = () => {
         }
     };
 
+
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
-        //console.log("Nombre: ", name, " Valor: ", value)
         if (name === "cp" && value.length === 5) {
-            handleBuscarCP(value)
+            obtenerCpExcel(value)
         }
         setDataDomicilio((prevData) => ({
             ...prevData,
@@ -457,7 +469,7 @@ const MiFamiliaForm = () => {
                 distrito: otroDistritoTexto // Usar el texto de otro distrito
             }));
         }
-    };
+    }
 
     // Función para filtrar distritos por región
     const filtrarDistritosPorRegion = async (regionId) => {
@@ -480,6 +492,19 @@ const MiFamiliaForm = () => {
             console.error('Error al obtener todos los distritos:', error);
         }
     };
+
+    const obtenerCatSituacionVivienda = async () => {
+        try {
+            let situacionViviendaLista = await CatSituacionViviendaService.getAll();
+            let opcionesPermitidas = ['Propia', 'Alquilada', 'Otro'];
+            let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
+                opcionesPermitidas.includes(item.nombreSituacion)
+            );
+            setCatSituacionVivienda(situacionViviendaFiltrada);
+        } catch (error) {
+            console.error("Error al obtener la lista de SituacionVivienda: ", error)
+        }
+    }
 
     // Agregar manejador para cambio de distrito
     const handleChangeDistrito = (e) => {
@@ -636,6 +661,35 @@ const MiFamiliaForm = () => {
     };
 
     const handleFileUpload = (index, file) => {
+        if (file) {
+            const allowedTypes = [
+                "application/pdf",
+                "image/jpeg",
+                "image/png"
+            ];
+            const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+
+            if (!allowedTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Archivo no permitido",
+                    text: "Solo se permiten archivos PDF o imágenes (JPG, PNG).",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#6f42c1"
+                });
+                return;
+            }
+            if (file.size > maxSizeInBytes) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Archivo demasiado grande",
+                    text: "El archivo no debe exceder los 10MB.",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#6f42c1"
+                });
+                return;
+            }
+        }
         const nuevos = [...dependientes];
         nuevos[index].archivo = file;
         nuevos[index].nombreArchivo = file ? file.name : ""; // <-- Guarda el nombre
@@ -794,6 +848,24 @@ const MiFamiliaForm = () => {
         if (domicilioCoincide === null || domicilioCoincide === undefined || domicilioCoincide === '') {
             errores.domicilioCoincide = true;
             erroresSwal.push('Debes indicar si el domicilio coincide');
+        }
+
+        // Validar distrito - manejar tanto objeto como string
+        if (!dataDomicilio.distrito ||
+            (typeof dataDomicilio.distrito === 'object' ?
+                !dataDomicilio.distrito.id :
+                dataDomicilio.distrito.trim() === "")) {
+            errores.distrito = true;
+            erroresSwal.push('El Distrito es obligatorio.');
+        }
+
+        // Validar región - manejar tanto objeto como string
+        if (!dataDomicilio.region ||
+            (typeof dataDomicilio.region === 'object' ?
+                !dataDomicilio.region.id :
+                dataDomicilio.region.trim() === "")) {
+            errores.region = true;
+            erroresSwal.push('La Región es obligatoria.');
         }
 
         // Validaciones de domicilio (si no coincide con el del alumno)
@@ -1032,7 +1104,7 @@ const MiFamiliaForm = () => {
             });
             return;
         }
-        const result = await Swal.fire({
+        /*const result = await Swal.fire({
             title: '¿Deseas guardar el formulario?',
             text: 'Asegúrate de haber revisado todos los datos antes de continuar.',
             icon: 'question',
@@ -1042,12 +1114,12 @@ const MiFamiliaForm = () => {
             confirmButtonText: 'Sí, guardar',
             cancelButtonText: 'Quiero revisar',
         });
-
         // Si el usuario cancela, detenemos la ejecución
         if (!result.isConfirmed) {
             return;
-        }
+        }*/
         try {
+            mostrarSpinner();
             // Preparar datos de domicilio
             let datosDomicilio = {};
             if (domicilioCoincide === 'Si' || domicilioCoincide === true) {
@@ -1167,29 +1239,30 @@ const MiFamiliaForm = () => {
                 personasDependientes: dependientesData
             };
 
-            console.log('Payload completo a enviar:', payloadCompleto);
 
             let response;
             let nuevosErrores = null;
             // Verificar si es actualización o creación
+            console.log("payloadCompleto", payloadCompleto);
             if (datosAlumno.miFamilia !== null) {
                 // Actualizar datos existentes
                 const idMiFamilia = datosAlumno.miFamilia.id;
-                console.log(datosAlumno);
                 response = await MiFamiliaService.update(idMiFamilia, payloadCompleto);
                 mostrarExito('Datos actualizados correctamente');
             } else {
                 // Crear nuevos datos
                 response = await MiFamiliaService.create(payloadCompleto);
-                console.log('Datos creados:', response);
                 mostrarExito('Datos guardados correctamente');
             }
         } catch (error) {
-            if (error.includes('periodo de registro')) {
+            const mensaje = error.message || error.toString();
+            if (mensaje.includes('periodo de registro')) {
                 mostrarInformacion(error);
                 return;
             }
             mostrarError('Ocurrió un error al guardar la información');
+        } finally {
+            ocultarSpinner();
         }
     };
 
@@ -1197,9 +1270,11 @@ const MiFamiliaForm = () => {
     // ******************************************************************************************************
     return (
         <div className='d-flex flex-column min-vh-100'>
-            <div className='flex-grow-1 mt-5 mx-lg-5 px-5'>
+            <div className='flex-grow-1 px-4 px-md-0'>
                 <form onSubmit={(e) => { e.preventDefault(); }}>
                     <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
+                        <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
+
                         <div className='tarjeta-border p-4 mb-2'>
                             <div className='row'>
                                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
@@ -1207,6 +1282,8 @@ const MiFamiliaForm = () => {
                                     <div className='d-flex justify-content-start align-items-center flex-wrap'>
                                         <label className='fs-5 me-5' style={{ color: 'var(--color-morado3)' }}>
                                             ¿El domicilio de tu familia coincide con el que te encuentras actualmente?
+                                            <span style={{ color: 'red' }}>*</span>
+
                                         </label>
                                         <RadioSelect
                                             gris={true}
@@ -1224,7 +1301,8 @@ const MiFamiliaForm = () => {
                                     <div className="line mx-auto mt-4 mb-4"></div>
                                     <div className='row'>
                                         <div className="col-12 col-md-2 mt-2">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P.	<span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 type="text"
                                                 className={`form-control ${erroresFormulario.cp ? 'is-invalid' : ''}`}
@@ -1263,7 +1341,9 @@ const MiFamiliaForm = () => {
                                         </div>
 
                                         <div className="col-12 col-md-3 mt-2">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Región
+                                                <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <select
                                                 name="region"
                                                 value={regionSeleccionada}
@@ -1307,7 +1387,9 @@ const MiFamiliaForm = () => {
                                         </div>
 
                                         <div className='col-12 col-md-3 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad
+                                                <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <input
                                                 className={`form-control ${erroresFormulario.localidad ? 'is-invalid' : ''}`}
                                                 type="text"
@@ -1324,7 +1406,9 @@ const MiFamiliaForm = () => {
                                         </div>
 
                                         <div className='col-12 col-md-3 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Distrito
+                                                <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <select
                                                 name="distrito"
                                                 value={distritoSeleccionado}
@@ -1367,7 +1451,9 @@ const MiFamiliaForm = () => {
 
 
                                         <div className='col-12 col-md-3 mt-2'>
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia
+                                                <span style={{ color: 'red' }}>*</span>
+                                            </label>
                                             <select
                                                 name="colonia"
                                                 value={dataDomicilio.colonia || ''}
@@ -1405,12 +1491,12 @@ const MiFamiliaForm = () => {
                                     </p>
                                     <div className="mb-3">
                                         <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                            Teléfono
+                                            Teléfono de la familia	<span style={{ color: 'red' }}>*</span>
                                         </label>
                                         <input
                                             type="text"
                                             className={`form-control ${erroresFormulario.telefono ? 'is-invalid' : ''}`}
-                                            placeholder="Ingresa el número de teléfono"
+                                            placeholder="Teléfono de casa o de algún familiar"
                                             name="telefono"
                                             value={dataMiFamilia.telefono}
                                             onChange={handleTelefonoChange}
@@ -1431,7 +1517,8 @@ const MiFamiliaForm = () => {
                                     <div className="row">
                                         <div className="col-12 col-md-6 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Escolaridad del padre
+                                                Escolaridad del padre	<span style={{ color: 'red' }}>*</span>
+
                                             </label>
                                             <select
                                                 name="escolaridadPadre"
@@ -1454,7 +1541,7 @@ const MiFamiliaForm = () => {
                                         </div>
                                         <div className="col-12 col-md-6 mb-3">
                                             <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                                Escolaridad de la madre
+                                                Escolaridad de la madre 	<span style={{ color: 'red' }}>*</span>
                                             </label>
                                             <select
                                                 name="escolaridadMadre"
@@ -1487,6 +1574,7 @@ const MiFamiliaForm = () => {
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         La casa donde tu familia es:
+                                        <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <select
                                         name="situacionVivienda"
@@ -1495,10 +1583,11 @@ const MiFamiliaForm = () => {
                                         onChange={handleChangeSituacionVivienda}
                                     >
                                         <option value="">Selecciona una opción</option>
-                                        {situacionesVivienda.map((item) => (
+                                        {catSituacionVivienda.map((item) => (
                                             <option key={item.id} value={item.id}>{item.nombreSituacion}</option>
                                         ))}
                                     </select>
+
                                     {erroresFormulario.situacionVivienda && (
                                         <div className="invalid-feedback">
                                             Selecciona la situación de la vivienda.
@@ -1509,6 +1598,8 @@ const MiFamiliaForm = () => {
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Tipo de vivienda
+                                        <span style={{ color: 'red' }}>*</span>
+
                                     </label>
                                     <select
                                         className={`form-select ${erroresFormulario.tipoVivienda ? 'is-invalid' : ''}`}
@@ -1528,6 +1619,8 @@ const MiFamiliaForm = () => {
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Material de construcción
+                                        <span style={{ color: 'red' }}>*</span>
+
                                     </label>
                                     <select
                                         name="materialVivienda"
@@ -1550,6 +1643,7 @@ const MiFamiliaForm = () => {
                                 <div className={`col-12 col-md-8 ${erroresFormulario.serviciosVivienda ? 'border-danger' : 'border-secondary'}`}>
                                     <label className="fs-5 mb-2 d-block" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Con qué servicios cuenta la vivienda?
+                                        <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <div className="row">
                                         {[0, 1, 2].map((col) => (
@@ -1604,6 +1698,7 @@ const MiFamiliaForm = () => {
                                 <div className={`col-12 col-md-12 ${erroresFormulario.bienesHogar ? 'border-danger' : 'border-secondary'}`}>
                                     <label className="fs-5 mb-3 d-block" style={{ color: 'var(--color-morado3)' }}>
                                         ¿En la casa donde vive tu familia hay?
+                                        <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <div className="row">
                                         {[0, 1, 2].map((col) => (
@@ -1641,6 +1736,7 @@ const MiFamiliaForm = () => {
                                 <div className="col-md-4 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Cuántas personas habitan en la vivienda?
+                                        <span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <input
                                         type="number"
@@ -1658,6 +1754,8 @@ const MiFamiliaForm = () => {
                                 <div className={`col-12 col-md-8 mb-3 ${erroresFormulario.mediosEstudio ? 'border-danger' : 'border-secondary'}`}>
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Medios para estudiar en casa (marca tantas opciones como sea necesario):
+                                        <span style={{ color: 'red' }}>*</span>
+
                                     </label>
                                     <div className="row">
                                         {[0, 1, 2].map((col) => (
@@ -1688,6 +1786,7 @@ const MiFamiliaForm = () => {
                             <div className="col-12 col-md-3 mb-3 px-4">
                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                     ¿Cuenta con acceso a internet?
+                                    <span style={{ color: 'red' }}>*</span>
                                 </label>
                                 <div className="col-md-12">
                                     <select
@@ -1714,6 +1813,57 @@ const MiFamiliaForm = () => {
                             </div>
                         </div>
                         <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
+                            <div className="d-flex align-items-center justify-content-between mb-3 px-4">
+                                <button
+                                    type="button"
+                                    className="btn btn-link p-0 ms-auto"
+                                    onClick={() => setMostrarAyuda(!mostrarAyuda)}
+                                    style={{ color: 'var(--color-morado3)', fontSize: '1.5rem' }}
+                                    title="Ver ayuda"
+                                >
+                                    <Info size={28} />
+                                </button>
+                            </div>
+                            {/* Panel de ayuda expandible */}
+                            {mostrarAyuda && (
+                                <div className="alert alert-info mx-4" style={{
+                                    backgroundColor: '#e8f4fd',
+                                    borderLeft: '4px solid var(--color-morado3)',
+                                    borderRadius: '8px'
+                                }}>
+                                    <h5 className="alert-heading d-flex align-items-center">
+                                        <Info size={20} className="me-2" />
+                                        ¿Cómo llenar esta sección?
+                                    </h5>
+                                    <hr />
+                                    <p className="mb-2"><strong>Regla importante:</strong> Cada hermano debe contarse UNA SOLA VEZ.</p>
+
+                                    <div className="mb-3">
+                                        <strong>Ejemplo correcto:</strong>
+                                        <ul className="mb-0 mt-2">
+                                            <li>Tengo <strong>2 hermanos</strong></li>
+                                            <li><strong>1</strong> está estudiando actualmente</li>
+                                            <li><strong>1</strong> ya no estudia y tiene licenciatura</li>
+                                            <li><strong>0</strong> dejaron de estudiar sin terminar</li>
+                                            <li>Total: 1 + 1 + 0 = <strong>2 hermanos</strong></li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="bg-white p-3 rounded mb-3">
+                                        <strong>Categorías:</strong>
+                                        <ul className="mb-0 mt-2">
+                                            <li><strong>Están estudiando:</strong> Actualmente cursan un nivel educativo</li>
+                                            <li><strong>No estudian:</strong> Dejaron de estudiar sin terminar una carrera</li>
+                                            <li><strong>Tienen licenciatura:</strong> Ya terminaron una carrera universitaria (aunque no estudien actualmente)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="alert alert-warning mb-0" style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107' }}>
+                                        <strong>Error común:</strong> Si un hermano "no estudia pero tiene licenciatura",
+                                        solo cuenta en <strong>"Tienen licenciatura"</strong>, NO en ambas categorías.
+                                    </div>
+                                </div>
+                            )}
                             <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Hermanos
                             </p>
@@ -1721,7 +1871,8 @@ const MiFamiliaForm = () => {
                                 {/* ¿Cuántos hermanos tienes? */}
                                 <div className="col-10 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        ¿Cuántos hermanos tienes?
+                                        ¿Cuántos hermanos tienes? 	<span style={{ color: 'red' }}>*</span>
+
                                     </label>
                                     <input
                                         type="number"
@@ -1741,7 +1892,8 @@ const MiFamiliaForm = () => {
                                 {/* ¿Cuántos están estudiando? */}
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        ¿Cuántos están estudiando?
+                                        ¿Cuántos están estudiando? 	<span style={{ color: 'red' }}>*</span>
+
                                     </label>
                                     <input
                                         type="number"
@@ -1760,7 +1912,7 @@ const MiFamiliaForm = () => {
                                 {/* ¿Cuántos dejaron de estudiar? */}
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        ¿Cuántos no estudian?
+                                        ¿Cuántos no estudian? 	<span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <input
                                         type="number"
@@ -1779,7 +1931,7 @@ const MiFamiliaForm = () => {
                                 {/* ¿Cuántos tienen licenciatura? */}
                                 <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
-                                        ¿Cuántos tienen licenciatura?
+                                        ¿Cuántos tienen licenciatura? 	<span style={{ color: 'red' }}>*</span>
                                     </label>
                                     <input
                                         type="number"
@@ -1798,109 +1950,110 @@ const MiFamiliaForm = () => {
                         </div>
 
                         <div className="col-12 tarjeta-border d-flex flex-column p-4 mb-4 w-100">
-                                <p className="fs-2 ms-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
-                                    Personas dependientes
-                                </p>
-                                <div className="col-12 col-md-8 mb-3 px-3">
-                                    <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
-                                        Además de ti y tus padres, ¿Cuántas personas dependen económicamente de tu ingreso familiar?
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className="form-control col-md-4 mt-2"
-                                        placeholder="Número de personas dependientes"
-                                        value={numDependientes}
-                                        min="0"
-                                        onChange={handleNumDependientesChange}
-                                    />
-                                </div>
-                                {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
-                                {dependientes.map((dep, index) => (
-                                    <div key={index} className="col-12 tarjeta-border p-4 mb-3">
-                                        <div className="row">
-                                            <div className="fs-5 col-12 col-md-3 mb-3">
-                                                <label style={{ color: 'var(--color-morado3)' }} >Nombre completo:</label>
-                                                <input
-                                                    type="text"
-                                                    className={`form-control ${erroresFormulario.dependientes?.[index]?.nombrePersona ? 'is-invalid' : ''}`}
-                                                    value={dep.nombrePersona}
-                                                    onChange={(e) =>
-                                                        handleChangeDependiente(index, 'nombrePersona', e.target.value)
-                                                    }
-                                                    placeholder="Nombre completo"
-                                                />
-                                                {erroresFormulario.dependientes?.[index]?.nombrePersona && (
-                                                    <div className="invalid-feedback">Este campo es obligatorio.</div>
-                                                )}
-                                            </div>
+                            <p className="fs-2 ms-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
+                                Personas dependientes
+                            </p>
+                            <div className="col-12 col-md-8 mb-3 px-3">
+                                <label className="fs-5" style={{ color: "var(--color-morado3)" }}>
+                                    <b>Además de ti,</b> ¿Cuántas personas dependen económicamente del ingreso familiar?
+                                    <span style={{ color: 'red' }}>*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    className="form-control col-md-4 mt-2"
+                                    placeholder="Número de personas dependientes"
+                                    value={numDependientes}
+                                    min="0"
+                                    onChange={handleNumDependientesChange}
+                                />
+                            </div>
+                            {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
+                            {dependientes.map((dep, index) => (
+                                <div key={index} className="col-12 tarjeta-border p-4 mb-3">
+                                    <div className="row">
+                                        <div className="fs-5 col-12 col-md-3 mb-3">
+                                            <label style={{ color: 'var(--color-morado3)' }} >Nombre completo:<span style={{ color: 'red' }}>*</span></label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${erroresFormulario.dependientes?.[index]?.nombrePersona ? 'is-invalid' : ''}`}
+                                                value={dep.nombrePersona}
+                                                onChange={(e) =>
+                                                    handleChangeDependiente(index, 'nombrePersona', e.target.value)
+                                                }
+                                                placeholder="Nombre completo"
+                                            />
+                                            {erroresFormulario.dependientes?.[index]?.nombrePersona && (
+                                                <div className="invalid-feedback">Este campo es obligatorio.</div>
+                                            )}
+                                        </div>
 
-                                            <div className="fs-5 col-12 col-md-2 mb-3">
-                                                <label style={{ color: 'var(--color-morado3)' }} >Edad:</label>
-                                                <input
-                                                    type="number"
-                                                    className={`form-control ${erroresFormulario.dependientes?.[index]?.edad ? 'is-invalid' : ''}`}
-                                                    value={dep.edad}
-                                                    onChange={(e) => handleChangeDependiente(index, 'edad', e.target.value)}
-                                                />
-                                                {erroresFormulario.dependientes?.[index]?.edad && (
-                                                    <div className="invalid-feedback">Este campo de edad es obligatorio.</div>
-                                                )}
-                                            </div>
+                                        <div className="fs-5 col-12 col-md-2 mb-3">
+                                            <label style={{ color: 'var(--color-morado3)' }} >Edad:<span style={{ color: 'red' }}>*</span></label>
+                                            <input
+                                                type="number"
+                                                className={`form-control ${erroresFormulario.dependientes?.[index]?.edad ? 'is-invalid' : ''}`}
+                                                value={dep.edad}
+                                                onChange={(e) => handleChangeDependiente(index, 'edad', e.target.value)}
+                                            />
+                                            {erroresFormulario.dependientes?.[index]?.edad && (
+                                                <div className="invalid-feedback">Este campo de edad es obligatorio.</div>
+                                            )}
+                                        </div>
 
-                                            <div className="fs-5 col-12 col-md-3 mb-3">
-                                                <label style={{ color: 'var(--color-morado3)' }} >Parentesco:</label>
-                                                <select
-                                                    className={`form-select ${erroresFormulario.dependientes?.[index]?.parentesco ? 'is-invalid' : ''}`}
-                                                    name={`parentesco-${index}`}
-                                                    value={dep.parentesco}
-                                                    onChange={(e) => handleChangeDependiente(index, 'parentesco', e.target.value)}
-                                                    placeholder="Selecciona parentesco"
-                                                >
-                                                    <option value="">Selecciona parentesco</option>
-                                                    {parentescos.map((parentesco) => (
-                                                        <option key={parentesco.id} value={parentesco.id}>
-                                                            {parentesco.nombre || parentesco.nombreParentesco}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {erroresFormulario.dependientes?.[index]?.parentesco && (
-                                                    <div className="invalid-feedback">Es obligatorio el parentesco.</div>
-                                                )}
-                                            </div>
+                                        <div className="fs-5 col-12 col-md-3 mb-3">
+                                            <label style={{ color: 'var(--color-morado3)' }} >Parentesco:<span style={{ color: 'red' }}>*</span></label>
+                                            <select
+                                                className={`form-select ${erroresFormulario.dependientes?.[index]?.parentesco ? 'is-invalid' : ''}`}
+                                                name={`parentesco-${index}`}
+                                                value={dep.parentesco}
+                                                onChange={(e) => handleChangeDependiente(index, 'parentesco', e.target.value)}
+                                                placeholder="Selecciona parentesco"
+                                            >
+                                                <option value="">Selecciona parentesco</option>
+                                                {parentescos.map((parentesco) => (
+                                                    <option key={parentesco.id} value={parentesco.id}>
+                                                        {parentesco.nombre || parentesco.nombreParentesco}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {erroresFormulario.dependientes?.[index]?.parentesco && (
+                                                <div className="invalid-feedback">Es obligatorio el parentesco.</div>
+                                            )}
+                                        </div>
 
-                                            <div className="fs-5 col-12 col-md-4 mb-3">
-                                                <label style={{ color: 'var(--color-morado3)' }}  >Comprobante (CURP, Acta, etc.):</label>
-                                                <input
-                                                    type="file"
-                                                    className={`form-control ${erroresFormulario.dependientes?.[index]?.archivo ? 'is-invalid' : ''}`}
-                                                    onChange={(e) => handleFileUpload(index, e.target.files[0])}
-                                                    accept=".jpg,.jpeg,.png,.pdf"
-                                                />
-                                                {erroresFormulario.dependientes?.[index]?.archivo && (
-                                                    <div className="invalid-feedback">
-                                                        Debes subir un archivo válido.
-                                                    </div>
-                                                )}
-                                                {dep.nombreArchivo && (
-                                                    <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
-                                                        Archivo enviado: {dep.nombreArchivo}
-                                                        <br />
-                                                        <small>Si subes un nuevo archivo, reemplazará al anterior</small>
-                                                    </div>
-                                                )}
-                                            </div>
+                                        <div className="fs-5 col-12 col-md-4 mb-3">
+                                            <label style={{ color: 'var(--color-morado3)' }}  >Comprobante (CURP, Acta, etc.):<span style={{ color: 'red' }}>*</span></label>
+                                            <input
+                                                type="file"
+                                                className={`form-control ${erroresFormulario.dependientes?.[index]?.archivo ? 'is-invalid' : ''}`}
+                                                onChange={(e) => handleFileUpload(index, e.target.files[0])}
+                                                accept=".jpg,.jpeg,.png,.pdf"
+                                            />
+                                            {erroresFormulario.dependientes?.[index]?.archivo && (
+                                                <div className="invalid-feedback">
+                                                    Debes subir un archivo válido.
+                                                </div>
+                                            )}
+                                            {dep.nombreArchivo && (
+                                                <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
+                                                    Archivo enviado: {dep.nombreArchivo}
+                                                    <br />
+                                                    <small>Si subes un nuevo archivo, reemplazará al anterior</small>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                ))}
+                                </div>
+                            ))}
                         </div>
                         <div className="text-center mt-4 mb-4">
-                                <button
-                                    className="btn btn-midDatos"
-                                    onClick={handleSubmit}
-                                    disabled={btnDisabled}
-                                >
-                                    Guardar
-                                </button>
+                            <button
+                                className="btn btn-midDatos"
+                                onClick={handleSubmit}
+                                disabled={btnDisabled}
+                            >
+                                Guardar
+                            </button>
                         </div>
                     </div>
 

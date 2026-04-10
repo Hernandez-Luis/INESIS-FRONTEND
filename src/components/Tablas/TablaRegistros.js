@@ -154,14 +154,21 @@ const TablaRegistros = ({
                                     </td>
                                     {columns.map((col, i) => {
                                         const valor = obtenerValorPorAccessor(registro, col.accessor);
+
                                         return (
                                             <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>
-                                                {typeof valor === 'object' && valor !== null
-                                                    ? JSON.stringify(valor)
-                                                    : valor}
+
+                                                {/* Si la columna tiene un Cell personalizado, úsalo */}
+                                                {col.Cell
+                                                    ? col.Cell({ row: { original: registro } })
+                                                    : (typeof valor === 'object' && valor !== null
+                                                        ? JSON.stringify(valor)
+                                                        : valor)
+                                                }
                                             </td>
                                         );
                                     })}
+
                                 </tr>
                             ))
                         )}
@@ -220,7 +227,7 @@ const TablaRegistros = ({
                             handleCerrarModal(); // Cierra el modal después del mensaje
                         });
                     }}
-                    
+
                 />
 
             )}

@@ -1,7 +1,7 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_REGION_URL = '/regiones';
-const API_DISTRITO_URL = '/distritos';
+const API_REGION_URL = '/api/regiones';
+const API_DISTRITO_URL = '/api/distritos';
 
 // Obtener todas las regiones
 const getAllRegions = async () => {

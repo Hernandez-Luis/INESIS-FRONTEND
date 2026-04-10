@@ -25,9 +25,9 @@
 
 .observacion-cuadro {
     background-color: var(--color-gris2);
-    width: 50%;
+    width: 70%;
     margin: 0 auto;
-    min-height: 100px;
+    min-height: 150px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -27,6 +27,7 @@ export const MenuSolicitarBeca = () => {
   const [estudioCompleto, setEstudioCompleto] = useState(false);
   const [estadoRevision, setEstadoRevision] = useState(null);
   const [fechaRegistrada, setFechaRegistrada] = useState(null);
+  const [conCorrecciones, setConCorrecciones] = useState(false);
 
   const links = [
     { url: '/menuAlumno', label: 'Inicio' },
@@ -44,6 +45,9 @@ export const MenuSolicitarBeca = () => {
     setEstudioCompleto(response.estudioCompleto === true);
     setEstadoRevision(response.estadoRevision); // Puede ser null, true o false
     setFechaRegistrada(response.fechaRegistrada);
+    if(response.estadoRevision === 2){
+      setConCorrecciones(true);
+    }
     if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
       setCardClasses({
         misDatos: 'completo',
@@ -108,16 +112,15 @@ export const MenuSolicitarBeca = () => {
       return false;
     }
 
-    const today = new Date();
+    const now = new Date();
     const fechaInicio = new Date(fechaRegistrada.fechaInicio);
     const fechaFin = new Date(fechaRegistrada.fechaFin);
 
     // Asegurar que la comparación sea solo por fecha (sin hora)
-    today.setHours(0, 0, 0, 0);
     fechaInicio.setHours(0, 0, 0, 0);
-    fechaFin.setHours(0, 0, 0, 0);
+    fechaFin.setHours(23, 59, 59, 999);
 
-    return today >= fechaInicio && today <= fechaFin;
+    return now >= fechaInicio && now <= fechaFin;
   };
 
   // Función para mostrar modal de fecha no válida
@@ -192,7 +195,7 @@ export const MenuSolicitarBeca = () => {
       icon: 'success',
       confirmButtonText: 'Aceptar',
     }).then(() => {
-      navigate('/menuSolicitar');
+      window.location.reload();
     });
   };
 
@@ -255,13 +258,26 @@ export const MenuSolicitarBeca = () => {
             {fechaRegistrada && (
               <button
                 className='btn btn-primary btn-lg'
-                disabled={!isAllComplete() || estudioCompleto || !isWithinDateRange()}
+                disabled={
+                  (!isAllComplete() && !conCorrecciones) ||
+                  (estudioCompleto && !conCorrecciones) ||
+                  !isWithinDateRange()
+                }
                 onClick={handleEnviar}
               >
                 Enviar
               </button>
             )}
-            {estudioCompleto && (
+            {estudioCompleto && conCorrecciones && (
+              <div className="mt-3 text-danger fw-bold">
+                Tienes correcciones pendientes en tu estudio socioeconómico. Realízalas y vuelve a enviar tu información.
+                <br />
+                <span className="fw-normal">
+                  Puedes revisarlas en el apartado de <b>Resultados del estudio socioeconómico</b>.
+                </span>
+              </div>
+            )}
+            {estudioCompleto && !conCorrecciones && (
               <div className="mt-3 text-success fw-bold">
                 Ya enviaste tu estudio socioeconómico.
               </div>

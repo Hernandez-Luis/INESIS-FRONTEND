@@ -51,13 +51,12 @@ const AdministrarAlumnos = () => {
     const rutaBoton = "/AgregarAlumno";
 
     const editarAlumno = (alumno) => {
-        console.log("ESTE DATO ES PARA EDITA ", alumno);
         navigate('/AgregarAlumno', { state: { alumno } });
     };
 
     const eliminarAlumno = async (alumno) => {
         const result = await Swal.fire({
-            title: `¿Eliminar a ${alumno.nombre} ${alumno.apellido}?`,
+            title: `¿Eliminar a ${alumno.nombre} ${alumno.apellidoPaterno} ${alumno.apellidoMaterno}?`,
             text: "Esta acción no se puede deshacer.",
             icon: 'warning',
             showCancelButton: true,
@@ -67,7 +66,7 @@ const AdministrarAlumnos = () => {
 
         if (result.isConfirmed) {
             try {
-                await alumnoService.deleteAlumno(alumno.id); // o alumno.matricula si aplica
+                await alumnoService.deleteAlumno(alumno.id); 
                 setAlumnos(prev => prev.filter(a => a.id !== alumno.id));
                 Swal.fire('Eliminado', 'El alumno fue eliminado correctamente', 'success');
             } catch (error) {

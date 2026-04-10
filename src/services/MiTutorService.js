@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/miTutor';
+const API_URL = '/api/miTutor';
 
 const getAll = async () => {
     try {

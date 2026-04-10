@@ -1,7 +1,7 @@
 // src/services/codigoPostalService.js
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/domicilio';
+const API_URL = '/api/domicilio';
 
 const getAll = async () => {
     try {
@@ -40,7 +40,7 @@ const deleteDomicilio = async (id) => {
 
 const getColoniasPorCP = async (cp) => {
     try {
-        const response = await axiosInstance.get(`/domicilio/codigo_postal?cp=${cp}`);
+        const response = await axiosInstance.get(`${API_URL}/codigo_postal?cp=${cp}`);
         return response.data;
     } catch (error) {
         console.error('Error en getColoniasPorCP:', error);

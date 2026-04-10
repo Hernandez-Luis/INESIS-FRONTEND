@@ -149,8 +149,6 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
         });
       } else {
         // Solo actualizar sin verificar contraseña actual
-        console.log("Usuario sin contraseña actual:", usuario);
-        console.log("Nueva contraseña:", passwords.new);
         await UsuarioService.cambiarContrasena({
           usuario: usuario,
           nuevaContrasena: passwords.new

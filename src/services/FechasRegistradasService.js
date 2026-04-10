@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/fechas-registradas';
+const API_URL = '/api/fechas-registradas';
 
 const getAll = async () => {
   try {
@@ -22,7 +22,6 @@ const getById = async (id) => {
 
 const create = async (params) => {
   try {
-    console.log("Datos enviados:", params);
     const response = await axiosInstance.post(API_URL, params);
     return response;
   } catch (error) {

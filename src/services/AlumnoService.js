@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/alumno';
+const API_URL = '/api/alumno';
 
 const getAll = async () => {
   try {
@@ -97,7 +97,8 @@ const importarDesdeExcel = async (formData) => {
     const response = await axiosInstance.post(`${API_URL}/importar`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-      }
+      },
+      timeout: 300000
     });
     return response;
   } catch (error) {
@@ -125,6 +126,27 @@ const importarDesdeExcel = async (formData) => {
   }
 };
 
+const cambiarPassword = async (idAlumno, nuevaPassword) => {
+  try {
+    const response = await axiosInstance.put(`${API_URL}/${idAlumno}/password`, {
+      password: nuevaPassword
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || 'Error al cambiar la contraseña';
+  }
+};
+
+const editarMatricula = async (id, nuevaMatricula) => {
+  try {
+    const response = await axiosInstance.patch(`${API_URL}/${id}/editarMatricula`, {
+      matricula: nuevaMatricula
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || 'Error al editar la matrícula';
+  }
+};
 
 export default {
   getAll,
@@ -136,5 +158,7 @@ export default {
   checkIfExists,
   enviarRevisionAlumno,
   setEstudioSocioeconomicoCompleto,
-  importarDesdeExcel
+  importarDesdeExcel,
+  cambiarPassword,
+  editarMatricula
 };

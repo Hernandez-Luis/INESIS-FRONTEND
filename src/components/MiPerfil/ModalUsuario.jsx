@@ -2,11 +2,19 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-bootstrap/Modal"; 
 import imagenPerfil from "../../assets/perfilIcon.png";
 import UsuarioService from "../../services/UsuarioService";
+import Swal from "sweetalert2";
+import AlumnoService from "../../services/AlumnoService";
 
 export const ModalUsuario = ({ mostrar, cerrarModal }) => {
   // Estados de almacenar el nombre del usuario y el nombre del rol
   const [nombreUsuario, setNombreUsuario] = useState("Cargando...");
   const [nombreRol, setNombreRol] = useState("Cargando...");
+  const [matriculaOriginal, setMatriculaOriginal] = useState(null); // Nuevo estado
+  const [matricula, setMatricula] = useState(null);
+  const [matriculaEditada, setMatriculaEditada] = useState(true);
+  const [editando, setEditando] = useState(false);
+  const [usuarioCompleto, setUsuarioCompleto] = useState(null);
+
 
   useEffect(() => {
     // Recuperacion de datos del localStorage
@@ -18,15 +26,68 @@ export const ModalUsuario = ({ mostrar, cerrarModal }) => {
       UsuarioService.getById(idUsuario)
         .then((usuarioCompleto) => {
           // Se actualizan los estados con los datos obtenidos
+          setUsuarioCompleto(usuarioCompleto);
           setNombreUsuario(usuarioCompleto.usuario || "Nombre no disponible");
           setNombreRol(usuarioCompleto.rol?.nombreRol || "Rol no disponible");
+          if (usuarioCompleto.rol?.nombreRol === "Alumno" && usuarioCompleto.alumno?.matricula) {
+            setMatricula(usuarioCompleto.alumno.matricula);
+            setMatriculaOriginal(usuarioCompleto.alumno.matricula);
+            setMatriculaEditada(usuarioCompleto.alumno.matriculaEditada);
+          } else {
+            setMatricula(null);
+            setMatriculaOriginal(null);
+            setMatriculaEditada(true);
+          }
         })
         .catch(() => {
           setNombreUsuario("Nombre no disponible");
           setNombreRol("Rol no disponible");
+          setMatricula(null);
+          setMatriculaEditada(true);
         });
     }
   }, []);
+
+  const soloNumerosPositivos = (e) => {
+    if (!/^\d+$/.test(e.data)) {
+      e.preventDefault();
+    }
+  };
+
+
+  const guardarMatricula = async () => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Una vez editada la matrícula, ya no podrás volver a modificarla, solo Servicios Escolares podrá hacerlo.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, guardar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await AlumnoService.editarMatricula(usuarioCompleto?.alumno?.id, matricula);
+        setMatriculaEditada(true);
+        setEditando(false);
+        Swal.fire({
+          icon: 'success',
+          title: 'Matrícula actualizada',
+          text: 'La matrícula fue editada exitosamente.',
+          timer: 3000,
+          showConfirmButton: true
+        });
+      } catch (error) {
+        console.error("Error al editar la matrícula:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error || 'Ocurrió un error al editar la matrícula.',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    }
+  };
 
   return (
     <Modal show={mostrar} onHide={cerrarModal} centered>
@@ -58,6 +119,52 @@ export const ModalUsuario = ({ mostrar, cerrarModal }) => {
         <h5 style={{ fontWeight: "bold", marginBottom: "5px" }}>
           Usuario: {nombreUsuario}
         </h5>
+        {nombreRol === "Alumno" && (
+          <div style={{ color: "#6366F1", fontWeight: "bold" }}>
+            Matrícula:{" "}
+            {matriculaEditada === false && !editando ? (
+              <>
+                {matricula}{" "}
+                <button
+                  className="btn btn-link p-0"
+                  style={{ color: "#6366F1", fontWeight: "bold", textDecoration: "underline", fontSize: "1em" }}
+                  onClick={() => setEditando(true)}
+                >
+                  Editar
+                </button>
+              </>
+            ) : editando ? (
+              <>
+                <input
+                  type="text"
+                  maxLength={10}
+                  value={matricula || ""}
+                  onChange={e => setMatricula(e.target.value)}
+                  onBeforeInput={soloNumerosPositivos}
+                  style={{ marginRight: "10px" }}
+                />
+                <button
+                  className="btn btn-success btn-sm"
+                  onClick={guardarMatricula}
+                  style={{ marginRight: "5px" }}
+                >
+                  Guardar
+                </button>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    setMatricula(matriculaOriginal); // Restaurar matrícula original
+                    setEditando(false);
+                  }}
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              matricula
+            )}
+          </div>
+        )}
       </Modal.Body>
     </Modal>
   );

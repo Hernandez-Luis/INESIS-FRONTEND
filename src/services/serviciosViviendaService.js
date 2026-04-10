@@ -1,6 +1,6 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/servicios_vivienda';
+const API_URL = '/api/servicios_vivienda';
 
 /**
  * Obtiene todos los registros de servicios de vivienda.

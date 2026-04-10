@@ -142,6 +142,11 @@ const FinancialForm = () => {
                     const elemento = document.getElementById(campo.id);
                     if (elemento) elemento.value = campo.valor || 0;
                 });
+
+                // Actualizar el total de gastos después de cargar los datos
+                setTimeout(() => {
+                    actualizarTotalGastos();
+                }, 50);
             }
 
             // Precargar recibo de luz
@@ -345,10 +350,8 @@ const FinancialForm = () => {
         try {
             let catParentesco = await CatParentescoService.getAll();
             setParentesco(catParentesco)
-            console.log("catParentesco:", catParentesco);
-
         } catch (error) {
-            console.log("Error al obtener la lista de CatSemestre: ", error)
+            console.error("Error al obtener la lista de CatParentesco: ", error)
 
         }
     }
@@ -431,6 +434,7 @@ const FinancialForm = () => {
 
 
         try {
+            mostrarSpinner();
             // Obtener datos de las personas que aportan
             const personasAportan = parseInt(document.getElementById("personasAportan")?.value || "0");
             const people = [...Array(numPeople)].map((_, index) => ({
@@ -508,7 +512,6 @@ const FinancialForm = () => {
                 reciboLuz.contenidoBase64 = base64Completo.split(",")[1]; // quitar metadata si aplica
             }
 
-            console.log((document.getElementById("personasAportan")?.value));
 
             // Armar payload
             const payload = {
@@ -522,7 +525,6 @@ const FinancialForm = () => {
                 gastos,
             };
 
-            console.log("Payload al backend:", payload);
 
             let response;
 
@@ -541,15 +543,18 @@ const FinancialForm = () => {
 
 
 
-            console.log("Respuesta del backend:", response.data);
+      console.log("Respuesta del backend:", response.data);
 
         } catch (error) {
+            const mensaje = error.message || error.toString();
             console.error("Error al guardar:", error);
-            if (error.includes('periodo de registro')) {
+            if (mensaje.includes('periodo de registro')) {
                 mostrarInformacion(error);
                 return;
             }
             mostrarError(error);
+        } finally {
+            ocultarSpinner();
         }
     };
 
@@ -628,15 +633,23 @@ const FinancialForm = () => {
         });
     };
 
+    const ingresosYGastosCoinciden = () => {
+        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
+        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
+
+        return Math.abs(ingreso - gastos) <= 0.01;
+    };
+
+
 
     return (
-        <Container className="mt-3" style={{ maxWidth: "1600px" }}>
+        <Container className="mt-3" style={{ maxWidth: "1700px" }}>
             {/* Ingresos Mensuales */}
             <Card className="p-4 mb-5" style={cardStyle}>
                 <h3 style={{ color: "#4F46E5" }}>Ingresos mensuales</h3>
                 <Form>
                     <Form.Group>
-                        <Form.Label style={{ color: "#4F46E5" }}>¿Cuántas personas aportan al gasto familiar?</Form.Label>
+                        <Form.Label style={{ color: "#4F46E5" }}>¿Cuántas personas aportan al gasto familiar? <span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
                             onBeforeInput={soloNumerosPositivos}
                             id="personasAportan"
@@ -652,11 +665,11 @@ const FinancialForm = () => {
                     {[...Array(numPeople)].map((_, index) => (
                         <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
                             {[
-                                { label: "Nombre completo", placeholder: "Nombre completo", type: "text", field: "name" },
-                                { label: "Empresa o lugar de trabajo", placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
-                                { label: "Puesto o tipo de trabajo", placeholder: "Puesto o tipo de trabajo", type: "text", field: "job" },
-                                { label: "IMB (Bruto)", placeholder: "IMB (Bruto)", type: "text", field: "gross" },
-                                { label: "IMN (Neto)", placeholder: "IMN (Neto)", type: "text", field: "net" }
+                                { label: "Nombre completo ", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "Nombre completo", type: "text", field: "name" },
+                                { label: "Empresa o lugar de trabajo", labelJSX: <>Empresa o lugar de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
+                                { label: "Puesto o tipo de trabajo", labelJSX: <>Puesto o tipo de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Puesto o tipo de trabajo", type: "text", field: "job" },
+                                { label: "IMB (Bruto)", labelJSX: <>IMB (Bruto) <span style={{ color: 'red' }}>*</span></>, placeholder: "IMB (Bruto)", type: "text", field: "gross" },
+                                { label: "IMN (Neto)", labelJSX: <>IMN (Neto) <span style={{ color: 'red' }}>*</span></>, placeholder: "IMN (Neto)", type: "text", field: "net" }
                             ].map((field, idx) => {
                                 // Insertar el campo "Parentesco" después de "Nombre completo"
                                 if (idx === 1) {
@@ -665,7 +678,7 @@ const FinancialForm = () => {
                                             {/* Campo Parentesco */}
                                             <Col className="d-flex">
                                                 <Form.Group className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                                                    <Form.Label style={{ fontSize: "18px", color: "#4F46E5" }}>Parentesco</Form.Label>
+                                                    <Form.Label style={{ fontSize: "18px", color: "#4F46E5" }}>Parentesco <span style={{ color: 'red' }}>*</span></Form.Label>
                                                     <Form.Select
                                                         id={`person-${index}-parentesco`}
                                                         isInvalid={emptyFields.includes(`person-${index}-parentesco`)}
@@ -691,7 +704,7 @@ const FinancialForm = () => {
                                             {/* Campo original (Empresa o lugar de trabajo) */}
                                             <Col className="d-flex">
                                                 <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                                                    <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
+                                                    <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.labelJSX || field.label}</label>
                                                     <Form.Control
                                                         id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
                                                         type="text"
@@ -701,9 +714,35 @@ const FinancialForm = () => {
                                                         onChange={(e) => {
                                                             const newPeopleData = [...peopleData];
                                                             if (!newPeopleData[index]) newPeopleData[index] = {};
-                                                            newPeopleData[index][field.field] = e.target.value;
+
+                                                            let value = e.target.value;
+
+                                                            // Para campos numéricos, aplicar validación más simple
+                                                            if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
+                                                                // Solo permitir números, puntos y vacío
+                                                                value = value.replace(/[^0-9.]/g, '');
+
+                                                                // Evitar múltiples puntos
+                                                                const pointCount = (value.match(/\./g) || []).length;
+                                                                if (pointCount > 1) {
+                                                                    const firstPointIndex = value.indexOf('.');
+                                                                    value = value.substring(0, firstPointIndex + 1) + value.substring(firstPointIndex + 1).replace(/\./g, '');
+                                                                }
+
+                                                                // Limitar decimales a 2
+                                                                const parts = value.split('.');
+                                                                if (parts[1] && parts[1].length > 2) {
+                                                                    value = parts[0] + '.' + parts[1].substring(0, 2);
+                                                                }
+                                                            }
+
+                                                            newPeopleData[index][field.field] = value;
                                                             setPeopleData(newPeopleData);
 
+                                                            // Actualizar total para campos numéricos
+                                                            if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
+                                                                actualizarIngresoTotal(newPeopleData);
+                                                            }
                                                         }}
                                                         onBeforeInput={soloLetrasYNumeros}
                                                         onInput={limitarNumerico6Enteros2Decimales}
@@ -731,7 +770,7 @@ const FinancialForm = () => {
                                 return (
                                     <Col key={idx} className="d-flex">
                                         <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
-                                            <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.label}</label>
+                                            <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.labelJSX || field.label}</label>
                                             <Form.Control
                                                 id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
                                                 type="text"
@@ -741,13 +780,35 @@ const FinancialForm = () => {
                                                 onChange={(e) => {
                                                     const newPeopleData = [...peopleData];
                                                     if (!newPeopleData[index]) newPeopleData[index] = {};
-                                                    newPeopleData[index][field.field] = e.target.value;
+
+                                                    let value = e.target.value;
+
+                                                    // Para campos numéricos, aplicar validación más simple
+                                                    if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
+                                                        // Solo permitir números, puntos y vacío
+                                                        value = value.replace(/[^0-9.]/g, '');
+
+                                                        // Evitar múltiples puntos
+                                                        const pointCount = (value.match(/\./g) || []).length;
+                                                        if (pointCount > 1) {
+                                                            const firstPointIndex = value.indexOf('.');
+                                                            value = value.substring(0, firstPointIndex + 1) + value.substring(firstPointIndex + 1).replace(/\./g, '');
+                                                        }
+
+                                                        // Limitar decimales a 2
+                                                        const parts = value.split('.');
+                                                        if (parts[1] && parts[1].length > 2) {
+                                                            value = parts[0] + '.' + parts[1].substring(0, 2);
+                                                        }
+                                                    }
+
+                                                    newPeopleData[index][field.field] = value;
                                                     setPeopleData(newPeopleData);
 
                                                 }}
                                                 onBeforeInput={
                                                     field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                        ? soloNumerosPositivosConDosDecimales
+                                                        ? undefined
                                                         : soloLetras
                                                 }
                                                 onInput={
@@ -808,7 +869,7 @@ const FinancialForm = () => {
                     </Form.Group>
 
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
-                        <Form.Label>¿Cuántas personas dependen del ingreso mencionado?</Form.Label>
+                        <Form.Label>¿Cuántas personas dependen del ingreso mencionado? <span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
                             style={{ maxWidth: "400px" }}
                             type="number"
@@ -828,7 +889,7 @@ const FinancialForm = () => {
                         <h4 style={{ color: "#4F46E5" }}>Recibo de luz</h4>
                         <Form>
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Nombre del titular de los recibos de luz:</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Nombre del titular de los recibos de luz: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="lightName"
                                     type="text"
@@ -837,7 +898,7 @@ const FinancialForm = () => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Domicilio que aparece en el recibo de luz</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Domicilio que aparece en el recibo de luz: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="domicilioRecibo"
                                     type="text"
@@ -850,7 +911,44 @@ const FinancialForm = () => {
 
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de inicio</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>
+                                    Periodo de inicio (mes): <span style={{ color: 'red' }}>*</span>
+                                </Form.Label>
+
+                                {/* SELECTS visibles */}
+                                <Row>
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoInicioMes}
+                                            onChange={(e) => {
+                                                setPeriodoInicioMes(e.target.value);
+                                                actualizarPeriodoInicio(e.target.value, periodoInicioAnio);
+                                            }}
+                                        >
+                                            <option value="">Mes</option>
+                                            {meses.map(m => (
+                                                <option key={m.value} value={m.value}>{m.label}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoInicioAnio}
+                                            onChange={(e) => {
+                                                setPeriodoInicioAnio(e.target.value);
+                                                actualizarPeriodoInicio(periodoInicioMes, e.target.value);
+                                            }}
+                                        >
+                                            <option value="">Año</option>
+                                            {anios.map(a => (
+                                                <option key={a} value={a}>{a}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
+
+                                {/* INPUT OCULTO (el que usa TODO tu sistema) */}
                                 <Form.Control
                                     id="periodoInicio"
                                     type="month"
@@ -862,7 +960,42 @@ const FinancialForm = () => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Periodo de fin</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>
+                                    Periodo de fin (mes): <span style={{ color: 'red' }}>*</span>
+                                </Form.Label>
+
+                                <Row>
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoFinMes}
+                                            onChange={(e) => {
+                                                setPeriodoFinMes(e.target.value);
+                                                actualizarPeriodoFin(e.target.value, periodoFinAnio);
+                                            }}
+                                        >
+                                            <option value="">Mes</option>
+                                            {meses.map(m => (
+                                                <option key={m.value} value={m.value}>{m.label}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+
+                                    <Col>
+                                        <Form.Select
+                                            value={periodoFinAnio}
+                                            onChange={(e) => {
+                                                setPeriodoFinAnio(e.target.value);
+                                                actualizarPeriodoFin(periodoFinMes, e.target.value);
+                                            }}
+                                        >
+                                            <option value="">Año</option>
+                                            {anios.map(a => (
+                                                <option key={a} value={a}>{a}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
+
                                 <Form.Control
                                     id="periodoFin"
                                     type="month"
@@ -874,8 +1007,9 @@ const FinancialForm = () => {
                             </Form.Group>
 
 
+
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Pago del último período</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Pago del último período: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="ultimoPago"
                                     type="number"
@@ -886,7 +1020,7 @@ const FinancialForm = () => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label style={{ color: "#4F46E5" }}>Pago mensual promedio</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Pago mensual promedio: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="promedioPago"
                                     type="number"
@@ -903,7 +1037,42 @@ const FinancialForm = () => {
 
                         </Form>
                         <RecibosDeLuz
-                            onChangeFile={(e) => setReciboFile(e.target.files[0])}
+                            onChangeFile={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const allowedTypes = [
+                                        "application/pdf",
+                                        "image/jpeg",
+                                        "image/png"
+                                    ];
+
+                                    const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+
+                                    if (!allowedTypes.includes(file.type)) {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Archivo no permitido",
+                                            text: "Solo se permiten archivos PDF o imágenes (JPG, PNG).",
+                                            confirmButtonText: "Entendido",
+                                            confirmButtonColor: "#6f42c1"
+                                        });
+                                        e.target.value = "";
+                                        return;
+                                    }
+                                    if (file.size > maxSizeInBytes) {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Archivo demasiado grande",
+                                            text: "El archivo no debe exceder los 10MB.",
+                                            confirmButtonText: "Entendido",
+                                            confirmButtonColor: "#6f42c1"
+                                        });
+                                        e.target.value = "";
+                                        return;
+                                    }
+                                    setReciboFile(file);
+                                }
+                            }}
                             onChangeObservaciones={(text) => setObservaciones(text)}
                             observacionesIniciales={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.observaciones || ""}
                             archivoExistente={alumnoData?.gastosIngresosFamiliares?.reciboLuzModel?.nombreOriginal || null}
@@ -924,7 +1093,7 @@ const FinancialForm = () => {
                         <Form id="gastosForm">
                             {['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].map((label, index) => (
                                 <Form.Group key={index}>
-                                    <Form.Label style={{ color: "#4F46E5" }}>{label}:</Form.Label>
+                                    <Form.Label style={{ color: "#4F46E5" }}>{label}: <span style={{ color: 'red' }}>*</span></Form.Label>
                                     <Form.Control
                                         id={label}
                                         type="number"
@@ -937,7 +1106,7 @@ const FinancialForm = () => {
                                 </Form.Group>
                             ))}
                             <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
-                                <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales</Form.Label>
+                                <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="totalGastos"
                                     type="number"

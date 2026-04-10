@@ -5,6 +5,7 @@ import NavInesis from "../../components/NavInesis/NavInesis";
 import FinancialForm from "./FinancialForm";
 import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import MigasRecorrido from "../../components/MigasDePan/MigasRecorrido";
+import { SpinnerCarga } from "../../utils/spinerCarga/SpinerCarga";
 
 const GastosIngresos = () => {
 
@@ -27,7 +28,7 @@ const GastosIngresos = () => {
             </div>
 
 
-            <div className="container d-flex justify-content-center text-center " style={{maxWidth: "1600px"}} >
+            <div className="container d-flex justify-content-center text-center " style={{maxWidth: "1900px"}} >
                 <div className=" p-1" style={{ color: "#4F46E5" }} >
                 <h1 className="text-start">GASTOS E INGRESOS FAMILIARES</h1>
                     <div className="text-secondary text-start">
@@ -42,7 +43,7 @@ const GastosIngresos = () => {
                 </div>
             </div>
             <FinancialForm />
-
+            <SpinnerCarga />
             <FooterInesis className="mt-auto" />
 
         </div>

@@ -90,6 +90,22 @@ const ModalRegistrarFecha = ({
       return setValidated(true);
     }
 
+    if (modoEdicion) {
+      const nombreCarrera = fechaEditar?.carrera?.nombreCarrera || "esta carrera";
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        html: `Una vez editado el periodo, ya no podrás consultar el registro de los alumnos de <b>${nombreCarrera}</b> y se reiniciará el periodo de registro. ¿Deseas continuar?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, guardar cambios',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (!result.isConfirmed) return;
+    }
+
     try {
       if (modoEdicion) {
         await fechaService.update(fechaEditar.id, formData);
@@ -182,7 +198,7 @@ const ModalRegistrarFecha = ({
                 value={formData.fechaInicio}
                 onChange={(e) => handleChange('fechaInicio', e.target.value)}
                 className="rounded-3 py-2"
-                min={modoEdicion ? undefined : obtenerFechaActualLocal()}
+                min={obtenerFechaActualLocal()}
               />
             </Form.Group>
 

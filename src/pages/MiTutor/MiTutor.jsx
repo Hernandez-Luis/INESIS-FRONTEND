@@ -14,6 +14,8 @@ import AlumnoService from '../../services/AlumnoService';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/BordeInputsError/BordeInputsError.css'
 import { soloCorreo, soloFormatoDirecciones, soloLetras, soloNumerosPositivos } from '../../utils/Validaciones/Validaciones';
+import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner';
+import CatCodigosPostalesService from '../../services/CatCodigosPostalesService';
 
 export const MiTutor = ({ onAdd, update }) => {
     const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -31,6 +33,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const [datosAlumno, setDatosAlumno] = useState([]);
     const [disabled, setDisabled] = useState(false)
     const [btnDisabled, setBtnDisabled] = useState(false);
+    const [colonias, setColonias] = useState([]);
 
     // --------- INFOMRACION DE MI TUTOR DESDE MIS DATOS --------------
     const [nombreTutorMisDatos, setNombreTutor] = useState();
@@ -45,9 +48,8 @@ export const MiTutor = ({ onAdd, update }) => {
         try {
             let catTipoTrabajo = await CatTipoTrabajoService.getAll();
             setCatTipoTrabajo(catTipoTrabajo)
-            // console.log(catTipoTrabajo)
         } catch (error) {
-            console.log("Error al obtener la lista de CatTipoTrabajo: ", error)
+            console.error("Error al obtener la lista de CatTipoTrabajo: ", error)
         }
     }
 
@@ -56,7 +58,7 @@ export const MiTutor = ({ onAdd, update }) => {
             let ocupaciones = await CatOcupacionService.getAll();
             setCatOcupacion(ocupaciones)
         } catch (error) {
-            console.log("Error al obtener la lista de CatTipoTransporte: ", error)
+            console.error("Error al obtener la lista de CatTipoTransporte: ", error)
         }
     }
 
@@ -65,7 +67,7 @@ export const MiTutor = ({ onAdd, update }) => {
             let parentescoLista = await CatParentescoService.getAll();
             setCatParentesco(parentescoLista)
         } catch (error) {
-            console.log("Error al obtener la lista de CatParentesco: ", error)
+            console.error("Error al obtener la lista de CatParentesco: ", error)
         }
     }
 
@@ -79,21 +81,18 @@ export const MiTutor = ({ onAdd, update }) => {
             }
             let datos = await AlumnoService.getById(alumnoId);
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
-            console.log("Datos del alumno: ", datos);
             setDatosAlumno(datos);
             if (datos.miTutor) {
-                console.log("Datos de mi tutor: ", datos.miTutor)
                 setDatosMiTutorAlumno(datos.miTutor);
             } else {
                 obtenerDatosTutorDeMisDatos(datos.misDatos);
             }
         } catch (error) {
-            console.log("Error al obtener datos del alumno: ", error);
+            console.error("Error al obtener datos del alumno: ", error);
         }
     };
 
     const obtenerDatosTutorDeMisDatos = (datos) => {
-        console.log("Datos de gastos e ingresos: ", datos);
         let dependeEconomicamente = datos?.gastosIngresos?.dependeEconomicamente;
         if (dependeEconomicamente === true) {
             setDatosMiTutor((prevData) => ({
@@ -133,6 +132,26 @@ export const MiTutor = ({ onAdd, update }) => {
             setDisabled(true);
         }
     }
+
+    const obtenerCpExcel = async (value) => {
+        const codigoPostal = value
+        // Solo buscar si tiene 5 dígitos
+        if (value.length !== 5) return;
+        try {
+          const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+          setColonias(datos.map(d => d.nombreAsentamiento));
+    
+          setDatosDomicilio((prevData) => ({
+            ...prevData,
+            estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+            municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+            cp: codigoPostal,
+          }))
+        } catch (err) {
+          console.error('Error al buscar código postal:', err);
+          setColonias([]);
+        }
+      };
 
     useEffect(() => {
         obtenerCatTipoTrabajo();
@@ -206,43 +225,17 @@ export const MiTutor = ({ onAdd, update }) => {
     // *********************************  BUSCAR CP DE LOS DATOS DEL BACK  ***********************************
     useEffect(() => {
         if (datosDomicilio.cp && datosDomicilio.cp.length === 5) {
-            handleBuscarCP(datosDomicilio.cp);
+            obtenerCpExcel(datosDomicilio.cp);
         }
     }, [datosDomicilio.cp]);
 
     // ********************************  OBTENIENDO DATOS DE LA API  ***************************************
 
-    const [colonias, setColonias] = useState([]);
-
-    const handleBuscarCP = async (value) => {
-        const codigoPostal = value
-        // console.log("Codigo postal: ", codigoPostal)
-        // Solo buscar si tiene 5 dígitos
-        if (value.length !== 5) return;
-        try {
-            const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            // console.log("Datos de la API: ", datos)
-            setColonias(datos.codigo_postal.colonias);
-
-            setDatosDomicilio((prevData) => ({
-                ...prevData,
-                estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-                municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-                cp: codigoPostal,
-            }))
-
-            // console.log(dataDomicilio)
-        } catch (err) {
-            console.error('Error al buscar código postal:', err);
-            setColonias([]);
-        }
-    };
 
     // **********************************  MANEJADORES DE CAMBIOS  *****************************************
 
     const actualizarCamposMiTutor = (e) => {
         const { name, value } = e.target;
-        console.log("Nombre: ", name, " Valor: ", value)
 
         const camposBooleanos = [
             "trabajadorSuneo",
@@ -257,7 +250,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
             if (name === "comparteVivienda" && (value === "Si" || value === true)) {
                 setDisabled(true)
-                console.log("Datos alumno: ", datosAlumno)
                 setDatosDomicilio((prevData) => ({
                     ...prevData,
                     cp: datosAlumno?.misDatos?.domicilio?.cp,
@@ -266,7 +258,6 @@ export const MiTutor = ({ onAdd, update }) => {
                     localidad: datosAlumno?.misDatos?.domicilio?.localidad,
                     colonia: datosAlumno?.misDatos?.domicilio?.colonia,
                 }))
-                // console.log("ID domicilio: ", datosAlumno?.domicilio?.idDomicilio)
             } else if (name === "comparteVivienda" && (value === "No" || value === false)) {
                 setDisabled(false)
                 setDatosDomicilio(formularioInicialDomicilio)
@@ -290,9 +281,8 @@ export const MiTutor = ({ onAdd, update }) => {
 
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
-        //console.log("Nombre: ", name, " Valor: ", value)
         if (name === "cp")
-            handleBuscarCP(value)
+            obtenerCpExcel(value)
         setDatosDomicilio((prevData) => ({
             ...prevData,
             [name]: value
@@ -311,7 +301,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
 
         let datosDomicilioEnviar = {};
-        console.log("Datos del domicilio: ", datosAlumno)
 
         if (datosMiTutor.comparteVivienda === 'Si' || datosMiTutor.comparteVivienda === true) {
             datosDomicilioEnviar = {
@@ -324,11 +313,11 @@ export const MiTutor = ({ onAdd, update }) => {
             ...datosMiTutor,
             datosDomicilio: datosDomicilioEnviar
         }
-        console.log("VALORES MI TUTOR: ", coleccionValores)
 
         try {
             let nuevosErrores = null;
             let mensaje = "";
+            mostrarSpinner();
             if (datosAlumno.miTutor !== null) {
                 let idMiTutor = datosAlumno.miTutor.idTutor;
                 mensaje = "Los datos se actualizaron correctamente";
@@ -350,6 +339,8 @@ export const MiTutor = ({ onAdd, update }) => {
             mostrarExito(mensaje);
         } catch (error) {
             console.error("Error al guardar miTutor: ", error);
+        } finally {
+            ocultarSpinner();
         }
     };
 
@@ -358,7 +349,7 @@ export const MiTutor = ({ onAdd, update }) => {
     const validacionCampos = () => {
         const erroresTemp = {};
         const camposOpcionalesDomicilio = ["colonia", "estado", "municipio"]
-        const camposOpcionalesMiTutor = ["ocupacionOtro"]
+        const camposOpcionalesMiTutor = ["ocupacionOtro", "correo"]
         Object.keys(datosMiTutor).forEach((campo) => {
             if (!camposOpcionalesMiTutor.includes(campo)) {
                 if (datosMiTutor[campo] === null || datosMiTutor[campo] === undefined || datosMiTutor[campo] === '') {
@@ -377,7 +368,6 @@ export const MiTutor = ({ onAdd, update }) => {
 
         if (Object.keys(erroresTemp).length > 0) {
             setErrores(erroresTemp);
-            console.log("FALTA: ", erroresTemp)
             mostrarCuidado("Tienes que llenar todos los campos requeridos")
             return 0; // No enviar el formulario si hay errores
         }
@@ -442,7 +432,7 @@ export const MiTutor = ({ onAdd, update }) => {
             <NavInesis></NavInesis>
             <MigasRecorrido items={links}></MigasRecorrido>
             <div className='d-flex flex-column min-vh-100'>
-                <div className='flex-grow-1 px-5 m-lg-5 ' >
+                <div className='flex-grow-1 px-4 m-lg-5 ' >
                     <form onSubmit={handleSubmit}>
                         <div className='row'>
                             <p className='fs-3 d-flex justify-content-start' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>MI TUTOR</p>
@@ -455,6 +445,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     {/* Nombre completo */}
                                     <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo <span style={{ color: 'red' }}>*</span></label>
                                     <input
+                                        maxLength={45}
                                         onBeforeInput={soloLetras}
                                         className={`form-control ${errores.nombreTutor ? 'input-error' : ''}`}
                                         type="text"
@@ -500,8 +491,9 @@ export const MiTutor = ({ onAdd, update }) => {
                                         </div>
 
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo <span style={{ color: 'red' }}>*</span></label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
                                             <input
+                                                maxLength={40}
                                                 onBeforeInput={soloCorreo}
                                                 className={`form-control ${errores.correo ? 'input-error' : ''}`}
                                                 type="mail"
@@ -562,6 +554,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                                 <div className="mb-3">
                                                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                                                     <input
+                                                        maxLength={36}
                                                         onBeforeInput={soloLetras}
                                                         className='form-control'
                                                         name='ocupacionOtro'
@@ -580,7 +573,7 @@ export const MiTutor = ({ onAdd, update }) => {
                             {/* FIN DATOS PERSONALES */}
 
                             {/* DOMICILIO */}
-                            <div className="col-12 col-lg-6">
+                            <div className="col-12 col-lg-6 mt-4 mt-lg-0">
                                 <div className="tarjeta-border h-100 p-5">
                                     <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
                                     <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>
@@ -638,6 +631,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         <div className='col-lg-6 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
                                             <input
+                                                maxLength={50}
                                                 onBeforeInput={soloFormatoDirecciones}
                                                 disabled={disabled}
                                                 className={`form-control ${errores.calle ? 'input-error' : ''}`}
@@ -651,6 +645,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                         <div className="col-lg-6 mt-2">
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero <span style={{ color: 'red' }}>*</span></label>
                                             <input
+                                                maxLength={10}
                                                 onBeforeInput={soloFormatoDirecciones}
                                                 disabled={disabled}
                                                 className={`form-control ${errores.numero ? 'input-error' : ''}`}
@@ -672,7 +667,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                                     name={"colonia"}
                                                     value={datosDomicilio.colonia}
                                                     onChange={actualizarCamposDomicilio}
-                                                    placeholder="Selecciona una opción" // Placeholder
+                                                    placeholder="Selecciona una opción"
                                                     disabled={disabled}
                                                 />
                                             </div>
@@ -681,6 +676,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
                                             <div>
                                                 <input
+                                                    maxLength={50}
                                                     onBeforeInput={soloLetras}
                                                     disabled={disabled}
                                                     className={`form-control ${errores.localidad ? 'input-error' : ''}`}

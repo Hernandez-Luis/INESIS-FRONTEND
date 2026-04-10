@@ -1,10 +1,11 @@
 import axiosInstance from '../api/axiosConfig';
 
-const API_URL = '/api/cat_servicios_otro';
+const API_URL = '/api/cp';
 
-const getAll = async () => {
+
+const getByCp = async (cp) => {
     try {
-        const response = await axiosInstance.get(API_URL);
+        const response = await axiosInstance.get(`${API_URL}/${cp}`);
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -12,5 +13,5 @@ const getAll = async () => {
 };
 
 export default {
-    getAll
-}
+    getByCp,
+};
