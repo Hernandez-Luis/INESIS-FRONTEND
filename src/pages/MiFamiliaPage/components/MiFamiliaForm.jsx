@@ -132,26 +132,26 @@ const MiFamiliaForm = () => {
 
     const [colonias, setColonias] = useState([]);
 
-      const obtenerCpExcel = async (value) => {
+    const obtenerCpExcel = async (value) => {
         const codigoPostal = value
         // Solo buscar si tiene 5 dígitos
         if (value.length !== 5) return;
         try {
-          const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
-          setColonias(datos.map(d => d.nombreAsentamiento));
-    
-          setDataDomicilio((prevData) => ({
-            ...prevData,
-            estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
-            municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
-            cp: codigoPostal,
-          }))
+            const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+            setColonias(datos.map(d => d.nombreAsentamiento));
+
+            setDataDomicilio((prevData) => ({
+                ...prevData,
+                estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+                municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+                cp: codigoPostal,
+            }))
         } catch (err) {
-          console.error('Error al buscar código postal:', err);
-          setColonias([]);
+            console.error('Error al buscar código postal:', err);
+            setColonias([]);
         }
-      };
-      
+    };
+
 
     const verificarFechas = (fechaData) => {
         if (!fechaData.active) return false;
@@ -1045,15 +1045,23 @@ const MiFamiliaForm = () => {
         if (parseInt(numDependientes) > 0) {
             dependientes.forEach((dep, index) => {
                 const errDep = {};
+                const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-                if (!dep.nombrePersona || dep.nombrePersona.trim() === "") {
+                if (!dep.nombrePersona || dep.nombrePersona.trim() === "" || !nombreRegex.test(dep.nombrePersona)) {
                     errDep.nombrePersona = true;
                     erroresSwal.push(`El nombre completo del dependiente #${index + 1} es obligatorio.`);
                 }
 
-                if (!dep.edad || isNaN(dep.edad) || parseInt(dep.edad) < 0) {
+                const edadNum = parseInt(dep.edad);
+
+                if (
+                    !dep.edad ||
+                    isNaN(edadNum) ||
+                    edadNum < 0 ||
+                    edadNum > 99
+                ) {
                     errDep.edad = true;
-                    erroresSwal.push(`La edad del dependiente #${index + 1} no es válida.`);
+                    erroresSwal.push(`La edad del dependiente #${index + 1} debe estar entre 0 y 99.`);
                 }
 
                 if (!dep.parentesco || dep.parentesco === "") {
@@ -1977,9 +1985,13 @@ const MiFamiliaForm = () => {
                                                 type="text"
                                                 className={`form-control ${erroresFormulario.dependientes?.[index]?.nombrePersona ? 'is-invalid' : ''}`}
                                                 value={dep.nombrePersona}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
+                                                    let value = e.target.value;
+
+                                                    // Eliminar números y caracteres raros en tiempo real
+                                                    value = value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
                                                     handleChangeDependiente(index, 'nombrePersona', e.target.value)
-                                                }
+                                                }}
                                                 placeholder="Nombre completo"
                                             />
                                             {erroresFormulario.dependientes?.[index]?.nombrePersona && (
@@ -1993,7 +2005,12 @@ const MiFamiliaForm = () => {
                                                 type="number"
                                                 className={`form-control ${erroresFormulario.dependientes?.[index]?.edad ? 'is-invalid' : ''}`}
                                                 value={dep.edad}
-                                                onChange={(e) => handleChangeDependiente(index, 'edad', e.target.value)}
+                                                onChange={(e) => {
+                                                    let value = e.target.value
+                                                    if (value.length > 2) return;
+
+                                                    handleChangeDependiente(index, 'edad', e.target.value)
+                                                }}
                                             />
                                             {erroresFormulario.dependientes?.[index]?.edad && (
                                                 <div className="invalid-feedback">Este campo de edad es obligatorio.</div>
