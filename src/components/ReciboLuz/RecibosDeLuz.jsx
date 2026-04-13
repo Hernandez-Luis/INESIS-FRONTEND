@@ -12,7 +12,12 @@ const RecibosDeLuz = ({ onChangeFile, onChangeObservaciones, observacionesInicia
   }, [observacionesIniciales]);
 
   const handleObservacionesChange = (e) => {
-    const value = e.target.value;
+    let value = e.target.value;
+
+    if (value.length > 300) {
+      value = value.substring(0, 300);
+    }
+
     setObservaciones(value);
     onChangeObservaciones(value);
   };
@@ -46,10 +51,10 @@ const RecibosDeLuz = ({ onChangeFile, onChangeObservaciones, observacionesInicia
             onChange={onChangeFile}
           />
           {archivoExistente && (
-            <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
-              Archivo enviado: {archivoExistente}
+            <div className="mt-1 text-success" style={{ fontSize: "0.9em" }}>
+              ✔ Ya existe un archivo cargado: <strong>{archivoExistente}</strong>
               <br />
-              <small>Si subes un nuevo archivo, reemplazará al anterior</small>
+              <small>Solo sube uno nuevo si deseas reemplazarlo</small>
             </div>
           )}
         </div>
@@ -63,10 +68,15 @@ const RecibosDeLuz = ({ onChangeFile, onChangeObservaciones, observacionesInicia
             className="form-control"
             id="observaciones"
             rows="4"
-            placeholder="Ingresa tus observaciones"
+            placeholder="Ingresa tus observaciones (máximo 300 caracteres)"
             value={observaciones}
+            maxLength={300}
             onChange={handleObservacionesChange}
           />
+
+          <div style={{ textAlign: "right", fontSize: "0.85rem", color: "#6B7280" }}>
+            {observaciones.length}/300 caracteres
+          </div>
         </div>
       </div>
     </>

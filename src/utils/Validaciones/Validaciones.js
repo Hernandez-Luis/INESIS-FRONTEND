@@ -13,10 +13,33 @@ export const soloLetrasYNumeros = (e) => {
 };
 
 export const soloCorreo = (e) => {
-    const regex = /^[A-Za-z0-9@._-]+$/; // Permite letras, números, arroba, punto, guión y guión bajo
-    if (!regex.test(e.data)) {
-      e.preventDefault();
-    }
+  const regexCaracteres = /^[A-Za-z0-9@._-]+$/;
+
+  if (!e.data) return;
+
+  if (!regexCaracteres.test(e.data)) {
+    e.preventDefault();
+    return;
+  }
+
+  const valorActual = e.target.value;
+  const nuevoValor = valorActual + e.data;
+
+  const partes = nuevoValor.split("@");
+
+  if (partes.length > 2) {
+    e.preventDefault();
+    return;
+  }
+
+  if (nuevoValor.includes("..") || nuevoValor.startsWith(".") || nuevoValor.includes("@.")) {
+    e.preventDefault();
+    return;
+  }
+
+  if (partes[1] && partes[1].startsWith(".")) {
+    e.preventDefault();
+  }
 };
 
 
@@ -73,6 +96,17 @@ export const soloNumerosPositivosConDosDecimales = (e) => {
     }
 };
 
+
+export const limitarNumerico6Enteros2Decimales = (e) => {
+    const value = e.target.value;
+
+    // Regex: hasta 6 enteros y 2 decimales
+    const regex = /^\d{0,6}(\.\d{0,2})?$/;
+
+    if (!regex.test(value)) {
+        e.target.value = value.slice(0, -1); // elimina último caracter inválido
+    }
+};
 
 export const validarNumericoDecimal = (e) => {
     const value = e.target.value;

@@ -151,7 +151,7 @@ const ListadoEstudioSocioeconomico = () => {
               name="carrera"
               options={opcionesCarreras}
               value={selectedCarrera}
-              onChange={e => setSelectedCarrera(e.target.value)}
+              onChange={e => setSelectedCarrera(e.target.value || "")}
               placeholder="Selecciona una carrera"
             />
           </div>
@@ -180,7 +180,7 @@ const ListadoEstudioSocioeconomico = () => {
               className="form-control w-auto"
               placeholder="Buscar..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value.slice(0, 30))}
             />
           </div>
 

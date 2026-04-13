@@ -52,7 +52,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
   const [btnDisabled, setBtnDisabled] = useState(false);
-    const [colonias, setColonias] = useState([]);
+  const [colonias, setColonias] = useState([]);
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -183,6 +183,7 @@ export const MisDatos = ({ onAdd, update }) => {
           ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
           personasComparteRenta: dataAlumno?.misDatos.gastosIngresos?.personasComparteRenta,
           pagoRentaMensual: dataAlumno?.misDatos.gastosIngresos?.pagoRentaMensual,
+          otro: dataAlumno?.misDatos.gastosIngresos?.otro || '',
         }))
         setDataTrabajo((prevData) => ({
           ...prevData,
@@ -198,7 +199,7 @@ export const MisDatos = ({ onAdd, update }) => {
           marca: dataAlumno?.misDatos.transporteAutomovil?.marca || '',
           modelo: dataAlumno?.misDatos.transporteAutomovil?.modelo || '',
           anio: dataAlumno?.misDatos.transporteAutomovil?.anio || '',
-          catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
+          //catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         //todo:
         setDataTransporteMotocicleta((prevData) => ({
@@ -206,7 +207,7 @@ export const MisDatos = ({ onAdd, update }) => {
           marca: dataAlumno?.misDatos.transporteMotocicleta?.marca || '',
           modelo: dataAlumno?.misDatos.transporteMotocicleta?.modelo || '',
           anio: dataAlumno?.misDatos.transporteMotocicleta?.anio || '',
-          catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
+          //catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         // Extraer los IDs de los medios seleccionados
         const mediosSeleccionadosIds = dataAlumno?.misDatos?.mediosTraslado?.map(
@@ -578,8 +579,26 @@ export const MisDatos = ({ onAdd, update }) => {
       if ((campo === "personasComparteRenta" || campo === "pagoRentaMensual") && !esRenta) {
         return; // No validar si no es renta
       }
+
+      if (campo === "otro") {
+        if (dataGastosIngresos.ocupacion == 8) {
+          if (
+            dataGastosIngresos.otro === null ||
+            dataGastosIngresos.otro === undefined ||
+            dataGastosIngresos.otro === ''
+          ) {
+            erroresTemp[campo] = 'Este campo es obligatorio';
+          }
+        }
+        return;
+      }
+
       if (!camposOpcionalesGastosIngresos.includes(campo)) {
-        if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined || dataGastosIngresos[campo] === '') {
+        if (
+          dataGastosIngresos[campo] === null ||
+          dataGastosIngresos[campo] === undefined ||
+          dataGastosIngresos[campo] === ''
+        ) {
           erroresTemp[campo] = 'Este campo es obligatorio';
         }
       }
@@ -633,7 +652,6 @@ export const MisDatos = ({ onAdd, update }) => {
 
     if (Object.keys(erroresTemp).length > 0) {
       setErrores(erroresTemp);
-      console.log("campos requeridos: ", erroresTemp);
       mostrarCuidado("Tienes que llenar todos los campos requeridos")
       return 0; // No enviar el formulario si hay errores
     }
