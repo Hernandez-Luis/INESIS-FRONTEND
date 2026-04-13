@@ -27,6 +27,8 @@ const FinancialForm = () => {
     const [btnDisabled, setBtnDisabled] = useState(false);
     const [catParentesco, setParentesco] = useState([]);
     const [desigualdadMensaje, setDesigualdadMensaje] = useState("");
+    const [fechaMensaje, setfechaMensaje] = useState("");
+
     const navigate = useNavigate(); //
 
     // Estado para almacenar los datos del alumno
@@ -63,13 +65,13 @@ const FinancialForm = () => {
             const fechaFin = new Date(fin + "-01");
 
             if (fechaInicio >= fechaFin) {
-                setDesigualdadMensaje(prev => {
+                setfechaMensaje(prev => {
                     if (prev && !prev.includes("periodo")) return prev;
                     return "⚠️ El periodo de inicio debe ser menor al de fin.";
                 });
             } else {
-                if (desigualdadMensaje?.includes("periodo")) {
-                    setDesigualdadMensaje("");
+                if (fechaMensaje?.includes("periodo")) {
+                    setfechaMensaje("");
                 }
             }
         }
@@ -97,8 +99,25 @@ const FinancialForm = () => {
             actualizarIngresoTotal(newPeopleData);
         }
     };
-    const anios = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
 
+    const currentYear = new Date().getFullYear();
+
+    const anios = [
+        currentYear - 1,
+        currentYear,
+        currentYear + 1
+    ];
+
+
+    useEffect(() => {
+    if (periodoInicioAnio && !anios.includes(Number(periodoInicioAnio))) {
+        setPeriodoInicioAnio("");
+    }
+
+    if (periodoFinAnio && !anios.includes(Number(periodoFinAnio))) {
+        setPeriodoFinAnio("");
+    }
+}, [anios]);
 
     const actualizarPeriodoInicio = (mes, anio) => {
         if (mes && anio) {
@@ -119,20 +138,6 @@ const FinancialForm = () => {
     useEffect(() => {
         obtenerParentesco();
     }, []);
-
-
-    const validarIgualdadIngresosGastos = () => {
-        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
-        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
-
-        if (Math.abs(ingreso - gastos) > 0.01) {
-            setDesigualdadMensaje("⚠️ El total de gastos no coincide con el ingreso total.");
-        } else {
-            setDesigualdadMensaje("");
-        }
-    };
-
-
 
     const cargarDatosAlumno = async () => {
         try {
@@ -349,7 +354,6 @@ const FinancialForm = () => {
             if (inputBruto) {
                 inputBruto.value = totalBruto.toFixed(2);
             }
-            validarIgualdadIngresosGastos();
         }, 0);
     }, [peopleData, numPeople]);
 
@@ -676,7 +680,6 @@ const FinancialForm = () => {
             if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
 
             setIngresoTotal(totalNeto);
-            validarIgualdadIngresosGastos();
         }, 0);
     };
 
@@ -691,8 +694,6 @@ const FinancialForm = () => {
         });
         const input = document.getElementById("totalGastos");
         if (input) input.value = total.toFixed(2);
-
-        validarIgualdadIngresosGastos();
     };
 
 
@@ -1051,6 +1052,12 @@ const FinancialForm = () => {
                                     </Col>
                                 </Row>
 
+                                {fechaMensaje && (
+                                    <div style={{ color: "red", textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
+                                        {fechaMensaje}
+                                    </div>
+                                )}
+
                                 <Form.Control
                                     id="periodoFin"
                                     type="month"
@@ -1164,12 +1171,6 @@ const FinancialForm = () => {
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
                             </Form.Group>
-                            {desigualdadMensaje && (
-                                <div style={{ color: "red", textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
-                                    {desigualdadMensaje}
-                                </div>
-                            )}
-
                         </Form>
                     </Card>
                 </Col>
