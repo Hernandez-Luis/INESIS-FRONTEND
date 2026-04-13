@@ -110,14 +110,14 @@ const FinancialForm = () => {
 
 
     useEffect(() => {
-    if (periodoInicioAnio && !anios.includes(Number(periodoInicioAnio))) {
-        setPeriodoInicioAnio("");
-    }
+        if (periodoInicioAnio && !anios.includes(Number(periodoInicioAnio))) {
+            setPeriodoInicioAnio("");
+        }
 
-    if (periodoFinAnio && !anios.includes(Number(periodoFinAnio))) {
-        setPeriodoFinAnio("");
-    }
-}, [anios]);
+        if (periodoFinAnio && !anios.includes(Number(periodoFinAnio))) {
+            setPeriodoFinAnio("");
+        }
+    }, [anios]);
 
     const actualizarPeriodoInicio = (mes, anio) => {
         if (mes && anio) {
@@ -231,8 +231,22 @@ const FinancialForm = () => {
             // Precargar recibo de luz
             if (gastosIngresos.reciboLuzModel) {
 
-
                 const recibo = gastosIngresos.reciboLuzModel;
+
+                // 🔥 PARSEAR PERIODO INICIO
+                if (recibo.periodoInicio) {
+                    const [anioInicio, mesInicio] = recibo.periodoInicio.split("-");
+                    setPeriodoInicioMes(mesInicio);
+                    setPeriodoInicioAnio(anioInicio);
+                }
+
+                // 🔥 PARSEAR PERIODO FIN
+                if (recibo.periodoFin) {
+                    const [anioFin, mesFin] = recibo.periodoFin.split("-");
+                    setPeriodoFinMes(mesFin);
+                    setPeriodoFinAnio(anioFin);
+                }
+
                 const campos = [
                     { id: "lightName", valor: recibo.titular },
                     { id: "periodoInicio", valor: recibo.periodoInicio },
