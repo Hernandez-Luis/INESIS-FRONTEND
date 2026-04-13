@@ -1995,7 +1995,7 @@ const MiFamiliaForm = () => {
                                                 placeholder="Nombre completo"
                                             />
                                             {erroresFormulario.dependientes?.[index]?.nombrePersona && (
-                                                <div className="invalid-feedback">Este campo es obligatorio.</div>
+                                                <div className="invalid-feedback">Este campo es obligatorio con solo letras y espacios.</div>
                                             )}
                                         </div>
 
