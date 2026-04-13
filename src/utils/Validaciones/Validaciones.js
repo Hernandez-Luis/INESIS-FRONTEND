@@ -13,10 +13,33 @@ export const soloLetrasYNumeros = (e) => {
 };
 
 export const soloCorreo = (e) => {
-    const regex = /^[A-Za-z0-9@._-]+$/; // Permite letras, números, arroba, punto, guión y guión bajo
-    if (!regex.test(e.data)) {
-      e.preventDefault();
-    }
+  const regexCaracteres = /^[A-Za-z0-9@._-]+$/;
+
+  if (!e.data) return;
+
+  if (!regexCaracteres.test(e.data)) {
+    e.preventDefault();
+    return;
+  }
+
+  const valorActual = e.target.value;
+  const nuevoValor = valorActual + e.data;
+
+  const partes = nuevoValor.split("@");
+
+  if (partes.length > 2) {
+    e.preventDefault();
+    return;
+  }
+
+  if (nuevoValor.includes("..") || nuevoValor.startsWith(".") || nuevoValor.includes("@.")) {
+    e.preventDefault();
+    return;
+  }
+
+  if (partes[1] && partes[1].startsWith(".")) {
+    e.preventDefault();
+  }
 };
 
 
