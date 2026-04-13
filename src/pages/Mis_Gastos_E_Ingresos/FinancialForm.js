@@ -53,6 +53,45 @@ const FinancialForm = () => {
         { value: "11", label: "Noviembre" },
         { value: "12", label: "Diciembre" }
     ];
+    
+
+    const handleNumericInput = (e) => {
+    const cursorStart = e.target.selectionStart;
+    const oldLength = e.target.value.length;
+
+    const formatted = formatearNumericoTiempoReal(e.target.value);
+
+    e.target.value = formatted;
+
+    // Mantener cursor (UX fina)
+    const newLength = formatted.length;
+    const diff = newLength - oldLength;
+    const newCursor = cursorStart + diff;
+
+    setTimeout(() => {
+        e.target.setSelectionRange(newCursor, newCursor);
+    }, 0);
+};
+    const validarPeriodo = () => {
+        const inicio = document.getElementById("periodoInicio")?.value;
+        const fin = document.getElementById("periodoFin")?.value;
+
+        if (inicio && fin) {
+            const fechaInicio = new Date(inicio + "-01");
+            const fechaFin = new Date(fin + "-01");
+
+            if (fechaInicio >= fechaFin) {
+                setDesigualdadMensaje(prev => {
+                    if (prev && !prev.includes("periodo")) return prev;
+                    return "⚠️ El periodo de inicio debe ser menor al de fin.";
+                });
+            } else {
+                if (desigualdadMensaje?.includes("periodo")) {
+                    setDesigualdadMensaje("");
+                }
+            }
+        }
+    };
 
     const anios = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
 
@@ -60,12 +99,14 @@ const FinancialForm = () => {
     const actualizarPeriodoInicio = (mes, anio) => {
         if (mes && anio) {
             document.getElementById("periodoInicio").value = `${anio}-${mes}`;
+            validarPeriodo(); // 🔥
         }
     };
 
     const actualizarPeriodoFin = (mes, anio) => {
         if (mes && anio) {
             document.getElementById("periodoFin").value = `${anio}-${mes}`;
+            validarPeriodo(); // 🔥
         }
     };
 
@@ -308,7 +349,24 @@ const FinancialForm = () => {
         }, 0);
     }, [peopleData, numPeople]);
 
+
+
+
     const validateForm = () => {
+
+        const inicio = document.getElementById("periodoInicio")?.value;
+        const fin = document.getElementById("periodoFin")?.value;
+
+        if (inicio && fin) {
+            const fechaInicio = new Date(inicio + "-01");
+            const fechaFin = new Date(fin + "-01");
+
+            if (fechaInicio >= fechaFin) {
+                mostrarCuidado("El periodo de inicio debe ser menor al periodo de fin.");
+                return;
+            }
+        }
+
         let isValid = true;
         const newEmptyFields = [];
 

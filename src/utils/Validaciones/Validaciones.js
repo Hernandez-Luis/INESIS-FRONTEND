@@ -106,3 +106,32 @@ export const validarNumericoDecimal = (e) => {
         e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
     }
 };
+
+
+export const formatearNumericoTiempoReal = (value) => {
+    if (!value) return "";
+
+    // Quitar todo lo que no sea número o punto
+    value = value.replace(/[^0-9.]/g, '');
+
+    // Evitar más de un punto
+    const parts = value.split('.');
+    if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
+    }
+
+    let [enteros, decimales] = value.split('.');
+
+    // 🔒 Limitar a 6 enteros
+    if (enteros) {
+        enteros = enteros.substring(0, 6);
+    }
+
+    // 🔒 Limitar a 2 decimales
+    if (decimales !== undefined) {
+        decimales = decimales.substring(0, 2);
+        return `${enteros}.${decimales}`;
+    }
+
+    return enteros;
+};
