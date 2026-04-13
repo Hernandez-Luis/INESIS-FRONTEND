@@ -16,6 +16,7 @@ import '../../styles/BordeInputsError/BordeInputsError.css'
 import { soloCorreo, soloFormatoDirecciones, soloLetras, soloNumerosPositivos } from '../../utils/Validaciones/Validaciones';
 import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner';
 import CatCodigosPostalesService from '../../services/CatCodigosPostalesService';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 export const MiTutor = ({ onAdd, update }) => {
     const alumnoId = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -83,7 +84,7 @@ export const MiTutor = ({ onAdd, update }) => {
             verificarFechas(datos?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
             setDatosAlumno(datos);
             if (datos.miTutor) {
-                setDatosMiTutorAlumno(datos.miTutor);
+                setDatosMiTutorAlumno(datos.miTutor, datos?.misDatos?.gastosIngresos?.otro);
             } else {
                 obtenerDatosTutorDeMisDatos(datos.misDatos);
             }
@@ -105,7 +106,7 @@ export const MiTutor = ({ onAdd, update }) => {
         }
     }
 
-    const setDatosMiTutorAlumno = (data) => {
+    const setDatosMiTutorAlumno = (data, ocupacionOtro) => {
         setDatosMiTutor((prevData) => ({
             ...prevData,
             nombreTutor: data?.nombreTutor || '',
@@ -116,7 +117,7 @@ export const MiTutor = ({ onAdd, update }) => {
             comparteVivienda: data?.comparteVivienda,
             trabajoTipo: data?.catTipoTrabajo?.id || '',
             ocupacion: data?.ocupacion?.id || '',
-            ocupacionOtro: data?.otro || ''
+            ocupacionOtro: ocupacionOtro || ''
         }));
         setDatosDomicilio((prevData) => ({
             ...prevData,
@@ -138,20 +139,20 @@ export const MiTutor = ({ onAdd, update }) => {
         // Solo buscar si tiene 5 dígitos
         if (value.length !== 5) return;
         try {
-          const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
-          setColonias(datos.map(d => d.nombreAsentamiento));
-    
-          setDatosDomicilio((prevData) => ({
-            ...prevData,
-            estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
-            municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
-            cp: codigoPostal,
-          }))
+            const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+            setColonias(datos.map(d => d.nombreAsentamiento));
+
+            setDatosDomicilio((prevData) => ({
+                ...prevData,
+                estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+                municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+                cp: codigoPostal,
+            }))
         } catch (err) {
-          console.error('Error al buscar código postal:', err);
-          setColonias([]);
+            console.error('Error al buscar código postal:', err);
+            setColonias([]);
         }
-      };
+    };
 
     useEffect(() => {
         obtenerCatTipoTrabajo();
@@ -347,13 +348,34 @@ export const MiTutor = ({ onAdd, update }) => {
     // ***********************************  VALIDACION DE CAMPOS  ******************************************
 
     const validacionCampos = () => {
+        const regexCorreo = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
         const erroresTemp = {};
         const camposOpcionalesDomicilio = ["colonia", "estado", "municipio"]
         const camposOpcionalesMiTutor = ["ocupacionOtro", "correo"]
         Object.keys(datosMiTutor).forEach((campo) => {
+            if (campo === "ocupacionOtro") {
+                if (datosMiTutor.ocupacion == 8) {
+                    if (
+                        datosMiTutor.ocupacionOtro === null ||
+                        datosMiTutor.ocupacionOtro === undefined ||
+                        datosMiTutor.ocupacionOtro === ''
+                    ) {
+                        erroresTemp[campo] = 'Este campo es obligatorio';
+                    }
+                }
+                return;
+            }
+
             if (!camposOpcionalesMiTutor.includes(campo)) {
                 if (datosMiTutor[campo] === null || datosMiTutor[campo] === undefined || datosMiTutor[campo] === '') {
                     erroresTemp[campo] = 'Este campo es obligatorio';
+                }
+            }
+            if (campo === "correo") {
+                const correo = datosMiTutor[campo];
+
+                if (correo && !regexCorreo.test(correo)) {
+                    erroresTemp[campo] = 'Agrega un correo válido';
                 }
             }
         });
@@ -491,7 +513,22 @@ export const MiTutor = ({ onAdd, update }) => {
                                         </div>
 
                                         <div className="col-12 col-md-6 mb-3">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo</label>
+                                            <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo <span><OverlayTrigger
+                                                trigger="click"
+                                                placement="right"
+                                                overlay={
+                                                    <Popover>
+                                                        <Popover.Header>Instrucciones</Popover.Header>
+                                                        <Popover.Body>
+                                                            En caso de no tener correo dejar el campo vacio, de lo contrario, ingresa un correo electrónico válido.
+                                                        </Popover.Body>
+                                                    </Popover>
+                                                }
+                                            >
+                                                <span style={{ cursor: 'pointer' }}>
+                                                    <i className="bi bi-info-circle"></i>
+                                                </span>
+                                            </OverlayTrigger></span></label>
                                             <input
                                                 maxLength={40}
                                                 onBeforeInput={soloCorreo}
@@ -562,7 +599,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                                         onChange={actualizarCamposMiTutor}
                                                         value={datosMiTutor.ocupacionOtro}
                                                     />
-                                                    {errores.otro && <div className="text-danger">{errores.otro}</div>}
+                                                    {errores.ocupacionOtro && <div className="text-danger">{errores.ocupacionOtro}</div>}
                                                 </div>
                                             )}
                                         </div>
