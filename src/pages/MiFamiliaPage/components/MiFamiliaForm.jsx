@@ -272,6 +272,7 @@ const MiFamiliaForm = () => {
         if (data?.personasDependientes && data.personasDependientes.length > 0) {
             setNumDependientes(data.personasDependientes.length);
             setDependientes(data.personasDependientes.map(persona => ({
+                id: persona.id || null, 
                 nombrePersona: persona.nombrePersona || '',
                 edad: persona.edad || '',
                 parentesco: persona.parentesco?.id || '',
@@ -619,11 +620,13 @@ const MiFamiliaForm = () => {
 
             if (parsedValue > copia.length) {
                 const adicionales = Array.from({ length: parsedValue - copia.length }, () => ({
+                    id: null, // identificar si es nuevo o existente
                     nombrePersona: '',
                     edad: '',
                     parentesco: '',
                     archivo: null,
-                    nombreArchivo: ''
+                    nombreArchivo: '',
+                    rutaArchivo: '' // Para mantener la estructura aunque no haya archivo cargado
                 }));
                 return [...copia, ...adicionales];
             } else {
@@ -1047,6 +1050,9 @@ const MiFamiliaForm = () => {
                 const errDep = {};
                 const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
+                const tieneArchivoNuevo = !!dep.archivo;
+                const tieneArchivoExistente = !!(dep.rutaArchivo || dep.nombreArchivo);
+
                 if (!dep.nombrePersona || dep.nombrePersona.trim() === "" || !nombreRegex.test(dep.nombrePersona)) {
                     errDep.nombrePersona = true;
                     erroresSwal.push(`El nombre completo del dependiente #${index + 1} es obligatorio.`);
@@ -1069,7 +1075,7 @@ const MiFamiliaForm = () => {
                     erroresSwal.push(`Selecciona el parentesco del dependiente #${index + 1}.`);
                 }
 
-                if (!dep.archivo) {
+                if (!tieneArchivoNuevo && !tieneArchivoExistente) {
                     errDep.archivo = true;
                     erroresSwal.push(`Debes subir un archivo para el dependiente #${index + 1}.`);
                 }
@@ -1176,16 +1182,19 @@ const MiFamiliaForm = () => {
                             };
                         } catch (error) {
                             console.error('Error al convertir archivo a base64:', error);
-                            // Si hay error, enviar sin archivo
-                            archivoBase64 = null;
                         }
                     }
 
                     return {
+                        // ✅ CRÍTICO: enviar el ID del dependiente existente
+                        id: dependiente.id || null,
                         nombrePersona: dependiente.nombrePersona,
                         edad: parseInt(dependiente.edad),
                         parentesco: dependiente.parentesco,
-                        archivo: archivoBase64
+                        archivo: archivoBase64,
+                        // enviar referencia del archivo existente si no se subió uno nuevo
+                        rutaArchivoExistente: !archivoBase64 ? (dependiente.rutaArchivo || null) : null,
+                        nombreArchivoExistente: !archivoBase64 ? (dependiente.nombreArchivo || null) : null,
                     };
                 })
             );

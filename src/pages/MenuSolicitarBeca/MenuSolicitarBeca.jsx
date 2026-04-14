@@ -242,7 +242,7 @@ export const MenuSolicitarBeca = () => {
                 imgSrc={miFamiliaImg}
                 description="Ingresa los datos de tus familiares dependientes económicos, incluyendo información relevante para la solicitud de beca."
                 link={"/MiFamilia"}
-                customClass={cardClasses.miFamilia}
+                //customClass={cardClasses.miFamilia}
               />
               <CardMenu
                 title="Gastos e ingresos familiares"
