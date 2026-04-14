@@ -497,7 +497,7 @@ const MiFamiliaForm = () => {
     const obtenerCatSituacionVivienda = async () => {
         try {
             let situacionViviendaLista = await CatSituacionViviendaService.getAll();
-            let opcionesPermitidas = ['Propia', 'Alquilada', 'Otro'];
+            let opcionesPermitidas = ['Propia', 'Alquilada', /*'Otro'*/];
             let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
                 opcionesPermitidas.includes(item.nombreSituacion)
             );
