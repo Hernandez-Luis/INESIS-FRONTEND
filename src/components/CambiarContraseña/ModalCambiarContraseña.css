@@ -43,7 +43,7 @@
 
 .mcambiar-password-toggle {
   position: absolute;
-  right: 15px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -51,7 +51,7 @@
   color: var(--color-morado1);
   cursor: pointer;
   font-size: 18px;
-  padding: 5px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;

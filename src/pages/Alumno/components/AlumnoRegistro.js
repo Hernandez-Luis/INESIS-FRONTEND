@@ -158,10 +158,15 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
       // Generar usuario automáticamente
       if (name === 'nombre' || name === 'apellidoPaterno') {
-        const primerNombre = updatedForm.nombre.split(' ')[0] || '';
+        const nombres = updatedForm.nombre.trim().split(' ');
+
+        // Tomar máximo 2 nombres
+        const nombreCompleto = nombres.slice(0, 2).join('');
+
         const primerApellido = updatedForm.apellidoPaterno.split(' ')[0] || '';
-        if (primerNombre && primerApellido) {
-          updatedForm.usuario = `${primerNombre.toLowerCase()}.${primerApellido.toLowerCase()}`;
+
+        if (nombreCompleto && primerApellido) {
+          updatedForm.usuario = `${nombreCompleto.toLowerCase()}.${primerApellido.toLowerCase()}`;
         }
       }
       return updatedForm;
@@ -338,6 +343,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
             icon: 'success',
             title: 'Alumno actualizado correctamente',
             text: 'Los datos del alumno fueron modificados correctamente.'
+
           });
 
           setFormValues(initialForm);
