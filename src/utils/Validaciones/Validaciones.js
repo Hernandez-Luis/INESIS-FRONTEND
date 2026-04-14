@@ -109,11 +109,49 @@ export const limitarNumerico6Enteros2Decimales = (e) => {
 };
 
 export const validarNumericoDecimal = (e) => {
-    const value = e.target.value;
-    const regex = /^\d{0,6}(\.\d{0,2})?$/;
-    if (value === "" || regex.test(value)) {
-        e.target.setCustomValidity("");
-    } else {
-        e.target.setCustomValidity("Solo se permiten hasta 6 enteros y 2 decimales.");
+    let value = e.target.value;
+
+    value = value.replace(/\D/g, '');
+
+    value = value.substring(0, 6);
+
+    e.target.value = value;
+};
+
+
+
+export const validarNumero6Enteros2Decimales = (e) => {
+    let value = e.target.value;
+
+    // 🔥 Permitir solo números y punto
+    value = value.replace(/[^0-9.]/g, '');
+
+    // 🔥 Evitar más de un punto
+    const firstDotIndex = value.indexOf('.');
+    if (firstDotIndex !== -1) {
+        // Mantener solo el primer punto
+        value =
+            value.substring(0, firstDotIndex + 1) +
+            value.substring(firstDotIndex + 1).replace(/\./g, '');
     }
+
+    // 🔥 Separar enteros y decimales
+    let [enteros, decimales] = value.split('.');
+
+    // 🔥 Limitar enteros a 6
+    if (enteros) {
+        enteros = enteros.substring(0, 6);
+    }
+
+    // 🔥 Si hay punto, respetarlo aunque no haya decimales aún
+    if (value.includes('.')) {
+        // Limitar decimales a 2
+        decimales = decimales ? decimales.substring(0, 2) : '';
+
+        value = `${enteros}.${decimales}`;
+    } else {
+        value = enteros;
+    }
+
+    e.target.value = value;
 };
