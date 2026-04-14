@@ -77,13 +77,13 @@ export default function RevisionSolicitud() {
 
   const handleEnviarCorreccion = async () => {
     try {
-      const comentarioAEnviar = estadoRevision === 3 ? nuevoComentario : comentario;
-      if (!comentario.trim()) {
+      const comentarioAEnviar = (nuevoComentario?.trim() || comentario?.trim() || "");
+
+      if (!comentarioAEnviar) {
         mostrarAlerta({
           icon: 'warning',
           title: 'Por favor escribe un comentario de corrección.'
         });
-        //alert("Por favor escribe un comentario de corrección.");
         return;
       }
 
@@ -92,15 +92,14 @@ export default function RevisionSolicitud() {
         icon: 'success',
         title: 'Corrección enviada correctamente'
       });
-      setComentario(""); // Limpiar campo
+      setComentario("");
+      setNuevoComentario("");
       navigate('/ListadoEstudioSocioeconomico');
-      // alert("Corrección enviada correctamente");
     } catch (error) {
       mostrarAlerta({
         icon: 'error',
         title: 'Error al enviar la corrección'
       });
-      //alert("Error al enviar la corrección: " + error);
     }
   };
 
@@ -239,11 +238,11 @@ export default function RevisionSolicitud() {
                       rows="4"
                       placeholder="Ingresa tus observaciones"
                       style={{ width: '100%', height: '100px' }}
-                      maxLength={100}
+                      maxLength={1000}
                       value={nuevoComentario}
                       onChange={(e) => setNuevoComentario(e.target.value)}
                     />
-                    <small className="text-muted d-block text-end mt-1">{nuevoComentario?.length}/100</small>
+                    <small className="text-muted d-block text-end mt-1">{nuevoComentario?.length}/1000</small>
                   </div>
                 )}
                 {(estadoRevision !== 3 && estadoRevision !== 2) && (
@@ -253,13 +252,13 @@ export default function RevisionSolicitud() {
                     rows="4"
                     placeholder="Ingresa tus observaciones"
                     style={{ width: '100%', height: '200px' }}
-                    maxLength={100}
+                    maxLength={1000}
                     value={comentario}
                     onChange={(e) => setComentario(e.target.value)}
                   />
                 )}
                 {(estadoRevision !== 3 && estadoRevision !== 2) && (
-                  <small className="text-muted d-block text-end mt-1">{comentario.length}/100</small>
+                  <small className="text-muted d-block text-end mt-1">{comentario.length}/1000</small>
                 )}
 
                 <div className="mt-4 text-center">
