@@ -420,6 +420,33 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
   };
 
+  // Helper: descargar un archivo desde base64
+  const downloadBase64File = (base64, filename, mimeType) => {
+    if (!base64) return;
+    const base64Data = base64.includes('base64,') ? base64.split('base64,')[1] : base64;
+    try {
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 100);
+    } catch (e) {
+      console.error('Error al convertir base64 a archivo:', e);
+    }
+  };
+
   // Función para subir el archivo Excel
   const subirExcel = async () => {
     if (!excelFile) {
@@ -442,6 +469,14 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       const response = await alumnoService.importarDesdeExcel(formData);
 
       if (response && response.status === 201) {
+        // Si el backend trae el excel en base64, descargarlo automáticamente
+        const excelBase64 = response.data?.excelBase64;
+        if (excelBase64) {
+          const timestamp = new Date().toISOString().slice(0,19).replace(/[:T]/g, '-');
+          const filename = `alumnos_importados_${timestamp}.xlsx`;
+          downloadBase64File(excelBase64, filename);
+        }
+
         // Alerta personalizada que no se cierre automáticamente
         Swal.fire({
           icon: 'success',
