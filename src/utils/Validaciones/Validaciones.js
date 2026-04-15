@@ -97,6 +97,17 @@ export const soloNumerosPositivosConDosDecimales = (e) => {
 };
 
 
+export const limitarNumerico6Enteros2Decimales = (e) => {
+    const value = e.target.value;
+
+    // Regex: hasta 6 enteros y 2 decimales
+    const regex = /^\d{0,6}(\.\d{0,2})?$/;
+
+    if (!regex.test(value)) {
+        e.target.value = value.slice(0, -1); // elimina último caracter inválido
+    }
+};
+
 export const validarNumericoDecimal = (e) => {
     let value = e.target.value;
 
