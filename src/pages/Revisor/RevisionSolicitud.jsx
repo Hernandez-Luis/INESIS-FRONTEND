@@ -240,6 +240,7 @@ export default function RevisionSolicitud() {
                       style={{ width: '100%', height: '100px' }}
                       maxLength={1000}
                       value={nuevoComentario}
+                      disabled={estadoRevision === finalizado}
                       onChange={(e) => setNuevoComentario(e.target.value)}
                     />
                     <small className="text-muted d-block text-end mt-1">{nuevoComentario?.length}/1000</small>
@@ -254,6 +255,7 @@ export default function RevisionSolicitud() {
                     style={{ width: '100%', height: '200px' }}
                     maxLength={1000}
                     value={comentario}
+                    disabled={estadoRevision === finalizado}
                     onChange={(e) => setComentario(e.target.value)}
                   />
                 )}

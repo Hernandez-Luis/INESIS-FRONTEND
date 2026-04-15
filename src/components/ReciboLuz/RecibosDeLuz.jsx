@@ -52,7 +52,7 @@ const RecibosDeLuz = ({ onChangeFile, onChangeObservaciones, observacionesInicia
           />
           {archivoExistente && (
             <div className="mt-1 text-success" style={{ fontSize: "0.9em" }}>
-              ✔ Ya existe un archivo cargado: <strong>{archivoExistente}</strong>
+              Ya existe un archivo cargado: <strong>{archivoExistente}</strong>
               <br />
               <small>Solo sube uno nuevo si deseas reemplazarlo</small>
             </div>
