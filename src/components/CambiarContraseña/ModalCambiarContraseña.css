@@ -224,3 +224,13 @@
   border-inline: 2px solid #e74c3c !important;
   box-shadow: 0 0 0 2px #f8d7da !important;
 }
+
+.mcambiar-input[type="password"]::-ms-reveal,
+.mcambiar-input[type="password"]::-ms-clear {
+  display: none;
+}
+
+.mcambiar-input[type="password"]::-webkit-credentials-auto-fill-button,
+.mcambiar-input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
