@@ -2061,10 +2061,10 @@ const MiFamiliaForm = () => {
                                                 </div>
                                             )}
                                             {dep.nombreArchivo && (
-                                                <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
-                                                    Archivo enviado: {dep.nombreArchivo}
+                                                <div className="mt-1 text-success" style={{ fontSize: "0.9em"}}>
+                                                    Archivo enviado: <strong>{dep.nombreArchivo}</strong>
                                                     <br />
-                                                    <small>Si subes un nuevo archivo, reemplazará al anterior</small>
+                                                    <small>  Si subes un nuevo archivo, reemplazará al anterior</small>
                                                 </div>
                                             )}
                                         </div>
