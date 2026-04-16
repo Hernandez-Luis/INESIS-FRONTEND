@@ -39,7 +39,7 @@ const AdministrarRevisor = () => {
 
     // Columnas para la tabla
     const columns = [
-        { header: 'Matrícula', accessor: 'matricula' },
+        { header: 'Numero de Empleado', accessor: 'matricula' },
         { header: 'Nombre completo', accessor: 'nombreCompleto' },
         { header: "Departamento", accessor: "departamento" },
     ];

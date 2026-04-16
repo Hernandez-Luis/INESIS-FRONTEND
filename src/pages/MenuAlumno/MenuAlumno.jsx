@@ -75,7 +75,7 @@ const MenuAlumno = () => {
       return;
     }
 
-    if (estadoAlumno === 3) {
+    if (estadoAlumno === 1 || estadoAlumno === 2) {
       Swal.fire({
         icon: "info",
         title: "En espera de revisión",

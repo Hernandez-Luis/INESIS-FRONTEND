@@ -17,7 +17,8 @@ const ModalRegistrarFecha = ({
   const [formData, setFormData] = useState({
     idCarrera: "",
     fechaInicio: "",
-    fechaFin: ""
+    fechaFin: "",
+    reiniciarProceso: false
   });
 
   const [validated, setValidated] = useState(false);
@@ -29,7 +30,8 @@ const ModalRegistrarFecha = ({
       setFormData({
         idCarrera: fechaEditar.carrera.id,
         fechaInicio: fechaEditar.fechaInicio.split('T')[0],
-        fechaFin: fechaEditar.fechaFin.split('T')[0]
+        fechaFin: fechaEditar.fechaFin.split('T')[0],
+        reiniciarProceso: false
       });
     } else {
       setFormData({ idCarrera: "", fechaInicio: "", fechaFin: "" });
@@ -72,7 +74,7 @@ const ModalRegistrarFecha = ({
   const handleChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: field === 'idCarrera' ? Number(value) : value
+      [field]: field === 'idCarrera' ? Number(value) : field === 'reiniciarProceso' ? !!value : value
     }));
   };
 
@@ -92,14 +94,18 @@ const ModalRegistrarFecha = ({
 
     if (modoEdicion) {
       const nombreCarrera = fechaEditar?.carrera?.nombreCarrera || "esta carrera";
+      const swalHtml = formData.reiniciarProceso
+        ? `Has marcado reiniciar. Si continúas, se reiniciará el periodo de registro y <b>TODOS</b> los alumnos de <b>${nombreCarrera}</b> deberán volver a realizar el proceso de registro. ¿Deseas continuar?`
+        : `Vas a editar las fechas de la carrera <b>${nombreCarrera}</b>. Esto actualizará el periodo de registro pero no reiniciará los registros actuales. ¿Deseas continuar?`;
+
       const result = await Swal.fire({
         title: '¿Estás seguro?',
-        html: `Una vez editado el periodo, ya no podrás consultar el registro de los alumnos de <b>${nombreCarrera}</b> y se reiniciará el periodo de registro. ¿Deseas continuar?`,
-        icon: 'warning',
+        html: swalHtml,
+        icon: formData.reiniciarProceso ? 'warning' : 'question',
         showCancelButton: true,
         confirmButtonColor: '#28a745',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, guardar cambios',
+        confirmButtonText: formData.reiniciarProceso ? 'Sí, reiniciar y guardar' : 'Sí, guardar cambios',
         cancelButtonText: 'Cancelar'
       });
 
@@ -217,6 +223,18 @@ const ModalRegistrarFecha = ({
               />
             </Form.Group>
           </div>
+          {modoEdicion && (
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                id="reiniciarProceso"
+                label="Reiniciar proceso de registro de alumnos"
+                checked={!!formData.reiniciarProceso}
+                onChange={(e) => handleChange('reiniciarProceso', e.target.checked)}
+              />
+              <Form.Text className="text-muted">Si marcas esta casilla, se reiniciará el periodo de registro y TODOS los alumnos deberán volver a realizar el proceso de registro. Usa esta opción solo si quieres reiniciar por completo los registros relacionados.</Form.Text>
+            </Form.Group>
+          )}
           {!modoEdicion && (
             <div className="info-card-fechas">
               <FiCalendar className="info-icon" />
