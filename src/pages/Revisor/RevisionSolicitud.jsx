@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import NavInesis from '../../components/NavInesis/NavInesis';
 import MigasRecorrido from '../../components/MigasDePan/MigasRecorrido';
 import FooterInesis from '../../components/FooterInesis/FooterInesis';
-import PdfVisor from '../../components/pdf/PdfVisor'; // Asegúrate de que coincida con la capitalización
+import PdfVisor from '../../components/pdf/PdfVisor'; 
 import { generarPdfAlumno } from '../../services/pdfService';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AlumnoService from '../../services/AlumnoService';
@@ -54,7 +54,7 @@ export default function RevisionSolicitud() {
         setLoading(true);
         let alumno = await AlumnoService.getById(alumnoId);
         setEstadoRevision(alumno.estadoRevision);
-        setComentario(alumno.observaciones);
+        setComentario(alumno.observaciones ?? "");
         const pdfBase64 = await generarPdfAlumno(alumnoId);
 
         const pdfBlob = base64ToBlob(pdfBase64);
@@ -77,13 +77,13 @@ export default function RevisionSolicitud() {
 
   const handleEnviarCorreccion = async () => {
     try {
-      const comentarioAEnviar = estadoRevision === 3 ? nuevoComentario : comentario;
-      if (!comentario.trim()) {
+      const comentarioAEnviar = (nuevoComentario?.trim() || comentario?.trim() || "");
+
+      if (!comentarioAEnviar) {
         mostrarAlerta({
           icon: 'warning',
           title: 'Por favor escribe un comentario de corrección.'
         });
-        //alert("Por favor escribe un comentario de corrección.");
         return;
       }
 
@@ -92,26 +92,47 @@ export default function RevisionSolicitud() {
         icon: 'success',
         title: 'Corrección enviada correctamente'
       });
-      setComentario(""); // Limpiar campo
+      setComentario("");
+      setNuevoComentario("");
       navigate('/ListadoEstudioSocioeconomico');
-      // alert("Corrección enviada correctamente");
     } catch (error) {
       mostrarAlerta({
         icon: 'error',
         title: 'Error al enviar la corrección'
       });
-      //alert("Error al enviar la corrección: " + error);
     }
   };
 
   const handleMarcarFinalizado = async () => {
     try {
+      if (estadoRevision === finalizado) {
+        mostrarAlerta({
+          icon: 'info',
+          title: 'Ya esta finalizado  este alumno, no puedes hacer más cambios'
+        });
+        return;
+      }
       if (estadoRevision !== 1 && estadoRevision !== 3) {
         mostrarAlerta({
           icon: 'warning',
           title: 'No se puede finalizar si hay un comentario en observaciones'
         });
         return; // Detiene la ejecución si hay comentario
+      }
+
+      const confirmacion = await Swal.fire({
+        icon: 'question',
+        title: '¿Estas seguro de finalizar?',
+        text: 'Una vez finalizado, ya no podras hacer ningun cambio.',
+        showCancelButton: true,
+        confirmButtonText: 'Si, finalizar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d'
+      });
+
+      if (!confirmacion.isConfirmed) {
+        return;
       }
 
       await AlumnoService.enviarRevisionAlumno(alumnoId, "", finalizado);
@@ -217,9 +238,12 @@ export default function RevisionSolicitud() {
                       rows="4"
                       placeholder="Ingresa tus observaciones"
                       style={{ width: '100%', height: '100px' }}
+                      maxLength={1000}
                       value={nuevoComentario}
+                      disabled={estadoRevision === finalizado}
                       onChange={(e) => setNuevoComentario(e.target.value)}
                     />
+                    <small className="text-muted d-block text-end mt-1">{nuevoComentario?.length}/1000</small>
                   </div>
                 )}
                 {(estadoRevision !== 3 && estadoRevision !== 2) && (
@@ -229,14 +253,23 @@ export default function RevisionSolicitud() {
                     rows="4"
                     placeholder="Ingresa tus observaciones"
                     style={{ width: '100%', height: '200px' }}
+                    maxLength={1000}
                     value={comentario}
+                    disabled={estadoRevision === finalizado}
                     onChange={(e) => setComentario(e.target.value)}
                   />
+                )}
+                {(estadoRevision !== 3 && estadoRevision !== 2) && (
+                  <small className="text-muted d-block text-end mt-1">{comentario.length}/1000</small>
                 )}
 
                 <div className="mt-4 text-center">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="btn btn-primary btn-lg" onClick={handleEnviarCorreccion}>
+                    <button
+                      className="btn btn-primary btn-lg"
+                      onClick={handleEnviarCorreccion}
+                      disabled={estadoRevision === finalizado}
+                    >
                       Enviar corrección
                     </button>
                     <button className="btn btn-primary btn-lg" onClick={handleMarcarFinalizado}>

@@ -38,7 +38,11 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [showModalCambiar, setShowModalCambiar] = useState(false);
   const esEdicion = !!props.alumno;
   const navigate = useNavigate();
-
+  const [showModalCredenciales, setShowModalCredenciales] = useState(false);
+  const [credenciales, setCredenciales] = useState({
+    usuario: '',
+    contrasena: ''
+  });
   const [showModal, setShowModal] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -154,10 +158,15 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
       // Generar usuario automáticamente
       if (name === 'nombre' || name === 'apellidoPaterno') {
-        const primerNombre = updatedForm.nombre.split(' ')[0] || '';
+        const nombres = updatedForm.nombre.trim().split(' ');
+
+        // Tomar máximo 2 nombres
+        const nombreCompleto = nombres.slice(0, 2).join('');
+
         const primerApellido = updatedForm.apellidoPaterno.split(' ')[0] || '';
-        if (primerNombre && primerApellido) {
-          updatedForm.usuario = `${primerNombre.toLowerCase()}.${primerApellido.toLowerCase()}`;
+
+        if (nombreCompleto && primerApellido) {
+          updatedForm.usuario = `${nombreCompleto.toLowerCase()}.${primerApellido.toLowerCase()}`;
         }
       }
       return updatedForm;
@@ -327,18 +336,30 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
       // 5. Confirmar éxito
       if (response.status === 200 || response.status === 201 || response.status === 204) {
-        mostrarAlerta({
-          icon: 'success',
-          title: esEdicion ? 'Alumno actualizado correctamente' : 'Registro exitoso',
-          text: esEdicion
-            ? 'Los datos del alumno fueron modificados correctamente.'
-            : 'Alumno registrado correctamente.'
-        });
 
-        setFormValues(initialForm);
-        navigate('/AdministrarAlumnos');
-      } else {
-        throw new Error('Error al guardar el alumno');
+        if (esEdicion) {
+
+          mostrarAlerta({
+            icon: 'success',
+            title: 'Alumno actualizado correctamente',
+            text: 'Los datos del alumno fueron modificados correctamente.'
+
+          });
+
+          setFormValues(initialForm);
+          navigate('/AdministrarAlumnos');
+
+        } else {
+          const alumnoCreado = response.data;
+          const usuario = await UsuarioService.getByAlumnoId(alumnoCreado.id);
+
+          setCredenciales({
+            usuario: usuario?.usuario || '',
+            contrasena: formValues.contrasena
+          });
+
+          setShowModalCredenciales(true);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -349,6 +370,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       });
     }
   };
+
 
   const descargarPlantilla = async () => {
     const result = await Swal.fire({
@@ -420,6 +442,33 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
   };
 
+  // Helper: descargar un archivo desde base64
+  const downloadBase64File = (base64, filename, mimeType) => {
+    if (!base64) return;
+    const base64Data = base64.includes('base64,') ? base64.split('base64,')[1] : base64;
+    try {
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 100);
+    } catch (e) {
+      console.error('Error al convertir base64 a archivo:', e);
+    }
+  };
+
   // Función para subir el archivo Excel
   const subirExcel = async () => {
     if (!excelFile) {
@@ -442,6 +491,14 @@ const AlumnoRegistro = forwardRef((props, ref) => {
       const response = await alumnoService.importarDesdeExcel(formData);
 
       if (response && response.status === 201) {
+        // Si el backend trae el excel en base64, descargarlo automáticamente
+        const excelBase64 = response.data?.excelBase64;
+        if (excelBase64) {
+          const timestamp = new Date().toISOString().slice(0,19).replace(/[:T]/g, '-');
+          const filename = `alumnos_importados_${timestamp}.xlsx`;
+          downloadBase64File(excelBase64, filename);
+        }
+
         // Alerta personalizada que no se cierre automáticamente
         Swal.fire({
           icon: 'success',
@@ -713,49 +770,52 @@ const AlumnoRegistro = forwardRef((props, ref) => {
             </div>
 
             {/* Sección Datos de la Plataforma */}
-            <h2 className="texto-morado2">Datos de la plataforma</h2>
-            <p className="texto-pequeno">Estos datos se asignan automáticamente. </p>
+            {props.alumno && (
+              <>
+                <h2 className="texto-morado2">Datos de la plataforma</h2>
+                <p className="texto-pequeno">Estos datos se asignan automáticamente. </p>
 
-            <div className="col-md-6">
-              <label className="formulario-etiqueta">Usuario</label>
-              <input
-                type="text"
-                name="usuario"
-                className="formulario-entrada readonly-style2"
-                value={formValues.usuario}
-                readOnly
-              />
-            </div>
+                <div className="col-md-6">
+                  <label className="formulario-etiqueta">Usuario</label>
+                  <input
+                    type="text"
+                    className="formulario-entrada readonly-style2"
+                    value={formValues.usuario}
+                    readOnly
+                  />
+                </div>
 
-            <div className="col-md-6">
-              <label className="formulario-etiqueta">Contraseña</label>
-              {props.alumno ? (
-                <>
-                  <button
-                    type="button"
-                    className="btn-cambiar-pass w-100"
-                    onClick={() => setShowModalCambiar(true)}
-                  >
-                    <span className="btn-cambiar-pass-decor" />
-                    <span className="btn-cambiar-pass-content">
-                      <span className="btn-cambiar-pass-icon">
-                        <i className="bi bi-key"></i>
-                      </span>
-                      <span className="btn-cambiar-pass-text">Cambiar contraseña</span>
-                    </span>
-                  </button>
+                <div className="col-md-6">
+                  <label className="formulario-etiqueta">Contraseña</label>
+                  {props.alumno ? (
+                    <>
+                      <button
+                        type="button"
+                        className="btn-cambiar-pass w-100"
+                        onClick={() => setShowModalCambiar(true)}
+                      >
+                        <span className="btn-cambiar-pass-decor" />
+                        <span className="btn-cambiar-pass-content">
+                          <span className="btn-cambiar-pass-icon">
+                            <i className="bi bi-key"></i>
+                          </span>
+                          <span className="btn-cambiar-pass-text">Cambiar contraseña</span>
+                        </span>
+                      </button>
 
-                </>
-              ) : (
-                <input
-                  type="text"
-                  name="contrasena"
-                  className="formulario-entrada readonly-style2"
-                  value={formValues.contrasena}
-                  readOnly
-                />
-              )}
-            </div>
+                    </>
+                  ) : (
+                    <input
+                      type="text"
+                      name="contrasena"
+                      className="formulario-entrada readonly-style2"
+                      value={formValues.contrasena}
+                      readOnly
+                    />
+                  )}
+                </div>
+              </>
+            )}
 
             <div className="d-flex justify-content-center gap-3">
               <button type="submit" className="btn-agregar">
@@ -820,6 +880,79 @@ const AlumnoRegistro = forwardRef((props, ref) => {
                 <span>Importar alumnos</span>
               </>
             )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+      {/*MODAL USUARIO CREADO*/}
+      <Modal
+        show={showModalCredenciales}
+        onHide={() => setShowModalCredenciales(false)}
+        centered
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="w-100 text-center texto-morado2 fw-bold">
+            USUARIO CREADO
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="text-center px-4">
+          <p className="mb-4 text-muted">
+            Guarda estas credenciales para acceder al sistema
+          </p>
+
+          {/* TARJETA */}
+          <div className="card shadow-sm p-3 rounded-4 border-0">
+
+            {/* Usuario */}
+            <div className="mb-3 text-start">
+              <label className="formulario-etiqueta fw-bold text-muted">
+                Usuario
+              </label>
+              <div className="form-control bg-light border-0 text-center fw-semibold">
+                {credenciales.usuario}
+              </div>
+            </div>
+
+            {/* Contraseña */}
+            <div className="mb-2 text-start">
+              <label className="formulario-etiqueta fw-bold text-muted">
+                Contraseña
+              </label>
+              <div className="form-control bg-light border-0 text-center fw-semibold">
+                {credenciales.contrasena}
+              </div>
+            </div>
+
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer className="border-0 justify-content-center">
+          <Button
+            className="px-4 rounded-pill"
+            style={{
+              backgroundColor: '#6f42c1', // morado bonito
+              border: 'none'
+            }}
+            onClick={() => {
+              setShowModalCredenciales(false);
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Alumno registrado correctamente',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                didOpen: () => {
+                  const btn = Swal.getConfirmButton();
+                  btn.style.backgroundColor = '#6f42c1';
+                }
+              }).then(() => {
+                navigate('/AdministrarAlumnos');
+              });
+            }}
+          >
+            Aceptar
           </Button>
         </Modal.Footer>
       </Modal>

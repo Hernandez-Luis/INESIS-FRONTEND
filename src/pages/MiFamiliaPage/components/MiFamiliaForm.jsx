@@ -26,6 +26,7 @@ import CatParentescoService from '../../../services/CatParentescoService';
 import { useNavigate } from 'react-router-dom';
 import CatSituacionVivienda from '../../../services/CatSituacionVivienda';
 import { mostrarSpinner, ocultarSpinner } from '../../../utils/spinerCarga/ModalSpiner';
+import CatCodigosPostalesService from '../../../services/CatCodigosPostalesService';
 
 
 const MiFamiliaForm = () => {
@@ -130,25 +131,27 @@ const MiFamiliaForm = () => {
     const idMiFamilia = localStorageData?.id_mi_familia;
 
     const [colonias, setColonias] = useState([]);
-    const handleBuscarCP = async (value) => {
+
+    const obtenerCpExcel = async (value) => {
         const codigoPostal = value
         // Solo buscar si tiene 5 dígitos
+        if (value.length !== 5) return;
         try {
-            const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-            setColonias(datos.codigo_postal.colonias);
+            const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+            setColonias(datos.map(d => d.nombreAsentamiento));
 
             setDataDomicilio((prevData) => ({
                 ...prevData,
-                estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-                municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
+                estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+                municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
                 cp: codigoPostal,
             }))
-
         } catch (err) {
             console.error('Error al buscar código postal:', err);
             setColonias([]);
         }
     };
+
 
     const verificarFechas = (fechaData) => {
         if (!fechaData.active) return false;
@@ -269,6 +272,7 @@ const MiFamiliaForm = () => {
         if (data?.personasDependientes && data.personasDependientes.length > 0) {
             setNumDependientes(data.personasDependientes.length);
             setDependientes(data.personasDependientes.map(persona => ({
+                id: persona.id || null, 
                 nombrePersona: persona.nombrePersona || '',
                 edad: persona.edad || '',
                 parentesco: persona.parentesco?.id || '',
@@ -362,7 +366,7 @@ const MiFamiliaForm = () => {
     // useEffect para buscar CP cuando se carga desde datos del alumno:
     useEffect(() => {
         if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
-            handleBuscarCP(dataDomicilio.cp);
+            obtenerCpExcel(dataDomicilio.cp);
         }
     }, [dataDomicilio.cp]);
 
@@ -417,7 +421,7 @@ const MiFamiliaForm = () => {
     const actualizarCamposDomicilio = (e) => {
         const { name, value } = e.target;
         if (name === "cp" && value.length === 5) {
-            handleBuscarCP(value)
+            obtenerCpExcel(value)
         }
         setDataDomicilio((prevData) => ({
             ...prevData,
@@ -493,7 +497,7 @@ const MiFamiliaForm = () => {
     const obtenerCatSituacionVivienda = async () => {
         try {
             let situacionViviendaLista = await CatSituacionViviendaService.getAll();
-            let opcionesPermitidas = ['Propia', 'Alquilada', 'Otro'];
+            let opcionesPermitidas = ['Propia', 'Alquilada', /*'Otro'*/];
             let situacionViviendaFiltrada = situacionViviendaLista.filter(item =>
                 opcionesPermitidas.includes(item.nombreSituacion)
             );
@@ -616,11 +620,13 @@ const MiFamiliaForm = () => {
 
             if (parsedValue > copia.length) {
                 const adicionales = Array.from({ length: parsedValue - copia.length }, () => ({
+                    id: null, // identificar si es nuevo o existente
                     nombrePersona: '',
                     edad: '',
                     parentesco: '',
                     archivo: null,
-                    nombreArchivo: ''
+                    nombreArchivo: '',
+                    rutaArchivo: '' // Para mantener la estructura aunque no haya archivo cargado
                 }));
                 return [...copia, ...adicionales];
             } else {
@@ -1042,15 +1048,26 @@ const MiFamiliaForm = () => {
         if (parseInt(numDependientes) > 0) {
             dependientes.forEach((dep, index) => {
                 const errDep = {};
+                const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-                if (!dep.nombrePersona || dep.nombrePersona.trim() === "") {
+                const tieneArchivoNuevo = !!dep.archivo;
+                const tieneArchivoExistente = !!(dep.rutaArchivo || dep.nombreArchivo);
+
+                if (!dep.nombrePersona || dep.nombrePersona.trim() === "" || !nombreRegex.test(dep.nombrePersona)) {
                     errDep.nombrePersona = true;
                     erroresSwal.push(`El nombre completo del dependiente #${index + 1} es obligatorio.`);
                 }
 
-                if (!dep.edad || isNaN(dep.edad) || parseInt(dep.edad) < 0) {
+                const edadNum = parseInt(dep.edad);
+
+                if (
+                    !dep.edad ||
+                    isNaN(edadNum) ||
+                    edadNum < 0 ||
+                    edadNum > 99
+                ) {
                     errDep.edad = true;
-                    erroresSwal.push(`La edad del dependiente #${index + 1} no es válida.`);
+                    erroresSwal.push(`La edad del dependiente #${index + 1} debe estar entre 0 y 99.`);
                 }
 
                 if (!dep.parentesco || dep.parentesco === "") {
@@ -1058,7 +1075,7 @@ const MiFamiliaForm = () => {
                     erroresSwal.push(`Selecciona el parentesco del dependiente #${index + 1}.`);
                 }
 
-                if (!dep.archivo) {
+                if (!tieneArchivoNuevo && !tieneArchivoExistente) {
                     errDep.archivo = true;
                     erroresSwal.push(`Debes subir un archivo para el dependiente #${index + 1}.`);
                 }
@@ -1165,16 +1182,19 @@ const MiFamiliaForm = () => {
                             };
                         } catch (error) {
                             console.error('Error al convertir archivo a base64:', error);
-                            // Si hay error, enviar sin archivo
-                            archivoBase64 = null;
                         }
                     }
 
                     return {
+                        // ✅ CRÍTICO: enviar el ID del dependiente existente
+                        id: dependiente.id || null,
                         nombrePersona: dependiente.nombrePersona,
                         edad: parseInt(dependiente.edad),
                         parentesco: dependiente.parentesco,
-                        archivo: archivoBase64
+                        archivo: archivoBase64,
+                        // enviar referencia del archivo existente si no se subió uno nuevo
+                        rutaArchivoExistente: !archivoBase64 ? (dependiente.rutaArchivo || null) : null,
+                        nombreArchivoExistente: !archivoBase64 ? (dependiente.nombreArchivo || null) : null,
                     };
                 })
             );
@@ -1974,13 +1994,17 @@ const MiFamiliaForm = () => {
                                                 type="text"
                                                 className={`form-control ${erroresFormulario.dependientes?.[index]?.nombrePersona ? 'is-invalid' : ''}`}
                                                 value={dep.nombrePersona}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
+                                                    let value = e.target.value;
+
+                                                    // Eliminar números y caracteres raros en tiempo real
+                                                    value = value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
                                                     handleChangeDependiente(index, 'nombrePersona', e.target.value)
-                                                }
+                                                }}
                                                 placeholder="Nombre completo"
                                             />
                                             {erroresFormulario.dependientes?.[index]?.nombrePersona && (
-                                                <div className="invalid-feedback">Este campo es obligatorio.</div>
+                                                <div className="invalid-feedback">Este campo es obligatorio con solo letras y espacios.</div>
                                             )}
                                         </div>
 
@@ -1990,7 +2014,12 @@ const MiFamiliaForm = () => {
                                                 type="number"
                                                 className={`form-control ${erroresFormulario.dependientes?.[index]?.edad ? 'is-invalid' : ''}`}
                                                 value={dep.edad}
-                                                onChange={(e) => handleChangeDependiente(index, 'edad', e.target.value)}
+                                                onChange={(e) => {
+                                                    let value = e.target.value
+                                                    if (value.length > 2) return;
+
+                                                    handleChangeDependiente(index, 'edad', e.target.value)
+                                                }}
                                             />
                                             {erroresFormulario.dependientes?.[index]?.edad && (
                                                 <div className="invalid-feedback">Este campo de edad es obligatorio.</div>
@@ -2032,10 +2061,10 @@ const MiFamiliaForm = () => {
                                                 </div>
                                             )}
                                             {dep.nombreArchivo && (
-                                                <div className="mt-1 text-secondary" style={{ fontSize: "0.9em" }}>
-                                                    Archivo enviado: {dep.nombreArchivo}
+                                                <div className="mt-1 text-success" style={{ fontSize: "0.9em"}}>
+                                                    Archivo enviado: <strong>{dep.nombreArchivo}</strong>
                                                     <br />
-                                                    <small>Si subes un nuevo archivo, reemplazará al anterior</small>
+                                                    <small>  Si subes un nuevo archivo, reemplazará al anterior</small>
                                                 </div>
                                             )}
                                         </div>

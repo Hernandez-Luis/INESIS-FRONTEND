@@ -8,7 +8,7 @@ import CatParentescoService from '../../services/CatParentescoService';
 import GastosIngresosService from '../../services/GastosIngresosService';
 import { useNavigate } from "react-router-dom";
 import AlumnoService from "../../services/AlumnoService";
-import { soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales, validarNumericoDecimal } from "../../utils/Validaciones/Validaciones";
+import { soloLetras, soloLetrasYNumeros, validarNumero6Enteros2Decimales, validarNumericoDecimal } from "../../utils/Validaciones/Validaciones";
 import { mostrarSpinner, ocultarSpinner } from "../../utils/spinerCarga/ModalSpiner";
 
 
@@ -27,6 +27,8 @@ const FinancialForm = () => {
     const [btnDisabled, setBtnDisabled] = useState(false);
     const [catParentesco, setParentesco] = useState([]);
     const [desigualdadMensaje, setDesigualdadMensaje] = useState("");
+    const [fechaMensaje, setfechaMensaje] = useState("");
+
     const navigate = useNavigate(); //
 
     // Estado para almacenar los datos del alumno
@@ -54,18 +56,80 @@ const FinancialForm = () => {
         { value: "12", label: "Diciembre" }
     ];
 
-    const anios = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+    const validarPeriodo = () => {
+        const inicio = document.getElementById("periodoInicio")?.value;
+        const fin = document.getElementById("periodoFin")?.value;
 
+        if (inicio && fin) {
+            const fechaInicio = new Date(inicio + "-01");
+            const fechaFin = new Date(fin + "-01");
+
+            if (fechaInicio >= fechaFin) {
+                setfechaMensaje(prev => {
+                    if (prev && !prev.includes("periodo")) return prev;
+                    return "⚠️ El periodo de inicio debe ser menor al de fin.";
+                });
+            } else {
+                if (fechaMensaje?.includes("periodo")) {
+                    setfechaMensaje("");
+                }
+            }
+        }
+    };
+
+    const handleChangePersona = (e, index, field) => {
+        const newPeopleData = [...peopleData];
+        if (!newPeopleData[index]) newPeopleData[index] = {};
+
+        let value = e.target.value;
+
+        // 🔥 SOLO para campos numéricos
+        if (field === "gross" || field === "net") {
+            // Aplicar tu validador centralizado
+            e.target.value = value;
+            validarNumero6Enteros2Decimales(e);
+            value = e.target.value;
+        }
+
+        newPeopleData[index][field] = value;
+        setPeopleData(newPeopleData);
+
+        // 🔥 Mantienes tu lógica intacta
+        if (field === "gross" || field === "net") {
+            actualizarIngresoTotal(newPeopleData);
+        }
+    };
+
+    const currentYear = new Date().getFullYear();
+
+    const anios = [
+        currentYear - 1,
+        currentYear,
+        currentYear + 1
+    ];
+
+
+    useEffect(() => {
+        if (periodoInicioAnio && !anios.includes(Number(periodoInicioAnio))) {
+            setPeriodoInicioAnio("");
+        }
+
+        if (periodoFinAnio && !anios.includes(Number(periodoFinAnio))) {
+            setPeriodoFinAnio("");
+        }
+    }, [anios]);
 
     const actualizarPeriodoInicio = (mes, anio) => {
         if (mes && anio) {
             document.getElementById("periodoInicio").value = `${anio}-${mes}`;
+            validarPeriodo(); // 🔥
         }
     };
 
     const actualizarPeriodoFin = (mes, anio) => {
         if (mes && anio) {
             document.getElementById("periodoFin").value = `${anio}-${mes}`;
+            validarPeriodo(); // 🔥
         }
     };
 
@@ -74,20 +138,6 @@ const FinancialForm = () => {
     useEffect(() => {
         obtenerParentesco();
     }, []);
-
-
-    const validarIgualdadIngresosGastos = () => {
-        const ingreso = parseFloat(document.getElementById("ingresoTotal")?.value || "0");
-        const gastos = parseFloat(document.getElementById("totalGastos")?.value || "0");
-
-        if (Math.abs(ingreso - gastos) > 0.01) {
-            setDesigualdadMensaje("⚠️ El total de gastos no coincide con el ingreso total.");
-        } else {
-            setDesigualdadMensaje("");
-        }
-    };
-
-
 
     const cargarDatosAlumno = async () => {
         try {
@@ -181,8 +231,22 @@ const FinancialForm = () => {
             // Precargar recibo de luz
             if (gastosIngresos.reciboLuzModel) {
 
-
                 const recibo = gastosIngresos.reciboLuzModel;
+
+                // 🔥 PARSEAR PERIODO INICIO
+                if (recibo.periodoInicio) {
+                    const [anioInicio, mesInicio] = recibo.periodoInicio.split("-");
+                    setPeriodoInicioMes(mesInicio);
+                    setPeriodoInicioAnio(anioInicio);
+                }
+
+                // 🔥 PARSEAR PERIODO FIN
+                if (recibo.periodoFin) {
+                    const [anioFin, mesFin] = recibo.periodoFin.split("-");
+                    setPeriodoFinMes(mesFin);
+                    setPeriodoFinAnio(anioFin);
+                }
+
                 const campos = [
                     { id: "lightName", valor: recibo.titular },
                     { id: "periodoInicio", valor: recibo.periodoInicio },
@@ -304,11 +368,27 @@ const FinancialForm = () => {
             if (inputBruto) {
                 inputBruto.value = totalBruto.toFixed(2);
             }
-            validarIgualdadIngresosGastos();
         }, 0);
     }, [peopleData, numPeople]);
 
+
+
+
     const validateForm = () => {
+
+        const inicio = document.getElementById("periodoInicio")?.value;
+        const fin = document.getElementById("periodoFin")?.value;
+
+        if (inicio && fin) {
+            const fechaInicio = new Date(inicio + "-01");
+            const fechaFin = new Date(fin + "-01");
+
+            if (fechaInicio >= fechaFin) {
+                mostrarCuidado("El periodo de inicio debe ser menor al periodo de fin.");
+                return;
+            }
+        }
+
         let isValid = true;
         const newEmptyFields = [];
 
@@ -614,7 +694,6 @@ const FinancialForm = () => {
             if (inputBruto) inputBruto.value = totalBruto.toFixed(2);
 
             setIngresoTotal(totalNeto);
-            validarIgualdadIngresosGastos();
         }, 0);
     };
 
@@ -629,8 +708,6 @@ const FinancialForm = () => {
         });
         const input = document.getElementById("totalGastos");
         if (input) input.value = total.toFixed(2);
-
-        validarIgualdadIngresosGastos();
     };
 
 
@@ -703,7 +780,6 @@ const FinancialForm = () => {
                     <Form.Group>
                         <Form.Label style={{ color: "#4F46E5" }}>¿Cuántas personas aportan al gasto familiar? <span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
-                            onBeforeInput={soloNumerosPositivos}
                             id="personasAportan"
                             style={{ maxWidth: "350px" }}
                             type="number"
@@ -763,43 +839,14 @@ const FinancialForm = () => {
                                                         placeholder={field.placeholder}
                                                         isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
                                                         value={peopleData[index]?.[field.field] || ""}
-                                                        onChange={(e) => {
-                                                            const newPeopleData = [...peopleData];
-                                                            if (!newPeopleData[index]) newPeopleData[index] = {};
+                                                        onChange={(e) => handleChangePersona(e, index, field.field)}
 
-                                                            let value = e.target.value;
-
-                                                            // Para campos numéricos, aplicar validación más simple
-                                                            if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
-                                                                // Solo permitir números, puntos y vacío
-                                                                value = value.replace(/[^0-9.]/g, '');
-
-                                                                // Evitar múltiples puntos
-                                                                const pointCount = (value.match(/\./g) || []).length;
-                                                                if (pointCount > 1) {
-                                                                    const firstPointIndex = value.indexOf('.');
-                                                                    value = value.substring(0, firstPointIndex + 1) + value.substring(firstPointIndex + 1).replace(/\./g, '');
-                                                                }
-
-                                                                // Limitar decimales a 2
-                                                                const parts = value.split('.');
-                                                                if (parts[1] && parts[1].length > 2) {
-                                                                    value = parts[0] + '.' + parts[1].substring(0, 2);
-                                                                }
-                                                            }
-
-                                                            newPeopleData[index][field.field] = value;
-                                                            setPeopleData(newPeopleData);
-
-                                                            // Actualizar total para campos numéricos
-                                                            if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
-                                                                actualizarIngresoTotal(newPeopleData);
-                                                            }
-                                                        }}
                                                         onBeforeInput={
-                                                            field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                                ? undefined
-                                                                : soloLetrasYNumeros
+                                                            field.field === "name"
+                                                                ? soloLetras
+                                                                : field.field === "company" || field.field === "job"
+                                                                    ? soloLetrasYNumeros
+                                                                    : undefined
                                                         }
                                                         onInput={undefined}
 
@@ -822,7 +869,6 @@ const FinancialForm = () => {
                                 }
 
                                 // Campos normales (Nombre completo, Puesto, IMB, IMN)
-                                // Campos normales (Nombre completo, Puesto, IMB, IMN)
                                 return (
                                     <Col key={idx} className="d-flex">
                                         <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
@@ -833,43 +879,13 @@ const FinancialForm = () => {
                                                 placeholder={field.placeholder}
                                                 isInvalid={emptyFields.includes(`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`)}
                                                 value={peopleData[index]?.[field.field] || ""}
-                                                onChange={(e) => {
-                                                    const newPeopleData = [...peopleData];
-                                                    if (!newPeopleData[index]) newPeopleData[index] = {};
-
-                                                    let value = e.target.value;
-
-                                                    // Para campos numéricos, aplicar validación más simple
-                                                    if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
-                                                        // Solo permitir números, puntos y vacío
-                                                        value = value.replace(/[^0-9.]/g, '');
-
-                                                        // Evitar múltiples puntos
-                                                        const pointCount = (value.match(/\./g) || []).length;
-                                                        if (pointCount > 1) {
-                                                            const firstPointIndex = value.indexOf('.');
-                                                            value = value.substring(0, firstPointIndex + 1) + value.substring(firstPointIndex + 1).replace(/\./g, '');
-                                                        }
-
-                                                        // Limitar decimales a 2
-                                                        const parts = value.split('.');
-                                                        if (parts[1] && parts[1].length > 2) {
-                                                            value = parts[0] + '.' + parts[1].substring(0, 2);
-                                                        }
-                                                    }
-
-                                                    newPeopleData[index][field.field] = value;
-                                                    setPeopleData(newPeopleData);
-
-                                                    // Actualizar total para campos numéricos
-                                                    if (field.label === "IMB (Bruto)" || field.label === "IMN (Neto)") {
-                                                        actualizarIngresoTotal(newPeopleData);
-                                                    }
-                                                }}
+                                                onChange={(e) => handleChangePersona(e, index, field.field)}
                                                 onBeforeInput={
-                                                    field.label === "IMB (Bruto)" || field.label === "IMN (Neto)"
-                                                        ? undefined
-                                                        : soloLetras
+                                                    field.field === "name"
+                                                        ? soloLetras
+                                                        : field.field === "company" || field.field === "job"
+                                                            ? soloLetrasYNumeros
+                                                            : undefined
                                                 }
                                                 onInput={undefined}
                                             />
@@ -914,7 +930,8 @@ const FinancialForm = () => {
                         <Form.Label style={{ color: "#4F46E5", maxWidth: "150px", marginRight: "10px" }}>Total ingreso neto:</Form.Label>
                         <Form.Control
                             style={{ maxWidth: "200px" }}
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             placeholder="$"
                             id="ingresoTotal"
                             readOnly
@@ -929,7 +946,6 @@ const FinancialForm = () => {
                         <Form.Control
                             style={{ maxWidth: "400px" }}
                             type="number"
-                            onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
                             onInput={validarNumericoDecimal}
                             id="personasDependenIngreso"
                             isInvalid={emptyFields.includes("personasDependenIngreso")}
@@ -1050,6 +1066,12 @@ const FinancialForm = () => {
                                     </Col>
                                 </Row>
 
+                                {fechaMensaje && (
+                                    <div style={{ color: "red", textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
+                                        {fechaMensaje}
+                                    </div>
+                                )}
+
                                 <Form.Control
                                     id="periodoFin"
                                     type="month"
@@ -1064,9 +1086,9 @@ const FinancialForm = () => {
                                 <Form.Label style={{ color: "#4F46E5" }}>Pago del último período: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="ultimoPago"
-                                    type="number"
-                                    onBeforeInput={soloNumerosPositivosConDosDecimales}
-                                    onInput={validarNumericoDecimal}
+                                    type="text"
+                                    inputMode="decimal"
+                                    onInput={validarNumero6Enteros2Decimales}
                                     isInvalid={emptyFields.includes("ultimoPago")}
                                 />
                             </Form.Group>
@@ -1075,9 +1097,9 @@ const FinancialForm = () => {
                                 <Form.Label style={{ color: "#4F46E5" }}>Pago mensual promedio: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="promedioPago"
-                                    type="number"
-                                    onBeforeInput={soloNumerosPositivosConDosDecimales}
-                                    onInput={validarNumericoDecimal}
+                                    type="text"
+                                    inputMode="decimal"
+                                    onInput={validarNumero6Enteros2Decimales}
                                     isInvalid={emptyFields.includes("promedioPago")}
                                 />
                             </Form.Group>
@@ -1139,9 +1161,10 @@ const FinancialForm = () => {
                                     <Form.Label style={{ color: "#4F46E5" }}>{label}: <span style={{ color: 'red' }}>*</span></Form.Label>
                                     <Form.Control
                                         id={label}
-                                        type="number"
-                                        onBeforeInput={soloNumerosPositivosConDosDecimales}
-                                        onInput={validarNumericoDecimal}
+                                        type="text"
+                                        inputMode="decimal"
+                                        onInput={validarNumero6Enteros2Decimales}
+
                                         isInvalid={emptyFields.includes(label)}
                                         onChange={actualizarTotalGastos}
                                     />
@@ -1152,21 +1175,16 @@ const FinancialForm = () => {
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="totalGastos"
-                                    type="number"
-                                    onBeforeInput={soloNumerosPositivosConDosDecimales} // Evitar caracteres no numéricos
-                                    onInput={validarNumericoDecimal}
+                                    type="text"
+                                    inputMode="decimal"
+                                    onInput={validarNumero6Enteros2Decimales}
+
                                     readOnly
                                     disabled
                                     placeholder="$"
                                     isInvalid={emptyFields.includes("totalGastos")}
                                 />
                             </Form.Group>
-                            {desigualdadMensaje && (
-                                <div style={{ color: "red", textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
-                                    {desigualdadMensaje}
-                                </div>
-                            )}
-
                         </Form>
                     </Card>
                 </Col>

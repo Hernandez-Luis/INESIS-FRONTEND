@@ -13,6 +13,7 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "dayjs": "^1.11.13",
+    "globals": "^17.4.0",
     "https-browserify": "^1.0.0",
     "lucide-react": "^0.560.0",
     "pdfjs-dist": "^3.0.279",

@@ -43,7 +43,7 @@
 
 .mcambiar-password-toggle {
   position: absolute;
-  right: 15px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -51,7 +51,7 @@
   color: var(--color-morado1);
   cursor: pointer;
   font-size: 18px;
-  padding: 5px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,4 +223,14 @@
 .mcambiar-input-error {
   border-inline: 2px solid #e74c3c !important;
   box-shadow: 0 0 0 2px #f8d7da !important;
+}
+
+.mcambiar-input[type="password"]::-ms-reveal,
+.mcambiar-input[type="password"]::-ms-clear {
+  display: none;
+}
+
+.mcambiar-input[type="password"]::-webkit-credentials-auto-fill-button,
+.mcambiar-input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
 }

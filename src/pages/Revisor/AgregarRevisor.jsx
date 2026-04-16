@@ -20,7 +20,9 @@ const AgregarRevisor = () => {
         <div>
             <NavInesis />
             <MigasRecorrido items={links} />
+            <div className="layout-centrado">
             <RegistroRevisor revisor={revisor} />
+            </div>
             <FooterInesis />
         </div>
     );

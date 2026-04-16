@@ -22,6 +22,10 @@ import { data, useNavigate } from 'react-router-dom'
 import '../../styles/BordeInputsError/BordeInputsError.css'
 import { soloFormatoDirecciones, soloLetras, soloLetrasYNumeros, soloNumerosPositivos, soloNumerosPositivosConDosDecimales } from '../../utils/Validaciones/Validaciones'
 import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpiner'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import CatCodigosPostalesService from '../../services/CatCodigosPostalesService'
+
 
 export const MisDatos = ({ onAdd, update }) => {
   const idAlumno = JSON.parse(localStorage.getItem('usuario')).alumnoId;
@@ -48,6 +52,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const [mediosSeleccionados, setMediosSeleccionados] = useState([])
   const [datosAlumno, setDatosAlumno] = useState({})
   const [btnDisabled, setBtnDisabled] = useState(false);
+  const [colonias, setColonias] = useState([]);
 
   // **************************  OBTENER DATOS DE LA BD  ******************************************
 
@@ -97,6 +102,26 @@ export const MisDatos = ({ onAdd, update }) => {
       console.error("Error al obtener la lista de CatEstadoCivil: ", error)
     }
   }
+
+  const obtenerCpExcel = async (value) => {
+    const codigoPostal = value
+    // Solo buscar si tiene 5 dígitos
+    if (value.length !== 5) return;
+    try {
+      const datos = await CatCodigosPostalesService.getByCp(codigoPostal)
+      setColonias(datos.map(d => d.nombreAsentamiento));
+
+      setDataDomicilio((prevData) => ({
+        ...prevData,
+        estado: datos[0].nombreEstado ? datos[0].nombreEstado : '',
+        municipio: datos[0].nombreMunicipio ? datos[0].nombreMunicipio : '',
+        cp: codigoPostal,
+      }))
+    } catch (err) {
+      console.error('Error al buscar código postal:', err);
+      setColonias([]);
+    }
+  };
 
   const verificarFechas = (fechaData) => {
     if (!fechaData.active) return false;
@@ -158,6 +183,7 @@ export const MisDatos = ({ onAdd, update }) => {
           ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
           personasComparteRenta: dataAlumno?.misDatos.gastosIngresos?.personasComparteRenta,
           pagoRentaMensual: dataAlumno?.misDatos.gastosIngresos?.pagoRentaMensual,
+          otro: dataAlumno?.misDatos.gastosIngresos?.otro || '',
         }))
         setDataTrabajo((prevData) => ({
           ...prevData,
@@ -173,7 +199,7 @@ export const MisDatos = ({ onAdd, update }) => {
           marca: dataAlumno?.misDatos.transporteAutomovil?.marca || '',
           modelo: dataAlumno?.misDatos.transporteAutomovil?.modelo || '',
           anio: dataAlumno?.misDatos.transporteAutomovil?.anio || '',
-          catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
+          //catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         //todo:
         setDataTransporteMotocicleta((prevData) => ({
@@ -181,7 +207,7 @@ export const MisDatos = ({ onAdd, update }) => {
           marca: dataAlumno?.misDatos.transporteMotocicleta?.marca || '',
           modelo: dataAlumno?.misDatos.transporteMotocicleta?.modelo || '',
           anio: dataAlumno?.misDatos.transporteMotocicleta?.anio || '',
-          catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
+          //catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
         }))
         // Extraer los IDs de los medios seleccionados
         const mediosSeleccionadosIds = dataAlumno?.misDatos?.mediosTraslado?.map(
@@ -314,33 +340,9 @@ export const MisDatos = ({ onAdd, update }) => {
   // *********************************  BUSCAR CP DE LOS DATOS DEL BACK  ***********************************
   useEffect(() => {
     if (dataDomicilio.cp && dataDomicilio.cp.length === 5) {
-      handleBuscarCP(dataDomicilio.cp);
+      obtenerCpExcel(dataDomicilio.cp);
     }
   }, [dataDomicilio.cp]);
-
-  // ***************************  OBTENIENDO DATOS DE LA API  ********************************
-
-  const [colonias, setColonias] = useState([]);
-
-  const handleBuscarCP = async (value) => {
-    const codigoPostal = value
-    // Solo buscar si tiene 5 dígitos
-    if (value.length !== 5) return;
-    try {
-      const datos = await DomicilioCpService.getColoniasPorCP(codigoPostal);
-      setColonias(datos.codigo_postal.colonias);
-
-      setDataDomicilio((prevData) => ({
-        ...prevData,
-        estado: datos.codigo_postal.estado ? datos.codigo_postal.estado : '',
-        municipio: datos.codigo_postal.municipio ? datos.codigo_postal.municipio : '',
-        cp: codigoPostal,
-      }))
-    } catch (err) {
-      console.error('Error al buscar código postal:', err);
-      setColonias([]);
-    }
-  };
 
   // ************************  MANEJADORES DE CAMBIOS  ****************************
   const actualizarCampoGastosIngresos = (e) => {
@@ -480,7 +482,7 @@ export const MisDatos = ({ onAdd, update }) => {
   const actualizarCamposDomicilio = (e) => {
     const { name, value } = e.target;
     if (name === "cp")
-      handleBuscarCP(value)
+      obtenerCpExcel(value)
     setDataDomicilio((prevData) => ({
       ...prevData,
       [name]: value
@@ -571,14 +573,32 @@ export const MisDatos = ({ onAdd, update }) => {
     );
     const esRenta = situacionSeleccionada &&
       (situacionSeleccionada.nombreSituacion === "Rento cuarto" ||
-      situacionSeleccionada.nombreSituacion === "Rento casa");
+        situacionSeleccionada.nombreSituacion === "Rento casa");
 
     Object.keys(dataGastosIngresos).forEach((campo) => {
       if ((campo === "personasComparteRenta" || campo === "pagoRentaMensual") && !esRenta) {
-      return; // No validar si no es renta
+        return; // No validar si no es renta
       }
+
+      if (campo === "otro") {
+        if (dataGastosIngresos.ocupacion == 8) {
+          if (
+            dataGastosIngresos.otro === null ||
+            dataGastosIngresos.otro === undefined ||
+            dataGastosIngresos.otro === ''
+          ) {
+            erroresTemp[campo] = 'Este campo es obligatorio';
+          }
+        }
+        return;
+      }
+
       if (!camposOpcionalesGastosIngresos.includes(campo)) {
-        if (dataGastosIngresos[campo] === null || dataGastosIngresos[campo] === undefined || dataGastosIngresos[campo] === '') {
+        if (
+          dataGastosIngresos[campo] === null ||
+          dataGastosIngresos[campo] === undefined ||
+          dataGastosIngresos[campo] === ''
+        ) {
           erroresTemp[campo] = 'Este campo es obligatorio';
         }
       }
@@ -599,6 +619,22 @@ export const MisDatos = ({ onAdd, update }) => {
         }
       }
     });
+
+    if (tieneAutomovil) {
+      Object.keys(dataTransporteAutomovil).forEach((campo) => {
+        if (dataTransporteAutomovil[campo] === null || dataTransporteAutomovil[campo] === undefined || dataTransporteAutomovil[campo] === '') {
+          erroresTemp[campo + "Automovil"] = 'Este campo es obligatorio';
+        }
+      });
+    }
+
+    if (tieneMotocicleta) {
+      Object.keys(dataTransporteMotocicleta).forEach((campo) => {
+        if (dataTransporteMotocicleta[campo] === null || dataTransporteMotocicleta[campo] === undefined || dataTransporteMotocicleta[campo] === '') {
+          erroresTemp[campo + "Motocicleta"] = 'Este campo es obligatorio';
+        }
+      });
+    }
 
     Object.keys(dataMisDatos).forEach((campo) => {
       if (!camposOpcionalesMisDatos.includes(campo)) {
@@ -753,6 +789,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Correo:</label>
                       <div className='w-xs-100 me-4 mb-2 mb-md-0'>
                         <input
+                          maxLength={40}
                           type="email"
                           className={`form-control ${errores.correo ? 'input-error' : ''}`}
                           name="correo"
@@ -852,6 +889,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
                       <input
+                        maxLength={50}
                         className={`form-control ${errores.calle ? 'input-error' : ''}`}
                         type="text"
                         onBeforeInput={soloFormatoDirecciones}
@@ -865,6 +903,8 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12 col-md-6 mt-2 mb-3">
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número <span style={{ color: 'red' }}>*</span></label>
                       <input
+                        maxLength={10}
+                        onBeforeInput={soloFormatoDirecciones}
                         className={`form-control ${errores.numero ? 'input-error' : ''}`}
                         type="text"
                         name={"numero"}
@@ -891,6 +931,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className='col-12 col-md-6 mt-2 mb-3'>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
                       <input
+                        maxLength={50}
                         onBeforeInput={soloLetras}
                         className={`form-control ${errores.localidad ? 'input-error' : ''}`}
                         type="text"
@@ -902,8 +943,26 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     <div className="col-12 mt-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario <span style={{ color: 'red' }}>*</span></label>
+                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario <span style={{ color: 'red' }}>* </span>
+                        <OverlayTrigger
+                          trigger="click"
+                          placement="right"
+                          overlay={
+                            <Popover>
+                              <Popover.Header>Instrucciones</Popover.Header>
+                              <Popover.Body>
+                                Ingresa el nombre del propietario de la casa (madre, padre, casero) donde te estás hospedando durante tus estudios.
+                              </Popover.Body>
+                            </Popover>
+                          }
+                        >
+                          <span style={{ cursor: 'pointer' }}>
+                            <i className="bi bi-info-circle"></i>
+                          </span>
+                        </OverlayTrigger>
+                      </label>
                       <input
+                        maxLength={50}
                         onBeforeInput={soloLetras}
                         className={`form-control ${errores.nombreCasaHuesped ? 'input-error' : ''}`}
                         type="text"
@@ -932,6 +991,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       Lo que pagas de alimentación, transporte, vivienda, servicios médicos, libros y materiales escolares, entretenimiento, etc. (Por favor no incluyas los gastos en colegiatura e inscripciones de la universidad)
                     </p>
                     <input
+                      maxLength={10}
                       onBeforeInput={soloNumerosPositivosConDosDecimales}
                       className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
                       type="text"
@@ -1009,6 +1069,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-xs-12 col-lg-5 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente: <span style={{ color: 'red' }}>*</span></p>
                       <input
+                        maxLength={50}
                         onBeforeInput={soloLetras}
                         className='form-control'
                         type="text"
@@ -1053,6 +1114,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       <div className="col-12 col-md-4 mb-4">
                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                         <input
+                          maxLength={36}
                           onBeforeInput={soloLetras}
                           className='form-control'
                           name='otro'
@@ -1075,6 +1137,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre del lugar donde trabajas <span style={{ color: 'red' }}>*</span></p>
                       <input
+                        maxLength={50}
                         className={`form-control ${errores.nombreTrabajo ? 'input-error' : ''}`}
                         type="text"
                         name='nombreTrabajo'
@@ -1087,6 +1150,8 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingreso mensual que recibes <span style={{ color: 'red' }}>*</span></p>
                       <input
+                        maxLength={10}
+                        onBeforeInput={soloNumerosPositivosConDosDecimales}
                         className={`form-control ${errores.ingresoMensual ? 'input-error' : ''}`}
                         type="text"
                         name='ingresoMensual'
@@ -1099,6 +1164,8 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12 col-md-4 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Teléfono del lugar donde trabajas <span style={{ color: 'red' }}>*</span></p>
                       <input
+                        maxLength={10}
+                        onBeforeInput={soloNumerosPositivos}
                         className={`form-control ${errores.telefonoTrabajo ? 'input-error' : ''}`}
                         type="text"
                         value={dataTrabajo.telefonoTrabajo}
@@ -1111,6 +1178,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     <div className="col-12 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Ingresa el domicilio de donde trabajas <span style={{ color: 'red' }}>*</span></p>
                       <input
+                        maxLength={50}
                         className={`form-control ${errores.domicilioTrabajo ? 'input-error' : ''}`}
                         type="text"
                         value={dataTrabajo.domicilioTrabajo}
@@ -1161,39 +1229,46 @@ export const MisDatos = ({ onAdd, update }) => {
                     {(tieneAutomovil === 'Si' || tieneAutomovil === true) && (
                       <div>
                         <div className="row mt-4 gy-3">
-                          <div className="col-12 col-md-4">
+                          <div className="col-12 col-lg-4">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
                             <input
+                              maxLength={20}
                               onBeforeInput={soloFormatoDirecciones}
-                              className='form-control w-100'
+                              className={`form-control ${errores.marcaAutomovil ? 'input-error' : ''}`}
                               type="text"
                               name={'marca'}
                               value={dataTransporteAutomovil.marca}
                               onChange={actualizarCamposTransporteAutomovil}
                             />
+                            {errores.marcaAutomovil && <div className='text-danger'>{errores.marcaAutomovil}</div>}
+
                           </div>
                           <div className="col-xs-2 col-lg-3">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
                             <input
+                              maxLength={20}
                               onBeforeInput={soloFormatoDirecciones}
-                              className='form-control'
+                              className={`form-control ${errores.modeloAutomovil ? 'input-error' : ''}`}
                               type="text"
                               name={'modelo'}
                               value={dataTransporteAutomovil.modelo}
                               onChange={actualizarCamposTransporteAutomovil}
                             />
+                            {errores.modeloAutomovil && <div className='text-danger'>{errores.modeloAutomovil}</div>}
+
                           </div>
                           <div className="col-xs-2 col-lg-2">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
                             <input
                               onBeforeInput={soloNumerosPositivos}
                               maxLength={4}
-                              className='form-control w-100'
+                              className={`form-control ${errores.anioAutomovil ? 'input-error' : ''}`}
                               type="text"
                               name={'anio'}
                               value={dataTransporteAutomovil.anio}
                               onChange={actualizarCamposTransporteAutomovil}
                             />
+                            {errores.anioAutomovil && <div className='text-danger'>{errores.anioAutomovil}</div>}
                           </div>
                         </div>
                       </div>
@@ -1214,39 +1289,47 @@ export const MisDatos = ({ onAdd, update }) => {
                     {(tieneMotocicleta === 'Si' || tieneMotocicleta === true) && (
                       <div>
                         <div className="row mt-4 gy-3">
-                          <div className="col-12 col-md-4">
+                          <div className="col-12 col-lg-4">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
                             <input
+                              maxLength={20}
                               onBeforeInput={soloFormatoDirecciones}
-                              className='form-control w-100'
+                              className={`form-control ${errores.marcaMotocicleta ? 'input-error' : ''}`}
                               type="text"
                               name={'marca'}
                               value={dataTransporteMotocicleta.marca}
                               onChange={actualizarCamposTransporteMotocicleta}
                             />
+                            {errores.marcaMotocicleta && <div className='text-danger'>{errores.marcaMotocicleta}</div>}
+
                           </div>
                           <div className="col-xs-2 col-lg-3">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
                             <input
+                              maxLength={20}
                               onBeforeInput={soloFormatoDirecciones}
-                              className='form-control w-100'
+                              className={`form-control ${errores.modeloMotocicleta ? 'input-error' : ''}`}
                               type="text"
                               name={'modelo'}
                               value={dataTransporteMotocicleta.modelo}
                               onChange={actualizarCamposTransporteMotocicleta}
                             />
+                            {errores.modeloMotocicleta && <div className='text-danger'>{errores.modeloMotocicleta}</div>}
+
                           </div>
                           <div className="col-xs-2 col-lg-2">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
                             <input
                               onBeforeInput={soloNumerosPositivos}
                               maxLength={4}
-                              className='form-control w-100'
+                              className={`form-control ${errores.anioMotocicleta ? 'input-error' : ''}`}
                               type="text"
                               name={'anio'}
                               value={dataTransporteMotocicleta.anio}
                               onChange={actualizarCamposTransporteMotocicleta}
                             />
+                            {errores.anioMotocicleta && <div className='text-danger'>{errores.anioMotocicleta}</div>}
+
                           </div>
                         </div>
                       </div>
@@ -1310,9 +1393,25 @@ export const MisDatos = ({ onAdd, update }) => {
                     {errores.tieneComputadora && <div className='text-danger'>{errores.tieneComputadora}</div>}
 
                     <br />
-                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas? <span style={{ color: 'red' }}>*</span></label>
+                    <label className='fs-5 mb-3 mt-2' style={{ color: 'var(--color-morado3)' }}>Además del idioma español, ¿qué otro idioma, lenguaje o dialecto hablas? <span style={{ color: 'red' }}>* </span><OverlayTrigger
+                      trigger="click"
+                      placement="right"
+                      overlay={
+                        <Popover>
+                          <Popover.Header>Instrucciones</Popover.Header>
+                          <Popover.Body>
+                            En caso de que no hables otro idioma, lenguaje o dialecto, favor de escribir "Ninguno".
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                      <span style={{ cursor: 'pointer' }}>
+                        <i className="bi bi-info-circle"></i>
+                      </span>
+                    </OverlayTrigger></label>
                     <div className="col-xs-4 col-lg-4">
                       <input
+                        maxLength={20}
                         onBeforeInput={soloLetras}
                         className={`form-control ${errores.idioma ? 'input-error' : ''}`}
                         type="text"

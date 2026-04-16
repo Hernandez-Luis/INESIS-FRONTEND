@@ -6,6 +6,7 @@ import FooterInesis from "../../components/FooterInesis/FooterInesis";
 import ServicioAlumno from "../../services/AlumnoService";
 import fechaService from "../../services/FechasRegistradasService";
 
+import "../../styles/Texto/Texto.css";
 import "./components/Resultados.css";
 import "../../../src/App.css";
 

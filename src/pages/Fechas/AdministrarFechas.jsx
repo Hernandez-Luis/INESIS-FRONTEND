@@ -95,22 +95,36 @@ const AdministrarFechas = () => {
         fetchFechas();
     }, []);
 
-    // Formatear datos + ordenar por fecha final próxima
+    const hoy = dayjs();
+
     const formattedData = fechas
         .map(fecha => {
-            const fechaInicioFormateada = dayjs(fecha.fechaInicio).format('DD/MM/YYYY');
-            const fechaFinFormateada = dayjs(fecha.fechaFin).format('DD/MM/YYYY');
+            const fechaInicio = dayjs(fecha.fechaInicio);
+            const fechaFin = dayjs(fecha.fechaFin);
 
-            let estatusTexto = '';
-            let claseColor = '';
+            const fechaInicioFormateada = fechaInicio.format('DD/MM/YYYY');
+            const fechaFinFormateada = fechaFin.format('DD/MM/YYYY');
+
             let estatusPrincipal = "";
             let estatusSecundario = "";
+            let claseColor = "";
 
-            if (fecha.active) {
+            // AÚN NO INICIA
+            if (hoy.isBefore(fechaInicio)) {
+                const diasFaltantes = fechaInicio.diff(hoy, 'day') + 1;
+
+                estatusPrincipal = "PRÓXIMO";
+                estatusSecundario = `(Inicia en ${diasFaltantes} días)`;
+                claseColor = "texto-azul";
+            }
+            //  ACTIVO
+            else if (fecha.active) {
                 estatusPrincipal = "ACTIVO";
                 estatusSecundario = `(Quedan ${fecha.restante + 1} días)`;
                 claseColor = fecha.restante < 3 ? "texto-naranja" : "texto-verde";
-            } else {
+            }
+            // FINALIZADO
+            else {
                 estatusPrincipal = "FINALIZADO";
                 estatusSecundario = "";
                 claseColor = "texto-rojo";
@@ -124,13 +138,11 @@ const AdministrarFechas = () => {
                 estatusSecundario,
                 claseColor
             };
-
         })
-        // 📌 Ordenar por la fecha más próxima a finalizar
         .sort((a, b) => {
             const fechaA = dayjs(a.fechaFin);
             const fechaB = dayjs(b.fechaFin);
-            return fechaA - fechaB; // ascendente: primero la que está por terminar
+            return fechaA - fechaB;
         });
 
     const recargarFechas = async () => {
