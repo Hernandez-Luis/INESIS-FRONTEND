@@ -49,15 +49,15 @@ export const MenuSolicitarBeca = () => {
       setConCorrecciones(true);
     }
     // Determinar el estado de cada módulo
-    const getModuloStatus = (modulo) => {
-      if (modulo === null) return 'deshabilitado';
+    const getModuloStatus = (modulo, isMisDatos = false) => {
+      if (modulo === null) return isMisDatos ? '' : 'deshabilitado';
       if (modulo.moduloCompleto === true) return 'completo';
-      if (modulo.moduloCompleto === false) return 'deshabilitado';
-      return 'deshabilitado';
+      if (modulo.moduloCompleto === false) return isMisDatos ? '' : 'deshabilitado';
+      return isMisDatos ? '' : 'deshabilitado';
     };
 
     setCardClasses({
-      misDatos: getModuloStatus(response.misDatos),
+      misDatos: getModuloStatus(response.misDatos, true),
       miTutor: getModuloStatus(response.miTutor),
       miFamilia: getModuloStatus(response.miFamilia),
       gastosFamiliares: getModuloStatus(response.gastosIngresosFamiliares),
