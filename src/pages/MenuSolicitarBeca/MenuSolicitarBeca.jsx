@@ -48,20 +48,32 @@ export const MenuSolicitarBeca = () => {
     if(response.estadoRevision === 2){
       setConCorrecciones(true);
     }
-    // Determinar el estado de cada módulo
-    const getModuloStatus = (modulo, isMisDatos = false) => {
-      if (modulo === null) return isMisDatos ? '' : 'deshabilitado';
-      if (modulo.moduloCompleto === true) return 'completo';
-      if (modulo.moduloCompleto === false) return isMisDatos ? '' : 'deshabilitado';
-      return isMisDatos ? '' : 'deshabilitado';
-    };
-
-    setCardClasses({
-      misDatos: getModuloStatus(response.misDatos, true),
-      miTutor: getModuloStatus(response.miTutor),
-      miFamilia: getModuloStatus(response.miFamilia),
-      gastosFamiliares: getModuloStatus(response.gastosIngresosFamiliares),
-    });
+    if (response.misDatos !== null && response.misDatos.moduloCompleto === true) {
+      setCardClasses({
+        misDatos: 'completo',
+        miTutor: '',
+        miFamilia: '',
+        gastosFamiliares: '',
+      });
+    }
+    if (response.miTutor !== null && response.miTutor.moduloCompleto === true) {
+      setCardClasses(prev => ({
+        ...prev,
+        miTutor: 'completo',
+      }));
+    }
+    if (response.miFamilia !== null && response.miFamilia.moduloCompleto === true) {
+      setCardClasses(prev => ({
+        ...prev,
+        miFamilia: 'completo',
+      }));
+    }
+    if (response.gastosIngresosFamiliares !== null && response.gastosIngresosFamiliares.moduloCompleto === true) {
+      setCardClasses(prev => ({
+        ...prev,
+        gastosFamiliares: 'completo',
+      }));
+    }
     // Verificar fechas al cargar y mostrar modal si es necesario
     const verificarFechas = (fechaData) => {
       if (!fechaData || !fechaData.active) {
