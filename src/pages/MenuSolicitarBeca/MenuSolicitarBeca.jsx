@@ -52,7 +52,7 @@ export const MenuSolicitarBeca = () => {
     const getModuloStatus = (modulo) => {
       if (modulo === null) return 'deshabilitado';
       if (modulo.moduloCompleto === true) return 'completo';
-      if (modulo.moduloCompleto === false) return 'incompleto';
+      if (modulo.moduloCompleto === false) return 'deshabilitado';
       return 'deshabilitado';
     };
 
