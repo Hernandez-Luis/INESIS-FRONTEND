@@ -25,6 +25,7 @@ import { mostrarSpinner, ocultarSpinner } from '../../utils/spinerCarga/ModalSpi
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import CatCodigosPostalesService from '../../services/CatCodigosPostalesService'
+import MisDatosService from '../../services/MisDatosService'
 
 
 export const MisDatos = ({ onAdd, update }) => {
@@ -124,7 +125,7 @@ export const MisDatos = ({ onAdd, update }) => {
   };
 
   const verificarFechas = (fechaData) => {
-    if (!fechaData.active) return false;
+    if (!fechaData || !fechaData.active) return false;
     const today = new Date();
     const fechaInicio = new Date(fechaData.fechaInicio);
     const fechaFin = new Date(fechaData.fechaFin);
@@ -135,6 +136,70 @@ export const MisDatos = ({ onAdd, update }) => {
 
     return today >= fechaInicio && today <= fechaFin;
   };
+
+  const cargarDatosMisDatos = (misDatos) => {
+    if (!misDatos) return;
+    
+    setDataMisDatos((prevData) => ({
+      ...prevData,
+      estadoCivil: misDatos.estadoCivil?.id,
+      recursosSuficientes: misDatos.recursosSuficientes,
+      nombreCasaHuesped: misDatos.nombreCasaHuesped || '',
+      llevaAutomovil: misDatos.llevaAutomovil,
+      llevaMotocicleta: misDatos.llevamotocicleta,
+      familiarComunero: misDatos.familiarComunero,
+      utilizaCelular: misDatos.utilizaCelular,
+      tieneComputadora: misDatos.tieneComputadora,
+      idioma: misDatos.idioma || '',
+      situacionVivienda: misDatos.situacionVivienda?.id
+    }))
+    setDataDomicilio((prevData) => ({
+      ...prevData,
+      cp: misDatos.domicilio?.cp || '',
+      localidad: misDatos.domicilio?.localidad || '',
+      calle: misDatos.domicilio?.calle || '',
+      numero: misDatos.domicilio?.numero || '',
+      colonia: misDatos.domicilio?.colonia || '',
+    }))
+    setRecursos(misDatos?.gastosIngresos?.dependeEconomicamente)
+    setDataGastosIngresos((prevData) => ({
+      ...prevData,
+      gastoMensual: misDatos.gastosIngresos?.gastoMensual || '',
+      dependeEconomicamente: misDatos.gastosIngresos?.dependeEconomicamente,
+      nombreQuienDependes: misDatos.gastosIngresos?.nombreQuienDependes || '',
+      solicitaBecaAlimenticia: misDatos.gastosIngresos?.solicitaBecaAlimenticia,
+      trabajoTipo: misDatos.gastosIngresos?.catTipoTrabajo?.id || '',
+      ocupacion: misDatos.gastosIngresos?.ocupacion?.id || '',
+      personasComparteRenta: misDatos.gastosIngresos?.personasComparteRenta,
+      pagoRentaMensual: misDatos.gastosIngresos?.pagoRentaMensual,
+      otro: misDatos.gastosIngresos?.otro || '',
+    }))
+    setDataTrabajo((prevData) => ({
+      ...prevData,
+      nombreTrabajo: misDatos.gastosIngresos?.trabajo?.nombreTrabajo || '',
+      ingresoMensual: misDatos.gastosIngresos?.trabajo?.ingresoMensual || '',
+      telefonoTrabajo: misDatos.gastosIngresos?.trabajo?.telefonoTrabajo || '',
+      domicilioTrabajo: misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
+    }))
+    setTieneAutomovil(misDatos.llevaAutomovil)
+    setTieneMotocicleta(misDatos.llevamotocicleta);
+    setDataTransporteAutomovil((prevData) => ({
+      ...prevData,
+      marca: misDatos.transporteAutomovil?.marca || '',
+      modelo: misDatos.transporteAutomovil?.modelo || '',
+      anio: misDatos.transporteAutomovil?.anio || '',
+    }))
+    setDataTransporteMotocicleta((prevData) => ({
+      ...prevData,
+      marca: misDatos.transporteMotocicleta?.marca || '',
+      modelo: misDatos.transporteMotocicleta?.modelo || '',
+      anio: misDatos.transporteMotocicleta?.anio || '',
+    }))
+    const mediosSeleccionadosIds = misDatos?.mediosTraslado?.map(
+      (medio) => medio.catMediosTransporte.id
+    ) || [];
+    setMediosSeleccionados(mediosSeleccionadosIds);
+  }
 
   const obtenerDatosAlumno = async () => {
     try {
@@ -149,71 +214,22 @@ export const MisDatos = ({ onAdd, update }) => {
         correo: dataAlumno.correo || '',
         telefono: dataAlumno.telefono || '',
       }))
+      
+      // Determinar si establecer o no btnDisabled basado en fechas
+      const puedeGuardar = verificarFechas(dataAlumno?.fechaRegistrada);
+      setBtnDisabled(!puedeGuardar);
+      
       if (dataAlumno?.misDatos) {
-        verificarFechas(dataAlumno?.fechaRegistrada) ? setBtnDisabled(false) : setBtnDisabled(true);
-        setDataMisDatos((prevData) => ({
-          ...prevData,
-          estadoCivil: dataAlumno?.misDatos.estadoCivil?.id,
-          recursosSuficientes: dataAlumno?.misDatos.recursosSuficientes,
-          nombreCasaHuesped: dataAlumno?.misDatos.nombreCasaHuesped || '',
-          llevaAutomovil: dataAlumno?.misDatos.llevaAutomovil,
-          llevaMotocicleta: dataAlumno?.misDatos.llevamotocicleta,
-          familiarComunero: dataAlumno?.misDatos.familiarComunero,
-          utilizaCelular: dataAlumno?.misDatos.utilizaCelular,
-          tieneComputadora: dataAlumno?.misDatos.tieneComputadora,
-          idioma: dataAlumno?.misDatos.idioma || '',
-          situacionVivienda: dataAlumno?.misDatos.situacionVivienda.id
-        }))
-        setDataDomicilio((prevData) => ({
-          ...prevData,
-          cp: dataAlumno?.misDatos.domicilio?.cp || '',
-          localidad: dataAlumno?.misDatos.domicilio?.localidad || '',
-          calle: dataAlumno?.misDatos.domicilio?.calle || '',
-          numero: dataAlumno?.misDatos.domicilio?.numero || '',
-          colonia: dataAlumno?.misDatos.domicilio?.colonia || '',
-        }))
-        setRecursos(dataAlumno?.misDatos?.gastosIngresos?.dependeEconomicamente)
-        setDataGastosIngresos((prevData) => ({
-          ...prevData,
-          gastoMensual: dataAlumno?.misDatos.gastosIngresos?.gastoMensual || '',
-          dependeEconomicamente: dataAlumno?.misDatos.gastosIngresos?.dependeEconomicamente,
-          nombreQuienDependes: dataAlumno?.misDatos.gastosIngresos?.nombreQuienDependes || '',
-          solicitaBecaAlimenticia: dataAlumno?.misDatos.gastosIngresos?.solicitaBecaAlimenticia,
-          trabajoTipo: dataAlumno?.misDatos.gastosIngresos?.catTipoTrabajo?.id || '',
-          ocupacion: dataAlumno?.misDatos.gastosIngresos?.ocupacion?.id || '',
-          personasComparteRenta: dataAlumno?.misDatos.gastosIngresos?.personasComparteRenta,
-          pagoRentaMensual: dataAlumno?.misDatos.gastosIngresos?.pagoRentaMensual,
-          otro: dataAlumno?.misDatos.gastosIngresos?.otro || '',
-        }))
-        setDataTrabajo((prevData) => ({
-          ...prevData,
-          nombreTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.nombreTrabajo || '',
-          ingresoMensual: dataAlumno?.misDatos.gastosIngresos?.trabajo?.ingresoMensual || '',
-          telefonoTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.telefonoTrabajo || '',
-          domicilioTrabajo: dataAlumno?.misDatos.gastosIngresos?.trabajo?.domicilioTrabajo || ''
-        }))
-        setTieneAutomovil(dataAlumno?.misDatos.llevaAutomovil)
-        setTieneMotocicleta(dataAlumno?.misDatos.llevamotocicleta);
-        setDataTransporteAutomovil((prevData) => ({
-          ...prevData,
-          marca: dataAlumno?.misDatos.transporteAutomovil?.marca || '',
-          modelo: dataAlumno?.misDatos.transporteAutomovil?.modelo || '',
-          anio: dataAlumno?.misDatos.transporteAutomovil?.anio || '',
-          //catTipoTransporte: dataAlumno?.misDatos.transporteAutomovil?.catTipoTransporte?.idCatTipoTransporte || ''
-        }))
-        //todo:
-        setDataTransporteMotocicleta((prevData) => ({
-          ...prevData,
-          marca: dataAlumno?.misDatos.transporteMotocicleta?.marca || '',
-          modelo: dataAlumno?.misDatos.transporteMotocicleta?.modelo || '',
-          anio: dataAlumno?.misDatos.transporteMotocicleta?.anio || '',
-          //catTipoTransporte: dataAlumno?.misDatos.transporteMotocicleta?.catTipoTransporte?.idCatTipoTransporte || ''
-        }))
-        // Extraer los IDs de los medios seleccionados
-        const mediosSeleccionadosIds = dataAlumno?.misDatos?.mediosTraslado?.map(
-          (medio) => medio.catMediosTransporte.id
-        ) || [];
-        setMediosSeleccionados(mediosSeleccionadosIds);
+        cargarDatosMisDatos(dataAlumno.misDatos);
+      } else {
+        try {
+          const misDatosDirecto = await MisDatosService.getByIdAlumno(idAlumno);
+          if (misDatosDirecto) {
+            cargarDatosMisDatos(misDatosDirecto);
+          }
+        } catch (err) {
+          console.warn("No hay datos en MisDatos para este alumno:", err);
+        }
       }
     } catch (error) {
       console.error("Error al obtener datos del alumno: ", error)
@@ -998,7 +1014,6 @@ export const MisDatos = ({ onAdd, update }) => {
                       name="gastoMensual"
                       onChange={actualizarCampoGastosIngresos}
                       value={dataGastosIngresos.gastoMensual}
-                      isInvalid={!!errores.gastoMensual}
                     />
                     {errores.gastoMensual && <div className="text-danger">{errores.gastoMensual}</div>}
                   </div>
@@ -1039,7 +1054,6 @@ export const MisDatos = ({ onAdd, update }) => {
                             name="personasComparteRenta"
                             onChange={actualizarCampoGastosIngresos}
                             value={dataGastosIngresos.personasComparteRenta}
-                            isInvalid={!!errores.personasComparteRenta}
                           />
                           {errores.personasComparteRenta && <div className="text-danger">{errores.personasComparteRenta}</div>}
                         </div>
@@ -1055,7 +1069,6 @@ export const MisDatos = ({ onAdd, update }) => {
                             name="pagoRentaMensual"
                             onChange={actualizarCampoGastosIngresos}
                             value={dataGastosIngresos.pagoRentaMensual}
-                            isInvalid={!!errores.pagoRentaMensual}
                           />
                           {errores.pagoRentaMensual && <div className="text-danger">{errores.pagoRentaMensual}</div>}
                         </div>
@@ -1110,7 +1123,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                     </div>
 
-                    {dataGastosIngresos.ocupacion === '8' && (
+                    {String(dataGastosIngresos.ocupacion) === '8' && (
                       <div className="col-12 col-md-4 mb-4">
                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                         <input
