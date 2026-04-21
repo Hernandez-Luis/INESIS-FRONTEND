@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import * as pdfjsLib from "pdfjs-dist";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
@@ -9,6 +10,7 @@ const PdfVisor = ({ archivosUrl }) => {
     const [cargando, setCargando] = useState(true);
     const [pdfFiles, setPdfFiles] = useState([]);
     const pluginDeDiseño = defaultLayoutPlugin();
+    const workerUrl = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
     useEffect(() => {
         const procesarArchivos = async () => {
@@ -74,7 +76,7 @@ const PdfVisor = ({ archivosUrl }) => {
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
             overflowY: "auto"
         }}>
-            <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.worker.min.js">
+            <Worker workerUrl={workerUrl}>
                 {pdfFiles.map((url, index) => (
                     <div key={index} style={{
                         width: "100%",
