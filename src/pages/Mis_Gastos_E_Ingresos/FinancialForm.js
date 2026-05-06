@@ -35,9 +35,10 @@ const FinancialForm = () => {
     const [alumnoData, setAlumnoData] = useState(null);
     const [domicilioRecibo, setDomicilioRecibo] = useState("");
 
+    const [periodoInicio, setPeriodoInicio] = useState("");
+    const [periodoFin, setPeriodoFin] = useState("");
     const [periodoInicioMes, setPeriodoInicioMes] = useState("");
     const [periodoInicioAnio, setPeriodoInicioAnio] = useState("");
-
     const [periodoFinMes, setPeriodoFinMes] = useState("");
     const [periodoFinAnio, setPeriodoFinAnio] = useState("");
 
@@ -56,13 +57,20 @@ const FinancialForm = () => {
         { value: "12", label: "Diciembre" }
     ];
 
-    const validarPeriodo = () => {
-        const inicio = document.getElementById("periodoInicio")?.value;
-        const fin = document.getElementById("periodoFin")?.value;
+    // Generar años dinámicamente
+    const getAnios = () => {
+        const currentYear = new Date().getFullYear();
+        const anios = [];
+        for (let i = currentYear - 2; i <= currentYear + 3; i++) {
+            anios.push(i.toString()); // Convertir a string
+        }
+        return anios;
+    };
 
-        if (inicio && fin) {
-            const fechaInicio = new Date(inicio + "-01");
-            const fechaFin = new Date(fin + "-01");
+    const validarPeriodo = () => {
+        if (periodoInicio && periodoFin) {
+            const fechaInicio = new Date(periodoInicio + "-01");
+            const fechaFin = new Date(periodoFin + "-01");
 
             if (fechaInicio >= fechaFin) {
                 setfechaMensaje(prev => {
@@ -102,34 +110,34 @@ const FinancialForm = () => {
 
     const currentYear = new Date().getFullYear();
 
-    const anios = [
-        currentYear - 1,
-        currentYear,
-        currentYear + 1
-    ];
 
+    // useEffect para validar años removido - input type="month" maneja esto automáticamente
 
-    useEffect(() => {
-        if (periodoInicioAnio && !anios.includes(Number(periodoInicioAnio))) {
-            setPeriodoInicioAnio("");
-        }
-
-        if (periodoFinAnio && !anios.includes(Number(periodoFinAnio))) {
-            setPeriodoFinAnio("");
-        }
-    }, [anios]);
-
-    const actualizarPeriodoInicio = (mes, anio) => {
-        if (mes && anio) {
-            document.getElementById("periodoInicio").value = `${anio}-${mes}`;
-            validarPeriodo(); // 🔥
+    const handlePeriodoInicioChange = (mes, anio) => {
+        const nuevoMes = mes !== undefined ? mes : periodoInicioMes;
+        const nuevoAnio = anio !== undefined ? anio : periodoInicioAnio;
+        
+        setPeriodoInicioMes(nuevoMes);
+        setPeriodoInicioAnio(nuevoAnio);
+        
+        if (nuevoMes && nuevoAnio) {
+            const formato = `${nuevoAnio}-${nuevoMes}`;
+            setPeriodoInicio(formato);
+            validarPeriodo();
         }
     };
 
-    const actualizarPeriodoFin = (mes, anio) => {
-        if (mes && anio) {
-            document.getElementById("periodoFin").value = `${anio}-${mes}`;
-            validarPeriodo(); // 🔥
+    const handlePeriodoFinChange = (mes, anio) => {
+        const nuevoMes = mes !== undefined ? mes : periodoFinMes;
+        const nuevoAnio = anio !== undefined ? anio : periodoFinAnio;
+        
+        setPeriodoFinMes(nuevoMes);
+        setPeriodoFinAnio(nuevoAnio);
+        
+        if (nuevoMes && nuevoAnio) {
+            const formato = `${nuevoAnio}-${nuevoMes}`;
+            setPeriodoFin(formato);
+            validarPeriodo();
         }
     };
 
@@ -233,24 +241,23 @@ const FinancialForm = () => {
 
                 const recibo = gastosIngresos.reciboLuzModel;
 
-                // 🔥 PARSEAR PERIODO INICIO
+                // Establecer periodos directamente
                 if (recibo.periodoInicio) {
-                    const [anioInicio, mesInicio] = recibo.periodoInicio.split("-");
-                    setPeriodoInicioMes(mesInicio);
-                    setPeriodoInicioAnio(anioInicio);
+                    const [anio, mes] = recibo.periodoInicio.split("-");
+                    setPeriodoInicio(recibo.periodoInicio);
+                    setPeriodoInicioMes(mes);
+                    setPeriodoInicioAnio(anio);
                 }
 
-                // 🔥 PARSEAR PERIODO FIN
                 if (recibo.periodoFin) {
-                    const [anioFin, mesFin] = recibo.periodoFin.split("-");
-                    setPeriodoFinMes(mesFin);
-                    setPeriodoFinAnio(anioFin);
+                    const [anio, mes] = recibo.periodoFin.split("-");
+                    setPeriodoFin(recibo.periodoFin);
+                    setPeriodoFinMes(mes);
+                    setPeriodoFinAnio(anio);
                 }
 
                 const campos = [
                     { id: "lightName", valor: recibo.titular },
-                    { id: "periodoInicio", valor: recibo.periodoInicio },
-                    { id: "periodoFin", valor: recibo.periodoFin },
                     { id: "ultimoPago", valor: recibo.ultimoPago },
                     { id: "promedioPago", valor: recibo.promedioPago }
                 ];
@@ -376,16 +383,14 @@ const FinancialForm = () => {
 
     const validateForm = () => {
 
-        const inicio = document.getElementById("periodoInicio")?.value;
-        const fin = document.getElementById("periodoFin")?.value;
-
-        if (inicio && fin) {
-            const fechaInicio = new Date(inicio + "-01");
-            const fechaFin = new Date(fin + "-01");
+        // Usar los estados de React en lugar del DOM
+        if (periodoInicio && periodoFin) {
+            const fechaInicio = new Date(periodoInicio + "-01");
+            const fechaFin = new Date(periodoFin + "-01");
 
             if (fechaInicio >= fechaFin) {
                 mostrarCuidado("El periodo de inicio debe ser menor al periodo de fin.");
-                return;
+                return false;
             }
         }
 
@@ -411,8 +416,9 @@ const FinancialForm = () => {
             });
         });
 
-        // Recibo de luz
-        ["lightName", "periodoInicio", "periodoFin", "ultimoPago", "promedioPago", "domicilioRecibo"].forEach((field) => {
+        // Recibo de luz - Validar periodos desde React state
+        const fieldsRecibo = ["lightName", "ultimoPago", "promedioPago", "domicilioRecibo"];
+        fieldsRecibo.forEach((field) => {
             const input = document.getElementById(field);
             const value = input?.value;
 
@@ -428,6 +434,17 @@ const FinancialForm = () => {
                 }
             }
         });
+
+        // Validar periodos desde React state
+        if (!periodoInicio || periodoInicio.trim() === "") {
+            isValid = false;
+            newEmptyFields.push("periodoInicio");
+        }
+
+        if (!periodoFin || periodoFin.trim() === "") {
+            isValid = false;
+            newEmptyFields.push("periodoFin");
+        }
 
 
         // Gastos
@@ -597,8 +614,8 @@ const FinancialForm = () => {
             // Recibo de luz
             const reciboLuz = {
                 titular: document.getElementById("lightName")?.value || "",
-                periodoInicio: document.getElementById("periodoInicio")?.value || "",
-                periodoFin: document.getElementById("periodoFin")?.value || "",
+                periodoInicio: periodoInicio || "",
+                periodoFin: periodoFin || "",
                 domicilio: domicilioRecibo,
 
                 ultimoPago: parseFloat(document.getElementById("ultimoPago")?.value || "0"),
@@ -984,18 +1001,14 @@ const FinancialForm = () => {
 
                             <Form.Group>
                                 <Form.Label style={{ color: "#4F46E5" }}>
-                                    Periodo de inicio (mes): <span style={{ color: 'red' }}>*</span>
+                                    Periodo de inicio (mes y año): <span style={{ color: 'red' }}>*</span>
                                 </Form.Label>
-
-                                {/* SELECTS visibles */}
                                 <Row>
                                     <Col>
                                         <Form.Select
                                             value={periodoInicioMes}
-                                            onChange={(e) => {
-                                                setPeriodoInicioMes(e.target.value);
-                                                actualizarPeriodoInicio(e.target.value, periodoInicioAnio);
-                                            }}
+                                            onChange={(e) => handlePeriodoInicioChange(e.target.value, periodoInicioAnio)}
+                                            isInvalid={emptyFields.includes("periodoInicio")}
                                         >
                                             <option value="">Mes</option>
                                             {meses.map(m => (
@@ -1003,45 +1016,31 @@ const FinancialForm = () => {
                                             ))}
                                         </Form.Select>
                                     </Col>
-
                                     <Col>
                                         <Form.Select
                                             value={periodoInicioAnio}
-                                            onChange={(e) => {
-                                                setPeriodoInicioAnio(e.target.value);
-                                                actualizarPeriodoInicio(periodoInicioMes, e.target.value);
-                                            }}
+                                            onChange={(e) => handlePeriodoInicioChange(periodoInicioMes, e.target.value)}
+                                            isInvalid={emptyFields.includes("periodoInicio")}
                                         >
                                             <option value="">Año</option>
-                                            {anios.map(a => (
+                                            {getAnios().map(a => (
                                                 <option key={a} value={a}>{a}</option>
                                             ))}
                                         </Form.Select>
                                     </Col>
                                 </Row>
-
-                                {/* INPUT OCULTO (el que usa TODO tu sistema) */}
-                                <Form.Control
-                                    id="periodoInicio"
-                                    type="month"
-                                    style={{ display: "none" }}
-                                    isInvalid={emptyFields.includes("periodoInicio")}
-                                />
                             </Form.Group>
 
                             <Form.Group>
                                 <Form.Label style={{ color: "#4F46E5" }}>
-                                    Periodo de fin (mes): <span style={{ color: 'red' }}>*</span>
+                                    Periodo de fin (mes y año): <span style={{ color: 'red' }}>*</span>
                                 </Form.Label>
-
                                 <Row>
                                     <Col>
                                         <Form.Select
                                             value={periodoFinMes}
-                                            onChange={(e) => {
-                                                setPeriodoFinMes(e.target.value);
-                                                actualizarPeriodoFin(e.target.value, periodoFinAnio);
-                                            }}
+                                            onChange={(e) => handlePeriodoFinChange(e.target.value, periodoFinAnio)}
+                                            isInvalid={emptyFields.includes("periodoFin")}
                                         >
                                             <option value="">Mes</option>
                                             {meses.map(m => (
@@ -1049,35 +1048,24 @@ const FinancialForm = () => {
                                             ))}
                                         </Form.Select>
                                     </Col>
-
                                     <Col>
                                         <Form.Select
                                             value={periodoFinAnio}
-                                            onChange={(e) => {
-                                                setPeriodoFinAnio(e.target.value);
-                                                actualizarPeriodoFin(periodoFinMes, e.target.value);
-                                            }}
+                                            onChange={(e) => handlePeriodoFinChange(periodoFinMes, e.target.value)}
+                                            isInvalid={emptyFields.includes("periodoFin")}
                                         >
                                             <option value="">Año</option>
-                                            {anios.map(a => (
+                                            {getAnios().map(a => (
                                                 <option key={a} value={a}>{a}</option>
                                             ))}
                                         </Form.Select>
                                     </Col>
                                 </Row>
-
                                 {fechaMensaje && (
                                     <div style={{ color: "red", textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
                                         {fechaMensaje}
                                     </div>
                                 )}
-
-                                <Form.Control
-                                    id="periodoFin"
-                                    type="month"
-                                    style={{ display: "none" }}
-                                    isInvalid={emptyFields.includes("periodoFin")}
-                                />
                             </Form.Group>
 
 

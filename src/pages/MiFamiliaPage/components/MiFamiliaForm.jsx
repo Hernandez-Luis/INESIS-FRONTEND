@@ -257,13 +257,15 @@ const MiFamiliaForm = () => {
                 setDistritoSeleccionado(data.viviendaFamiliar.distrito.id);
             }
 
-            // Por defecto, si ya tiene domicilio registrado, asumir que no coincide con el del alumno
-            // a menos que sea exactamente el mismo ID
+            // Por defecto, verificar si coincide con el domicilio del alumno o del tutor
             if (data.domicilio?.id === alumnoData?.misDatos?.domicilio?.id) {
-                setDomicilioCoincide('Si');
+                setDomicilioCoincide('Mi domicilio actual');
+                setDisabled(true);
+            } else if (data.domicilio?.id === alumnoData?.miTutor?.domicilio?.id) {
+                setDomicilioCoincide('Domicilio de mi tutor');
                 setDisabled(true);
             } else {
-                setDomicilioCoincide('No');
+                setDomicilioCoincide('No coincide');
                 setDisabled(false);
             }
         }
@@ -318,7 +320,8 @@ const MiFamiliaForm = () => {
         const { value } = e.target;
         setDomicilioCoincide(value);
 
-        if (value === "Si" || value === true) {
+        if (value === "Mi domicilio actual") {
+            // Llenar con el domicilio del alumno
             setDisabled(true);
             if (datosAlumno?.misDatos?.domicilio) {
                 setDataDomicilio({
@@ -330,11 +333,39 @@ const MiFamiliaForm = () => {
                     distrito: datosAlumno.misDatos.domicilio.distrito || '',
                     region: datosAlumno.misDatos.domicilio.region || ''
                 });
-                setRegionSeleccionada(datosAlumno.misDatos.domicilio.region);
-                setDistritoSeleccionado(datosAlumno.misDatos.domicilio.distrito);
+                setRegionSeleccionada(datosAlumno.misDatos.domicilio.region?.id || datosAlumno.misDatos.domicilio.region || '');
+                setDistritoSeleccionado(datosAlumno.misDatos.domicilio.distrito?.id || datosAlumno.misDatos.domicilio.distrito || '');
                 setIdDomicilio(datosAlumno.misDatos.domicilio.id);
+
+                // Si tiene código postal, obtener información adicional
+                if (datosAlumno.misDatos.domicilio.cp && datosAlumno.misDatos.domicilio.cp.length === 5) {
+                    obtenerCpExcel(datosAlumno.misDatos.domicilio.cp);
+                }
             }
-        } else if (value === "No" || value === false) {
+        } else if (value === "Domicilio de mi tutor") {
+            // Llenar con el domicilio del tutor
+            setDisabled(true);
+            if (datosAlumno?.miTutor?.domicilio) {
+                setDataDomicilio({
+                    cp: datosAlumno.miTutor.domicilio.cp || '',
+                    estado: datosAlumno.miTutor.domicilio.estado || '',
+                    municipio: datosAlumno.miTutor.domicilio.municipio || '',
+                    colonia: datosAlumno.miTutor.domicilio.colonia || '',
+                    localidad: datosAlumno.miTutor.domicilio.localidad || '',
+                    distrito: datosAlumno.miTutor.domicilio.distrito || '',
+                    region: datosAlumno.miTutor.domicilio.region || ''
+                });
+                setRegionSeleccionada(datosAlumno.miTutor.domicilio.region?.id || datosAlumno.miTutor.domicilio.region || '');
+                setDistritoSeleccionado(datosAlumno.miTutor.domicilio.distrito?.id || datosAlumno.miTutor.domicilio.distrito || '');
+                setIdDomicilio(datosAlumno.miTutor.domicilio.id);
+
+                // Si tiene código postal, obtener información adicional
+                if (datosAlumno.miTutor.domicilio.cp && datosAlumno.miTutor.domicilio.cp.length === 5) {
+                    obtenerCpExcel(datosAlumno.miTutor.domicilio.cp);
+                }
+            }
+        } else if (value === "No coincide") {
+            // No llenar nada, dejar editable
             setDisabled(false);
             setDataDomicilio(formularioInicialDomicilio);
 
@@ -871,8 +902,8 @@ const MiFamiliaForm = () => {
             erroresSwal.push('La Región es obligatoria.');
         }
 
-        // Validaciones de domicilio (si no coincide con el del alumno)
-        if (domicilioCoincide !== 'Si' && domicilioCoincide !== true) {
+        // Validaciones de domicilio (si no coincide con el del alumno ni el del tutor)
+        if (domicilioCoincide === 'No coincide') {
 
             if (!dataDomicilio.cp || dataDomicilio.cp.trim() === "") {
                 errores.cp = true;
@@ -1136,12 +1167,19 @@ const MiFamiliaForm = () => {
             mostrarSpinner();
             // Preparar datos de domicilio
             let datosDomicilio = {};
-            if (domicilioCoincide === 'Si' || domicilioCoincide === true) {
+            if (domicilioCoincide === 'Mi domicilio actual') {
                 datosDomicilio = {
                     usarDomicilioAlumno: true,
                     idDomicilioAlumno: datosAlumno?.misDatos?.domicilio?.id,
                     region: datosAlumno?.misDatos?.domicilio?.region || regionSeleccionada,
                     distrito: datosAlumno?.misDatos?.domicilio?.distrito || distritoSeleccionado
+                };
+            } else if (domicilioCoincide === 'Domicilio de mi tutor') {
+                datosDomicilio = {
+                    usarDomicilioTutor: true,
+                    idDomicilioTutor: datosAlumno?.miTutor?.domicilio?.id,
+                    region: datosAlumno?.miTutor?.domicilio?.region || regionSeleccionada,
+                    distrito: datosAlumno?.miTutor?.domicilio?.distrito || distritoSeleccionado
                 };
             } else {
                 datosDomicilio = {
@@ -1260,7 +1298,7 @@ const MiFamiliaForm = () => {
             let response;
             let nuevosErrores = null;
             // Verificar si es actualización o creación
-            console.log("payloadCompleto", payloadCompleto);
+            //console.log("payloadCompleto", payloadCompleto);
             if (datosAlumno.miFamilia !== null) {
                 // Actualizar datos existentes
                 const idMiFamilia = datosAlumno.miFamilia.id;
@@ -1298,13 +1336,13 @@ const MiFamiliaForm = () => {
                                 <div className='mt-2'>
                                     <div className='d-flex justify-content-start align-items-center flex-wrap'>
                                         <label className='fs-5 me-5' style={{ color: 'var(--color-morado3)' }}>
-                                            ¿El domicilio de tu familia coincide con el que te encuentras actualmente?
+                                            ¿El domicilio de tu familia coincide con...?
                                             <span style={{ color: 'red' }}>*</span>
 
                                         </label>
                                         <RadioSelect
                                             gris={true}
-                                            options={['Si', 'No']}
+                                            options={['No coincide', 'Mi domicilio actual', 'Domicilio de mi tutor']}
                                             onChange={handleDomicilioCoincide}
                                             name={"domicilioCoincide"}
                                             value={domicilioCoincide}
