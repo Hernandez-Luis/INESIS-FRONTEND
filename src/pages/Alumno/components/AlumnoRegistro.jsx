@@ -1,3 +1,24 @@
+/**
+ * ============================================================================
+ * MÓDULO: AlumnoRegistro.jsx
+ * DESCRIPCIÓN:
+ * Componente para registrar y editar alumnos.
+ *
+ * FUNCIONALIDADES:
+ * - Carga catálogos de carrera, semestre y sexo.
+ * - Valida datos obligatorios y formatos.
+ * - Genera usuario automáticamente.
+ * - Crea o actualiza alumnos en el backend.
+ * - Permite importar alumnos desde Excel.
+ * - Muestra credenciales generadas después de crear un alumno.
+ *
+ * AUTOR: Nayeli Velasco López, Luis David Pérez Cruz 
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * FECHA DE CREACIÓN: 9 de marzo de 2025
+ * ÚLTIMA MODIFICACIÓN: Agosto de 2025
+ * ============================================================================
+ */
+
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import '../components/AdministrarAlumnos.css';
 import carreraService from '../../../services/CatCarreraService';
@@ -13,6 +34,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 
 const AlumnoRegistro = forwardRef((props, ref) => {
 
+  // Valores iniciales para el formulario de registro/edición de alumno.
   const initialForm = {
     nombre: '',
     apellidoPaterno: '',
@@ -29,6 +51,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     contrasena: ''
   };
 
+  // Estados locales del componente.
   const [formValues, setFormValues] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [listaCarreras, setListaCarreras] = useState([]);
@@ -47,7 +70,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   const [excelFile, setExcelFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Obtener datos iniciales
+  // Carga inicial de catálogos: carreras, semestres y sexos.
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -72,6 +95,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     fetchData();
   }, []);
 
+  // Cuando estamos en modo edición, carga los datos del alumno y su usuario asociado.
   useEffect(() => {
     const cargarDatosAlumno = async () => {
       if (props.alumno) {
@@ -106,6 +130,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     cargarDatosAlumno();
   }, [props.alumno]);
 
+  // Para nuevos alumnos, la contraseña inicial se autocompleta con la matrícula.
   useEffect(() => {
     if (formValues.matricula && !props.alumno) {
       setFormValues(prevState => ({
@@ -116,6 +141,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   }, [formValues.matricula, props.alumno]);
 
 
+  // Actualiza el grupo cuando cambia carrera o semestre.
   useEffect(() => {
     if (
       formValues.carrera &&
@@ -143,6 +169,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   }, [formValues.carrera, formValues.semestre, listaCarreras, listaSemestres]);
 
 
+  // Maneja cambios en el formulario y actualiza valores dinámicos.
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -175,6 +202,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
 
+  // Valida un campo individual del formulario y actualiza el estado de errores.
   const validateField = (name, value) => {
     let error = '';
     const requiredFields = ['nombre', 'apellidoPaterno', 'curp', 'matricula', 'carrera', 'semestre', 'sexo'];
@@ -226,6 +254,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
 
+  // Recorre todo el formulario y valida cada campo antes de enviar.
   const validateAllFields = () => {
     const newErrors = {};
     Object.keys(formValues).forEach(key => {
@@ -239,6 +268,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
   // Actualizar contraseña solo desde modal
+  // Actualiza la contraseña en el formulario cuando se cambia desde el modal.
   const actualizarContraseña = (nuevaContrasena) => {
     setFormValues(prev => ({
       ...prev,
@@ -246,6 +276,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }));
   };
 
+  // Muestra alertas estilo SweetAlert con colores personalizados.
   const mostrarAlerta = (config) => {
     Swal.fire({
       ...config,
@@ -262,6 +293,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
 
+  // Envía el formulario, valida los campos y crea o actualiza el alumno.
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -372,6 +404,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
 
+  // Descarga la plantilla de Excel y abre el modal de importación.
   const descargarPlantilla = async () => {
     const result = await Swal.fire({
       icon: 'question',
@@ -424,6 +457,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     setShowModal(true);
   };
 
+  // Valida el archivo seleccionado para importación Excel.
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -443,6 +477,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
   // Helper: descargar un archivo desde base64
+  // Convierte un string base64 en archivo descargable.
   const downloadBase64File = (base64, filename, mimeType) => {
     if (!base64) return;
     const base64Data = base64.includes('base64,') ? base64.split('base64,')[1] : base64;
@@ -470,6 +505,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   };
 
   // Función para subir el archivo Excel
+  // Sube el archivo Excel al backend y maneja el resultado.
   const subirExcel = async () => {
     if (!excelFile) {
       mostrarAlerta({
@@ -550,17 +586,18 @@ const AlumnoRegistro = forwardRef((props, ref) => {
     }
   };
 
-  // Función para cerrar el modal y resetear el estado
+  // Función para cerrar el modal de importación y limpiar el archivo seleccionado.
   const cerrarModal = () => {
     setShowModal(false);
     setExcelFile(null);
   };
 
+  // Renderiza la UI del formulario, modales y botones de acción.
   return (
     <div className="mb-5">
       <h2 className="size-font-title cardMenu-title m-5 text-center"> {props.alumno ? 'Editar Alumno' : 'Agregar Alumno'}</h2>
 
-      {/* Botón para subir Excel - solo visible en la vista de agregar */}
+      {/* Botón de acción para cargar alumnos masivamente desde Excel. Solo disponible en modo creación. */}
       {!props.alumno && (
         <div className="d-flex justify-content-start mx-5 mb-4 ">
           <button
@@ -576,7 +613,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
 
 
       <form className="agregar-alumno-container m-5" onSubmit={handleSubmit}>
-        {/* Sección Datos Personales */}
+        {/* Sección de datos personales: nombre, apellidos, CURP, correo y teléfono. */}
         <section className="formulario-seccion formulario-seccion--datos-personales mb-5">
           <h2 className="texto-morado2 mb-4">Datos personales</h2>
           <div className="row g-4">
@@ -769,7 +806,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
               {errors.matricula && <div className="invalid-feedback">{errors.matricula}</div>}
             </div>
 
-            {/* Sección Datos de la Plataforma */}
+            {/* Sección de datos de la plataforma: usuario y contraseña para alumnos ya existentes. */}
             {props.alumno && (
               <>
                 <h2 className="texto-morado2">Datos de la plataforma</h2>
@@ -827,6 +864,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         </section>
       </form>
 
+      {/* Modal para cambiar contraseña en el caso de edición de alumno. */}
       <ModalCambiarContraseña
         show={showModalCambiar}
         handleClose={() => setShowModalCambiar(false)}
@@ -835,7 +873,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         onContraseñaActualizada={actualizarContraseña}
       />
 
-      {/* Modal para carga de archivo Excel */}
+      {/* Modal para carga de archivo Excel en la importación masiva de alumnos. */}
       <Modal show={showModal} onHide={cerrarModal} backdrop={loading ? "static" : "static"} keyboard={!loading} centered>
         <Modal.Header closeButton={!loading}>
           <Modal.Title>Importar alumnos desde Excel</Modal.Title>
@@ -929,6 +967,7 @@ const AlumnoRegistro = forwardRef((props, ref) => {
         </Modal.Body>
 
         <Modal.Footer className="border-0 justify-content-center">
+          {/* Botón para cerrar la tarjeta de credenciales y navegar al listado de alumnos. */}
           <Button
             className="px-4 rounded-pill"
             style={{
@@ -960,4 +999,5 @@ const AlumnoRegistro = forwardRef((props, ref) => {
   );
 });
 
+// Exporta el componente para que pueda ser usado en la ruta de administración de alumnos.
 export default AlumnoRegistro;

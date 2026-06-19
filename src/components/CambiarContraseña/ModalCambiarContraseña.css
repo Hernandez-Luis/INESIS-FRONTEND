@@ -1,4 +1,19 @@
-/* ModalCambiarContraseña.css */
+/**
+ * ============================================================================
+ * MÓDULO: ModalCambiarContraseña.css
+ * DESCRIPCIÓN:
+ * Estilos para el modal de cambio de contraseña.
+ *
+ * FUNCIONALIDADES:
+ * - Estiliza el contenedor del modal.
+ * - Define los campos de entrada con iconos y botones de mostrar contraseña.
+ *
+ * AUTOR: Nayeli Velasco López
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * ============================================================================
+ */
+
+/* Contenedor principal del modal */
 .mcambiar-container {
   max-width: 350px !important;
   background: linear-gradient(
@@ -13,12 +28,14 @@
   margin: 0 auto !important;
 }
 
+/* Ajustes transparentes del contenido del modal para mantener el diseño personalizado */
 .modal-cambiar-contraseña .modal-content {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
 }
 
+/* Encabezado del modal */
 .mcambiar-heading {
   text-align: center;
   font-weight: 900;
@@ -27,11 +44,13 @@
   margin-bottom: 20px;
 }
 
+/* Contenedor de cada input de contraseña para posicionar iconos y botones */
 .mcambiar-password-input-container{
   position: relative;
   margin-top: 20px;
 }
 
+/* Icono dentro del campo de contraseña */
 .mcambiar-input-icon {
   position: absolute;
   left: 15px;
@@ -57,10 +76,12 @@
   justify-content: center;
 }
 
+/* Botón para alternar visibilidad de contraseña */
 .mcambiar-password-toggle:hover {
   color: var(--color-morado2);
 }
 
+/* Estilos base para los inputs de contraseña */
 .mcambiar-form .mcambiar-input{
   width: 100%;
   background: #fff;
@@ -73,6 +94,7 @@
   transition: all 0.3s ease;
 }
 
+/* Estilos del foco del input */
 .mcambiar-form .mcambiar-input:focus {
   outline: none;
   border-inline: 2px solid var(--color-morado1);
@@ -87,6 +109,7 @@
   color: var(--color-gris1);
 }
 
+/* Contenedor de indicador de fortaleza de contraseña */
 .mcambiar-password-strength {
   display: flex;
   align-items: center;
@@ -94,6 +117,7 @@
   margin: 15px 0 20px;
 }
 
+/* Barras que muestran el progreso de fortaleza */
 .strength-bar-container {
   display: flex;
   gap: 4px;
@@ -132,6 +156,7 @@
   text-align: right;
 }
 
+/* Contenedor de botones cancelar/guardar */
 .buttons-container {
   display: flex;
   flex-direction: row;
@@ -158,6 +183,7 @@
   cursor: pointer;
 }
 
+/* Estilo del botón de cancelar */
 .mcambiar-form .mcambiar-login-button.mcambiar-cancel-button {
   background: linear-gradient(
     45deg,
@@ -167,6 +193,7 @@
   box-shadow: #d0d0d0 0px 20px 10px -15px;
 }
 
+/* Animaciones de hover/active para botones generales */
 .form .login-button:hover {
   transform: scale(1.03);
   box-shadow: var(--color-morado4) 0px 23px 10px -20px;
@@ -177,7 +204,7 @@
   box-shadow: var(--color-morado4) 0px 15px 10px -10px;
 }
 
-/* Efecto de animación para el modal */
+/* Animación de aparición del modal */
 @keyframes modalAppear {
   from {
     opacity: 0;
@@ -193,6 +220,7 @@
   animation: modalAppear 0.4s ease-out;
 }
 
+/* Tooltip de ayuda para los requisitos de contraseña */
 .mcambiar-password-info {
   background: #f8f9fa;
   border: 1px solid #e0e0e0;
@@ -207,6 +235,7 @@
   position: absolute;
 }
 
+/* Estilos alternativos para input en estado de error */
 .mcambiar-input,
 .mcambiar-input-error {
   width: 100%;
@@ -228,6 +257,12 @@
 .mcambiar-input[type="password"]::-ms-reveal,
 .mcambiar-input[type="password"]::-ms-clear {
   display: none;
+}
+
+/* Oculta botones de autocompletar/mostrar contraseña del navegador en inputs password */
+.mcambiar-input[type="password"]::-webkit-credentials-auto-fill-button,
+.mcambiar-input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
 }
 
 .mcambiar-input[type="password"]::-webkit-credentials-auto-fill-button,

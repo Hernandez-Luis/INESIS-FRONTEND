@@ -1,16 +1,42 @@
+/**
+ * ============================================================================
+ * MÓDULO: AlumnoService.js
+ * DESCRIPCIÓN:
+ * Servicio cliente para interactuar con el endpoint de alumnos del backend.
+ * Provee métodos para CRUD, importación y operaciones específicas del flujo.
+ *
+ * FUNCIONALIDADES:
+ * - Obtener lista de alumnos y obtener por id.
+ * - Crear, actualizar y eliminar alumnos.
+ * - Importar alumnos desde Excel (multipart/form-data).
+ * - Operaciones especiales: enviar revisión, completar estudio, cambiar password.
+ *
+ * DEPENDENCIAS:
+ * - axiosInstance (configuración central de Axios)
+ *
+ * AUTOR: Nayeli Velasco López
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * FECHA DE CREACIÓN: 9 de marzo de 2025
+ * ÚLTIMA MODIFICACIÓN: marzo 2025
+ * ============================================================================
+ */
+
 import axiosInstance from '../api/axiosConfig';
 
 const API_URL = '/api/alumno';
 
+// Obtiene todos los alumnos. Retorna un array con los datos del backend.
 const getAll = async () => {
   try {
     const response = await axiosInstance.get(API_URL);
     return response.data;
   } catch (error) {
+    // Re-lanza el error del servidor para que el caller lo maneje
     throw error.response.data;
   }
 };
 
+// Obtiene un alumno por su id
 const getById = async (id) => {
   try {
     const response = await axiosInstance.get(`${API_URL}/${id}`);
@@ -20,6 +46,7 @@ const getById = async (id) => {
   }
 };
 
+// Crea un nuevo alumno. `params` debe contener los campos esperados por la API.
 const create = async (params) => {
   try {
     const response = await axiosInstance.post(API_URL, params);
@@ -29,6 +56,7 @@ const create = async (params) => {
   }
 };
 
+// Actualiza un alumno por id con los parámetros enviados
 const update = async (id, params) => {
   try {
     const response = await axiosInstance.put(`${API_URL}/${id}`, params);
@@ -39,6 +67,7 @@ const update = async (id, params) => {
 };
 
 
+// Asocia un usuario existente a un alumno (endpoint específico)
 const updateAlumnoConUsuario = async (alumnoId, usuarioId) => {
   try {
     const response = await axiosInstance.put(
@@ -51,6 +80,7 @@ const updateAlumnoConUsuario = async (alumnoId, usuarioId) => {
   }
 };
 
+// Elimina un alumno por id
 const deleteAlumno = async (id) => {
   try {
     await axiosInstance.delete(`${API_URL}/${id}`);
@@ -59,6 +89,7 @@ const deleteAlumno = async (id) => {
   }
 };
 
+// Verifica si existen registros duplicados por curp, matricula o correo
 const checkIfExists = async (curp, matricula, correo) => {
   try {
     const response = await axiosInstance.get(`${API_URL}/checkExists?curp=${curp}&matricula=${matricula}&correo=${correo}`);
@@ -69,6 +100,7 @@ const checkIfExists = async (curp, matricula, correo) => {
 };
 
 
+// Envía la revisión del alumno (observaciones y estado) al backend
 const enviarRevisionAlumno = async (id, observaciones, estado) => {
   try {
     const response = await axiosInstance.patch(`${API_URL}/${id}/revision`, {
@@ -82,6 +114,7 @@ const enviarRevisionAlumno = async (id, observaciones, estado) => {
 };
 
 
+// Marca el estudio socioeconómico como completo
 const setEstudioSocioeconomicoCompleto = async (id) => {
   try {
     const response = await axiosInstance.patch(`${API_URL}/completarEstudio/${id}`);
@@ -91,8 +124,9 @@ const setEstudioSocioeconomicoCompleto = async (id) => {
   }
 };
 
+// Importa alumnos desde un archivo Excel usando multipart/form-data
+// Devuelve detalles del error en caso de fallo para facilitar el manejo en UI
 const importarDesdeExcel = async (formData) => {
-  
   try {
     const response = await axiosInstance.post(`${API_URL}/importar`, formData, {
       headers: {
@@ -126,6 +160,7 @@ const importarDesdeExcel = async (formData) => {
   }
 };
 
+// Cambia la contraseña del alumno identificado por id
 const cambiarPassword = async (idAlumno, nuevaPassword) => {
   try {
     const response = await axiosInstance.put(`${API_URL}/${idAlumno}/password`, {
@@ -137,6 +172,7 @@ const cambiarPassword = async (idAlumno, nuevaPassword) => {
   }
 };
 
+// Edita la matrícula de un alumno existente
 const editarMatricula = async (id, nuevaMatricula) => {
   try {
     const response = await axiosInstance.patch(`${API_URL}/${id}/editarMatricula`, {

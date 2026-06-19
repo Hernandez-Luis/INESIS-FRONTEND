@@ -1,3 +1,28 @@
+/**
+ * ============================================================================
+ * MÓDULO: TablaRegistros.js
+ * DESCRIPCIÓN:
+ * Componente genérico para presentar tablas de registros con búsqueda,
+ * paginación y acciones de edición/eliminación.
+ *
+ * FUNCIONALIDADES:
+ * - Búsqueda de registros por columnas.
+ * - Paginación configurable.
+ * - Soporte para agregar registros y mostrar modales específicos.
+ *
+ * DEPENDENCIAS:
+ * - React
+ * - React Bootstrap
+ * - SweetAlert2
+ * - ModalRegistrarFecha
+ *
+ * AUTOR: Nayeli Velasco López
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * FECHA DE CREACIÓN: 25 de marzo de 2025
+ * ÚLTIMA MODIFICACIÓN: 19 de Junio de 2026
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Table } from 'react-bootstrap';
@@ -16,9 +41,10 @@ const TablaRegistros = ({
     onDelete = () => { },
     onFechaAgregada
 }) => {
+    /* Estado del componente y configuración de paginación */
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
-    const [elementosPorPagina, setElementosPorPagina] = useState(8);
+    const [elementosPorPagina, setElementosPorPagina] = useState(10);
     const [datosFiltrados, setDatosFiltrados] = useState([]);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [cargando, setCargando] = useState(true);
@@ -27,10 +53,12 @@ const TablaRegistros = ({
     const handleAbrirModal = () => setMostrarModal(true);
     const handleCerrarModal = () => setMostrarModal(false);
 
+    /* Obtiene un valor anidado usando el accessor de la columna */
     const obtenerValorPorAccessor = (obj, accessor) => {
         return accessor.split('.').reduce((valor, clave) => valor?.[clave], obj);
     };
 
+    /* Filtra los datos según el texto de búsqueda ingresado */
     const filtrarDatos = () => {
         if (!busqueda.trim()) return data;
         const busquedaLower = busqueda.toLowerCase();
@@ -45,6 +73,7 @@ const TablaRegistros = ({
         );
     };
 
+    /* Actualiza la lista de registros filtrados cuando cambian los datos o la búsqueda */
     useEffect(() => {
         setCargando(true);
         const timeout = setTimeout(() => {
@@ -60,6 +89,7 @@ const TablaRegistros = ({
     const totalPaginas = Math.ceil(datosFiltrados.length / elementosPorPagina);
     const datosPaginados = datosFiltrados.slice((paginaActual - 1) * elementosPorPagina, paginaActual * elementosPorPagina);
 
+    /* Cambia la cantidad de registros por página y reinicia al primer número de página */
     const handleChangeElementos = (e) => {
         setElementosPorPagina(Number(e.target.value));
         setPaginaActual(1);
@@ -93,9 +123,9 @@ const TablaRegistros = ({
                             onChange={handleChangeElementos}
                             value={elementosPorPagina}
                         >
-                            <option value={8}>8</option>
-                            <option value={12}>12</option>
-                            <option value={20}>20</option>
+                            <option value={10}>10</option>
+                            <option value={18}>18</option>
+                            <option value={25}>25</option>
                         </select>
                         <span className="ms-2 texto-morado2">{nombreData}</span>
                     </div>
@@ -156,9 +186,13 @@ const TablaRegistros = ({
                                         const valor = obtenerValorPorAccessor(registro, col.accessor);
 
                                         return (
-                                            <td key={i} className={i === 0 ? "fw-semibold matricula" : ""}>
+                                                            <td
+                                                key={i}
+                                                className={i === 0 ? "fw-semibold matricula" : ""}
+                                                style={{ textTransform: 'uppercase' }}
+                                            >
 
-                                                {/* Si la columna tiene un Cell personalizado, úsalo */}
+                                                {/* Renderiza celdas en mayúsculas y usa un Cell personalizado si existe */}
                                                 {col.Cell
                                                     ? col.Cell({ row: { original: registro } })
                                                     : (typeof valor === 'object' && valor !== null
@@ -182,8 +216,8 @@ const TablaRegistros = ({
                 </div>
             </div>
 
-            {datosFiltrados.length > elementosPorPagina && (
-                <div className="pagination-container mb-4">
+            {totalPaginas > 1 && (
+                <div className="pagination-container mb-4 d-flex justify-content-center align-items-center gap-3">
                     <button
                         className="pagination-btn"
                         onClick={() => setPaginaActual(p => Math.max(p - 1, 1))}
@@ -191,15 +225,7 @@ const TablaRegistros = ({
                     >
                         &#60;
                     </button>
-                    {Array.from({ length: totalPaginas }, (_, index) => (
-                        <button
-                            key={index}
-                            className={`pagination-button ${paginaActual === index + 1 ? 'active' : ''}`}
-                            onClick={() => setPaginaActual(index + 1)}
-                        >
-                            {index + 1}
-                        </button>
-                    ))}
+                    <span className="texto-gris2">Página {paginaActual} de {totalPaginas}</span>
                     <button
                         className="pagination-btn"
                         onClick={() => setPaginaActual(p => Math.min(p + 1, totalPaginas))}

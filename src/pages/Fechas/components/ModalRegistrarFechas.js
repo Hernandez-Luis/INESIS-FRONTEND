@@ -1,3 +1,34 @@
+/**
+ * ============================================================================
+ * MÓDULO: ModalRegistrarFechas.js
+ * DESCRIPCIÓN:
+ * Modal para registrar o editar fechas de inicio y cierre de procesos
+ * de registro de alumnos por carrera.
+ *
+ * FUNCIONALIDADES:
+ * - Registro de nuevas fechas para carreras sin fechas asignadas.
+ * - Edición de fechas existentes.
+ * - Opción de reiniciar proceso de registro de alumnos.
+ * - Validación de formulario.
+ * - Filtrado automático de carreras ya registradas.
+ * - Cálculo de fecha mínima (hoy).
+ *
+ * DEPENDENCIAS:
+ * - React (hooks: useState, useEffect)
+ * - React Bootstrap (Modal, Form, Button)
+ * - React Icons (FiCalendar, FiBook, FiX)
+ * - PropTypes
+ * - SweetAlert2
+ * - FechasRegistradasService
+ * - CatCarreraService
+ *
+ * AUTOR: Nayeli Velasco López, Luis David Pérez Cruz
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * FECHA DE CREACIÓN: 9 de marzo de 2025
+ * ÚLTIMA MODIFICACIÓN: 21 de abril de 2026
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import '../../Fechas/components/AdministrarFechas.css';
@@ -11,20 +42,23 @@ const ModalRegistrarFecha = ({
   show, 
   handleClose, 
   onSubmit,
-  modoEdicion = false, // Nueva prop para determinar el modo
-  fechaEditar = null // Nueva prop para datos a editar
+  modoEdicion = false, // Determina si es modo creación (false) o edición (true)
+  fechaEditar = null   // Objeto con los datos de la fecha a editar
 }) => {
+  // ========== ESTADOS ==========
+  // Estado del formulario con valores de entrada
   const [formData, setFormData] = useState({
     idCarrera: "",
     fechaInicio: "",
     fechaFin: "",
-    reiniciarProceso: false
+    reiniciarProceso: false // Solo disponible en modo edición
   });
 
   const [validated, setValidated] = useState(false);
   const [carreras, setCarreras] = useState([]);
 
-  // Efecto para manejar cambios entre modos
+  // ========== EFECTO: CARGAR DATOS AL ABRIR MODAL ==========
+  // Carga datos de la fecha a editar o reinicia el formulario para nuevo registro
   useEffect(() => {
     if (modoEdicion && fechaEditar) {
       setFormData({
@@ -38,7 +72,9 @@ const ModalRegistrarFecha = ({
     }
   }, [show, modoEdicion, fechaEditar]);
 
-  // Cargar carreras solo en modo registro
+  // ========== EFECTO: CARGAR CARRERAS EN MODO REGISTRO ==========
+  // En modo registro, obtiene lista de carreras sin fechas asignadas
+  // En modo edición, no ejecuta esta lógica
   useEffect(() => {
     if (show && !modoEdicion) {
       const fetchData = async () => {
@@ -71,6 +107,9 @@ const ModalRegistrarFecha = ({
     }
   }, [show, modoEdicion]);
 
+  // ========== FUNCIÓN: MANEJAR CAMBIO DE CAMPO ==========
+  // Actualiza el estado del formulario cuando cambia un campo
+  // Maneja conversiones de tipo según el campo
   const handleChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -78,6 +117,9 @@ const ModalRegistrarFecha = ({
     }));
   };
 
+  // ========== FUNCIÓN: ENVIAR FORMULARIO ==========
+  // Valida el formulario y guarda o actualiza la fecha según el modo
+  // En modo edición, permite reiniciar el proceso de registro
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -137,6 +179,8 @@ const ModalRegistrarFecha = ({
     }
   };
 
+  // ========== FUNCIÓN: OBTENER FECHA ACTUAL EN FORMATO LOCAL ==========
+  // Devuelve la fecha de hoy en formato YYYY-MM-DD para el atributo min del input
   const obtenerFechaActualLocal = () => {
     const hoy = new Date();
     const año = hoy.getFullYear();
@@ -145,6 +189,7 @@ const ModalRegistrarFecha = ({
     return `${año}-${mes}-${dia}`;
   };
 
+  // ========== RENDERIZADO ==========
   return (
     <Modal
       show={show}
@@ -253,6 +298,7 @@ const ModalRegistrarFecha = ({
   );
 };
 
+// Validación de props con PropTypes
 ModalRegistrarFecha.propTypes = {
   show: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
@@ -260,4 +306,6 @@ ModalRegistrarFecha.propTypes = {
   modoEdicion: PropTypes.bool,
   fechaEditar: PropTypes.object
 };
+
+// Exporta el componente para que pueda ser usado en AdministrarFechas.jsx
 export default ModalRegistrarFecha;

@@ -1,3 +1,30 @@
+/**
+ * ============================================================================
+ * MÓDULO: RegistroRevisor.js
+ * DESCRIPCIÓN:
+ * Formulario para registrar o editar revisores del sistema.
+ * Contiene validaciones de campos, generación automática de usuario,
+ * manejo de contraseñas y llamadas al servicio de backend.
+ *
+ * FUNCIONALIDADES:
+ * - Validación de campos obligatorios y formato de matrícula.
+ * - Generación automática de nombre de usuario basada en nombre y apellido.
+ * - Soporta modo edición y creación.
+ * - Integración con ModalCambiarContraseña para actualizar contraseñas.
+ *
+ * DEPENDENCIAS:
+ * - React
+ * - SweetAlert2
+ * - RevisorService, UsuarioService
+ * - ModalCambiarContraseña
+ *
+ * AUTOR: Nayeli Velasco López
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * FECHA DE CREACIÓN: 9 de marzo de 2025
+ * ÚLTIMA MODIFICACIÓN: Junio 2025
+ * ============================================================================
+ */
+
 import React, { useState, useEffect, forwardRef } from 'react';
 import '../../Alumno/components/AdministrarAlumnos.css';
 import '../components/AgregarRevisor.css'
@@ -9,6 +36,7 @@ import UsuarioService from '../../../services/UsuarioService';
 
 const RegistroRevisor = forwardRef((props, ref) => {
 
+    // Estructura inicial del formulario. Mantener claves sincronizadas con el backend.
     const initialForm = {
         nombre: '',
         apellidoPaterno: '',
@@ -30,6 +58,8 @@ const RegistroRevisor = forwardRef((props, ref) => {
     const esEdicion = !!props.revisor;
 
     // Cargar datos para edición
+    // Cuando `esEdicion` es true, obtenemos también el usuario asociado
+    // para mostrar el usuario y la contraseña actuales en el formulario.
     useEffect(() => {
         const cargarDatosRevisor = async () => {
             if (esEdicion) {
@@ -55,7 +85,7 @@ const RegistroRevisor = forwardRef((props, ref) => {
         cargarDatosRevisor();
     }, [esEdicion, props.revisor]);
 
-    // Validar campos
+    // Validar campos individuales. Se utiliza en cada cambio y antes del submit.
     const validateField = (name, value) => {
         let error = '';
         const requiredFields = ['nombre', 'apellidoPaterno', 'matricula', 'departamento'];
@@ -94,7 +124,8 @@ const RegistroRevisor = forwardRef((props, ref) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Actualizar form y validar campo
+    // Maneja cambios en los inputs del formulario y genera el `usuario`
+    // automáticamente a partir del primer nombre y primer apellido.
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormValues(prev => {
@@ -113,7 +144,8 @@ const RegistroRevisor = forwardRef((props, ref) => {
         validateField(name, value);
     };
 
-    // Actualizar contraseña solo si cambia matrícula en nuevo registro
+    // Si se está creando un nuevo revisor, por defecto la contraseña
+    // se inicializa con la matrícula. En edición no se sobreescribe.
     useEffect(() => {
         if (formValues.matricula && !esEdicion) {
             setFormValues(prev => ({
@@ -131,7 +163,7 @@ const RegistroRevisor = forwardRef((props, ref) => {
         }));
     };
 
-    // Mostrar alertas con Swal
+    // Mostrar alertas estandarizadas con SweetAlert2
     const mostrarAlerta = (config) => {
         Swal.fire({
             ...config,
@@ -148,6 +180,7 @@ const RegistroRevisor = forwardRef((props, ref) => {
     };
 
     // Enviar formulario (crear o actualizar revisor)
+    // Valida los campos, comprueba duplicados y llama al servicio.
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -230,6 +263,8 @@ const RegistroRevisor = forwardRef((props, ref) => {
         }
     };
 
+    // Render del formulario con secciones claras para datos personales,
+    // datos laborales y credenciales de plataforma.
     return (
         <div className="mb-5">
             <h2 className="size-font-title cardMenu-title m-5 text-center">

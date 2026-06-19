@@ -1,3 +1,16 @@
+/**
+ * ============================================================================
+ * MÓDULO: AdministrarAlumnos.css
+ * DESCRIPCIÓN:
+ * Estilos para la página de administración y registro de alumnos.
+ *
+ * FUNCIONALIDADES:
+ * - Estiliza el formulario de registro y edición de alumnos.
+ *
+ * AUTOR: Nayeli Velasco López
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * ============================================================================
+ */
 .texto-morado2 {
     color: var(--color-morado2);
     font-weight: bold;
@@ -10,9 +23,9 @@
 
 .texto-morado2Normal {
     color: var(--color-morado2);
-
 }
 
+/* Texto pequeño secundario usado en descripciones y notas */
 .texto-pequeno {
     font-size: 14px;
     color: var(--color-gris1);
@@ -30,23 +43,27 @@
 }
 
 
+/* Contenedor principal de la página de administración de alumnos */
 .admin-alumnos-container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
+/* Contenedor del área de tabla con borde y bordes redondeados */
 .custom-table-container {
     border: 10px solid #ffffff;
     border-radius: 8px;
     overflow: hidden;
 }
 
+/* Tabla personalizada para listado de alumnos */
 .custom-table {
     margin-bottom: 0;
     background-color: var(--color-gris2);
 }
 
+/* Cuerpo de la tabla con fondo uniforme y bordes suaves */
 .custom-table tbody {
     background-color: var(--color-gris2);
     /* Gris claro */
@@ -75,6 +92,7 @@
     overflow: hidden;
 }
 
+/* Encabezados de la tabla con estilo morado y línea decorativa */
 .custom-table th {
     padding: 1rem;
     font-weight: 600;
@@ -100,6 +118,7 @@
     /* Centra horizontalmente */
 }
 
+/* Celdas de la tabla con separación, texto centrado y línea inferior sutil */
 .custom-table td {
     padding: 1rem;
     color: var(--color-gris1);
@@ -109,10 +128,12 @@
     text-align: center;
 }
 
+/* Mantener la línea inferior en la última fila de la tabla */
 .custom-table tr:last-child td {
     border-bottom: 1.5px solid var(--color-morado1);
 }
 
+/* Botón principal para agregar un nuevo alumno */
 .btn-agregar {
     padding: 0.75rem 2rem;
     font-weight: bold;
@@ -130,6 +151,7 @@
 }
 
 
+/* Pie de tabla e iconos de acción para editar/eliminar alumnos */
 .table-footer {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
@@ -150,6 +172,7 @@
     transition: all 0.3s;
 }
 
+/* Estado hover para acciones de borrar y editar */
 .icono-basura:hover {
     background: rgba(255, 0, 0, 0.1);
 }
@@ -174,7 +197,7 @@
 
 
 
-/* Contenedor principal para alinear horizontalmente las secciones */
+/* Contenedor principal para ubicar el formulario de registro en columnas */
 .agregar-alumno-container {
     display: flex;
     flex-wrap: wrap;
@@ -187,7 +210,7 @@
     margin: 0 auto;
 }
 
-/* Secciones alineadas */
+/* Secciones del formulario de registro con estilo de tarjetas y espacio interno */
 .formulario-seccion--datos-personales,
 .formulario-seccion--datos-academicos {
     flex: 1;
@@ -209,7 +232,7 @@
     color: var(--color-morado2);
 }
 
-/* Estilo de las entradas de texto */
+/* Estilo de las entradas de texto del formulario */
 .formulario-entrada {
     width: 100%;
     padding: 0.75rem;
@@ -224,7 +247,7 @@
     outline: none;
 }
 
-/* Paginación */
+/* Contenedor de paginación para las tablas */
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -275,6 +298,7 @@
     color: white;
 }
 
+/* Estilos para campos de solo lectura y valores fijos */
 .readonly-style {
     background-color: #ececec;
     color: #333;
@@ -292,6 +316,7 @@
     border: 0px solid #ddd;
 }
 
+/* Etiquetas de estado o mensajes con colores semánticos */
 .texto-verde {
     color: #28a745;
     font-weight: bold;
@@ -307,7 +332,7 @@
     font-weight: bold;
 }
 
-/* ESTILOS PARA EL BOTON DE CAMBIAR CONRASEÑA*/
+/* ESTILOS PARA EL BOTON DE CAMBIAR CONTRASEÑA */
 
 /* Botón Cambiar Contraseña - estilos únicos */
 .btn-cambiar-pass {
@@ -351,6 +376,7 @@
     color: #fff !important;
 }
 
+/* Texto e interacción del botón Cambiar Contraseña */
 .btn-cambiar-pass-text {
     display: inline-block;
     transition: color .2s;
@@ -370,7 +396,7 @@
 }
 
 /* FIN DE ESTILOS PARA EL BOTON DE CAMBIAR CONRASEÑA*/
-/* Responsividad general */
+/* Ajustes responsivos generales para pantallas pequeñas */
 @media (max-width: 576px) {
   .container.w-75 {
     width: 100% !important;
@@ -445,7 +471,7 @@
   }
 }
 
-/* RESPONSIVIDAD PARA REGISTRO DE ALUMNO */
+/* Ajustes responsivos específicos para el formulario de registro de alumnos */
 
 @media (max-width: 576px) {
 

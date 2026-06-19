@@ -1,3 +1,28 @@
+/**
+ * ============================================================================
+ * MÓDULO: ModalCambiarContraseña.js
+ * DESCRIPCIÓN:
+ * Componente encargado de gestionar el cambio de contraseña de usuarios.
+ *
+ * FUNCIONALIDADES:
+ * - Validación de seguridad.
+ * - Confirmación de contraseña.
+ * - Verificación de contraseña actual.
+ * - Actualización mediante servicios del backend.
+ *
+ * DEPENDENCIAS:
+ * - React
+ * - React Bootstrap
+ * - SweetAlert2
+ * - UsuarioService
+ *
+ * AUTOR: Nayeli Velasco López
+ * PROYECTO: INESIS (Sistema de Información Socioeconómica)
+ * FECHA DE CREACIÓN: 9 de marzo de 2025
+ * ÚLTIMA MODIFICACIÓN: 10 de Agosto de 2025
+ * ============================================================================
+ */
+
 import React, { useEffect, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
 import { FiEye, FiEyeOff, FiLock } from "react-icons/fi";
@@ -5,20 +30,32 @@ import '../CambiarContraseña/ModalCambiarContraseña.css';
 import UsuarioService from '../../services/UsuarioService';
 import Swal from 'sweetalert2';
 
+// Componente de modal para cambiar contraseña.
+// - show: controla si el modal está visible.
+// - handleClose: cierra el modal.
+// - requireCurrentPassword: si true se solicita la contraseña actual.
+// - usuario: nombre de usuario para el cambio sin verificación previa.
 const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, usuario }) => {
+  // Controla la visibilidad de cada campo de contraseña.
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Controla si se muestra la guía de requisitos de contraseña.
   const [showPasswordInfo, setShowPasswordInfo] = useState(false);
   const passwordInfoRef = useRef(null);
+
+  // Almacena los estados de validación por campo.
   const [error, setError] = useState({});
 
+  // Guarda los valores actuales de los campos de contraseña.
   const [passwords, setPasswords] = useState({
     current: "",
     new: "",
     confirm: ""
   });
 
+  // Reinicia el formulario y los errores cuando el modal se cierra.
   useEffect(() => {
     if (!show) {
       setPasswords({ current: "", new: "", confirm: "" });
@@ -26,6 +63,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
     }
   }, [show]);
 
+  // Cierra la ventana de ayuda si se hace clic afuera de ella.
   useEffect(() => {
     if (!showPasswordInfo) return;
 
@@ -43,6 +81,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showPasswordInfo]);
 
+  // Muestra mensajes de alerta consistentes con estilo personalizado.
   const mostrarAlerta = (config) => {
     Swal.fire({
       ...config,
@@ -58,12 +97,14 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
     });
   };
 
+  // Actualiza el estado del campo de contraseña según el input.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPasswords(prev => ({ ...prev, [name]: value }));
     setError({});
   };
 
+  // Valida la contraseña nueva con reglas de seguridad.
   const validate = () => {
     const validationErrors = {};
 
@@ -87,6 +128,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
     return validationErrors;
   };
 
+  // Controla el envío del formulario y realiza la actualización remota.
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -102,7 +144,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
       newErrors.confirm = true;
     }
 
-    // Si hay campos vacíos, mostrar alerta
+    // Si hay campos vacíos, mostrar alerta.
     if (Object.keys(newErrors).length > 0) {
       setError(newErrors);
       mostrarAlerta({
@@ -113,7 +155,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
       return;
     }
 
-    // Validar que las contraseñas coincidan
+    // Validar que las contraseñas coincidan antes de enviar.
     if (passwords.new !== passwords.confirm) {
       setError({ confirm: "Las contraseñas no coinciden" });
       mostrarAlerta({
@@ -124,7 +166,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
       return;
     }
 
-    // Validaciones de formato de contraseña
+    // Validaciones de formato de contraseña.
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setError(validationErrors);
@@ -141,14 +183,14 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
       const usuarioStorage = JSON.parse(localStorage.getItem("usuario"));
 
       if (requireCurrentPassword) {
-        // Verificar contraseña actual y luego actualizar
+        // Verificar la contraseña actual antes de actualizarla en el backend.
         await UsuarioService.verificarYActualizarContrasena({
           usuario: usuarioStorage.usuario,
           contrasena: passwords.current,
           nuevaContrasena: passwords.new
         });
       } else {
-        // Solo actualizar sin verificar contraseña actual
+        // Actualizar contraseña directamente cuando no se requiere la actual.
         await UsuarioService.cambiarContrasena({
           usuario: usuario,
           nuevaContrasena: passwords.new
@@ -165,14 +207,17 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
         showConfirmButton: true
       }).then(() => {
         if (requireCurrentPassword) {
+          // Si se cambió la contraseña con verificación, forzar cierre de sesión.
           localStorage.removeItem("usuario");
           window.location.href = "/";
         } else {
+          // Si no era necesaria la contraseña actual, cerrar modal normalmente.
           handleClose();
         }
       });
 
     } catch (err) {
+      // Mostrar error si la petición al servidor falla.
       mostrarAlerta({
         icon: 'error',
         title: 'Error',
@@ -188,7 +233,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
           <h2 className="mcambiar-heading">Cambiar<br />Contraseña</h2>
           <form className="mcambiar-form" onSubmit={handleSubmit}>
 
-            {/* Campo de contraseña actual */}
+            {/* Campo de contraseña actual. Solo se muestra cuando requireCurrentPassword es true. */}
             {requireCurrentPassword && (
               <div className="mcambiar-password-input-container">
                 <FiLock className="mcambiar-input-icon" />
@@ -257,6 +302,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
 
             </div>
 
+            {/* Botón de ayuda para mostrar los requisitos de contraseña. */}
             <button
               type="button"
               id="show-password-info-btn"
@@ -278,7 +324,7 @@ const ModalCambiarContraseña = ({ show, handleClose, requireCurrentPassword, us
                 </ul>
               </div>
             )}
-            {/* Indicador de fortaleza de contraseña */}
+            {/* Indicador de fortaleza de contraseña. Muestra una etiqueta y barras de progreso. */}
             <div className="mcambiar-password-strength">
               <div className="strength-bar-container">
                 {[1, 2, 3, 4].map(i => (
