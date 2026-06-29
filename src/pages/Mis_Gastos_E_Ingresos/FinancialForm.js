@@ -789,9 +789,9 @@ const FinancialForm = () => {
 
 
     return (
-        <Container className="mt-3" style={{ maxWidth: "1700px" }}>
+        <Container className="mt-3 px-3 px-md-4" style={{ maxWidth: "1700px" }}>
             {/* Ingresos Mensuales */}
-            <Card className="p-4 mb-5" style={cardStyle}>
+            <Card className="p-3 p-md-4 mb-4" style={cardStyle}>
                 <h3 style={{ color: "#4F46E5" }}>Ingresos mensuales</h3>
                 <Form>
                     <Form.Group>
@@ -808,7 +808,7 @@ const FinancialForm = () => {
                     </Form.Group>
                     <h4 className="mt-4" style={{ color: "#4F46E5" }}>Personas que aportan al gasto familiar:</h4>
                     {[...Array(numPeople)].map((_, index) => (
-                        <Row key={index} className="mb-2 d-flex align-items-stretch" style={{ paddingTop: "4px" }}>
+                        <Row key={index} className="mb-3 g-3" style={{ paddingTop: "4px" }}>
                             {[
                                 { label: "Nombre completo ", labelJSX: <>Nombre completo <span style={{ color: 'red' }}>*</span></>, placeholder: "Nombre completo", type: "text", field: "name" },
                                 { label: "Empresa o lugar de trabajo", labelJSX: <>Empresa o lugar de trabajo <span style={{ color: 'red' }}>*</span></>, placeholder: "Empresa o lugar de trabajo", type: "text", field: "company" },
@@ -821,8 +821,8 @@ const FinancialForm = () => {
                                     return (
                                         <React.Fragment key={idx}>
                                             {/* Campo Parentesco */}
-                                            <Col className="d-flex">
-                                                <Form.Group className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                            <Col xs={12} sm={6} md={4} className="d-flex">
+                                                <Form.Group className="p-3 border rounded flex-fill d-flex flex-column justify-content-between w-100" style={{ backgroundColor: "#F5F5F5" }}>
                                                     <Form.Label style={{ fontSize: "18px", color: "#4F46E5" }}>Parentesco <span style={{ color: 'red' }}>*</span></Form.Label>
                                                     <Form.Select
                                                         id={`person-${index}-parentesco`}
@@ -847,8 +847,8 @@ const FinancialForm = () => {
                                             </Col>
 
                                             {/* Campo original (Empresa o lugar de trabajo) */}
-                                            <Col className="d-flex">
-                                                <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                            <Col xs={12} sm={6} md={4} className="d-flex">
+                                                <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between w-100" style={{ backgroundColor: "#F5F5F5" }}>
                                                     <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.labelJSX || field.label}</label>
                                                     <Form.Control
                                                         id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
@@ -887,8 +887,8 @@ const FinancialForm = () => {
 
                                 // Campos normales (Nombre completo, Puesto, IMB, IMN)
                                 return (
-                                    <Col key={idx} className="d-flex">
-                                        <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between" style={{ backgroundColor: "#F5F5F5" }}>
+                                    <Col key={idx} xs={12} sm={6} md={4} className="d-flex">
+                                        <div className="p-3 border rounded flex-fill d-flex flex-column justify-content-between w-100" style={{ backgroundColor: "#F5F5F5" }}>
                                             <label style={{ fontSize: "18px", color: "#4F46E5" }}>{field.labelJSX || field.label}</label>
                                             <Form.Control
                                                 id={`person-${index}-${field.label.toLowerCase().replace(/ /g, '').replace(/[()]/g, '')}`}
@@ -930,9 +930,10 @@ const FinancialForm = () => {
 
 
                     {/* Total ingreso bruto */}
-                    <Form.Group className="mt-4 d-flex justify-content-end align-items-center">
-                        <Form.Label style={{ color: "#4F46E5", maxWidth: "150px", marginRight: "10px" }}>Total ingreso bruto:</Form.Label>
+                    <Form.Group className="mt-4 d-flex flex-column flex-sm-row justify-content-sm-end align-items-sm-center gap-2">
+                        <Form.Label className="mb-0" style={{ color: "#4F46E5" }}>Total ingreso bruto:</Form.Label>
                         <Form.Control
+                            className="w-100 w-sm-auto"
                             style={{ maxWidth: "200px" }}
                             type="number"
                             placeholder="$"
@@ -943,9 +944,10 @@ const FinancialForm = () => {
                     </Form.Group>
 
                     {/* Total ingreso neto (nombre actualizado) */}
-                    <Form.Group className="mt-2 d-flex justify-content-end align-items-center">
-                        <Form.Label style={{ color: "#4F46E5", maxWidth: "150px", marginRight: "10px" }}>Total ingreso neto:</Form.Label>
+                    <Form.Group className="mt-2 d-flex flex-column flex-sm-row justify-content-sm-end align-items-sm-center gap-2">
+                        <Form.Label className="mb-0" style={{ color: "#4F46E5" }}>Total ingreso neto:</Form.Label>
                         <Form.Control
+                            className="w-100 w-sm-auto"
                             style={{ maxWidth: "200px" }}
                             type="text"
                             inputMode="decimal"
@@ -961,6 +963,7 @@ const FinancialForm = () => {
                     <Form.Group style={{ color: "#4F46E5" }} className="mt-3">
                         <Form.Label>¿Cuántas personas dependen del ingreso mencionado? <span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
+                            className="w-100 w-md-auto"
                             style={{ maxWidth: "400px" }}
                             type="number"
                             onInput={validarNumericoDecimal}
@@ -971,13 +974,13 @@ const FinancialForm = () => {
                 </Form>
             </Card>
 
-            <Row className="justify-content-center">
+            <Row className="justify-content-center g-3">
                 {/* Recibo de luz */}
-                <Col md={6} className="d-flex justify-content-center">
-                    <Card className="p-5 mb-5 w-100" style={cardStyle}>
+                <Col xs={12} md={6} className="d-flex justify-content-center">
+                    <Card className="p-3 p-md-4 mb-4 w-100" style={cardStyle}>
                         <h4 style={{ color: "#4F46E5" }}>Recibo de luz</h4>
                         <Form>
-                            <Form.Group>
+                            <Form.Group className="mb-3">
                                 <Form.Label style={{ color: "#4F46E5" }}>Nombre del titular de los recibos de luz: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="lightName"
@@ -986,7 +989,7 @@ const FinancialForm = () => {
                                 />
                             </Form.Group>
 
-                            <Form.Group>
+                            <Form.Group className="mb-3">
                                 <Form.Label style={{ color: "#4F46E5" }}>Domicilio que aparece en el recibo de luz: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="domicilioRecibo"
@@ -999,11 +1002,11 @@ const FinancialForm = () => {
                             </Form.Group>
 
 
-                            <Form.Group>
+                            <Form.Group className="mb-3">
                                 <Form.Label style={{ color: "#4F46E5" }}>
                                     Periodo de inicio (mes y año): <span style={{ color: 'red' }}>*</span>
                                 </Form.Label>
-                                <Row>
+                                <Row className="g-2">
                                     <Col>
                                         <Form.Select
                                             value={periodoInicioMes}
@@ -1031,11 +1034,11 @@ const FinancialForm = () => {
                                 </Row>
                             </Form.Group>
 
-                            <Form.Group>
+                            <Form.Group className="mb-3">
                                 <Form.Label style={{ color: "#4F46E5" }}>
                                     Periodo de fin (mes y año): <span style={{ color: 'red' }}>*</span>
                                 </Form.Label>
-                                <Row>
+                                <Row className="g-2">
                                     <Col>
                                         <Form.Select
                                             value={periodoFinMes}
@@ -1070,7 +1073,7 @@ const FinancialForm = () => {
 
 
 
-                            <Form.Group>
+                            <Form.Group className="mb-3">
                                 <Form.Label style={{ color: "#4F46E5" }}>Pago del último período: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="ultimoPago"
@@ -1081,7 +1084,7 @@ const FinancialForm = () => {
                                 />
                             </Form.Group>
 
-                            <Form.Group>
+                            <Form.Group className="mb-3">
                                 <Form.Label style={{ color: "#4F46E5" }}>Pago mensual promedio: <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="promedioPago"
@@ -1140,12 +1143,12 @@ const FinancialForm = () => {
 
 
                 {/* Gastos Mensuales */}
-                <Col md={6} className="d-flex justify-content-center">
-                    <Card className="p-5 mb-5 w-100" style={cardStyle}>
+                <Col xs={12} md={6} className="d-flex justify-content-center">
+                    <Card className="p-3 p-md-4 mb-4 w-100" style={cardStyle}>
                         <h4 style={{ color: "#4F46E5" }}>Gastos mensuales</h4>
                         <Form id="gastosForm">
                             {['Alimentación', 'Renta', 'Servicios', 'Gastos escolares', 'Ropa', 'Transporte', 'Otros'].map((label, index) => (
-                                <Form.Group key={index}>
+                                <Form.Group key={index} className="mb-3">
                                     <Form.Label style={{ color: "#4F46E5" }}>{label}: <span style={{ color: 'red' }}>*</span></Form.Label>
                                     <Form.Control
                                         id={label}
@@ -1159,7 +1162,7 @@ const FinancialForm = () => {
 
                                 </Form.Group>
                             ))}
-                            <Form.Group className="d-flex flex-column align-items-center mt-3" style={{ maxWidth: "200px", margin: "0 auto" }}>
+                            <Form.Group className="d-flex flex-column align-items-center mt-3 mx-auto" style={{ maxWidth: "200px" }}>
                                 <Form.Label style={{ color: "#4F46E5" }}>Gastos mensuales <span style={{ color: 'red' }}>*</span></Form.Label>
                                 <Form.Control
                                     id="totalGastos"
@@ -1179,7 +1182,7 @@ const FinancialForm = () => {
             </Row>
 
             {/* Botón Guardar */}
-            <div className="d-flex justify-content-center mb-3" style={{ padding: "50px" }}>
+            <div className="d-flex justify-content-center mb-3 py-4 py-md-5 px-2">
                 <Button variant="btn btn-midDatos" onClick={handleSave} disabled={btnDisabled} >Guardar</Button>
                 {/*                 {error && (
                     <div style={{ color: "red", textAlign: "center", whiteSpace: "pre-line" }}>

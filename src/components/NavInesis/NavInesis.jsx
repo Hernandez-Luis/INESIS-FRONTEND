@@ -35,53 +35,50 @@ export const NavInesis = () => {
 
 
   return (
-    <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='m-4 px-5'>
+    <div style={{ background: 'var(--color-gris2)', borderRadius: '12px' }} className='mx-2 my-2 mx-md-4 my-md-3 px-1 px-md-3 sticky-top'>
       <Navbar expand="lg">
         <Container fluid>
           {usuario && usuario.rol === 1 && (
-            <Navbar.Brand href="/menuAlumno" className='fs-1 me-auto d-flex align-items-center'>
-              <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
-                INESIS
-              </h1>
+            <Navbar.Brand href="/menuAlumno" className='me-auto d-flex align-items-center'>
+              <span className="inesis-brand">INESIS</span>
             </Navbar.Brand>
           )}
 
           {usuario && usuario.rol === 2 && (
-            <Navbar.Brand href="/menuAdministrador" className='fs-1 me-auto d-flex align-items-center'>
-              <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
-                INESIS
-              </h1>
+            <Navbar.Brand href="/menuAdministrador" className='me-auto d-flex align-items-center'>
+              <span className="inesis-brand">INESIS</span>
             </Navbar.Brand>
           )}
 
           {usuario && usuario.rol === 3 && (
-            <Navbar.Brand href="/menuRevisor" className='fs-1 me-auto d-flex align-items-center'>
-              <h1 style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }}>
-                INESIS
-              </h1>
+            <Navbar.Brand href="/menuRevisor" className='me-auto d-flex align-items-center'>
+              <span className="inesis-brand">INESIS</span>
             </Navbar.Brand>
           )}
 
-          <Navbar.Toggle aria-controls="basic-navbar-nav" style={{ backgroundColor: 'white' }} />
+          <Navbar.Toggle
+            aria-controls="basic-navbar-nav"
+            className="nav-toggle-custom"
+          />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto d-flex align-items-center">
-              {usuario && usuario.rol === 1 && (<NavItem className='me-5 fs-5 opciones nav-item-op' style={{ color: "var(--color-morado2)" }}>
-                <Link to="/menuSolicitar" className="text-decoration-none text-dark">
-                  <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Estudio socioeconómico</p>
-                </Link>
-              </NavItem>
+            <Nav className="ms-auto d-flex align-items-center nav-collapse-menu">
+              {usuario && usuario.rol === 1 && (
+                <NavItem className='me-0 me-lg-5 fs-5 opciones nav-item-op'>
+                  <Link to="/menuSolicitar" className="text-decoration-none">
+                    <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Estudio socioeconómico</p>
+                  </Link>
+                </NavItem>
               )}
 
               {usuario && usuario.rol !== 2 && (
-                <NavItem className='me-5 fs-5 opciones nav-item-op'>
-                  <Link to="/lineamientos" className="text-decoration-none text-dark">
+                <NavItem className='me-0 me-lg-5 fs-5 opciones nav-item-op'>
+                  <Link to="/lineamientos" className="text-decoration-none">
                     <p className='mb-0' style={{ color: "var(--color-morado2)" }}>Lineamientos</p>
                   </Link>
                 </NavItem>
               )}
 
-
-              <NavDropdown className='me-5 no-caret custom-dropdown' title={<img src={perfilIcon} style={{ width: '40px' }} alt="Perfil" />}>
+              <NavDropdown className='me-0 me-lg-3 no-caret custom-dropdown' title={<img src={perfilIcon} style={{ width: '38px' }} alt="Perfil" />}>
                 <NavDropdown.Item onClick={() => setShowProfileModal(true)}>Mi cuenta</NavDropdown.Item>
                 <NavDropdown.Item onClick={() => setModalShow(true)}>Cambiar contraseña</NavDropdown.Item>
                 <NavDropdown.Item onClick={handleLogout}>Cerrar sesión</NavDropdown.Item>

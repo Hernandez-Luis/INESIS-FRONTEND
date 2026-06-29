@@ -461,8 +461,8 @@ export const MiTutor = ({ onAdd, update }) => {
                             <p style={{ color: 'var(--color-gris1)' }}>Datos del padre, madre o tutor o familiar más cercano (preferiblemente, del que se depende económicamente)</p>
                             {/* DATOS PERSONALES */}
                             <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
-                            <div className="col-xs-12 col-lg-6">
-                                <div className="tarjeta-border h-100 w-100 p-4 p-lg-5 mb-4">
+                            <div className="col-12 col-lg-6">
+                                <div className="tarjeta-border h-100 w-100 p-3 p-md-4 p-lg-5 mb-4">
                                     <p className='fs-3' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Datos personales</p>
                                     {/* Nombre completo */}
                                     <label className='fs-5 mt-2' style={{ color: 'var(--color-morado2)' }} htmlFor="">Nombre completo <span style={{ color: 'red' }}>*</span></label>
@@ -478,7 +478,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     {errores.nombreTutor && <div className='text-danger'>{errores.nombreTutor}</div>}
 
                                     {/* Parentesco */}
-                                    <div className='w-100 w-lg-50 mt-3'>
+                                    <div className='w-100 mt-3'>
                                         <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Parentesco <span style={{ color: 'red' }}>*</span></label>
                                         <SeleccionarCombo
                                             name="parentesco"
@@ -494,11 +494,11 @@ export const MiTutor = ({ onAdd, update }) => {
                                     </div>
 
                                     {/* Línea divisoria */}
-                                    <div className="line mx-auto mt-5 mb-4"></div>
+                                    <div className="line mx-auto mt-3 mt-md-5 mb-2 mb-md-4"></div>
 
                                     {/* Teléfono y Correo */}
-                                    <div className="row mt-3">
-                                        <div className="col-12 col-md-6 mb-3">
+                                    <div className="d-flex flex-column flex-sm-row gap-3 mt-3">
+                                        <div className="flex-fill">
                                             <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Teléfono <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloNumerosPositivos}
@@ -512,7 +512,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                             {errores.telefono && <div className='text-danger'>{errores.telefono}</div>}
                                         </div>
 
-                                        <div className="col-12 col-md-6 mb-3">
+                                        <div className="flex-fill">
                                             <label className='fs-5' style={{ color: 'var(--color-morado2)' }} htmlFor="">Correo <span><OverlayTrigger
                                                 trigger="click"
                                                 placement="right"
@@ -554,7 +554,7 @@ export const MiTutor = ({ onAdd, update }) => {
                                     {errores.trabajadorSuneo && <div className='text-danger'>{errores.trabajadorSuneo}</div>}
 
                                     {/* Trabajo de quien dependes */}
-                                    <div className="row mt-4">
+                                    <div className="mt-4">
                                         <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es: <span style={{ color: 'red' }}>*</span></p>
                                         <RadioSelect
                                             gris={true}
@@ -570,8 +570,8 @@ export const MiTutor = ({ onAdd, update }) => {
                                     </div>
 
                                     {/* Ocupación y otro */}
-                                    <div className='row mt-4'>
-                                        <div className="col-12 col-md-6 mb-3">
+                                    <div className="d-flex flex-column flex-sm-row gap-3 mt-4">
+                                        <div className="flex-fill">
                                             <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación: <span style={{ color: 'red' }}>*</span></p>
                                             <SeleccionarCombo
                                                 name="ocupacion"
@@ -586,9 +586,9 @@ export const MiTutor = ({ onAdd, update }) => {
                                             {errores.ocupacion && <div className="text-danger">{errores.ocupacion}</div>}
                                         </div>
 
-                                        <div className="col-12 col-md-6">
+                                        <div className="flex-fill">
                                             {datosMiTutor?.ocupacion == 8 && (
-                                                <div className="mb-3">
+                                                <div>
                                                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Otro: <span style={{ color: 'red' }}>*</span></p>
                                                     <input
                                                         maxLength={36}
@@ -611,7 +611,7 @@ export const MiTutor = ({ onAdd, update }) => {
 
                             {/* DOMICILIO */}
                             <div className="col-12 col-lg-6 mt-4 mt-lg-0">
-                                <div className="tarjeta-border h-100 p-5">
+                                <div className="tarjeta-border h-100 w-100 p-3 p-md-4 p-lg-5">
                                     <label className='fs-3' style={{ color: 'var(--color-morado1)', fontWeight: 'bold' }} htmlFor="">Domicilio</label>
                                     <p style={{ color: 'var(--color-gris1)' }}>Indica la dirección de la persona de quien se depende económicamente, si éste es el caso, o de lo contrario, a la persona que se pueda localizar para aclaraciones.</p>
                                     <label className='mb-3' style={{ color: 'var(--color-morado2)' }} htmlFor="">¿El domicilio de tu tutor coincide con el que te encuentras actualmente? <span style={{ color: 'red' }}>*</span></label>
@@ -623,9 +623,9 @@ export const MiTutor = ({ onAdd, update }) => {
                                         value={boolToSiNo(datosMiTutor.comparteVivienda)}
                                     />
                                     {errores.comparteVivienda && <div className='text-danger'>{errores.comparteVivienda}</div>}
-                                    <div className="line mx-auto mt-5 mb-4"></div>
-                                    <div className='row'>
-                                        <div className="col-lg-4 mt-2">
+                                    <div className="line mx-auto mt-3 mt-md-5 mb-2 mb-md-4"></div>
+                                    <div className='row g-3'>
+                                        <div className="col-12 col-sm-4 col-lg-4">
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P. <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 onBeforeInput={soloNumerosPositivos}
@@ -640,32 +640,28 @@ export const MiTutor = ({ onAdd, update }) => {
                                             {errores.cp && <div className='text-danger'>{errores.cp}</div>}
 
                                         </div>
-                                        <div className='col-lg-4 mt-2'>
+                                        <div className='col-12 col-sm-4 col-lg-4'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                                            <div>
-                                                <input
-                                                    className='form-control'
-                                                    type="text"
-                                                    onChange={actualizarCamposDomicilio}
-                                                    value={datosDomicilio.estado}
-                                                    name='estado'
-                                                    disabled={true}
-                                                />
-                                            </div>
+                                            <input
+                                                className='form-control'
+                                                type="text"
+                                                onChange={actualizarCamposDomicilio}
+                                                value={datosDomicilio.estado}
+                                                name='estado'
+                                                disabled={true}
+                                            />
                                         </div>
-                                        <div className='col-lg-4 mt-2'>
+                                        <div className='col-12 col-sm-4 col-lg-4'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                                            <div>
-                                                <input
-                                                    className='form-control'
-                                                    type="text"
-                                                    value={datosDomicilio.municipio}
-                                                    name='municipio'
-                                                    disabled={true}
-                                                />
-                                            </div>
+                                            <input
+                                                className='form-control'
+                                                type="text"
+                                                value={datosDomicilio.municipio}
+                                                name='municipio'
+                                                disabled={true}
+                                            />
                                         </div>
-                                        <div className='col-lg-6 mt-2'>
+                                        <div className='col-12 col-sm-6'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 maxLength={50}
@@ -679,8 +675,8 @@ export const MiTutor = ({ onAdd, update }) => {
                                             />
                                             {errores.calle && <div className='text-danger'>{errores.calle}</div>}
                                         </div>
-                                        <div className="col-lg-6 mt-2">
-                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Numero <span style={{ color: 'red' }}>*</span></label>
+                                        <div className="col-12 col-sm-6">
+                                            <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número <span style={{ color: 'red' }}>*</span></label>
                                             <input
                                                 maxLength={10}
                                                 onBeforeInput={soloFormatoDirecciones}
@@ -693,44 +689,40 @@ export const MiTutor = ({ onAdd, update }) => {
                                             />
                                             {errores.numero && <div className='text-danger'>{errores.numero}</div>}
                                         </div>
-                                        <div className='col-lg-6 mt-2'>
+                                        <div className='col-12 col-sm-6'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                                            <div>
-                                                <SeleccionarCombo
-                                                    options={colonias.map(c => ({
-                                                        label: c,
-                                                        value: c
-                                                    }))}
-                                                    name={"colonia"}
-                                                    value={datosDomicilio.colonia}
-                                                    onChange={actualizarCamposDomicilio}
-                                                    placeholder="Selecciona una opción"
-                                                    disabled={disabled}
-                                                />
-                                            </div>
+                                            <SeleccionarCombo
+                                                options={colonias.map(c => ({
+                                                    label: c,
+                                                    value: c
+                                                }))}
+                                                name={"colonia"}
+                                                value={datosDomicilio.colonia}
+                                                onChange={actualizarCamposDomicilio}
+                                                placeholder="Selecciona una opción"
+                                                disabled={disabled}
+                                            />
                                         </div>
-                                        <div className='col-lg-6 mt-2'>
+                                        <div className='col-12 col-sm-6'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
-                                            <div>
-                                                <input
-                                                    maxLength={50}
-                                                    onBeforeInput={soloLetras}
-                                                    disabled={disabled}
-                                                    className={`form-control ${errores.localidad ? 'input-error' : ''}`}
-                                                    type="text"
-                                                    onChange={actualizarCamposDomicilio}
-                                                    value={datosDomicilio.localidad}
-                                                    name='localidad'
-                                                />
-                                                {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
-                                            </div>
+                                            <input
+                                                maxLength={50}
+                                                onBeforeInput={soloLetras}
+                                                disabled={disabled}
+                                                className={`form-control ${errores.localidad ? 'input-error' : ''}`}
+                                                type="text"
+                                                onChange={actualizarCamposDomicilio}
+                                                value={datosDomicilio.localidad}
+                                                name='localidad'
+                                            />
+                                            {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             {/* FIN DOMICILIO */}
                         </div>
-                        <div className='d-flex justify-content-center mb-3 mt-5'>
+                        <div className='d-flex justify-content-center mb-3 mt-3 mt-md-5'>
                             <button className='btn btn-midDatos' disabled={btnDisabled}>Guardar</button>
                         </div>
                     </form>

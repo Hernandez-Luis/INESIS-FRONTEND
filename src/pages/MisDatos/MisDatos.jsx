@@ -736,8 +736,8 @@ export const MisDatos = ({ onAdd, update }) => {
             <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
               {/* INICIO MODULO INFORMACION GENERAL */}
               <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
-              <div className="col-xs-12 col-lg-6 mb-4">
-                <div className='tarjeta-border p-4 d-flex flex-column mb-4 h-100' style={{ background: 'var(--color-morado2)', color: 'white' }}>
+              <div className="col-12 col-lg-6 mb-4">
+                <div className='tarjeta-border p-3 p-md-4 d-flex flex-column h-100' style={{ background: 'var(--color-morado2)', color: 'white' }}>
                   <div className='row me-lg-5'>
                     <p className='fs-2' style={{ color: 'white', fontWeight: 'bolder' }}>Información general</p>
                     <div className='d-flex flex-column flex-md-row align-items-start align-items-md-center p-2'>
@@ -750,9 +750,9 @@ export const MisDatos = ({ onAdd, update }) => {
                       <label>{datosAlumno.carrera?.nombreCarrera || ''}</label>
                     </div>
 
-                    <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Semestre: <span style={{ color: 'red' }}>*</span></label>
-                      <div className='w-50'>
+                    <div className='mt-4'>
+                      <label className='fs-5 d-block mb-2' style={{ fontWeight: 'bold' }}>Semestre: <span style={{ color: 'red' }}>*</span></label>
+                      <div className='w-100 w-sm-50'>
                         <SeleccionarCombo
                           name="semestre"
                           options={catSemestres.map(s => ({
@@ -801,9 +801,9 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
                     {errores.recursosSuficientes && <div style={{ color: 'orange' }}>{errores.recursosSuficientes}</div>}
 
-                    <div className='mt-4 d-flex flex-column flex-md-row align-items-start align-items-md-center'>
-                      <label className='fs-5 me-md-3 mb-2 mb-md-0' style={{ fontWeight: 'bold' }}>Correo:</label>
-                      <div className='w-xs-100 me-4 mb-2 mb-md-0'>
+                    <div className='mt-4 row g-3'>
+                      <div className='col-12 col-md-6'>
+                        <label className='fs-5 d-block mb-1' style={{ fontWeight: 'bold' }}>Correo:</label>
                         <input
                           maxLength={40}
                           type="email"
@@ -815,9 +815,8 @@ export const MisDatos = ({ onAdd, update }) => {
                         />
                         {errores.correo && <div style={{ color: 'orange' }}>{errores.correo}</div>}
                       </div>
-
-                      <label className='fs-5 me-md-3' style={{ fontWeight: 'bold' }}>Teléfono:</label>
-                      <div className='w-xs-100'>
+                      <div className='col-12 col-md-6'>
+                        <label className='fs-5 d-block mb-1' style={{ fontWeight: 'bold' }}>Teléfono:</label>
                         <input
                           type="telefono"
                           className={`form-control ${errores.telefono ? 'input-error' : ''}`}
@@ -830,7 +829,6 @@ export const MisDatos = ({ onAdd, update }) => {
                         />
                         {errores.telefono && <div style={{ color: 'orange' }}>{errores.telefono}</div>}
                       </div>
-
                     </div>
 
                   </div>
@@ -839,13 +837,13 @@ export const MisDatos = ({ onAdd, update }) => {
               {/* FIN MODULO INFORMACION GENERAl */}
 
               {/* INICIO MODULO DOMICILIO */}
-              <div className="col-xs-12 col-lg-6 h-100 mb-4">
-                <div className='tarjeta-border d-flex flex-column p-4'>
-                  <div className='row'>
-                    <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
+              <div className="col-12 col-lg-6 mb-4">
+                <div className='tarjeta-border d-flex flex-column p-3 p-md-4 h-100'>
+                  <div className='d-flex flex-column gap-3'>
+                    <p className='fs-2 mb-0' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
 
                     {/* Situación de vivienda */}
-                    <div className='mt-2 mb-2'>
+                    <div>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Marque la opción que mejor describa tu situación de vivienda:  <span style={{ color: 'red' }}>*</span></label>
                       <RadioSelect
                         gris={true}
@@ -861,104 +859,109 @@ export const MisDatos = ({ onAdd, update }) => {
                     </div>
 
                     {/* Dirección */}
-                    <label className='fs-5 mt-4' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual: <span style={{ color: 'red' }}>*</span></label>
+                    <label className='fs-5 mb-0' style={{ color: 'var(--color-morado3)' }}>Indica tu dirección actual: <span style={{ color: 'red' }}>*</span></label>
 
-                    <div className="col-12 col-md-4 mt-2 mb-2">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P. <span style={{ color: 'red' }}>*</span></label>
-                      <input
-                        maxLength={5}
-                        onBeforeInput={soloNumerosPositivos}
-                        className={`form-control ${errores.cp ? 'input-error' : ''}`}
-                        type="text"
-                        onChange={actualizarCamposDomicilio}
-                        value={dataDomicilio.cp}
-                        name={"cp"}
-                      />
-                      {errores.cp && <div className='text-danger'>{errores.cp}</div>}
+                    {/* CP, Estado, Municipio */}
+                    <div className='d-flex flex-column flex-md-row gap-3'>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>C.P. <span style={{ color: 'red' }}>*</span></label>
+                        <input
+                          maxLength={5}
+                          onBeforeInput={soloNumerosPositivos}
+                          className={`form-control ${errores.cp ? 'input-error' : ''}`}
+                          type="text"
+                          onChange={actualizarCamposDomicilio}
+                          value={dataDomicilio.cp}
+                          name={"cp"}
+                        />
+                        {errores.cp && <div className='text-danger'>{errores.cp}</div>}
+                      </div>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
+                        <input
+                          className='form-control'
+                          type="text"
+                          onChange={actualizarCamposDomicilio}
+                          value={dataDomicilio.estado}
+                          name='estado'
+                          disabled={true}
+                        />
+                        {errores.estado && <div className='text-danger'>{errores.estado}</div>}
+                      </div>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
+                        <input
+                          className='form-control'
+                          type="text"
+                          value={dataDomicilio.municipio}
+                          name='municipio'
+                          disabled={true}
+                        />
+                        {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
+                      </div>
                     </div>
 
-                    <div className='col-12 col-md-4 mt-2 mb-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                      <input
-                        className='form-control'
-                        type="text"
-                        onChange={actualizarCamposDomicilio}
-                        value={dataDomicilio.estado}
-                        name='estado'
-                        disabled={true}
-                      />
-                      {errores.estado && <div className='text-danger'>{errores.estado}</div>}
+                    {/* Calle y Número */}
+                    <div className='d-flex flex-column flex-sm-row gap-3'>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
+                        <input
+                          maxLength={50}
+                          className={`form-control ${errores.calle ? 'input-error' : ''}`}
+                          type="text"
+                          onBeforeInput={soloFormatoDirecciones}
+                          name={"calle"}
+                          value={dataDomicilio.calle}
+                          onChange={actualizarCamposDomicilio}
+                        />
+                        {errores.calle && <div className='text-danger'>{errores.calle}</div>}
+                      </div>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número <span style={{ color: 'red' }}>*</span></label>
+                        <input
+                          maxLength={10}
+                          onBeforeInput={soloFormatoDirecciones}
+                          className={`form-control ${errores.numero ? 'input-error' : ''}`}
+                          type="text"
+                          name={"numero"}
+                          value={dataDomicilio.numero}
+                          onChange={actualizarCamposDomicilio}
+                        />
+                        {errores.numero && <div className='text-danger'>{errores.numero}</div>}
+                      </div>
                     </div>
 
-                    <div className='col-12 col-md-4 mt-2 mb-2'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                      <input
-                        className='form-control'
-                        type="text"
-                        value={dataDomicilio.municipio}
-                        name='municipio'
-                        disabled={true}
-                      />
-                      {errores.municipio && <div className='text-danger'>{errores.municipio}</div>}
+                    {/* Colonia y Localidad */}
+                    <div className='d-flex flex-column flex-sm-row gap-3'>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
+                        <SeleccionarCombo
+                          options={colonias.map(c => ({
+                            label: c,
+                            value: c
+                          }))}
+                          name={"colonia"}
+                          value={dataDomicilio.colonia}
+                          onChange={actualizarCamposDomicilio}
+                          placeholder="Selecciona una opción"
+                        />
+                      </div>
+                      <div className='flex-fill'>
+                        <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
+                        <input
+                          maxLength={50}
+                          onBeforeInput={soloLetras}
+                          className={`form-control ${errores.localidad ? 'input-error' : ''}`}
+                          type="text"
+                          onChange={actualizarCamposDomicilio}
+                          value={dataDomicilio.localidad}
+                          name='localidad'
+                        />
+                        {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
+                      </div>
                     </div>
 
-                    <div className='col-12 col-md-6 mt-2 mb-3'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Calle <span style={{ color: 'red' }}>*</span></label>
-                      <input
-                        maxLength={50}
-                        className={`form-control ${errores.calle ? 'input-error' : ''}`}
-                        type="text"
-                        onBeforeInput={soloFormatoDirecciones}
-                        name={"calle"}
-                        value={dataDomicilio.calle}
-                        onChange={actualizarCamposDomicilio}
-                      />
-                      {errores.calle && <div className='text-danger'>{errores.calle}</div>}
-                    </div>
-
-                    <div className="col-12 col-md-6 mt-2 mb-3">
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Número <span style={{ color: 'red' }}>*</span></label>
-                      <input
-                        maxLength={10}
-                        onBeforeInput={soloFormatoDirecciones}
-                        className={`form-control ${errores.numero ? 'input-error' : ''}`}
-                        type="text"
-                        name={"numero"}
-                        value={dataDomicilio.numero}
-                        onChange={actualizarCamposDomicilio}
-                      />
-                      {errores.numero && <div className='text-danger'>{errores.numero}</div>}
-                    </div>
-
-                    <div className='col-12 col-md-6 mt-2 mb-3'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Colonia</label>
-                      <SeleccionarCombo
-                        options={colonias.map(c => ({
-                          label: c,
-                          value: c
-                        }))}
-                        name={"colonia"}
-                        value={dataDomicilio.colonia}
-                        onChange={actualizarCamposDomicilio}
-                        placeholder="Selecciona una opción"
-                      />
-                    </div>
-
-                    <div className='col-12 col-md-6 mt-2 mb-3'>
-                      <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Localidad <span style={{ color: 'red' }}>*</span></label>
-                      <input
-                        maxLength={50}
-                        onBeforeInput={soloLetras}
-                        className={`form-control ${errores.localidad ? 'input-error' : ''}`}
-                        type="text"
-                        onChange={actualizarCamposDomicilio}
-                        value={dataDomicilio.localidad}
-                        name='localidad'
-                      />
-                      {errores.localidad && <div className='text-danger'>{errores.localidad}</div>}
-                    </div>
-
-                    <div className="col-12 mt-2">
+                    <div>
                       <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la casa de huéspedes o propietario <span style={{ color: 'red' }}>* </span>
                         <OverlayTrigger
                           trigger="click"
@@ -1009,7 +1012,8 @@ export const MisDatos = ({ onAdd, update }) => {
                     <input
                       maxLength={10}
                       onBeforeInput={soloNumerosPositivosConDosDecimales}
-                      className={`form-control w-25 ${errores.gastoMensual ? 'input-error' : ''}`}
+                      className={`form-control ${errores.gastoMensual ? 'input-error' : ''}`}
+                      style={{ maxWidth: '200px' }}
                       type="text"
                       name="gastoMensual"
                       onChange={actualizarCampoGastosIngresos}
@@ -1018,7 +1022,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     {errores.gastoMensual && <div className="text-danger">{errores.gastoMensual}</div>}
                   </div>
 
-                  <div className='col-12 col-md-4 d-flex flex-column align-items-center text-center mb-4'>
+                  <div className='col-12 col-md-4 d-flex flex-column align-items-start align-items-md-center text-md-center mb-4'>
                     <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>
                       ¿Dependes económicamente? <span style={{ color: 'red' }}>*</span>
                     </p>
@@ -1050,7 +1054,8 @@ export const MisDatos = ({ onAdd, update }) => {
                           <input
                             onBeforeInput={soloNumerosPositivos}
                             type="text"
-                            className={`form-control w-25 ${errores.personasComparteRenta ? 'input-error' : ''}`}
+                            className={`form-control ${errores.personasComparteRenta ? 'input-error' : ''}`}
+                            style={{ maxWidth: '200px' }}
                             name="personasComparteRenta"
                             onChange={actualizarCampoGastosIngresos}
                             value={dataGastosIngresos.personasComparteRenta}
@@ -1065,7 +1070,8 @@ export const MisDatos = ({ onAdd, update }) => {
                           <input
                             onBeforeInput={soloNumerosPositivosConDosDecimales}
                             type="text"
-                            className={`form-control w-25 ${errores.pagoRentaMensual ? 'input-error' : ''}`}
+                            className={`form-control ${errores.pagoRentaMensual ? 'input-error' : ''}`}
+                            style={{ maxWidth: '200px' }}
                             name="pagoRentaMensual"
                             onChange={actualizarCampoGastosIngresos}
                             value={dataGastosIngresos.pagoRentaMensual}
@@ -1079,7 +1085,7 @@ export const MisDatos = ({ onAdd, update }) => {
                 {(recursos === 'Si' || recursos === true) && (
                   <div className="row">
                     <div className="line mx-auto mt-5 mb-4"></div>
-                    <div className="col-xs-12 col-lg-5 mb-4">
+                    <div className="col-12 col-lg-5 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Nombre de la persona de la cuál dependes económicamente: <span style={{ color: 'red' }}>*</span></p>
                       <input
                         maxLength={50}
@@ -1093,7 +1099,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.nombreQuienDependes && <div className="text-danger">{errores.nombreQuienDependes}</div>}
                     </div>
 
-                    <div className="col-lg-3 col-md-4 mb-4">
+                    <div className="col-12 col-md-4 col-lg-3 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>El trabajo de quien dependes es: <span style={{ color: 'red' }}>*</span></p>
                       <RadioSelect
                         gris={true}
@@ -1108,7 +1114,7 @@ export const MisDatos = ({ onAdd, update }) => {
                       {errores.trabajoTipo && <div className="text-danger">{errores.trabajoTipo}</div>}
                     </div>
 
-                    <div className="col-lg-3 col-md-4 mb-4">
+                    <div className="col-12 col-md-4 col-lg-3 mb-4">
                       <p className='fs-5' style={{ color: 'var(--color-morado3)' }}>Indica su ocupación: <span style={{ color: 'red' }}>*</span></p>
                       <SeleccionarCombo
                         name="ocupacion"
@@ -1223,10 +1229,10 @@ export const MisDatos = ({ onAdd, update }) => {
 
             <div className="mx-lg-5 mt-5">
 
-              <div className="d-flex flex-column flex-md-row gap-4 ">
+              <div className="d-flex flex-column flex-md-row gap-4">
                 {/* MODULO TRANSPORTE */}
-                <div className="col-12 col-md-6">
-                  <div className="tarjeta-border p-3 p-md-5 h-100">
+                <div className="flex-fill">
+                  <div className="tarjeta-border p-3 p-md-5 h-100 w-100">
                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Transporte</p>
 
                     <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Llevas automóvil cotidianamente a la universidad? <span style={{ color: 'red' }}>*</span></label>
@@ -1242,7 +1248,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     {(tieneAutomovil === 'Si' || tieneAutomovil === true) && (
                       <div>
                         <div className="row mt-4 gy-3">
-                          <div className="col-12 col-lg-4">
+                          <div className="col-12 col-sm-5 col-lg-4">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
                             <input
                               maxLength={20}
@@ -1256,7 +1262,7 @@ export const MisDatos = ({ onAdd, update }) => {
                             {errores.marcaAutomovil && <div className='text-danger'>{errores.marcaAutomovil}</div>}
 
                           </div>
-                          <div className="col-xs-2 col-lg-3">
+                          <div className="col-12 col-sm-5 col-lg-4">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
                             <input
                               maxLength={20}
@@ -1270,7 +1276,7 @@ export const MisDatos = ({ onAdd, update }) => {
                             {errores.modeloAutomovil && <div className='text-danger'>{errores.modeloAutomovil}</div>}
 
                           </div>
-                          <div className="col-xs-2 col-lg-2">
+                          <div className="col-12 col-sm-2 col-lg-2">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
                             <input
                               onBeforeInput={soloNumerosPositivos}
@@ -1302,7 +1308,7 @@ export const MisDatos = ({ onAdd, update }) => {
                     {(tieneMotocicleta === 'Si' || tieneMotocicleta === true) && (
                       <div>
                         <div className="row mt-4 gy-3">
-                          <div className="col-12 col-lg-4">
+                          <div className="col-12 col-sm-5 col-lg-4">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Marca <span style={{ color: 'red' }}>*</span></label>
                             <input
                               maxLength={20}
@@ -1316,7 +1322,7 @@ export const MisDatos = ({ onAdd, update }) => {
                             {errores.marcaMotocicleta && <div className='text-danger'>{errores.marcaMotocicleta}</div>}
 
                           </div>
-                          <div className="col-xs-2 col-lg-3">
+                          <div className="col-12 col-sm-5 col-lg-4">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Modelo <span style={{ color: 'red' }}>*</span></label>
                             <input
                               maxLength={20}
@@ -1330,7 +1336,7 @@ export const MisDatos = ({ onAdd, update }) => {
                             {errores.modeloMotocicleta && <div className='text-danger'>{errores.modeloMotocicleta}</div>}
 
                           </div>
-                          <div className="col-xs-2 col-lg-2">
+                          <div className="col-12 col-sm-2 col-lg-2">
                             <label className='fs-5 mb-2' style={{ color: 'var(--color-morado3)' }}>Año <span style={{ color: 'red' }}>*</span></label>
                             <input
                               onBeforeInput={soloNumerosPositivos}
@@ -1369,8 +1375,8 @@ export const MisDatos = ({ onAdd, update }) => {
                 {/* FIN MODULO TRANSPORTE */}
 
                 {/* INFORMACION COMPLEMENTARIA */}
-                <div className="col-12 col-md-6">
-                  <div className="tarjeta-border p-3 p-md-5 h-100">
+                <div className="flex-fill">
+                  <div className="tarjeta-border p-3 p-md-5 h-100 w-100">
                     <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bold' }}>Información complementaria</p>
 
                     <label className='fs-5 mb-3' style={{ color: 'var(--color-morado3)' }}>¿Eres hijo o nieto de comunero de Ixtlán de Juárez? <span style={{ color: 'red' }}>*</span></label>
@@ -1422,7 +1428,7 @@ export const MisDatos = ({ onAdd, update }) => {
                         <i className="bi bi-info-circle"></i>
                       </span>
                     </OverlayTrigger></label>
-                    <div className="col-xs-4 col-lg-4">
+                    <div className="col-12 col-sm-6 col-lg-4">
                       <input
                         maxLength={20}
                         onBeforeInput={soloLetras}

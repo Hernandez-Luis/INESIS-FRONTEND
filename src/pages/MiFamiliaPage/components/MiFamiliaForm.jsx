@@ -1325,17 +1325,17 @@ const MiFamiliaForm = () => {
     // ******************************************************************************************************
     return (
         <div className='d-flex flex-column min-vh-100'>
-            <div className='flex-grow-1 px-4 px-md-0'>
+            <div className='flex-grow-1 px-4 px-lg-0'>
                 <form onSubmit={(e) => { e.preventDefault(); }}>
-                    <div className='row mx-lg-5 mt-4 d-flex justify-content-center'>
+                    <div className='row g-0 mx-lg-5 mt-4 d-flex justify-content-center'>
                         <p>Los <span style={{ color: 'red' }}>*</span> significan que el campo es obligatorio.</p>
 
-                        <div className='tarjeta-border p-4 mb-2'>
-                            <div className='row'>
+                        <div className='tarjeta-border p-3 p-md-4 mb-2'>
+                            <div className='row px-2 px-md-4'>
                                 <p className='fs-2' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>Domicilio</p>
                                 <div className='mt-2'>
                                     <div className='d-flex justify-content-start align-items-center flex-wrap'>
-                                        <label className='fs-5 me-5' style={{ color: 'var(--color-morado3)' }}>
+                                        <label className='fs-5 me-2 me-md-5' style={{ color: 'var(--color-morado3)' }}>
                                             ¿El domicilio de tu familia coincide con...?
                                             <span style={{ color: 'red' }}>*</span>
 
@@ -1377,22 +1377,18 @@ const MiFamiliaForm = () => {
 
                                         <div className='col-12 col-md-4 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Estado</label>
-                                            <div>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    onChange={actualizarCamposDomicilio}
-                                                    value={dataDomicilio.estado}
-                                                    name='estado'
-                                                    disabled={true}
-                                                />
-                                            </div>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                onChange={actualizarCamposDomicilio}
+                                                value={dataDomicilio.estado}
+                                                name='estado'
+                                                disabled={true}
+                                            />
                                         </div>
                                         <div className='col-12 col-md-6 mt-2'>
                                             <label className='fs-5' style={{ color: 'var(--color-morado3)' }}>Municipio</label>
-                                            <div>
-                                                <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
-                                            </div>
+                                            <input className='form-control' type="text" value={dataDomicilio.municipio} name='municipio' disabled={true} />
                                         </div>
 
                                         <div className="col-12 col-md-3 mt-2">
@@ -1535,10 +1531,10 @@ const MiFamiliaForm = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="row mx-lg-5 mt-4 d-flex justify-content-center">
+                    <div className="row g-0 mx-lg-5 mt-4 d-flex justify-content-center">
                         {/* Tarjeta combinada para Contacto y Escolaridad */}
-                        <div className="tarjeta-border p-4 mb-4 w-100">
-                            <div className="row px-4">
+                        <div className="tarjeta-border p-3 p-md-4 mb-4 w-100">
+                            <div className="row px-2 px-md-4">
                                 {/* Columna 1: Contacto */}
                                 <div className="col-12 col-md-4 d-flex flex-column mb-4 mb-md-0">
                                     <p className="fs-2" style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
@@ -1621,12 +1617,12 @@ const MiFamiliaForm = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                            <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-3 p-md-4 mb-4">
+                            <p className='fs-2 px-2 px-md-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Vivienda
                             </p>
-                            <div className="row px-4 ">
-                                <div className="col-12 col-md-3 mb-3">
+                            <div className="row px-2 px-md-4">
+                                <div className="col-12 col-md-4 col-lg-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         La casa donde tu familia es:
                                         <span style={{ color: 'red' }}>*</span>
@@ -1650,7 +1646,7 @@ const MiFamiliaForm = () => {
                                     )}
                                 </div>
 
-                                <div className="col-12 col-md-3 mb-3">
+                                <div className="col-12 col-md-4 col-lg-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Tipo de vivienda
                                         <span style={{ color: 'red' }}>*</span>
@@ -1671,7 +1667,7 @@ const MiFamiliaForm = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="col-12 col-md-3 mb-3">
+                                <div className="col-12 col-md-4 col-lg-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         Material de construcción
                                         <span style={{ color: 'red' }}>*</span>
@@ -1702,7 +1698,7 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <div className="row">
                                         {[0, 1, 2].map((col) => (
-                                            <div className="col-md-4" key={col}>
+                                            <div className="col-6 col-md-4" key={col}>
                                                 {serviciosOtro
                                                     .filter((_, idx) => idx % 3 === col)
                                                     .map((otro) => (
@@ -1749,7 +1745,7 @@ const MiFamiliaForm = () => {
 
                                 </div>
                             </div>
-                            <div className='row gap-3 px-4'>
+                            <div className='row gap-3 px-2 px-md-4'>
                                 <div className={`col-12 col-md-12 ${erroresFormulario.bienesHogar ? 'border-danger' : 'border-secondary'}`}>
                                     <label className="fs-5 mb-3 d-block" style={{ color: 'var(--color-morado3)' }}>
                                         ¿En la casa donde vive tu familia hay?
@@ -1757,7 +1753,7 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <div className="row">
                                         {[0, 1, 2].map((col) => (
-                                            <div className="col-md-3" key={col}>
+                                            <div className="col-6 col-md-4" key={col}>
                                                 {bienesHogar
                                                     .filter((_, idx) => idx % 3 === col)
                                                     .map((bien) => (
@@ -1783,12 +1779,12 @@ const MiFamiliaForm = () => {
                             </div>
                         </div>
 
-                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4 ">
-                            <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-3 p-md-4 mb-4">
+                            <p className='fs-2 px-2 px-md-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Información complementaria
                             </p>
-                            <div className="row gab-3 px-4">
-                                <div className="col-md-4 mb-3">
+                            <div className="row gab-3 px-2 px-md-4">
+                                <div className="col-12 col-md-4 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Cuántas personas habitan en la vivienda?
                                         <span style={{ color: 'red' }}>*</span>
@@ -1814,7 +1810,7 @@ const MiFamiliaForm = () => {
                                     </label>
                                     <div className="row">
                                         {[0, 1, 2].map((col) => (
-                                            <div className="col-md-3" key={col}>
+                                            <div className="col-6 col-md-4" key={col}>
                                                 {mediosEstudio
                                                     .filter((_, idx) => idx % 3 === col)
                                                     .map((item) => (
@@ -1838,12 +1834,12 @@ const MiFamiliaForm = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-12 col-md-3 mb-3 px-4">
+                            <div className="col-12 col-md-4 mb-3 px-2 px-md-4">
                                 <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                     ¿Cuenta con acceso a internet?
                                     <span style={{ color: 'red' }}>*</span>
                                 </label>
-                                <div className="col-md-12">
+                                <div className="col-12">
                                     <select
                                         name="accesoInternet"
                                         className={`form-select ${erroresFormulario.accesoInternet ? 'is-invalid' : ''}`}
@@ -1867,8 +1863,9 @@ const MiFamiliaForm = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-4 mb-4">
-                            <div className="d-flex align-items-center justify-content-between mb-3 px-4">
+
+                        <div className="col-12 col-md-12 tarjeta-border d-flex flex-column p-3 p-md-4 mb-4">
+                            <div className="d-flex align-items-center justify-content-between mb-3 px-2 px-md-4">
                                 <button
                                     type="button"
                                     className="btn btn-link p-0 ms-auto"
@@ -1881,7 +1878,7 @@ const MiFamiliaForm = () => {
                             </div>
                             {/* Panel de ayuda expandible */}
                             {mostrarAyuda && (
-                                <div className="alert alert-info mx-4" style={{
+                                <div className="alert alert-info mx-2 mx-md-4" style={{
                                     backgroundColor: '#e8f4fd',
                                     borderLeft: '4px solid var(--color-morado3)',
                                     borderRadius: '8px'
@@ -1919,12 +1916,12 @@ const MiFamiliaForm = () => {
                                     </div>
                                 </div>
                             )}
-                            <p className='fs-2 px-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
+                            <p className='fs-2 px-2 px-md-4' style={{ color: 'var(--color-morado2)', fontWeight: 'bolder' }}>
                                 Hermanos
                             </p>
-                            <div className="row px-4">
+                            <div className="row px-2 px-md-4">
                                 {/* ¿Cuántos hermanos tienes? */}
-                                <div className="col-10 col-md-3 mb-3">
+                                <div className="col-12 col-md-3 mb-3">
                                     <label className="fs-5" style={{ color: 'var(--color-morado3)' }}>
                                         ¿Cuántos hermanos tienes? 	<span style={{ color: 'red' }}>*</span>
 
@@ -2004,8 +2001,8 @@ const MiFamiliaForm = () => {
                             </div>
                         </div>
 
-                        <div className="col-12 tarjeta-border d-flex flex-column p-4 mb-4 w-100">
-                            <p className="fs-2 ms-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
+                        <div className="col-12 tarjeta-border d-flex flex-column p-3 p-md-4 mb-4 w-100">
+                            <p className="fs-2 ms-2 ms-md-4" style={{ color: "var(--color-morado2)", fontWeight: "bolder" }}>
                                 Personas dependientes
                             </p>
                             <div className="col-12 col-md-8 mb-3 px-3">
@@ -2024,7 +2021,7 @@ const MiFamiliaForm = () => {
                             </div>
                             {/* Renderizar dinámicamente los formularios según el número de dependienÑtes */}
                             {dependientes.map((dep, index) => (
-                                <div key={index} className="col-12 tarjeta-border p-4 mb-3">
+                                <div key={index} className="col-12 tarjeta-border p-3 p-md-4 mb-3">
                                     <div className="row">
                                         <div className="fs-5 col-12 col-md-3 mb-3">
                                             <label style={{ color: 'var(--color-morado3)' }} >Nombre completo:<span style={{ color: 'red' }}>*</span></label>

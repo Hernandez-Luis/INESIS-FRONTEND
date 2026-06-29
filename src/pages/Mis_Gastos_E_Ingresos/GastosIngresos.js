@@ -17,29 +17,47 @@ const GastosIngresos = () => {
 
     return (
         <div className="d-flex flex-column min-vh-100">
-            {/* Contenedor relativo para ubicar migas detrás del Nav */}
-            <div className="position-relative">
-                <NavInesis />
-
-                <MigasRecorrido
-                    items={links}
-                    className="position-absolute top-0 start-0 mt-3 ms-3 z-index-0"
-                />
-            </div>
+            <NavInesis />
+            <MigasRecorrido items={links} />
 
 
-            <div className="container d-flex justify-content-center text-center " style={{maxWidth: "1900px"}} >
-                <div className=" p-1" style={{ color: "#4F46E5" }} >
-                <h1 className="text-start">GASTOS E INGRESOS FAMILIARES</h1>
-                    <div className="text-secondary text-start">
-                        <h6>
-                            Deberás incluir <strong>TODAS</strong> las fuentes de ingreso familiar, y deberá acompañarse de comprobantes oficiales de ingresos.
-                            En caso de no depender económicamente de otras personas, deberá presentarse comprobante oficial de ingresos del alumno.<br />
-                            Se deberán reportar el ingreso bruto así como el ingreso neto.<br />
-                            Los datos de agua y consumo de electricidad deberán corresponder al semestre más reciente y deberán ser del domicilio del padre, madre o tutor.
-                            En el caso de no depender económicamente, deberán ser del domicilio del alumno.
-                        </h6>
+            <div className="container-fluid px-3 px-md-4" style={{ maxWidth: "1700px" }}>
+                <h2 className="mt-3 mb-3" style={{ color: "#4F46E5", fontWeight: 700 }}>
+                    GASTOS E INGRESOS FAMILIARES
+                </h2>
+
+                <div
+                    className="rounded-3 p-3 p-md-4 mb-4"
+                    style={{
+                        background: "linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%)",
+                        borderLeft: "5px solid #4F46E5",
+                        boxShadow: "0 2px 8px rgba(79,70,229,0.10)"
+                    }}
+                >
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                        <i className="bi bi-exclamation-circle-fill fs-5" style={{ color: "#4F46E5" }}></i>
+                        <span className="fw-bold fs-6" style={{ color: "#4F46E5" }}>Instrucciones importantes — lee antes de continuar</span>
                     </div>
+
+                    <ul className="mb-0 d-flex flex-column gap-2" style={{ color: "#374151", paddingLeft: "1.2rem" }}>
+                        <li>
+                            Deberás incluir{" "}
+                            <strong style={{ color: "#4F46E5" }}>TODAS</strong>{" "}
+                            las fuentes de ingreso familiar, acompañadas de{" "}
+                            <strong>comprobantes oficiales de ingresos</strong>.
+                            En caso de no depender económicamente de otras personas, presenta comprobante oficial de ingresos del alumno.
+                        </li>
+                        <li>
+                            Se deberán reportar el{" "}
+                            <strong>ingreso bruto</strong> y el{" "}
+                            <strong>ingreso neto</strong>.
+                        </li>
+                        <li>
+                            Los datos de agua y consumo de electricidad deben corresponder al{" "}
+                            <strong>semestre más reciente</strong> y ser del domicilio del padre, madre o tutor.
+                            En caso de no depender económicamente, del domicilio del alumno.
+                        </li>
+                    </ul>
                 </div>
             </div>
             <FinancialForm />
